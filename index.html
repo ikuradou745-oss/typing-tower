@@ -128,7 +128,7 @@
         }
 
         #word-display {
-            font-size: 56px;
+            font-size: 48px;
             font-weight: 700;
             color: var(--field-green);
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
@@ -136,8 +136,8 @@
         }
 
         #romaji-display {
-            font-size: 38px;
-            letter-spacing: 6px;
+            font-size: 32px;
+            letter-spacing: 4px;
             color: #cbd5e1;
             font-family: 'Courier New', monospace;
             font-weight: 500;
@@ -633,64 +633,33 @@ const Sound = {
 };
 Sound.init();
 
-// ----- 修正された単語リスト (長文 & ん=nn, っ=子音重ね) -----
+// ----- ★★★ 修正された単語リスト (指定された風景描写) ★★★ -----
 const WORD_LIST = [
-    // 長めの単語・フレーズ (10文字前後)
-    {k: "あいうえおかきくけこ", r: "aiueokakikukeko"},
-    {k: "さしすせそたちつてと", r: "sasisusesotatituteto"},      // つ=tu
-    {k: "なにぬねのはひふへほ", r: "naninunenohahihuheho"},
-    {k: "まみむめもやゆよらり", r: "mamimumemoyayuyorari"},
-    {k: "るれろわをん", r: "rurerorowawonn"},                 // ん=nn
-    {k: "がぎぐげござじずぜぞ", r: "gagigugegozazizuzezo"},
-    {k: "だぢづでどばびぶべぼ", r: "dadidudedobabibubebo"},
-    {k: "ぱぴぷぺぽ", r: "papipupepo"},
-    {k: "きゃきゅきょ", r: "kyakyukyo"},
-    {k: "しゃしゅしょ", r: "syasyusyo"},
-    {k: "ちゃちゅちょ", r: "tyatyutyo"},
-    {k: "にゃにゅにょ", r: "nyanyunyo"},
-    {k: "ひゃひゅひょ", r: "hyahyuhyo"},
-    {k: "みゃみゅみょ", r: "myamyumyo"},
-    {k: "りゃりゅりょ", r: "ryaryuryo"},
-    {k: "ぎゃぎゅぎょ", r: "gyagyugyo"},
-    {k: "じゃじゅじょ", r: "zyazyuzyo"},
-    {k: "びゃびゅびょ", r: "byabyubyo"},
-    {k: "ぴゃぴゅぴょ", r: "pyapyupyo"},
-    {k: "がっこう", r: "gakkou"},                              // っ = 子音重ね (kk)
-    {k: "きって", r: "kitte"},                                // っ = tt
-    {k: "ざっし", r: "zasshi"},                               // っ = ss
-    {k: "いっぱい", r: "ippai"},                              // っ = pp
-    {k: "しんかんせん", r: "shinkansen"},                      // ん=n (nnでも可だが通常n)
-    {k: "にほんご", r: "nihongo"},
-    {k: "ぴょんぴょん", r: "pyonpyon"},
-    {k: "じゃんけんぽん", r: "jyankenpon"},
-    {k: "めんどくさい", r: "mendokusai"},
-    {k: "ありがとうございます", r: "arigatougozaimasu"},
-    {k: "おはようございます", r: "ohayougozaimasu"},
-    {k: "こんにちは", r: "konnitiha"},                        // ん=nn
-    {k: "こんばんは", r: "konbanwa"},
-    {k: "さようなら", r: "sayounara"},
-    {k: "はじめまして", r: "hazimemasite"},
-    {k: "よろしくおねがいします", r: "yorosikuonegaisimasu"},
-    {k: "たのしかったです", r: "tanosikattadesu"},
-    {k: "おつかれさまでした", r: "otukaresamadesita"},
-    {k: "またあした", r: "mataasita"},
-    {k: "せんそう", r: "sensou"},
-    {k: "へいわ", r: "heiwa"},
-    {k: "ぼうえい", r: "bouei"},
-    {k: "たいぴんぐ", r: "taipingu"},
-    {k: "げーむ", r: "geemu"},
-    {k: "たのしい", r: "tanosii"},
-    {k: "むずかしい", r: "muzukasii"},
-    {k: "がんばる", r: "ganbaru"},
-    {k: "かんたん", r: "kantan"},
-    {k: "ちょっとまって", r: "tyottomatte"},
-    {k: "すごいですね", r: "sugoidesune"},
-    {k: "おめでとう", r: "omedetou"},
+    {k: "桜の花びら舞う夜空の下", r: "sakuranohanabiramauyozoranosita"},
+    {k: "静かな森で光る蛍たち", r: "sizukanamoridehikaruhotarutati"},
+    {k: "冬の雪道白く輝いている", r: "huyunoyukimitisirokukagayaiteru"},
+    {k: "川のせせらぎ鳥のさえずり", r: "kawanoseseragitorinosaezuri"},
+    {k: "青い海と広がる水平線", r: "aoiumitohirogarusuiheisen"},
+    {k: "夕焼け空に染まる街並み", r: "yuuyakesoranisomarumatinami"},
+    {k: "古い神社に響く鈴の音", r: "huruzinzyanihizukusuzunone"},
+    {k: "星空の下で願いをかける", r: "hosizoranositadeneagaiwokakeru"},
+    {k: "春の風が優しく頬を撫でる", r: "harunokazegayasasikuhowonaderu"},
+    {k: "夏の海辺で遊ぶ子供たち", r: "natunoumibedeasobukodomotati"},
+    {k: "秋の紅葉が山を染めていく", r: "akinokouyougayamawosometeiku"},
+    {k: "朝日の光が窓から差し込む", r: "asahinohikarigamadokarasasikomu"},
+    {k: "雨の音が静かに響いている", r: "amenootogasisukanihibiiteiru"},
+    {k: "風に揺れる草原の緑たち", r: "kazeniyurerusougennomidoritati"},
+    {k: "遠くの山にかかる白い雲", r: "tookunoyamanikakarusiroikumo"},
+    {k: "夜の街灯が道を照らしている", r: "yorunogaitougamitio terasiteiru"},
+    {k: "小さな花が道端に咲いている", r: "tiisanahanagamiti batani saiteiru"},
+    {k: "静かな湖に映る月の光", r: "sizukanamizuuminiuturutukinokari"},
+    {k: "旅の途中で出会う景色たち", r: "tabinotyuudedeausekesikitati"},
+    {k: "心に残る思い出の風景", r: "kokoroninokoruomoidenohuukei"}
 ];
 
-// リストが足りなければ補完 (長めに)
-while(WORD_LIST.length < 100) {
-    WORD_LIST.push({k: "あいうえお", r: "aiueo"});
+// リストが足りなければ補完 (念のため)
+while(WORD_LIST.length < 50) {
+    WORD_LIST.push({k: "桜の花びら舞う夜空の下", r: "sakuranohanabiramauyozoranosita"});
 }
 
 // ----- Dataオブジェクト (変更なし) -----
