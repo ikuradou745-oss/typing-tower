@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Defense Online - 改修版</title>
+    <title>Word Defense Online - 効果音追加版</title>
     <style>
-        /* 前回と同様のスタイル (一部追加・変更あり) */
+        /* 前回と同様のスタイル (変更なし) */
         :root {
             --bg-color: #0f472a;
             --panel-color: #1a5a3a;
@@ -348,7 +348,6 @@
             text-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
         }
 
-        /* タワーセレクターは不要になったので非表示に */
         #tower-selector {
             display: none;
         }
@@ -436,7 +435,6 @@
             box-shadow: 0 6px 20px rgba(74, 222, 128, 0.5);
         }
 
-        /* タワー管理モーダル用スタイル */
         .action-buttons {
             display: flex;
             gap: 15px;
@@ -452,7 +450,6 @@
 <div id="game-container">
     <div id="battle-side">
         <canvas id="battleCanvas"></canvas>
-        <!-- タワーセレクターUIは完全削除 (display:none で非表示) -->
         <div id="tower-selector"></div>
     </div>
 
@@ -477,7 +474,7 @@
     </div>
 </div>
 
-<!-- モーダル各種 -->
+<!-- モーダル各種 (変更なし) -->
 <div id="modal-shop" class="modal">
     <div class="modal-header">
         <h2>🏪 ショップ</h2>
@@ -525,7 +522,6 @@
     </div>
 </div>
 
-<!-- 新規: 設置済みタワー管理モーダル (撤去・入れ替え) -->
 <div id="modal-tower-manage" class="modal" style="width: 500px; max-width: 90%; max-height: 60vh;">
     <div class="modal-header">
         <h2>🛠️ タワー管理</h2>
@@ -536,7 +532,6 @@
     </div>
 </div>
 
-<!-- 既存のタワー選択モーダル (新規設置時) -->
 <div id="modal-tower-select" class="modal" style="width: 500px; max-width: 90%; max-height: 60vh;">
     <div class="modal-header">
         <h2>🛡️ タワーを選択</h2>
@@ -587,49 +582,118 @@
 </script>
 
 <script>
-// ----- 修正箇所1: ローマ字リストの修正 (つ=tu) -----
+// ----- 効果音定義 (Web Audio API) -----
+const Sound = {
+    ctx: null,
+    init() {
+        try {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch(e) {
+            console.warn("Web Audio API not supported");
+        }
+    },
+    play(type) {
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        switch(type) {
+            case 'success':
+                osc.type = 'sine';
+                osc.frequency.value = 880;
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start();
+                osc.stop(now + 0.1);
+                break;
+            case 'complete':
+                osc.type = 'triangle';
+                osc.frequency.value = 660;
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.start();
+                osc.stop(now + 0.2);
+                break;
+            case 'miss':
+                osc.type = 'sawtooth';
+                osc.frequency.value = 220;
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                osc.start();
+                osc.stop(now + 0.15);
+                break;
+        }
+    }
+};
+Sound.init();
+
+// ----- 修正された単語リスト (長文 & ん=nn, っ=子音重ね) -----
 const WORD_LIST = [
-    {k: "戦士", r: "sensi"}, {k: "魔法", r: "mahou"}, {k: "召喚", r: "syoukan"}, {k: "要塞", r: "yousai"},
-    {k: "防御", r: "bougyo"}, {k: "火炎", r: "kaen"}, {k: "氷結", r: "hyouketsu"}, {k: "稲妻", r: "inazuma"},
-    {k: "剣士", r: "kensi"}, {k: "騎士", r: "kisi"}, {k: "城壁", r: "zyouheki"}, {k: "突進", r: "tousin"},
-    {k: "再生", r: "saisei"}, {k: "加速", r: "kasoku"}, {k: "沈黙", r: "tinmoku"}, {k: "爆発", r: "bakuhatu"},
-    {k: "勇者", r: "yuusya"}, {k: "魔王", r: "maou"}, {k: "進化", r: "sinka"}, {k: "降臨", r: "kourin"},
-    {k: "連撃", r: "rengeki"}, {k: "鉄壁", r: "teppeki"}, {k: "強欲", r: "gouyoku"}, {k: "希望", r: "kibou"},
-    {k: "絶望", r: "zetsubou"}, {k: "運命", r: "unmei"}, {k: "覚醒", r: "kakusei"}, {k: "終焉", r: "syuuen"},
-    {k: "疾風", r: "sippu"}, {k: "地響き", r: "zihibiki"}, {k: "天空", r: "tenkuu"}, {k: "深淵", r: "sinen"},
-    {k: "漆黒", r: "sikkoku"}, {k: "純白", r: "zunpaku"}, {k: "黄金", r: "ougon"}, {k: "翡翠", r: "hisui"},
-    {k: "烈火", r: "rekka"}, {k: "流水", r: "ryuusui"}, {k: "落雷", r: "rakurai"}, {k: "土砂", r: "dosya"},
-    {k: "森林", r: "sinrin"}, {k: "湖水", r: "kosui"}, {k: "山脈", r: "sanmyaku"}, {k: "渓谷", r: "keikoku"},
-    {k: "草原", r: "soagen"}, {k: "砂漠", r: "sabaku"}, {k: "火山", r: "kazan"}, {k: "沼地", r: "numati"},
-    {k: "滝", r: "taki"}, {k: "泉", r: "izumi"}, {k: "嵐", r: "arasi"}, {k: "虹", r: "nizi"},
-    {k: "露", r: "tuyu"}, {k: "霧", r: "kiri"}, {k: "霜", r: "simo"}, {k: "雪", r: "yuki"},
-    {k: "竜", r: "ryuu"}, {k: "フェニックス", r: "fenikkusu"}, {k: "ワイバーン", r: "waibaan"},
-    {k: "ユニコーン", r: "yunikoon"}, {k: "ケンタウロス", r: "kentaurosu"}, {k: "ゴーレム", r: "goorem"},
-    {k: "ヴァンパイア", r: "vanpaia"}, {k: "ガーゴイル", r: "gaagoiru"}, {k: "グリフォン", r: "gurifon"},
-    {k: "スフィンクス", r: "sufinkusu"}, {k: "ハーピー", r: "haapii"}, {k: "シーサーペント", r: "siisaapento"},
-    {k: "喜び", r: "yorokobi"}, {k: "怒り", r: "ikari"}, {k: "悲しみ", r: "kanasimi"}, {k: "恐怖", r: "kyouhu"},
-    {k: "平静", r: "heisei"}, {k: "興奮", r: "kouwaku"}, {k: "混乱", r: "konran"}, {k: "沈静", r: "tinsei"},
-    {k: "変身", r: "henshin"}, {k: "飛行", r: "hikou"}, {k: "潜水", r: "sensui"}, {k: "隠形", r: "inkei"},
-    {k: "力", r: "tikara"}, {k: "速度", r: "sokudo"}, {k: "耐久", r: "taikyuu"}, {k: "精度", r: "seido"},
-    {k: "範囲", r: "hani"}, {k: "永遠", r: "eien"}, {k: "時間", r: "zikan"}, {k: "空間", r: "kuukan"},
-    {k: "現実", r: "genzitsu"}, {k: "虚妄", r: "kyomou"}, {k: "秘密", r: "himitsu"}, {k: "謎", r: "nazo"},
-    {k: "聖剣", r: "seiken"}, {k: "魔剣", r: "maken"}, {k: "弓", r: "yumi"},
-    {k: "槍", r: "yari"}, {k: "杖", r: "tsue"}, {k: "盾", r: "tate"}, {k: "鎧", r: "yoroi"}, {k: "兜", r: "kabuto"},
-    {k: "宝石", r: "houseki"}, {k: "指輪", r: "yubiwa"}, {k: "首飾り", r: "kubikazari"}, {k: "冠", r: "kanmuri"},
-    {k: "祝福", r: "syukuhuku"}, {k: "呪い", r: "noroi"}, {k: "復活", r: "hukkatsu"}, {k: "消滅", r: "syoumetsu"},
-    {k: "統一", r: "touitsu"}, {k: "分裂", r: "bunretsu"}, {k: "合体", r: "gattai"}, {k: "分離", r: "bunri"},
-    {k: "解放", r: "kaihou"}, {k: "制限", r: "seigen"},
-    {k: "神", r: "kami"}, {k: "女神", r: "megami"}, {k: "天使", r: "tensi"}, {k: "悪魔", r: "akuma"},
-    {k: "妖精", r: "yousei"}, {k: "幽霊", r: "yurei"}, {k: "怨霊", r: "onryou"}, {k: "精霊", r: "seirei"},
-    {k: "吸血鬼", r: "kyuuketuki"}, {k: "狼男", r: "ookami"}, {k: "ミイラ", r: "miira"}, {k: "骸骨", r: "gaikotu"}
+    // 長めの単語・フレーズ (10文字前後)
+    {k: "あいうえおかきくけこ", r: "aiueokakikukeko"},
+    {k: "さしすせそたちつてと", r: "sasisusesotatituteto"},      // つ=tu
+    {k: "なにぬねのはひふへほ", r: "naninunenohahihuheho"},
+    {k: "まみむめもやゆよらり", r: "mamimumemoyayuyorari"},
+    {k: "るれろわをん", r: "rurerorowawonn"},                 // ん=nn
+    {k: "がぎぐげござじずぜぞ", r: "gagigugegozazizuzezo"},
+    {k: "だぢづでどばびぶべぼ", r: "dadidudedobabibubebo"},
+    {k: "ぱぴぷぺぽ", r: "papipupepo"},
+    {k: "きゃきゅきょ", r: "kyakyukyo"},
+    {k: "しゃしゅしょ", r: "syasyusyo"},
+    {k: "ちゃちゅちょ", r: "tyatyutyo"},
+    {k: "にゃにゅにょ", r: "nyanyunyo"},
+    {k: "ひゃひゅひょ", r: "hyahyuhyo"},
+    {k: "みゃみゅみょ", r: "myamyumyo"},
+    {k: "りゃりゅりょ", r: "ryaryuryo"},
+    {k: "ぎゃぎゅぎょ", r: "gyagyugyo"},
+    {k: "じゃじゅじょ", r: "zyazyuzyo"},
+    {k: "びゃびゅびょ", r: "byabyubyo"},
+    {k: "ぴゃぴゅぴょ", r: "pyapyupyo"},
+    {k: "がっこう", r: "gakkou"},                              // っ = 子音重ね (kk)
+    {k: "きって", r: "kitte"},                                // っ = tt
+    {k: "ざっし", r: "zasshi"},                               // っ = ss
+    {k: "いっぱい", r: "ippai"},                              // っ = pp
+    {k: "しんかんせん", r: "shinkansen"},                      // ん=n (nnでも可だが通常n)
+    {k: "にほんご", r: "nihongo"},
+    {k: "ぴょんぴょん", r: "pyonpyon"},
+    {k: "じゃんけんぽん", r: "jyankenpon"},
+    {k: "めんどくさい", r: "mendokusai"},
+    {k: "ありがとうございます", r: "arigatougozaimasu"},
+    {k: "おはようございます", r: "ohayougozaimasu"},
+    {k: "こんにちは", r: "konnitiha"},                        // ん=nn
+    {k: "こんばんは", r: "konbanwa"},
+    {k: "さようなら", r: "sayounara"},
+    {k: "はじめまして", r: "hazimemasite"},
+    {k: "よろしくおねがいします", r: "yorosikuonegaisimasu"},
+    {k: "たのしかったです", r: "tanosikattadesu"},
+    {k: "おつかれさまでした", r: "otukaresamadesita"},
+    {k: "またあした", r: "mataasita"},
+    {k: "せんそう", r: "sensou"},
+    {k: "へいわ", r: "heiwa"},
+    {k: "ぼうえい", r: "bouei"},
+    {k: "たいぴんぐ", r: "taipingu"},
+    {k: "げーむ", r: "geemu"},
+    {k: "たのしい", r: "tanosii"},
+    {k: "むずかしい", r: "muzukasii"},
+    {k: "がんばる", r: "ganbaru"},
+    {k: "かんたん", r: "kantan"},
+    {k: "ちょっとまって", r: "tyottomatte"},
+    {k: "すごいですね", r: "sugoidesune"},
+    {k: "おめでとう", r: "omedetou"},
 ];
 
-// リストが少なければ補完 (変更なし)
+// リストが足りなければ補完 (長めに)
 while(WORD_LIST.length < 100) {
-    WORD_LIST.push({k: "言葉" + WORD_LIST.length, r: "kotoba"});
+    WORD_LIST.push({k: "あいうえお", r: "aiueo"});
 }
 
-// ----- Dataオブジェクト (修正あり) -----
+// ----- Dataオブジェクト (変更なし) -----
 const Data = {
     coins: 0,
     combo: 0,
@@ -642,8 +706,8 @@ const Data = {
     placedTowers: [],
     playerName: "Player_" + Math.floor(Math.random()*1000),
     selectedTowerIndex: -1,
-    pendingTileSelect: null,        // 新規設置時の座標
-    managingTower: null,            // 管理対象のタワー情報 { x, y, tower }
+    pendingTileSelect: null,
+    managingTower: null,
 
     levelCosts: [500000, 3500000, 10000000, 250000000, 500000000],
 
@@ -721,7 +785,6 @@ const Data = {
         }
     },
     
-    // インベントリから特定のタワーを1つだけ削除する (バグ修正用)
     removeOneFromInventory(towerName) {
         const index = this.inventory.indexOf(towerName);
         if (index > -1) {
@@ -744,7 +807,7 @@ const ENEMY_TYPES = {
     "speed": { hp: 20, speed: 4, atk: 3, color: "#f97316" }
 };
 
-// ----- Typing (ほぼ変更なし、updateDisplay内のUI更新のみ) -----
+// ----- Typing (効果音追加) -----
 const Typing = {
     currentWord: null,
     typedIndex: 0,
@@ -782,13 +845,13 @@ const Typing = {
         if(e.key.length !== 1) return;
 
         const targetChar = this.currentWord.r[this.typedIndex];
-        
-        // 修正: 入力キーを小文字に統一 (CapsLock対策)
         const pressedKey = e.key.toLowerCase();
 
         if(pressedKey === targetChar) {
+            Sound.play('success');
             this.onSuccess();
         } else {
+            Sound.play('miss');
             this.onMiss();
         }
     },
@@ -801,6 +864,7 @@ const Typing = {
         Data.save();
 
         if(this.typedIndex >= this.currentWord.r.length) {
+            Sound.play('complete');
             this.nextWord();
         }
     },
@@ -812,7 +876,7 @@ const Typing = {
     }
 };
 
-// ----- Battle (修正: タワークリック時の処理) -----
+// ----- Battle (変更なし) -----
 const Battle = {
     canvas: null,
     ctx: null,
@@ -845,16 +909,14 @@ const Battle = {
         const y = Math.floor((e.clientY - rect.top) / this.tileSize);
         const center = Math.floor(Data.gridSize / 2);
 
-        if(x === center && y === center) return; // 城マス
+        if(x === center && y === center) return;
         if(x < 0 || x >= Data.gridSize || y < 0 || y >= Data.gridSize) return;
 
         const existing = Data.placedTowers.find(t => t.x === x && t.y === y);
         if(existing) {
-            // 既存タワーをクリック → 管理モーダルを開く
             Data.managingTower = { x, y, tower: existing };
             UI.showTowerManageModal();
         } else {
-            // 空きマス → 新規設置モーダル
             Data.pendingTileSelect = {x, y};
             UI.showTowerSelectModal();
         }
@@ -882,7 +944,6 @@ const Battle = {
     update() {
         const center = Math.floor(Data.gridSize / 2);
 
-        // 敵の移動と城攻撃
         this.enemies.forEach((en, index) => {
             const dx = center - en.x;
             const dy = center - en.y;
@@ -900,7 +961,6 @@ const Battle = {
             en.y += (dy / dist) * moveStep;
         });
 
-        // タワーの攻撃/収入処理
         const now = Date.now();
         Data.placedTowers.forEach(t => {
             t.lastFire = t.lastFire || 0;
@@ -935,7 +995,6 @@ const Battle = {
             }
         });
 
-        // 弾の更新
         this.bullets.forEach((bullet, idx) => {
             bullet.progress += bullet.speed;
             if(bullet.progress >= 1) {
@@ -950,7 +1009,6 @@ const Battle = {
             }
         });
 
-        // 敵の出現
         this.spawnTimer++;
         if(this.spawnTimer > 120) {
             this.spawnEnemy();
@@ -1001,7 +1059,6 @@ const Battle = {
         this.ctx.textAlign = "center";
         this.ctx.fillText(`HP${Data.castleHP}`, castleX + this.tileSize / 2, castleY + this.tileSize / 2 + 5);
 
-        // タワーの描画
         Data.placedTowers.forEach(t => {
             const towerX = (t.x + 0.5) * this.tileSize;
             const towerY = (t.y + 0.5) * this.tileSize;
@@ -1057,7 +1114,6 @@ const Battle = {
             }
             this.ctx.shadowColor = "transparent";
             
-            // クールダウンバー
             const elapsed = Date.now() - (t.lastFire || 0);
             const cooldownPercent = Math.min(elapsed / (t.ct * 1000), 1);
             
@@ -1073,7 +1129,6 @@ const Battle = {
             }
         });
 
-        // 敵の描画
         this.enemies.forEach(en => {
             const enemyX = en.x * this.tileSize;
             const enemyY = en.y * this.tileSize;
@@ -1109,7 +1164,6 @@ const Battle = {
             this.ctx.fillText(`HP${en.currentHP}`, enemyX + this.tileSize / 2, enemyY + this.tileSize - 8);
         });
 
-        // 弾の描画
         this.bullets.forEach(bullet => {
             const currentX = bullet.fromX + (bullet.toX - bullet.fromX) * bullet.progress;
             const currentY = bullet.fromY + (bullet.toY - bullet.fromY) * bullet.progress;
@@ -1123,7 +1177,6 @@ const Battle = {
             this.ctx.shadowColor = "transparent";
         });
 
-        // 選択中のタワー (管理モーダル開いているときなどに範囲表示)
         if(this.selectedTile) {
             const t = this.selectedTile.tower;
             const towerX = (t.x + 0.5) * this.tileSize;
@@ -1154,7 +1207,7 @@ const Battle = {
     }
 };
 
-// ----- UI (大幅改修: タワー管理モーダル追加、不要UI削除) -----
+// ----- UI (変更なし) -----
 const UI = {
     currentShopTab: 0,
 
@@ -1175,7 +1228,6 @@ const UI = {
         Data.pendingTileSelect = null;
     },
 
-    // 新規: タワー管理モーダル
     showTowerManageModal() {
         this.hideModal();
         const modal = document.getElementById('modal-tower-manage');
@@ -1218,13 +1270,11 @@ const UI = {
             alert("手持ちにタワーがありません。");
             return;
         }
-        // いったん管理モーダルを閉じて、入れ替え用の選択モーダルを開く
         this.hideModal();
-        // 新規設置と同じモーダルを流用するが、pendingTileSelectに既存の座標を入れておく
         Data.pendingTileSelect = { 
             x: Data.managingTower.x, 
             y: Data.managingTower.y,
-            isReplace: true  // 入れ替えフラグ
+            isReplace: true
         };
         this.showTowerSelectModal();
     },
@@ -1275,7 +1325,6 @@ const UI = {
         const { x, y, isReplace } = Data.pendingTileSelect;
 
         if (isReplace) {
-            // 入れ替え処理: 既存タワーを削除し、手持ちに追加、新しいタワーを設置
             const existingIndex = Data.placedTowers.findIndex(t => t.x === x && t.y === y);
             if (existingIndex === -1) {
                 alert("エラー: タワーが見つかりません");
@@ -1284,13 +1333,10 @@ const UI = {
                 return;
             }
             const oldTower = Data.placedTowers[existingIndex];
-            // 古いタワーをインベントリに戻す
             Data.inventory.push(oldTower.name);
-            // 設置リストから削除
             Data.placedTowers.splice(existingIndex, 1);
         }
 
-        // 新しいタワーを設置
         Data.placedTowers.push({
             x, y,
             name: towerName,
@@ -1298,7 +1344,6 @@ const UI = {
             lastFire: 0
         });
 
-        // インベントリから1つだけ削除 (バグ修正)
         Data.removeOneFromInventory(towerName);
         
         Data.pendingTileSelect = null;
@@ -1358,7 +1403,6 @@ const UI = {
             Data.inventory.push(name);
             Data.save();
             this.renderShopContent(this.currentShopTab);
-            // インベントリ表示などがあれば更新 (今回は不要)
             alert("✓ " + name + "を購入しました！");
         } else {
             alert("✗ コインが足りません");
@@ -1449,13 +1493,9 @@ const UI = {
         `;
     },
 
-    // 削除: updateTowerSelector (もう使わない)
-    updateTowerSelector() {
-        // 何もしない (display:none で非表示のため)
-    }
+    updateTowerSelector() {}
 };
 
-// コイン表示更新タイマー
 setInterval(() => {
     document.getElementById('coin-display').innerText = `💰 ${Math.floor(Data.coins)}`;
 }, 100);
@@ -1464,7 +1504,6 @@ window.onload = async () => {
     await Data.load();
     Typing.init();
     Battle.init();
-    // UI.updateTowerSelector(); // 不要なのでコメントアウト
 };
 </script>
 
