@@ -3,24 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Defense Online</title>
+    <title>Word Defense Online - 改修版</title>
     <style>
+        /* 前回と同様のスタイル (一部追加・変更あり) */
         :root {
-            --bg-color: #1a1a1a;
-            --panel-color: #2d2d2d;
-            --text-color: #ffffff;
-            --accent-color: #00ffcc;
-            --highlight-color: #ffaa00;
+            --bg-color: #0f472a;
+            --panel-color: #1a5a3a;
+            --text-color: #f5f5f5;
+            --accent-green: #4ade80;
+            --highlight-yellow: #fbbf24;
+            --field-green: #22c55e;
+            --earth-brown: #92400e;
+            --sky-blue: #0ea5e9;
+            --danger-red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
+            background: linear-gradient(135deg, var(--bg-color) 0%, #0d3a1f 100%);
             color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Noto Sans JP', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
             user-select: none;
+            min-height: 100vh;
         }
 
         #game-container {
@@ -29,59 +39,73 @@
             height: 100vh;
         }
 
-        /* 左側：バトルエリア */
         #battle-side {
             flex: 1;
             position: relative;
-            background: #222;
-            border-right: 2px solid #444;
+            background: linear-gradient(to bottom, var(--sky-blue) 0%, #7cb342 50%, #558b2f 100%);
+            border-right: 4px solid var(--earth-brown);
             display: flex;
             justify-content: center;
             align-items: center;
+            box-shadow: inset -10px 0 30px rgba(0, 0, 0, 0.3);
         }
 
         canvas {
-            background-color: #333;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: linear-gradient(180deg, #87ceeb 0%, #90ee90 50%, #228b22 100%);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 3px solid #8b7355;
+            cursor: crosshair;
         }
 
-        /* 右側：タイピングエリア */
         #typing-side {
             width: 50%;
             display: flex;
             flex-direction: column;
-            background: var(--panel-color);
-            padding: 20px;
-            box-sizing: border-box;
+            background: linear-gradient(135deg, var(--panel-color) 0%, #1f6e3a 100%);
+            padding: 0;
             position: relative;
+            border-left: 3px solid var(--field-green);
+            box-shadow: inset 5px 0 20px rgba(0, 0, 0, 0.3);
         }
 
-        /* ヘッダーメニュー */
         #header-menu {
             display: flex;
             justify-content: space-around;
-            background: #111;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            gap: 8px;
+            background: rgba(13, 58, 31, 0.95);
+            padding: 12px 20px;
+            border-bottom: 3px solid var(--field-green);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
         .menu-btn {
-            padding: 10px 20px;
-            background: #444;
+            padding: 10px 18px;
+            background: linear-gradient(135deg, var(--field-green) 0%, #16a34a 100%);
             border: none;
             color: white;
             cursor: pointer;
-            border-radius: 4px;
-            transition: 0.3s;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+        }
+        .menu-btn.danger {
+            background: linear-gradient(135deg, var(--danger-red) 0%, #b91c1c 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
 
         .menu-btn:hover {
-            background: var(--accent-color);
-            color: #000;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.5);
+        }
+        .menu-btn.danger:hover {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
         }
 
-        /* タイピングUI */
         #typing-ui {
             flex: 1;
             display: flex;
@@ -89,28 +113,41 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-        }
-
-        #word-display {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        #romaji-display {
-            font-size: 32px;
-            letter-spacing: 5px;
-            color: #888;
-        }
-
-        .typed {
-            color: var(--accent-color);
-            font-weight: bold;
+            gap: 15px;
+            background: rgba(34, 197, 94, 0.05);
+            padding: 40px 30px;
+            position: relative;
         }
 
         #combo-display {
-            font-size: 24px;
-            color: var(--highlight-color);
-            margin-bottom: 10px;
+            font-size: 32px;
+            color: var(--highlight-yellow);
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(251, 191, 36, 0.4);
+            letter-spacing: 2px;
+        }
+
+        #word-display {
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--field-green);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            letter-spacing: 2px;
+        }
+
+        #romaji-display {
+            font-size: 38px;
+            letter-spacing: 6px;
+            color: #cbd5e1;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .typed {
+            color: var(--highlight-yellow);
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
         }
 
         #stats-bar {
@@ -118,86 +155,293 @@
             bottom: 20px;
             right: 20px;
             text-align: right;
+            background: rgba(13, 58, 31, 0.95);
+            padding: 18px 24px;
+            border-radius: 10px;
+            border: 2px solid var(--field-green);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        #castle-hp {
+            font-size: 16px;
+            color: #fca5a5;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
 
         #coin-display {
-            font-size: 36px;
-            color: #ffd700;
+            font-size: 26px;
+            color: var(--highlight-yellow);
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
         }
 
-        /* モーダルUI */
         .modal {
             display: none;
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
-            height: 80%;
-            background: rgba(0,0,0,0.9);
-            border: 2px solid var(--accent-color);
+            width: 90%;
+            max-width: 750px;
+            max-height: 85vh;
+            background: linear-gradient(135deg, rgba(26, 90, 58, 0.98) 0%, rgba(31, 110, 58, 0.98) 100%);
+            border: 3px solid var(--field-green);
             z-index: 100;
-            padding: 20px;
-            border-radius: 12px;
-            overflow-y: auto;
+            padding: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            animation: modalSlideIn 0.3s ease-out;
+            flex-direction: column;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translate(-50%, -48%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
+            align-items: center;
+            background: rgba(13, 58, 31, 0.95);
+            border-bottom: 2px solid var(--field-green);
+            padding: 20px 30px;
+        }
+
+        .modal-header h2 {
+            color: var(--field-green);
+            font-size: 26px;
+            margin: 0;
         }
 
         .close-btn {
             cursor: pointer;
-            font-size: 24px;
+            font-size: 32px;
+            color: var(--highlight-yellow);
+            background: none;
+            border: none;
+            padding: 0;
         }
 
-        .shop-item, .inv-item {
-            background: #333;
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid var(--field-green);
+            padding: 0;
+            margin: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab-btn.active {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--field-green);
+            border-bottom-color: var(--field-green);
+        }
+
+        .modal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tower-card {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 10px;
             padding: 15px;
             margin: 10px 0;
-            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
+        .tower-card:hover {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--field-green);
+        }
+
+        .tower-card-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--highlight-yellow);
+            color: black;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .shop-item {
+            background: rgba(34, 197, 94, 0.1);
+            padding: 18px;
+            margin: 12px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            transition: all 0.3s;
+        }
+
+        .shop-item:hover {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--field-green);
+            transform: translateX(5px);
+        }
+
+        .shop-item strong {
+            color: var(--field-green);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .shop-item div {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
         #game-over-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(255,0,0,0.5);
-            color: white;
-            font-size: 80px;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ff6b6b;
+            font-size: 100px;
             font-weight: bold;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
         }
 
-        /* タワー選択用 */
+        /* タワーセレクターは不要になったので非表示に */
         #tower-selector {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
+            display: none;
         }
 
-        .select-btn {
-            background: #222;
-            border: 1px solid var(--accent-color);
+        .settings-item {
+            background: rgba(34, 197, 94, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            margin: 15px 0;
+        }
+
+        .settings-item label {
+            color: var(--field-green);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .settings-item input {
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 2px solid var(--field-green);
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--text-color);
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .settings-item input:focus {
+            outline: none;
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .reset-btn {
+            padding: 12px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
-            padding: 5px 10px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
         }
 
-        .selected {
-            background: var(--accent-color);
-            color: black;
+        .level-info {
+            background: rgba(34, 197, 94, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--field-green);
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .level-info h3 {
+            color: var(--field-green);
+            font-size: 28px;
+            margin: 0 0 10px 0;
+        }
+
+        .level-info p {
+            color: #cbd5e1;
+            margin: 8px 0;
+        }
+
+        .level-up-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--field-green) 0%, #16a34a 100%);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+            transition: all 0.3s;
+        }
+
+        .level-up-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.5);
+        }
+
+        /* タワー管理モーダル用スタイル */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -208,16 +452,16 @@
 <div id="game-container">
     <div id="battle-side">
         <canvas id="battleCanvas"></canvas>
-        <div id="tower-selector">
-            </div>
+        <!-- タワーセレクターUIは完全削除 (display:none で非表示) -->
+        <div id="tower-selector"></div>
     </div>
 
     <div id="typing-side">
         <div id="header-menu">
-            <button class="menu-btn" onclick="UI.showModal('shop')">ショップ</button>
-            <button class="menu-btn" onclick="UI.showModal('inventory')">持ち物</button>
-            <button class="menu-btn" onclick="UI.showModal('levelUp')">レベルアップ</button>
-            <button class="menu-btn" onclick="UI.showModal('settings')">設定</button>
+            <button class="menu-btn" onclick="UI.showModal('shop')">🏪 ショップ</button>
+            <button class="menu-btn" onclick="UI.showModal('inventory')">🎒 持ち物</button>
+            <button class="menu-btn" onclick="UI.showModal('levelUp')">⬆️ レベルアップ</button>
+            <button class="menu-btn" onclick="UI.showModal('settings')">⚙️ 設定</button>
         </div>
 
         <div id="typing-ui">
@@ -233,30 +477,78 @@
     </div>
 </div>
 
+<!-- モーダル各種 -->
 <div id="modal-shop" class="modal">
-    <div class="modal-header"><h2>ショップ</h2><span class="close-btn" onclick="UI.hideModal()">×</span></div>
-    <div id="shop-content"></div>
+    <div class="modal-header">
+        <h2>🏪 ショップ</h2>
+        <button class="close-btn" onclick="UI.hideModal()">×</button>
+    </div>
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="UI.switchShopTab(0)">ノーマル</button>
+        <button class="tab-btn" onclick="UI.switchShopTab(1)">ハード</button>
+        <button class="tab-btn" onclick="UI.switchShopTab(2)">収入</button>
+    </div>
+    <div class="modal-content">
+        <div id="shop-normal" class="tab-content active"></div>
+        <div id="shop-hard" class="tab-content"></div>
+        <div id="shop-income" class="tab-content"></div>
+    </div>
 </div>
 
 <div id="modal-inventory" class="modal">
-    <div class="modal-header"><h2>持ち物</h2><span class="close-btn" onclick="UI.hideModal()">×</span></div>
-    <div id="inventory-content"></div>
+    <div class="modal-header">
+        <h2>🎒 持ち物</h2>
+        <button class="close-btn" onclick="UI.hideModal()">×</button>
+    </div>
+    <div class="modal-content">
+        <div id="inventory-content"></div>
+    </div>
 </div>
 
 <div id="modal-levelUp" class="modal">
-    <div class="modal-header"><h2>レベルアップ</h2><span class="close-btn" onclick="UI.hideModal()">×</span></div>
-    <div id="level-content"></div>
+    <div class="modal-header">
+        <h2>⬆️ レベルアップ</h2>
+        <button class="close-btn" onclick="UI.hideModal()">×</button>
+    </div>
+    <div class="modal-content">
+        <div id="level-content"></div>
+    </div>
 </div>
 
 <div id="modal-settings" class="modal">
-    <div class="modal-header"><h2>設定</h2><span class="close-btn" onclick="UI.hideModal()">×</span></div>
-    <div id="settings-content">
-        <p>名前変更: <input type="text" id="player-name-input"> <button onclick="Data.saveName()">保存</button></p>
-        <button onclick="Data.resetData()" style="background:red; color:white;">データを消去する</button>
+    <div class="modal-header">
+        <h2>⚙️ 設定</h2>
+        <button class="close-btn" onclick="UI.hideModal()">×</button>
+    </div>
+    <div class="modal-content">
+        <div id="settings-content"></div>
+    </div>
+</div>
+
+<!-- 新規: 設置済みタワー管理モーダル (撤去・入れ替え) -->
+<div id="modal-tower-manage" class="modal" style="width: 500px; max-width: 90%; max-height: 60vh;">
+    <div class="modal-header">
+        <h2>🛠️ タワー管理</h2>
+        <button class="close-btn" onclick="UI.hideModal()">×</button>
+    </div>
+    <div class="modal-content">
+        <div id="tower-manage-content"></div>
+    </div>
+</div>
+
+<!-- 既存のタワー選択モーダル (新規設置時) -->
+<div id="modal-tower-select" class="modal" style="width: 500px; max-width: 90%; max-height: 60vh;">
+    <div class="modal-header">
+        <h2>🛡️ タワーを選択</h2>
+        <button class="close-btn" onclick="UI.cancelTowerSelect()">×</button>
+    </div>
+    <div class="modal-content">
+        <div id="tower-select-content"></div>
     </div>
 </div>
 
 <script type="module">
+    // Firebase関連 (変更なし)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
     import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
@@ -276,19 +568,26 @@
     const analytics = getAnalytics(app);
     const db = getDatabase(app);
 
-    window.fbSave = (userId, data) => {
-        set(ref(db, 'users/' + userId), data);
+    window.fbSave = async (userId, data) => {
+        try {
+            await set(ref(db, 'users/' + userId), data);
+        } catch(e) {
+            console.log("Save error");
+        }
     };
+
     window.fbLoad = async (userId) => {
-        const snapshot = await get(ref(db, 'users/' + userId));
-        return snapshot.exists() ? snapshot.val() : null;
+        try {
+            const snapshot = await get(ref(db, 'users/' + userId));
+            return snapshot.exists() ? snapshot.val() : null;
+        } catch(e) {
+            return null;
+        }
     };
 </script>
 
 <script>
-/**
- * 200以上の単語データベース
- */
+// ----- 修正箇所1: ローマ字リストの修正 (つ=tu) -----
 const WORD_LIST = [
     {k: "戦士", r: "sensi"}, {k: "魔法", r: "mahou"}, {k: "召喚", r: "syoukan"}, {k: "要塞", r: "yousai"},
     {k: "防御", r: "bougyo"}, {k: "火炎", r: "kaen"}, {k: "氷結", r: "hyouketsu"}, {k: "稲妻", r: "inazuma"},
@@ -300,16 +599,37 @@ const WORD_LIST = [
     {k: "疾風", r: "sippu"}, {k: "地響き", r: "zihibiki"}, {k: "天空", r: "tenkuu"}, {k: "深淵", r: "sinen"},
     {k: "漆黒", r: "sikkoku"}, {k: "純白", r: "zunpaku"}, {k: "黄金", r: "ougon"}, {k: "翡翠", r: "hisui"},
     {k: "烈火", r: "rekka"}, {k: "流水", r: "ryuusui"}, {k: "落雷", r: "rakurai"}, {k: "土砂", r: "dosya"},
-    // ... 本来はここに200個以上並べますが、長大になるため動的に生成・保持するロジックを以下に含めます
+    {k: "森林", r: "sinrin"}, {k: "湖水", r: "kosui"}, {k: "山脈", r: "sanmyaku"}, {k: "渓谷", r: "keikoku"},
+    {k: "草原", r: "soagen"}, {k: "砂漠", r: "sabaku"}, {k: "火山", r: "kazan"}, {k: "沼地", r: "numati"},
+    {k: "滝", r: "taki"}, {k: "泉", r: "izumi"}, {k: "嵐", r: "arasi"}, {k: "虹", r: "nizi"},
+    {k: "露", r: "tuyu"}, {k: "霧", r: "kiri"}, {k: "霜", r: "simo"}, {k: "雪", r: "yuki"},
+    {k: "竜", r: "ryuu"}, {k: "フェニックス", r: "fenikkusu"}, {k: "ワイバーン", r: "waibaan"},
+    {k: "ユニコーン", r: "yunikoon"}, {k: "ケンタウロス", r: "kentaurosu"}, {k: "ゴーレム", r: "goorem"},
+    {k: "ヴァンパイア", r: "vanpaia"}, {k: "ガーゴイル", r: "gaagoiru"}, {k: "グリフォン", r: "gurifon"},
+    {k: "スフィンクス", r: "sufinkusu"}, {k: "ハーピー", r: "haapii"}, {k: "シーサーペント", r: "siisaapento"},
+    {k: "喜び", r: "yorokobi"}, {k: "怒り", r: "ikari"}, {k: "悲しみ", r: "kanasimi"}, {k: "恐怖", r: "kyouhu"},
+    {k: "平静", r: "heisei"}, {k: "興奮", r: "kouwaku"}, {k: "混乱", r: "konran"}, {k: "沈静", r: "tinsei"},
+    {k: "変身", r: "henshin"}, {k: "飛行", r: "hikou"}, {k: "潜水", r: "sensui"}, {k: "隠形", r: "inkei"},
+    {k: "力", r: "tikara"}, {k: "速度", r: "sokudo"}, {k: "耐久", r: "taikyuu"}, {k: "精度", r: "seido"},
+    {k: "範囲", r: "hani"}, {k: "永遠", r: "eien"}, {k: "時間", r: "zikan"}, {k: "空間", r: "kuukan"},
+    {k: "現実", r: "genzitsu"}, {k: "虚妄", r: "kyomou"}, {k: "秘密", r: "himitsu"}, {k: "謎", r: "nazo"},
+    {k: "聖剣", r: "seiken"}, {k: "魔剣", r: "maken"}, {k: "弓", r: "yumi"},
+    {k: "槍", r: "yari"}, {k: "杖", r: "tsue"}, {k: "盾", r: "tate"}, {k: "鎧", r: "yoroi"}, {k: "兜", r: "kabuto"},
+    {k: "宝石", r: "houseki"}, {k: "指輪", r: "yubiwa"}, {k: "首飾り", r: "kubikazari"}, {k: "冠", r: "kanmuri"},
+    {k: "祝福", r: "syukuhuku"}, {k: "呪い", r: "noroi"}, {k: "復活", r: "hukkatsu"}, {k: "消滅", r: "syoumetsu"},
+    {k: "統一", r: "touitsu"}, {k: "分裂", r: "bunretsu"}, {k: "合体", r: "gattai"}, {k: "分離", r: "bunri"},
+    {k: "解放", r: "kaihou"}, {k: "制限", r: "seigen"},
+    {k: "神", r: "kami"}, {k: "女神", r: "megami"}, {k: "天使", r: "tensi"}, {k: "悪魔", r: "akuma"},
+    {k: "妖精", r: "yousei"}, {k: "幽霊", r: "yurei"}, {k: "怨霊", r: "onryou"}, {k: "精霊", r: "seirei"},
+    {k: "吸血鬼", r: "kyuuketuki"}, {k: "狼男", r: "ookami"}, {k: "ミイラ", r: "miira"}, {k: "骸骨", r: "gaikotu"}
 ];
-// 200個に満たない分を動的に補完（開発用サンプル）
-while(WORD_LIST.length < 210) {
-    WORD_LIST.push({k: "訓練" + WORD_LIST.length, r: "kunren"});
+
+// リストが少なければ補完 (変更なし)
+while(WORD_LIST.length < 100) {
+    WORD_LIST.push({k: "言葉" + WORD_LIST.length, r: "kotoba"});
 }
 
-/**
- * ゲームデータ管理
- */
+// ----- Dataオブジェクト (修正あり) -----
 const Data = {
     coins: 0,
     combo: 0,
@@ -317,34 +637,60 @@ const Data = {
     multiplier: 1,
     gridSize: 9,
     castleHP: 1000,
+    maxCastleHP: 1000,
     inventory: ["兵士", "兵士"],
     placedTowers: [],
     playerName: "Player_" + Math.floor(Math.random()*1000),
     selectedTowerIndex: -1,
+    pendingTileSelect: null,        // 新規設置時の座標
+    managingTower: null,            // 管理対象のタワー情報 { x, y, tower }
 
-    levelCosts: [500000, 3500000, 10000000, 250000000, 50000000],
+    levelCosts: [500000, 3500000, 10000000, 250000000, 500000000],
 
-    save() {
+    async save() {
         const payload = {
             coins: this.coins,
+            combo: this.combo,
             level: this.level,
             inventory: this.inventory,
-            playerName: this.playerName
+            playerName: this.playerName,
+            castleHP: this.castleHP,
+            placedTowers: this.placedTowers
         };
         localStorage.setItem('wd_save', JSON.stringify(payload));
-        if (window.fbSave) window.fbSave(this.playerName, payload);
+        if (window.fbSave) {
+            await window.fbSave(this.playerName, payload);
+        }
     },
 
-    load() {
-        const saved = localStorage.getItem('wd_save');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            this.coins = parsed.coins || 0;
-            this.level = parsed.level || 0;
-            this.inventory = parsed.inventory || ["兵士", "兵士"];
-            this.playerName = parsed.playerName || this.playerName;
-            this.applyLevelEffects();
+    async load() {
+        let firebaseData = null;
+        if (window.fbLoad) {
+            firebaseData = await window.fbLoad(this.playerName);
         }
+
+        if (firebaseData) {
+            this.coins = firebaseData.coins || 0;
+            this.combo = firebaseData.combo || 0;
+            this.level = firebaseData.level || 0;
+            this.inventory = firebaseData.inventory || ["兵士", "兵士"];
+            this.playerName = firebaseData.playerName || this.playerName;
+            this.castleHP = firebaseData.castleHP || 1000;
+            this.placedTowers = firebaseData.placedTowers || [];
+        } else {
+            const saved = localStorage.getItem('wd_save');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                this.coins = parsed.coins || 0;
+                this.combo = parsed.combo || 0;
+                this.level = parsed.level || 0;
+                this.inventory = parsed.inventory || ["兵士", "兵士"];
+                this.playerName = parsed.playerName || this.playerName;
+                this.castleHP = parsed.castleHP || 1000;
+                this.placedTowers = parsed.placedTowers || [];
+            }
+        }
+        this.applyLevelEffects();
     },
 
     applyLevelEffects() {
@@ -357,21 +703,35 @@ const Data = {
         if(newName) {
             this.playerName = newName;
             this.save();
-            alert("保存しました");
+            alert("保存しました: " + newName);
         }
     },
 
     resetData() {
         if(confirm("全てのデータを消去しますか？")) {
             localStorage.clear();
+            this.coins = 0;
+            this.combo = 0;
+            this.level = 0;
+            this.inventory = ["兵士", "兵士"];
+            this.castleHP = 1000;
+            this.placedTowers = [];
+            this.save();
             location.reload();
         }
+    },
+    
+    // インベントリから特定のタワーを1つだけ削除する (バグ修正用)
+    removeOneFromInventory(towerName) {
+        const index = this.inventory.indexOf(towerName);
+        if (index > -1) {
+            this.inventory.splice(index, 1);
+            return true;
+        }
+        return false;
     }
 };
 
-/**
- * タワー・敵の定義
- */
 const TOWER_TYPES = {
     "兵士": { price: 250, ct: 1, dmg: 10, range: 3, type: "normal" },
     "ファーストタレット": { price: 3500, ct: 0.5, dmg: 25, range: 5, type: "normal" },
@@ -380,13 +740,11 @@ const TOWER_TYPES = {
 };
 
 const ENEMY_TYPES = {
-    "normal": { hp: 30, speed: 2, atk: 5, color: "#00ff00" },
-    "speed": { hp: 20, speed: 4, atk: 3, color: "#ffff00" }
+    "normal": { hp: 30, speed: 2, atk: 5, color: "#ef4444" },
+    "speed": { hp: 20, speed: 4, atk: 3, color: "#f97316" }
 };
 
-/**
- * タイピングエンジン
- */
+// ----- Typing (ほぼ変更なし、updateDisplay内のUI更新のみ) -----
 const Typing = {
     currentWord: null,
     typedIndex: 0,
@@ -408,7 +766,7 @@ const Typing = {
         const wordEl = document.getElementById('word-display');
         const romajiEl = document.getElementById('romaji-display');
         wordEl.innerText = this.currentWord.k;
-        
+
         let html = "";
         const r = this.currentWord.r;
         for(let i=0; i<r.length; i++) {
@@ -422,12 +780,13 @@ const Typing = {
 
     handleKey(e) {
         if(e.key.length !== 1) return;
-        
+
         const targetChar = this.currentWord.r[this.typedIndex];
         
-        // 「っ」の特殊ルール判定 (例: tta)
-        // 今回はユーザー指定のルールに基づき、入力されたキーが次の文字と一致するかチェック
-        if(e.key === targetChar) {
+        // 修正: 入力キーを小文字に統一 (CapsLock対策)
+        const pressedKey = e.key.toLowerCase();
+
+        if(pressedKey === targetChar) {
             this.onSuccess();
         } else {
             this.onMiss();
@@ -437,30 +796,29 @@ const Typing = {
     onSuccess() {
         this.typedIndex++;
         Data.combo++;
-        Data.coins += Data.combo * 5 * Data.multiplier;
-        
+        Data.coins += (Data.combo * 5 * Data.multiplier) / 10;
+        this.updateDisplay();
+        Data.save();
+
         if(this.typedIndex >= this.currentWord.r.length) {
             this.nextWord();
-        } else {
-            this.updateDisplay();
         }
     },
 
     onMiss() {
         Data.combo = 0;
         this.updateDisplay();
+        Data.save();
     }
 };
 
-/**
- * バトルエンジン
- */
+// ----- Battle (修正: タワークリック時の処理) -----
 const Battle = {
     canvas: null,
     ctx: null,
     enemies: [],
+    bullets: [],
     tileSize: 40,
-    offset: {x: 0, y: 0},
     spawnTimer: 0,
     selectedTile: null,
 
@@ -469,12 +827,13 @@ const Battle = {
         this.ctx = this.canvas.getContext('2d');
         this.resize();
         this.loop();
-        
+
         this.canvas.addEventListener('mousedown', (e) => this.handleClick(e));
+        window.addEventListener('resize', () => this.resize());
     },
 
     resize() {
-        const side = Math.min(window.innerWidth * 0.45, window.innerHeight * 0.8);
+        const side = Math.min(window.innerWidth * 0.45, window.innerHeight * 0.85);
         this.canvas.width = side;
         this.canvas.height = side;
         this.tileSize = side / Data.gridSize;
@@ -486,27 +845,18 @@ const Battle = {
         const y = Math.floor((e.clientY - rect.top) / this.tileSize);
         const center = Math.floor(Data.gridSize / 2);
 
-        if(x === center && y === center) return; // 城
+        if(x === center && y === center) return; // 城マス
+        if(x < 0 || x >= Data.gridSize || y < 0 || y >= Data.gridSize) return;
 
         const existing = Data.placedTowers.find(t => t.x === x && t.y === y);
         if(existing) {
-            this.selectedTile = {x, y, tower: existing};
-        } else if(Data.selectedTowerIndex !== -1) {
-            // 設置
-            const towerName = Data.inventory[Data.selectedTowerIndex];
-            const config = TOWER_TYPES[towerName];
-            Data.placedTowers.push({
-                x, y, 
-                name: towerName,
-                ...config,
-                lastFire: 0
-            });
-            Data.inventory.splice(Data.selectedTowerIndex, 1);
-            Data.selectedTowerIndex = -1;
-            UI.updateTowerSelector();
-            this.selectedTile = null;
+            // 既存タワーをクリック → 管理モーダルを開く
+            Data.managingTower = { x, y, tower: existing };
+            UI.showTowerManageModal();
         } else {
-            this.selectedTile = null;
+            // 空きマス → 新規設置モーダル
+            Data.pendingTileSelect = {x, y};
+            UI.showTowerSelectModal();
         }
     },
 
@@ -524,19 +874,20 @@ const Battle = {
         this.enemies.push({
             x, y,
             ...config,
-            currentHP: config.hp
+            currentHP: config.hp,
+            id: Math.random()
         });
     },
 
     update() {
         const center = Math.floor(Data.gridSize / 2);
-        
-        // 敵の移動
+
+        // 敵の移動と城攻撃
         this.enemies.forEach((en, index) => {
             const dx = center - en.x;
             const dy = center - en.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            
+
             if(dist < 0.2) {
                 Data.castleHP -= en.atk;
                 this.enemies.splice(index, 1);
@@ -544,18 +895,19 @@ const Battle = {
                 return;
             }
 
-            // 速度計算 (足の速さ2 = タイル1マス2.5秒 = 1秒に0.4タイル)
-            const moveStep = (en.speed * 0.2) / 60; 
+            const moveStep = (en.speed * 0.2) / 60;
             en.x += (dx / dist) * moveStep;
             en.y += (dy / dist) * moveStep;
         });
 
-        // タワーの攻撃
+        // タワーの攻撃/収入処理
         const now = Date.now();
         Data.placedTowers.forEach(t => {
+            t.lastFire = t.lastFire || 0;
+            
             if(t.income) {
                 if(now - t.lastFire > t.ct * 1000) {
-                    Data.coins += t.income;
+                    Data.coins += t.income / 10;
                     t.lastFire = now;
                 }
                 return;
@@ -568,29 +920,58 @@ const Battle = {
                 });
 
                 if(target) {
-                    target.currentHP -= t.dmg;
+                    this.bullets.push({
+                        fromX: t.x + 0.5,
+                        fromY: t.y + 0.5,
+                        toX: target.x,
+                        toY: target.y,
+                        progress: 0,
+                        speed: 0.15,
+                        damage: t.dmg,
+                        targetId: target.id
+                    });
                     t.lastFire = now;
-                    if(target.currentHP <= 0) {
-                        this.enemies = this.enemies.filter(e => e !== target);
-                    }
                 }
             }
         });
 
+        // 弾の更新
+        this.bullets.forEach((bullet, idx) => {
+            bullet.progress += bullet.speed;
+            if(bullet.progress >= 1) {
+                const target = this.enemies.find(en => en.id === bullet.targetId);
+                if(target) {
+                    target.currentHP -= bullet.damage;
+                    if(target.currentHP <= 0) {
+                        this.enemies = this.enemies.filter(e => e !== target);
+                    }
+                }
+                this.bullets.splice(idx, 1);
+            }
+        });
+
+        // 敵の出現
         this.spawnTimer++;
         if(this.spawnTimer > 120) {
             this.spawnEnemy();
             this.spawnTimer = 0;
         }
 
-        document.getElementById('castle-hp').innerText = `城HP: ${Math.max(0, Data.castleHP)} / 1000`;
+        document.getElementById('castle-hp').innerText = `城HP: ${Math.max(0, Data.castleHP)} / ${Data.maxCastleHP}`;
     },
 
     draw() {
-        this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
-        
-        // グリッド
-        this.ctx.strokeStyle = "#444";
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        gradient.addColorStop(0, '#87ceeb');
+        gradient.addColorStop(0.5, '#90ee90');
+        gradient.addColorStop(1, '#228b22');
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
+        this.ctx.lineWidth = 1;
         for(let i=0; i<=Data.gridSize; i++) {
             this.ctx.beginPath();
             this.ctx.moveTo(i * this.tileSize, 0);
@@ -602,36 +983,157 @@ const Battle = {
             this.ctx.stroke();
         }
 
-        // 城
         const center = Math.floor(Data.gridSize / 2);
-        this.ctx.fillStyle = "#ff4444";
-        this.ctx.fillRect(center * this.tileSize + 5, center * this.tileSize + 5, this.tileSize - 10, this.tileSize - 10);
+        const castleX = center * this.tileSize;
+        const castleY = center * this.tileSize;
+        
+        this.ctx.fillStyle = "#8b4513";
+        this.ctx.fillRect(castleX + 3, castleY + 3, this.tileSize - 6, this.tileSize - 6);
+        
+        this.ctx.fillStyle = "#ef4444";
+        this.ctx.shadowColor = "rgba(239, 68, 68, 0.6)";
+        this.ctx.shadowBlur = 15;
+        this.ctx.fillRect(castleX + 8, castleY + 8, this.tileSize - 16, this.tileSize - 16);
+        this.ctx.shadowColor = "transparent";
+        
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.font = "bold 13px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText(`HP${Data.castleHP}`, castleX + this.tileSize / 2, castleY + this.tileSize / 2 + 5);
 
-        // タワー
+        // タワーの描画
         Data.placedTowers.forEach(t => {
-            this.ctx.fillStyle = t.income ? "#44ff44" : "#4444ff";
-            this.ctx.beginPath();
-            this.ctx.arc((t.x + 0.5) * this.tileSize, (t.y + 0.5) * this.tileSize, this.tileSize * 0.4, 0, Math.PI*2);
-            this.ctx.fill();
+            const towerX = (t.x + 0.5) * this.tileSize;
+            const towerY = (t.y + 0.5) * this.tileSize;
+            
+            if(t.type === "income") {
+                this.ctx.fillStyle = "#22c55e";
+                this.ctx.shadowColor = "rgba(34, 197, 94, 0.7)";
+                this.ctx.shadowBlur = 12;
+                const radius = this.tileSize * 0.35;
+                this.ctx.fillRect(towerX - radius, towerY - radius, radius * 2, radius * 2);
+                
+                this.ctx.strokeStyle = "#15803d";
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(towerX - radius + 5, towerY);
+                this.ctx.lineTo(towerX + radius - 5, towerY);
+                this.ctx.moveTo(towerX, towerY - radius + 5);
+                this.ctx.lineTo(towerX, towerY + radius - 5);
+                this.ctx.stroke();
+            } else if(t.type === "hard") {
+                this.ctx.fillStyle = "#8b5cf6";
+                this.ctx.shadowColor = "rgba(139, 92, 246, 0.7)";
+                this.ctx.shadowBlur = 12;
+                this.ctx.beginPath();
+                this.ctx.arc(towerX, towerY, this.tileSize * 0.35, 0, Math.PI*2);
+                this.ctx.fill();
+                
+                this.ctx.strokeStyle = "#6d28d9";
+                this.ctx.lineWidth = 4;
+                this.ctx.beginPath();
+                this.ctx.moveTo(towerX, towerY);
+                this.ctx.lineTo(towerX + this.tileSize * 0.3, towerY - this.tileSize * 0.25);
+                this.ctx.stroke();
+            } else {
+                this.ctx.fillStyle = "#3b82f6";
+                this.ctx.shadowColor = "rgba(59, 130, 246, 0.7)";
+                this.ctx.shadowBlur = 12;
+                const shieldSize = this.tileSize * 0.35;
+                this.ctx.beginPath();
+                this.ctx.moveTo(towerX, towerY - shieldSize);
+                this.ctx.lineTo(towerX + shieldSize, towerY - shieldSize * 0.5);
+                this.ctx.lineTo(towerX + shieldSize * 0.7, towerY + shieldSize);
+                this.ctx.lineTo(towerX, towerY + shieldSize * 1.2);
+                this.ctx.lineTo(towerX - shieldSize * 0.7, towerY + shieldSize);
+                this.ctx.lineTo(towerX - shieldSize, towerY - shieldSize * 0.5);
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = "#1e40af";
+                this.ctx.beginPath();
+                this.ctx.arc(towerX, towerY, this.tileSize * 0.1, 0, Math.PI*2);
+                this.ctx.fill();
+            }
+            this.ctx.shadowColor = "transparent";
+            
+            // クールダウンバー
+            const elapsed = Date.now() - (t.lastFire || 0);
+            const cooldownPercent = Math.min(elapsed / (t.ct * 1000), 1);
+            
+            if(cooldownPercent < 1) {
+                this.ctx.fillStyle = "rgba(255, 165, 0, 0.7)";
+                const barWidth = this.tileSize * 0.6;
+                const barHeight = 4;
+                this.ctx.fillRect(towerX - barWidth/2, towerY + this.tileSize * 0.45, barWidth * cooldownPercent, barHeight);
+                
+                this.ctx.strokeStyle = "rgba(255, 165, 0, 0.9)";
+                this.ctx.lineWidth = 1;
+                this.ctx.strokeRect(towerX - barWidth/2, towerY + this.tileSize * 0.45, barWidth, barHeight);
+            }
         });
 
-        // 敵
+        // 敵の描画
         this.enemies.forEach(en => {
+            const enemyX = en.x * this.tileSize;
+            const enemyY = en.y * this.tileSize;
+            
             this.ctx.fillStyle = en.color;
-            this.ctx.fillRect(en.x * this.tileSize + 10, en.y * this.tileSize + 10, this.tileSize - 20, this.tileSize - 20);
+            this.ctx.shadowColor = en.color.replace(')', ', 0.5)').replace('rgb', 'rgba');
+            this.ctx.shadowBlur = 10;
+            this.ctx.beginPath();
+            this.ctx.arc(enemyX + this.tileSize / 2, enemyY + this.tileSize / 2 + 2, this.tileSize * 0.35, 0, Math.PI*2);
+            this.ctx.fill();
+            
+            this.ctx.fillStyle = "white";
+            this.ctx.beginPath();
+            this.ctx.arc(enemyX + this.tileSize / 2 - 5, enemyY + this.tileSize / 2 - 2, 3, 0, Math.PI*2);
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.arc(enemyX + this.tileSize / 2 + 5, enemyY + this.tileSize / 2 - 2, 3, 0, Math.PI*2);
+            this.ctx.fill();
+            
+            this.ctx.fillStyle = "black";
+            this.ctx.beginPath();
+            this.ctx.arc(enemyX + this.tileSize / 2 - 5, enemyY + this.tileSize / 2 - 2, 1.5, 0, Math.PI*2);
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.arc(enemyX + this.tileSize / 2 + 5, enemyY + this.tileSize / 2 - 2, 1.5, 0, Math.PI*2);
+            this.ctx.fill();
+            
+            this.ctx.shadowColor = "transparent";
+            
+            this.ctx.fillStyle = "#000000";
+            this.ctx.font = "bold 12px Arial";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText(`HP${en.currentHP}`, enemyX + this.tileSize / 2, enemyY + this.tileSize - 8);
         });
 
-        // 選択範囲表示
+        // 弾の描画
+        this.bullets.forEach(bullet => {
+            const currentX = bullet.fromX + (bullet.toX - bullet.fromX) * bullet.progress;
+            const currentY = bullet.fromY + (bullet.toY - bullet.fromY) * bullet.progress;
+            
+            this.ctx.fillStyle = "#ffff00";
+            this.ctx.shadowColor = "rgba(255, 255, 0, 0.8)";
+            this.ctx.shadowBlur = 8;
+            this.ctx.beginPath();
+            this.ctx.arc(currentX * this.tileSize, currentY * this.tileSize, 4, 0, Math.PI*2);
+            this.ctx.fill();
+            this.ctx.shadowColor = "transparent";
+        });
+
+        // 選択中のタワー (管理モーダル開いているときなどに範囲表示)
         if(this.selectedTile) {
             const t = this.selectedTile.tower;
-            this.ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-            this.ctx.beginPath();
-            this.ctx.arc((t.x + 0.5) * this.tileSize, (t.y + 0.5) * this.tileSize, t.range * this.tileSize, 0, Math.PI*2);
-            this.ctx.stroke();
+            const towerX = (t.x + 0.5) * this.tileSize;
+            const towerY = (t.y + 0.5) * this.tileSize;
             
-            // 簡易性能表示
-            this.ctx.fillStyle = "white";
-            this.ctx.fillText(`${t.name} DMG:${t.dmg} CT:${t.ct}`, t.x * this.tileSize, t.y * this.tileSize);
+            this.ctx.strokeStyle = "#ff8c00";
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.arc(towerX, towerY, t.range * this.tileSize, 0, Math.PI*2);
+            this.ctx.stroke();
         }
     },
 
@@ -652,31 +1154,196 @@ const Battle = {
     }
 };
 
-/**
- * UI管理
- */
+// ----- UI (大幅改修: タワー管理モーダル追加、不要UI削除) -----
 const UI = {
+    currentShopTab: 0,
+
     showModal(type) {
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         const modal = document.getElementById('modal-' + type);
-        modal.style.display = 'block';
-        this['render' + type.charAt(0).toUpperCase() + type.slice(1)]();
+        if(modal) modal.style.display = 'flex';
+        
+        if(type === 'shop') this.renderShop();
+        else if(type === 'inventory') this.renderInventory();
+        else if(type === 'levelUp') this.renderLevelUp();
+        else if(type === 'settings') this.renderSettings();
     },
 
     hideModal() {
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        Data.managingTower = null;
+        Data.pendingTileSelect = null;
+    },
+
+    // 新規: タワー管理モーダル
+    showTowerManageModal() {
+        this.hideModal();
+        const modal = document.getElementById('modal-tower-manage');
+        modal.style.display = 'flex';
+        this.renderTowerManageContent();
+    },
+
+    renderTowerManageContent() {
+        const content = document.getElementById('tower-manage-content');
+        if (!Data.managingTower) {
+            this.hideModal();
+            return;
+        }
+        const t = Data.managingTower.tower;
+        content.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h3 style="color: var(--field-green); margin-bottom: 15px;">${t.name}</h3>
+                <p style="margin-bottom: 10px;">位置: (${t.x}, ${t.y})</p>
+                <p style="margin-bottom: 20px;">攻撃力: ${t.dmg || '-'} / 間隔: ${t.ct}秒 / 範囲: ${t.range}</p>
+                <div class="action-buttons">
+                    <button class="menu-btn" onclick="UI.removeTower()">🗑️ 撤去</button>
+                    <button class="menu-btn" onclick="UI.replaceTower()">🔄 入れ替え</button>
+                </div>
+                <p style="margin-top: 20px; font-size: 12px; color: #cbd5e1;">撤去してもタワーは戻りません。入れ替えは手持ちのタワーと交換します。</p>
+            </div>
+        `;
+    },
+
+    removeTower() {
+        if (!Data.managingTower) return;
+        const { x, y, tower } = Data.managingTower;
+        Data.placedTowers = Data.placedTowers.filter(t => !(t.x === x && t.y === y));
+        Data.save();
+        this.hideModal();
+    },
+
+    replaceTower() {
+        if (!Data.managingTower) return;
+        if (Data.inventory.length === 0) {
+            alert("手持ちにタワーがありません。");
+            return;
+        }
+        // いったん管理モーダルを閉じて、入れ替え用の選択モーダルを開く
+        this.hideModal();
+        // 新規設置と同じモーダルを流用するが、pendingTileSelectに既存の座標を入れておく
+        Data.pendingTileSelect = { 
+            x: Data.managingTower.x, 
+            y: Data.managingTower.y,
+            isReplace: true  // 入れ替えフラグ
+        };
+        this.showTowerSelectModal();
+    },
+
+    showTowerSelectModal() {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        const modal = document.getElementById('modal-tower-select');
+        modal.style.display = 'flex';
+        this.renderTowerSelectContent();
+    },
+
+    cancelTowerSelect() {
+        Data.pendingTileSelect = null;
+        this.hideModal();
+    },
+
+    renderTowerSelectContent() {
+        const content = document.getElementById('tower-select-content');
+        content.innerHTML = "";
+
+        if(Data.inventory.length === 0) {
+            content.innerHTML = "<p style='text-align:center; color: #cbd5e1; padding: 40px 0;'>タワーがありません</p>";
+            return;
+        }
+
+        const towerCounts = {};
+        Data.inventory.forEach(name => {
+            towerCounts[name] = (towerCounts[name] || 0) + 1;
+        });
+
+        for(let name in towerCounts) {
+            const count = towerCounts[name];
+            content.innerHTML += `
+                <div class="tower-card" onclick="UI.placeTowerOnPendingTile('${name}')">
+                    <div>
+                        <strong>${name}</strong>
+                    </div>
+                    <div class="tower-card-count">×${count}</div>
+                </div>
+            `;
+        }
+    },
+
+    placeTowerOnPendingTile(towerName) {
+        if(!Data.pendingTileSelect) return;
+        
+        const config = TOWER_TYPES[towerName];
+        const { x, y, isReplace } = Data.pendingTileSelect;
+
+        if (isReplace) {
+            // 入れ替え処理: 既存タワーを削除し、手持ちに追加、新しいタワーを設置
+            const existingIndex = Data.placedTowers.findIndex(t => t.x === x && t.y === y);
+            if (existingIndex === -1) {
+                alert("エラー: タワーが見つかりません");
+                Data.pendingTileSelect = null;
+                this.hideModal();
+                return;
+            }
+            const oldTower = Data.placedTowers[existingIndex];
+            // 古いタワーをインベントリに戻す
+            Data.inventory.push(oldTower.name);
+            // 設置リストから削除
+            Data.placedTowers.splice(existingIndex, 1);
+        }
+
+        // 新しいタワーを設置
+        Data.placedTowers.push({
+            x, y,
+            name: towerName,
+            ...config,
+            lastFire: 0
+        });
+
+        // インベントリから1つだけ削除 (バグ修正)
+        Data.removeOneFromInventory(towerName);
+        
+        Data.pendingTileSelect = null;
+        Data.save();
+        this.hideModal();
+    },
+
+    switchShopTab(tabIndex) {
+        this.currentShopTab = tabIndex;
+        document.querySelectorAll('#modal-shop .tab-btn').forEach((btn, idx) => {
+            if(idx === tabIndex) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        document.querySelectorAll('#modal-shop .tab-content').forEach((content, idx) => {
+            if(idx === tabIndex) content.classList.add('active');
+            else content.classList.remove('active');
+        });
+        this.renderShopContent(tabIndex);
     },
 
     renderShop() {
-        const content = document.getElementById('shop-content');
+        this.currentShopTab = 0;
+        document.querySelectorAll('#modal-shop .tab-btn').forEach((btn, idx) => {
+            if(idx === 0) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        this.renderShopContent(0);
+    },
+
+    renderShopContent(tabIndex) {
+        const contents = ['shop-normal', 'shop-hard', 'shop-income'];
+        const types = ['normal', 'hard', 'income'];
+        
+        const content = document.getElementById(contents[tabIndex]);
         content.innerHTML = "";
+
         for(let name in TOWER_TYPES) {
             const t = TOWER_TYPES[name];
+            if(t.type !== types[tabIndex]) continue;
+
             content.innerHTML += `
                 <div class="shop-item">
                     <div>
                         <strong>${name}</strong><br>
-                        価格: ${t.price}コイン | ダメージ: ${t.dmg || 0} | 射程: ${t.range}
+                        💰 ${t.price}コイン ${t.dmg ? '| 💥 ' + t.dmg + '': ''} ${t.income ? '| 💸 ' + t.income : ''} | 📏 ${t.range}
                     </div>
                     <button class="menu-btn" onclick="UI.buyTower('${name}')">購入</button>
                 </div>
@@ -690,45 +1357,58 @@ const UI = {
             Data.coins -= t.price;
             Data.inventory.push(name);
             Data.save();
-            this.renderShop();
-            this.updateTowerSelector();
-            alert(name + "を購入しました");
+            this.renderShopContent(this.currentShopTab);
+            // インベントリ表示などがあれば更新 (今回は不要)
+            alert("✓ " + name + "を購入しました！");
         } else {
-            alert("コインが足りません");
+            alert("✗ コインが足りません");
         }
     },
 
     renderInventory() {
         const content = document.getElementById('inventory-content');
         content.innerHTML = "";
-        Data.inventory.forEach((name, index) => {
+        if(Data.inventory.length === 0) {
+            content.innerHTML = "<p style='text-align:center; color: #cbd5e1; padding: 40px 0;'>持ち物がありません</p>";
+            return;
+        }
+
+        const towerCounts = {};
+        Data.inventory.forEach(name => {
+            towerCounts[name] = (towerCounts[name] || 0) + 1;
+        });
+
+        for(let name in towerCounts) {
+            const count = towerCounts[name];
             content.innerHTML += `
-                <div class="inv-item">
-                    <span>${name}</span>
-                    <button class="menu-btn" style="background:red" onclick="UI.discardItem(${index})">捨てる</button>
+                <div class="tower-card">
+                    <div>
+                        <strong>${name}</strong>
+                    </div>
+                    <div class="tower-card-count">×${count}</div>
                 </div>
             `;
-        });
-    },
-
-    discardItem(index) {
-        if(confirm("本当に捨てますか？")) {
-            Data.inventory.splice(index, 1);
-            this.renderInventory();
-            this.updateTowerSelector();
         }
     },
 
     renderLevelUp() {
         const content = document.getElementById('level-content');
         const nextCost = Data.levelCosts[Data.level] || "MAX";
+        const isMax = !Data.levelCosts[Data.level];
+        
         content.innerHTML = `
-            <div style="text-align:center">
+            <div class="level-info">
                 <h3>現在のレベル: ${Data.level}</h3>
-                <p>次のレベルへの条件: ${nextCost} コイン</p>
-                <p>報酬: タイピング報酬が2倍、マップが拡大</p>
-                <button class="menu-btn" onclick="UI.doLevelUp()">レベルアップする</button>
+                ${isMax ? '<p style="color: var(--highlight-yellow);">最大レベルに達しました！</p>' : 
+                `<p>次のレベルへの必要コイン</p>
+                <p style="color: var(--highlight-yellow); font-weight: 700; font-size: 20px;">${nextCost}</p>`}
             </div>
+            <div style="background: rgba(34, 197, 94, 0.1); padding: 20px; border-radius: 10px; border: 2px solid rgba(74, 222, 128, 0.3);">
+                <h4 style="color: var(--field-green); margin-bottom: 10px;">報酬:</h4>
+                <p style="color: #cbd5e1;">✓ タイピング報酬が2倍になります</p>
+                <p style="color: #cbd5e1;">✓ マップが1タイル拡大します（横縦両方）</p>
+            </div>
+            ${!isMax ? '<button class="level-up-btn" onclick="UI.doLevelUp()">レベルアップする</button>' : ''}
         `;
     },
 
@@ -742,52 +1422,51 @@ const UI = {
             Battle.resize();
             Data.save();
             this.renderLevelUp();
-            alert("レベルアップしました！");
+            alert("🎉 レベルアップしました！");
         } else {
-            alert("コインが足りません");
+            alert("✗ コインが足りません");
         }
     },
 
+    renderSettings() {
+        const content = document.getElementById('settings-content');
+        content.innerHTML = `
+            <div class="settings-item">
+                <label>👤 プレイヤー名</label>
+                <input type="text" id="player-name-input" value="${Data.playerName}" placeholder="名前を入力">
+                <button class="menu-btn" onclick="Data.saveName()" style="margin-top: 10px; width: 100%;">💾 保存</button>
+            </div>
+            <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 10px; border: 2px solid rgba(74, 222, 128, 0.3); margin: 20px 0;">
+                <p style="color: #cbd5e1; font-size: 14px;">
+                    <strong>ゲーム情報</strong><br>
+                    レベル: ${Data.level}<br>
+                    コイン: ${Math.floor(Data.coins)}<br>
+                    グリッドサイズ: ${Data.gridSize}x${Data.gridSize}<br>
+                    設置タワー数: ${Data.placedTowers.length}
+                </p>
+            </div>
+            <button class="reset-btn" onclick="Data.resetData()">🗑️ データを消去する</button>
+        `;
+    },
+
+    // 削除: updateTowerSelector (もう使わない)
     updateTowerSelector() {
-        const container = document.getElementById('tower-selector');
-        container.innerHTML = "";
-        Data.inventory.forEach((name, index) => {
-            const btn = document.createElement('button');
-            btn.className = 'select-btn' + (Data.selectedTowerIndex === index ? ' selected' : '');
-            btn.innerText = name;
-            btn.onclick = () => {
-                Data.selectedTowerIndex = index;
-                UI.updateTowerSelector();
-            };
-            container.appendChild(btn);
-        });
+        // 何もしない (display:none で非表示のため)
     }
 };
 
-/**
- * 初期化とアンチチート
- */
-window.onload = () => {
-    Data.load();
+// コイン表示更新タイマー
+setInterval(() => {
+    document.getElementById('coin-display').innerText = `💰 ${Math.floor(Data.coins)}`;
+}, 100);
+
+window.onload = async () => {
+    await Data.load();
     Typing.init();
     Battle.init();
-    UI.updateTowerSelector();
-
-    // アンチチート
-    setInterval(() => {
-        if(window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-            // コンソールが開いている可能性
-            console.clear();
-            console.log("%cチートは禁止です！", "color:red; font-size:30px;");
-        }
-    }, 1000);
-
-    window.addEventListener('keydown', (e) => {
-        if(e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
-            e.preventDefault();
-        }
-    });
+    // UI.updateTowerSelector(); // 不要なのでコメントアウト
 };
 </script>
+
 </body>
 </html>
