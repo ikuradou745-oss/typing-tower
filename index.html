@@ -3,1478 +3,880 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Defense Online - 効果音追加版</title>
+    <title>Typing Game RPG</title>
     <style>
-        /* 前回と同様のスタイル (変更なし) */
-        :root {
-            --bg-color: #0f472a;
-            --panel-color: #1a5a3a;
-            --text-color: #f5f5f5;
-            --accent-green: #4ade80;
-            --highlight-yellow: #fbbf24;
-            --field-green: #22c55e;
-            --earth-brown: #92400e;
-            --sky-blue: #0ea5e9;
-            --danger-red: #ef4444;
-        }
+        /* CSSリセットと基本設定 */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #ffffff; overflow: hidden; }
+        
+        /* 全体レイアウト */
+        #app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+        
+        /* 上側：ヘッダー */
+        #header { display: flex; align-items: center; justify-content: space-between; height: 60px; background-color: #1e1e1e; padding: 0 20px; border-bottom: 2px solid #333; }
+        #header-left { display: flex; align-items: center; gap: 20px; }
+        #settings-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #fff; transition: transform 0.2s; }
+        #settings-btn:hover { transform: rotate(90deg); }
+        #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; }
+        #header-right { display: flex; align-items: center; gap: 10px; width: 300px; }
+        #level-display { font-size: 18px; font-weight: bold; white-space: nowrap; }
+        #xp-bar-container { width: 100%; height: 15px; background-color: #333; border-radius: 10px; overflow: hidden; position: relative; }
+        #xp-bar-fill { height: 100%; background-color: #4caf50; width: 0%; transition: width 0.3s ease; }
+        #xp-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* 下側：メインコンテンツ */
+        #main-content { flex: 1; position: relative; background-color: #121212; overflow-y: auto; padding: 20px; }
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; }
+        .screen.active { display: flex; }
 
-        body {
-            background: linear-gradient(135deg, var(--bg-color) 0%, #0d3a1f 100%);
-            color: var(--text-color);
-            font-family: 'Segoe UI', 'Noto Sans JP', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            user-select: none;
-            min-height: 100vh;
-        }
+        /* メニュー画面 */
+        #menu-screen .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 80%; max-width: 600px; margin-top: 50px; }
+        .menu-btn { background-color: #333; color: #fff; border: 2px solid #555; padding: 30px; font-size: 24px; border-radius: 15px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
+        .menu-btn:hover { background-color: #444; border-color: #777; transform: translateY(-5px); }
 
-        #game-container {
-            display: flex;
-            width: 100vw;
-            height: 100vh;
-        }
+        /* プレイ選択画面 */
+        #play-select-screen .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 80%; max-width: 600px; margin-top: 50px; }
+        .mode-btn { background-color: #2196f3; color: #fff; border: none; padding: 30px; font-size: 24px; border-radius: 15px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
+        .mode-btn.hard { background-color: #f44336; }
+        .mode-btn:hover { filter: brightness(1.2); transform: translateY(-5px); }
 
-        #battle-side {
-            flex: 1;
-            position: relative;
-            background: linear-gradient(to bottom, var(--sky-blue) 0%, #7cb342 50%, #558b2f 100%);
-            border-right: 4px solid var(--earth-brown);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: inset -10px 0 30px rgba(0, 0, 0, 0.3);
-        }
+        /* ゲーム画面 */
+        #game-screen { justify-content: center; position: relative; }
+        #game-info { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 24px; font-weight: bold; }
+        #typing-area { text-align: center; margin-top: 20px; }
+        #japanese-text { font-size: 48px; margin-bottom: 20px; }
+        #romaji-text { font-size: 36px; letter-spacing: 2px; font-family: monospace; }
+        .typed { color: #4caf50; text-shadow: 0 0 10px #4caf50; }
+        .untyped { color: #888; }
+        .untyped-hidden { color: transparent; }
+        #skill-button-container { position: absolute; bottom: 40px; right: 40px; }
+        #skill-btn { background-color: #9c27b0; color: #fff; border: none; padding: 20px; font-size: 20px; border-radius: 50%; width: 100px; height: 100px; cursor: pointer; font-weight: bold; box-shadow: 0 0 15px #9c27b0; position: relative; overflow: hidden; }
+        #skill-btn:disabled { background-color: #555; box-shadow: none; cursor: not-allowed; color: #aaa; }
+        #skill-cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0,0,0,0.5); height: 0%; transition: height 0.1s linear; }
 
-        canvas {
-            background: linear-gradient(180deg, #87ceeb 0%, #90ee90 50%, #228b22 100%);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            border: 3px solid #8b7355;
-            cursor: crosshair;
-        }
+        /* リザルト画面 */
+        #result-screen { justify-content: center; }
+        .result-box { background-color: #1e1e1e; padding: 40px; border-radius: 15px; text-align: center; border: 2px solid #333; }
+        .result-item { font-size: 24px; margin: 15px 0; }
+        .back-btn { margin-top: 30px; background-color: #555; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; }
+        .back-btn:hover { background-color: #666; }
 
-        #typing-side {
-            width: 50%;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, var(--panel-color) 0%, #1f6e3a 100%);
-            padding: 0;
-            position: relative;
-            border-left: 3px solid var(--field-green);
-            box-shadow: inset 5px 0 20px rgba(0, 0, 0, 0.3);
-        }
+        /* 共通タブUI (ランキング・ショップ・持ち物) */
+        .tab-container { width: 90%; max-width: 800px; margin-top: 20px; }
+        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; cursor: pointer; font-size: 18px; border-bottom: 3px solid transparent; }
+        .tab.active { border-bottom-color: #2196f3; color: #2196f3; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* リストUI */
+        .list-container { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
+        .list-item { background-color: #1e1e1e; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+        .rank-item-info { font-size: 18px; }
+        .shop-item-info h3 { color: #fff; margin-bottom: 5px; }
+        .shop-item-info p { color: #aaa; font-size: 14px; }
+        .action-btn { background-color: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .action-btn:disabled { background-color: #555; cursor: not-allowed; }
+        .action-btn.equipped { background-color: #ff9800; }
 
-        #header-menu {
-            display: flex;
-            justify-content: space-around;
-            gap: 8px;
-            background: rgba(13, 58, 31, 0.95);
-            padding: 12px 20px;
-            border-bottom: 3px solid var(--field-green);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
+        /* モーダル */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: #1e1e1e; padding: 30px; border-radius: 15px; width: 80%; max-width: 500px; text-align: center; border: 2px solid #444; }
+        .modal-content h2 { margin-bottom: 20px; color: #f44336; }
+        .modal-content p { font-size: 18px; line-height: 1.5; margin-bottom: 30px; }
+        .modal-btn { background-color: #2196f3; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
+        .modal-btn.danger { background-color: #f44336; }
+        .modal-input { width: 100%; padding: 10px; font-size: 18px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #555; background-color: #121212; color: white; }
 
-        .menu-btn {
-            padding: 10px 18px;
-            background: linear-gradient(135deg, var(--field-green) 0%, #16a34a 100%);
-            border: none;
-            color: white;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 13px;
-            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
-        }
-        .menu-btn.danger {
-            background: linear-gradient(135deg, var(--danger-red) 0%, #b91c1c 100%);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-        }
-
-        .menu-btn:hover {
-            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.5);
-        }
-        .menu-btn.danger:hover {
-            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
-        }
-
-        #typing-ui {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            gap: 15px;
-            background: rgba(34, 197, 94, 0.05);
-            padding: 40px 30px;
-            position: relative;
-        }
-
-        #combo-display {
-            font-size: 32px;
-            color: var(--highlight-yellow);
-            font-weight: 700;
-            text-shadow: 0 2px 10px rgba(251, 191, 36, 0.4);
-            letter-spacing: 2px;
-        }
-
-        #word-display {
-            font-size: 48px;
-            font-weight: 700;
-            color: var(--field-green);
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-            letter-spacing: 2px;
-        }
-
-        #romaji-display {
-            font-size: 32px;
-            letter-spacing: 4px;
-            color: #cbd5e1;
-            font-family: 'Courier New', monospace;
-            font-weight: 500;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .typed {
-            color: var(--highlight-yellow);
-            font-weight: bold;
-            text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
-        }
-
-        #stats-bar {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            text-align: right;
-            background: rgba(13, 58, 31, 0.95);
-            padding: 18px 24px;
-            border-radius: 10px;
-            border: 2px solid var(--field-green);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        #castle-hp {
-            font-size: 16px;
-            color: #fca5a5;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        #coin-display {
-            font-size: 26px;
-            color: var(--highlight-yellow);
-            font-weight: 700;
-            text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 750px;
-            max-height: 85vh;
-            background: linear-gradient(135deg, rgba(26, 90, 58, 0.98) 0%, rgba(31, 110, 58, 0.98) 100%);
-            border: 3px solid var(--field-green);
-            z-index: 100;
-            padding: 0;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-            animation: modalSlideIn 0.3s ease-out;
-            flex-direction: column;
-        }
-
-        @keyframes modalSlideIn {
-            from { opacity: 0; transform: translate(-50%, -48%); }
-            to { opacity: 1; transform: translate(-50%, -50%); }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(13, 58, 31, 0.95);
-            border-bottom: 2px solid var(--field-green);
-            padding: 20px 30px;
-        }
-
-        .modal-header h2 {
-            color: var(--field-green);
-            font-size: 26px;
-            margin: 0;
-        }
-
-        .close-btn {
-            cursor: pointer;
-            font-size: 32px;
-            color: var(--highlight-yellow);
-            background: none;
-            border: none;
-            padding: 0;
-        }
-
-        .tab-bar {
-            display: flex;
-            gap: 0;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 2px solid var(--field-green);
-            padding: 0;
-            margin: 0;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: rgba(34, 197, 94, 0.1);
-            border: none;
-            color: #cbd5e1;
-            cursor: pointer;
-            font-weight: 600;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .tab-btn.active {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--field-green);
-            border-bottom-color: var(--field-green);
-        }
-
-        .modal-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .tower-card {
-            background: rgba(34, 197, 94, 0.1);
-            border: 2px solid rgba(74, 222, 128, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tower-card:hover {
-            background: rgba(34, 197, 94, 0.2);
-            border-color: var(--field-green);
-        }
-
-        .tower-card-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--highlight-yellow);
-            color: black;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .shop-item {
-            background: rgba(34, 197, 94, 0.1);
-            padding: 18px;
-            margin: 12px 0;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 2px solid rgba(74, 222, 128, 0.3);
-            transition: all 0.3s;
-        }
-
-        .shop-item:hover {
-            background: rgba(34, 197, 94, 0.2);
-            border-color: var(--field-green);
-            transform: translateX(5px);
-        }
-
-        .shop-item strong {
-            color: var(--field-green);
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .shop-item div {
-            color: #cbd5e1;
-            font-size: 14px;
-        }
-
-        #game-over-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.8);
-            color: #ff6b6b;
-            font-size: 100px;
-            font-weight: bold;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            text-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
-        }
-
-        #tower-selector {
-            display: none;
-        }
-
-        .settings-item {
-            background: rgba(34, 197, 94, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid rgba(74, 222, 128, 0.3);
-            margin: 15px 0;
-        }
-
-        .settings-item label {
-            color: var(--field-green);
-            font-weight: 600;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .settings-item input {
-            padding: 10px 12px;
-            border-radius: 6px;
-            border: 2px solid var(--field-green);
-            background: rgba(34, 197, 94, 0.1);
-            color: var(--text-color);
-            width: 100%;
-            font-size: 14px;
-        }
-
-        .settings-item input:focus {
-            outline: none;
-            background: rgba(34, 197, 94, 0.2);
-        }
-
-        .reset-btn {
-            padding: 12px;
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-
-        .level-info {
-            background: rgba(34, 197, 94, 0.15);
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid var(--field-green);
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .level-info h3 {
-            color: var(--field-green);
-            font-size: 28px;
-            margin: 0 0 10px 0;
-        }
-
-        .level-info p {
-            color: #cbd5e1;
-            margin: 8px 0;
-        }
-
-        .level-up-btn {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, var(--field-green) 0%, #16a34a 100%);
-            border: none;
-            color: white;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
-            transition: all 0.3s;
-        }
-
-        .level-up-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.5);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
+        /* スクロールバー */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #777; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-<div id="game-over-overlay">GAME OVER</div>
-
-<div id="game-container">
-    <div id="battle-side">
-        <canvas id="battleCanvas"></canvas>
-        <div id="tower-selector"></div>
-    </div>
-
-    <div id="typing-side">
-        <div id="header-menu">
-            <button class="menu-btn" onclick="UI.showModal('shop')">🏪 ショップ</button>
-            <button class="menu-btn" onclick="UI.showModal('inventory')">🎒 持ち物</button>
-            <button class="menu-btn" onclick="UI.showModal('levelUp')">⬆️ レベルアップ</button>
-            <button class="menu-btn" onclick="UI.showModal('settings')">⚙️ 設定</button>
+<div id="app-container">
+    <div id="header">
+        <div id="header-left">
+            <button id="settings-btn">⚙️</button>
+            <div id="coin-display">🪙0</div>
         </div>
-
-        <div id="typing-ui">
-            <div id="combo-display">COMBO: 0</div>
-            <div id="word-display">準備完了</div>
-            <div id="romaji-display">PRESS ANY KEY TO START</div>
-        </div>
-
-        <div id="stats-bar">
-            <div id="castle-hp">城HP: 1000 / 1000</div>
-            <div id="coin-display">💰 0</div>
+        <div id="header-right">
+            <div id="level-display">Lv.1</div>
+            <div id="xp-bar-container">
+                <div id="xp-bar-fill"></div>
+                <div id="xp-text">0 / 100 XP</div>
+            </div>
         </div>
     </div>
+
+    <div id="main-content">
+        <div id="menu-screen" class="screen active">
+            <h1 style="font-size: 48px; text-shadow: 0 0 20px #2196f3; margin-top: 20px;">Typing RPG</h1>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="app.showScreen('play-select-screen')">プレイ</button>
+                <button class="menu-btn" onclick="app.openRanking()">ランキングモード</button>
+                <button class="menu-btn" onclick="app.openShop()">ショップ</button>
+                <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
+            </div>
+        </div>
+
+        <div id="play-select-screen" class="screen">
+            <h2 style="font-size: 36px; margin-top: 20px;">難易度選択</h2>
+            <div class="select-grid">
+                <button class="mode-btn" onclick="app.startGame('normal')">ノーマル<br><span style="font-size: 16px;">通常ルール</span></button>
+                <button class="mode-btn hard" onclick="app.startGame('hard')">ハード<br><span style="font-size: 16px;">未入力非表示 / コイン2倍</span></button>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 50px;">戻る</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div id="game-info">
+                <div>残り時間: <span id="time-display">60</span>秒</div>
+                <div>スコア: <span id="score-display">0</span></div>
+                <div>コンボ: <span id="combo-display">0</span></div>
+            </div>
+            <div id="typing-area">
+                <div id="japanese-text"></div>
+                <div id="romaji-text"></div>
+            </div>
+            <div id="skill-button-container">
+                <button id="skill-btn" disabled>
+                    <span id="skill-btn-text">スキル無し</span>
+                    <div id="skill-cooldown-overlay"></div>
+                </button>
+                <div style="text-align: center; font-size: 12px; margin-top: 5px;">Spaceキー</div>
+            </div>
+        </div>
+
+        <div id="result-screen" class="screen">
+            <div class="result-box">
+                <h2 style="font-size: 36px; margin-bottom: 20px;">ゲーム終了！</h2>
+                <div class="result-item">最終スコア: <span id="result-score">0</span></div>
+                <div class="result-item">最大コンボ: <span id="result-combo">0</span></div>
+                <div class="result-item" style="color: #ffd700;">獲得コイン: 🪙<span id="result-coin">0</span></div>
+                <div class="result-item" style="color: #4caf50;">獲得XP: <span id="result-xp">0</span></div>
+                <div id="level-up-msg" style="color: #ff9800; font-weight: bold; margin-top: 10px; display: none;">レベルアップ！</div>
+                <button class="back-btn" onclick="app.endResult()">メニューに戻る</button>
+            </div>
+        </div>
+
+        <div id="ranking-screen" class="screen">
+            <h2 style="font-size: 32px;">ランキング (毎日朝7時更新)</h2>
+            <p style="color: #ff9800; margin-bottom: 10px; font-size: 14px;">※1位に報酬を追加する予定はある</p>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="app.switchRankingTab('score')">スコア</div>
+                    <div class="tab" onclick="app.switchRankingTab('combo')">コンボ</div>
+                    <div class="tab" onclick="app.switchRankingTab('playCount')">プレイ回数</div>
+                </div>
+                <div id="ranking-list" class="list-container">
+                    </div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="shop-screen" class="screen">
+            <h2 style="font-size: 32px;">ショップ</h2>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active">スキル</div>
+                    <div class="tab" style="color: #666; cursor: not-allowed;">アイテム (準備中)</div>
+                </div>
+                <div id="shop-list" class="list-container">
+                    </div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="inventory-screen" class="screen">
+            <h2 style="font-size: 32px;">持ち物</h2>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active">スキル</div>
+                    <div class="tab" style="color: #666; cursor: not-allowed;">アイテム (準備中)</div>
+                </div>
+                <div id="inventory-list" class="list-container">
+                    </div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+    </div>
 </div>
 
-<!-- モーダル各種 (変更なし) -->
-<div id="modal-shop" class="modal">
-    <div class="modal-header">
-        <h2>🏪 ショップ</h2>
-        <button class="close-btn" onclick="UI.hideModal()">×</button>
-    </div>
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="UI.switchShopTab(0)">ノーマル</button>
-        <button class="tab-btn" onclick="UI.switchShopTab(1)">ハード</button>
-        <button class="tab-btn" onclick="UI.switchShopTab(2)">収入</button>
-    </div>
+<div id="agreement-modal" class="modal-overlay">
     <div class="modal-content">
-        <div id="shop-normal" class="tab-content active"></div>
-        <div id="shop-hard" class="tab-content"></div>
-        <div id="shop-income" class="tab-content"></div>
+        <h2>⚠️ 注意事項</h2>
+        <p>このゲームはバグ、チートを使った場合はBANとなります。<br>そちらが不利にしているので言い訳はしないでください。</p>
+        <button class="modal-btn" onclick="app.acceptAgreement()">読み終わった</button>
     </div>
 </div>
 
-<div id="modal-inventory" class="modal">
-    <div class="modal-header">
-        <h2>🎒 持ち物</h2>
-        <button class="close-btn" onclick="UI.hideModal()">×</button>
-    </div>
+<div id="settings-modal" class="modal-overlay">
     <div class="modal-content">
-        <div id="inventory-content"></div>
+        <h2 style="color: white;">設定</h2>
+        <div style="text-align: left; margin-bottom: 10px;">名前変更 (20文字以内)</div>
+        <input type="text" id="name-input" class="modal-input" maxlength="20">
+        <button class="modal-btn" onclick="app.saveName()">名前を保存</button>
+        <button class="modal-btn" onclick="app.showAgreement()">注意事項をもう一度見る</button>
+        <button class="modal-btn danger" onclick="app.resetDataConfirm()" style="margin-top: 20px;">データの初期化</button>
+        <button class="back-btn" onclick="app.closeSettings()" style="width: 100%; margin-top: 10px;">閉じる</button>
     </div>
 </div>
 
-<div id="modal-levelUp" class="modal">
-    <div class="modal-header">
-        <h2>⬆️ レベルアップ</h2>
-        <button class="close-btn" onclick="UI.hideModal()">×</button>
-    </div>
+<div id="reset-confirm-modal" class="modal-overlay" style="z-index: 1001;">
     <div class="modal-content">
-        <div id="level-content"></div>
-    </div>
-</div>
-
-<div id="modal-settings" class="modal">
-    <div class="modal-header">
-        <h2>⚙️ 設定</h2>
-        <button class="close-btn" onclick="UI.hideModal()">×</button>
-    </div>
-    <div class="modal-content">
-        <div id="settings-content"></div>
-    </div>
-</div>
-
-<div id="modal-tower-manage" class="modal" style="width: 500px; max-width: 90%; max-height: 60vh;">
-    <div class="modal-header">
-        <h2>🛠️ タワー管理</h2>
-        <button class="close-btn" onclick="UI.hideModal()">×</button>
-    </div>
-    <div class="modal-content">
-        <div id="tower-manage-content"></div>
-    </div>
-</div>
-
-<div id="modal-tower-select" class="modal" style="width: 500px; max-width: 90%; max-height: 60vh;">
-    <div class="modal-header">
-        <h2>🛡️ タワーを選択</h2>
-        <button class="close-btn" onclick="UI.cancelTowerSelect()">×</button>
-    </div>
-    <div class="modal-content">
-        <div id="tower-select-content"></div>
+        <h2>⚠️ 警告</h2>
+        <p>本当に初期化しますか？<br>この操作は取り消せません。</p>
+        <button class="modal-btn danger" onclick="app.resetDataExecute()">はい、初期化します</button>
+        <button class="modal-btn" onclick="document.getElementById('reset-confirm-modal').classList.remove('active')">キャンセル</button>
     </div>
 </div>
 
 <script type="module">
-    // Firebase関連 (変更なし)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
-    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+// ==========================================
+// Firebase 設定と初期化
+// ==========================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+import { getDatabase, ref, set, get, child, update, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDcds20u1-6-nk7710P4xddsa-m1wDL0TQ",
-        authDomain: "iikotowaruikoto-d5aa7.firebaseapp.com",
-        databaseURL: "https://iikotowaruikoto-d5aa7-default-rtdb.firebaseio.com",
-        projectId: "iikotowaruikoto-d5aa7",
-        storageBucket: "iikotowaruikoto-d5aa7.firebasestorage.app",
-        messagingSenderId: "455780219216",
-        appId: "1:455780219216:web:225461fcf24c1a46f69455",
-        measurementId: "G-YQD459DBSG"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getDatabase(app);
-
-    window.fbSave = async (userId, data) => {
-        try {
-            await set(ref(db, 'users/' + userId), data);
-        } catch(e) {
-            console.log("Save error");
-        }
-    };
-
-    window.fbLoad = async (userId) => {
-        try {
-            const snapshot = await get(ref(db, 'users/' + userId));
-            return snapshot.exists() ? snapshot.val() : null;
-        } catch(e) {
-            return null;
-        }
-    };
-</script>
-
-<script>
-// ----- 効果音定義 (Web Audio API) -----
-const Sound = {
-    ctx: null,
-    init() {
-        try {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        } catch(e) {
-            console.warn("Web Audio API not supported");
-        }
-    },
-    play(type) {
-        if (!this.ctx) return;
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-
-        switch(type) {
-            case 'success':
-                osc.type = 'sine';
-                osc.frequency.value = 880;
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-                osc.start();
-                osc.stop(now + 0.1);
-                break;
-            case 'complete':
-                osc.type = 'triangle';
-                osc.frequency.value = 660;
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-                osc.start();
-                osc.stop(now + 0.2);
-                break;
-            case 'miss':
-                osc.type = 'sawtooth';
-                osc.frequency.value = 220;
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-                osc.start();
-                osc.stop(now + 0.15);
-                break;
-        }
-    }
+const firebaseConfig = {
+    apiKey: "AIzaSyBXnNXQ5khcR0EvRide4C0PjshJZpSF4oM",
+    authDomain: "typing-game-28ed0.firebaseapp.com",
+    databaseURL: "https://typing-game-28ed0-default-rtdb.firebaseio.com",
+    projectId: "typing-game-28ed0",
+    storageBucket: "typing-game-28ed0.firebasestorage.app",
+    messagingSenderId: "963797267101",
+    appId: "1:963797267101:web:0d5d700458fb1991021a74",
+    measurementId: "G-CL4B6ZK0SC"
 };
-Sound.init();
 
-// ----- ★★★ 修正された単語リスト (指定された風景描写) ★★★ -----
-const WORD_LIST = [
-    {k: "桜の花びら舞う夜空の下", r: "sakuranohanabiramauyozoranosita"},
-    {k: "静かな森で光る蛍たち", r: "sizukanamoridehikaruhotarutati"},
-    {k: "冬の雪道白く輝いている", r: "huyunoyukimitisirokukagayaiteru"},
-    {k: "川のせせらぎ鳥のさえずり", r: "kawanoseseragitorinosaezuri"},
-    {k: "青い海と広がる水平線", r: "aoiumitohirogarusuiheisen"},
-    {k: "夕焼け空に染まる街並み", r: "yuuyakesoranisomarumatinami"},
-    {k: "古い神社に響く鈴の音", r: "huruzinzyanihizukusuzunone"},
-    {k: "星空の下で願いをかける", r: "hosizoranositadeneagaiwokakeru"},
-    {k: "春の風が優しく頬を撫でる", r: "harunokazegayasasikuhowonaderu"},
-    {k: "夏の海辺で遊ぶ子供たち", r: "natunoumibedeasobukodomotati"},
-    {k: "秋の紅葉が山を染めていく", r: "akinokouyougayamawosometeiku"},
-    {k: "朝日の光が窓から差し込む", r: "asahinohikarigamadokarasasikomu"},
-    {k: "雨の音が静かに響いている", r: "amenootogasisukanihibiiteiru"},
-    {k: "風に揺れる草原の緑たち", r: "kazeniyurerusougennomidoritati"},
-    {k: "遠くの山にかかる白い雲", r: "tookunoyamanikakarusiroikumo"},
-    {k: "夜の街灯が道を照らしている", r: "yorunogaitougamitio terasiteiru"},
-    {k: "小さな花が道端に咲いている", r: "tiisanahanagamiti batani saiteiru"},
-    {k: "静かな湖に映る月の光", r: "sizukanamizuuminiuturutukinokari"},
-    {k: "旅の途中で出会う景色たち", r: "tabinotyuudedeausekesikitati"},
-    {k: "心に残る思い出の風景", r: "kokoroninokoruomoidenohuukei"}
+const appInstance = initializeApp(firebaseConfig);
+const analytics = getAnalytics(appInstance);
+const db = getDatabase(appInstance);
+
+// ==========================================
+// 出題データ
+// ==========================================
+const typingData = [
+    { ja: "早起きは三文の得", romaji: "hayaokihasanmonnotoku" },
+    { ja: "石の上にも三年", romaji: "isinouenimosannen" },
+    { ja: "塵も積もれば山となる", romaji: "tirimotumorebayamatonaru" },
+    { ja: "猿も木から落ちる", romaji: "sarumokikaraotiru" },
+    { ja: "犬も歩けば棒に当たる", romaji: "inumoarukebabouniataru" },
+    { ja: "雨降って地固まる", romaji: "amehuttezikatamaru" },
+    { ja: "花より団子", romaji: "hanayoridango" },
+    { ja: "転ばぬ先の杖", romaji: "korobanusakinotuye" },
+    { ja: "三人寄れば文殊の知恵", romaji: "sanninyorebamonzyunotie" },
+    { ja: "百聞は一見に如かず", romaji: "hyakubunhaikkennisikazu" },
+    { ja: "好きこそ物の上手なれ", romaji: "sukikosomononozyuuzenare" },
+    { ja: "案ずるより産むが易し", romaji: "anzuruyoriumugayasusi" },
+    { ja: "かわいい子には旅をさせよ", romaji: "kawaiikoniwatabiosaseyo" },
+    { ja: "親しき中にも礼儀あり", romaji: "sitasikinakanimoreigiari" },
+    { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru" },
+    { ja: "朝ごはんを食べる", romaji: "asagohanotaberu" }, // 元データのスペースは除去
+    { ja: "学校へ行く", romaji: "gakkoueiku" },
+    { ja: "図書館で本を読む", romaji: "tosyokandehonoyomu" },
+    { ja: "公園で友だちと遊ぶ", romaji: "kouendetomodatitoasobu" }, // 修正：tobusobu -> toasobu
+    { ja: "電車に乗る", romaji: "densyaninoru" },
+    { ja: "自転車で走る", romaji: "zitensyadehasiru" },
+    { ja: "海で泳ぐ", romaji: "umideoyogu" },
+    { ja: "山へ登る", romaji: "yamaenoboru" },
+    { ja: "星を数える", romaji: "hosiokazoeru" },
+    { ja: "春に花がさく", romaji: "harunihanagasaku" },
+    { ja: "夏はとてもあつい", romaji: "natuhatotemoatui" },
+    { ja: "秋に葉っぱが色づく", romaji: "akinihappagairoduku" },
+    { ja: "冬に雪がふる", romaji: "huyuniyukigahuru" },
+    { ja: "おいしいラーメンを食べる", romaji: "oisiiraamenotaberu" },
+    { ja: "大きな船が海をわたる", romaji: "ookinahunegaumiowataru" }
 ];
 
-// リストが足りなければ補完 (念のため)
-while(WORD_LIST.length < 50) {
-    WORD_LIST.push({k: "桜の花びら舞う夜空の下", r: "sakuranohanabiramauyozoranosita"});
+// ==========================================
+// スキルデータ
+// ==========================================
+const skillData = {
+    "auto_input_alpha": {
+        id: "auto_input_alpha",
+        name: "自動入力α",
+        desc: "3.5秒間、約0.06秒間隔で自動タイピングする。クールダウン25秒。",
+        price: 100000,
+        cooldown: 25,
+        duration: 3.5,
+        execute: function() {
+            gameState.isAutoTyping = true;
+            gameState.autoTypeInterval = setInterval(() => {
+                if (gameState.isPlaying) handleCorrectKey();
+            }, 60); // 0.3秒で5文字 = 0.06秒(60ms)/文字
+            setTimeout(() => {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }, this.duration * 1000);
+        }
+    },
+    "combo_up_alpha": {
+        id: "combo_up_alpha",
+        name: "コンボアップα",
+        desc: "5秒間、貰えるコンボが1.5倍になる。クールダウン35秒。",
+        price: 100000,
+        cooldown: 35,
+        duration: 5,
+        execute: function() {
+            gameState.comboMultiplier = 1.5;
+            setTimeout(() => {
+                gameState.comboMultiplier = 1.0;
+            }, this.duration * 1000);
+        }
+    }
+};
+
+// ==========================================
+// 状態管理
+// ==========================================
+const defaultUserData = {
+    name: "冒険者",
+    level: 1,
+    xp: 0,
+    coin: 0,
+    skills: [], // 所持スキルID
+    equippedSkill: null, // 装備中スキルID
+    playCount: 0,
+    bestScore: 0,
+    bestCombo: 0
+};
+
+let userRef = null;
+let userData = { ...defaultUserData };
+let uid = localStorage.getItem('typingGameUid');
+
+const gameState = {
+    isPlaying: false,
+    mode: 'normal',
+    timeLeft: 60,
+    score: 0,
+    combo: 0,
+    maxCombo: 0,
+    currentWordIndex: 0,
+    currentWordObj: null,
+    timer: null,
+    
+    // スキル関連
+    isAutoTyping: false,
+    autoTypeInterval: null,
+    comboMultiplier: 1.0,
+    skillCooldownTimer: null,
+    skillCooldownLeft: 0,
+    isSkillReady: false
+};
+
+// ==========================================
+// ユーティリティ
+// ==========================================
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
-// ----- Dataオブジェクト (変更なし) -----
-const Data = {
-    coins: 0,
-    combo: 0,
-    level: 0,
-    multiplier: 1,
-    gridSize: 9,
-    castleHP: 1000,
-    maxCastleHP: 1000,
-    inventory: ["兵士", "兵士"],
-    placedTowers: [],
-    playerName: "Player_" + Math.floor(Math.random()*1000),
-    selectedTowerIndex: -1,
-    pendingTileSelect: null,
-    managingTower: null,
+function getNextLevelXp(level) {
+    return 100 * level; // Lv1->2: 100XP, Lv2->3: 200XP...
+}
 
-    levelCosts: [500000, 3500000, 10000000, 250000000, 500000000],
+function getRankingDateKey() {
+    const now = new Date();
+    // JST (+9) に変換し、朝7時を境界とするため7時間引く
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    jstNow.setHours(jstNow.getHours() - 7);
+    return `${jstNow.getFullYear()}-${(jstNow.getMonth()+1).toString().padStart(2, '0')}-${jstNow.getDate().toString().padStart(2, '0')}`;
+}
 
-    async save() {
-        const payload = {
-            coins: this.coins,
-            combo: this.combo,
-            level: this.level,
-            inventory: this.inventory,
-            playerName: this.playerName,
-            castleHP: this.castleHP,
-            placedTowers: this.placedTowers
-        };
-        localStorage.setItem('wd_save', JSON.stringify(payload));
-        if (window.fbSave) {
-            await window.fbSave(this.playerName, payload);
-        }
-    },
+// ==========================================
+// 初期化・データロード
+// ==========================================
+async function initApp() {
+    if (!uid) {
+        uid = generateUUID();
+        localStorage.setItem('typingGameUid', uid);
+    }
+    userRef = ref(db, `users/${uid}`);
 
-    async load() {
-        let firebaseData = null;
-        if (window.fbLoad) {
-            firebaseData = await window.fbLoad(this.playerName);
-        }
-
-        if (firebaseData) {
-            this.coins = firebaseData.coins || 0;
-            this.combo = firebaseData.combo || 0;
-            this.level = firebaseData.level || 0;
-            this.inventory = firebaseData.inventory || ["兵士", "兵士"];
-            this.playerName = firebaseData.playerName || this.playerName;
-            this.castleHP = firebaseData.castleHP || 1000;
-            this.placedTowers = firebaseData.placedTowers || [];
+    try {
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+            userData = { ...defaultUserData, ...snapshot.val() };
         } else {
-            const saved = localStorage.getItem('wd_save');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                this.coins = parsed.coins || 0;
-                this.combo = parsed.combo || 0;
-                this.level = parsed.level || 0;
-                this.inventory = parsed.inventory || ["兵士", "兵士"];
-                this.playerName = parsed.playerName || this.playerName;
-                this.castleHP = parsed.castleHP || 1000;
-                this.placedTowers = parsed.placedTowers || [];
-            }
+            await set(userRef, userData);
         }
-        this.applyLevelEffects();
-    },
+    } catch (e) {
+        console.error("Firebase load error", e);
+    }
 
-    applyLevelEffects() {
-        this.multiplier = Math.pow(2, this.level);
-        this.gridSize = 9 + this.level;
-    },
-
-    saveName() {
-        const newName = document.getElementById('player-name-input').value;
-        if(newName) {
-            this.playerName = newName;
-            this.save();
-            alert("保存しました: " + newName);
-        }
-    },
-
-    resetData() {
-        if(confirm("全てのデータを消去しますか？")) {
-            localStorage.clear();
-            this.coins = 0;
-            this.combo = 0;
-            this.level = 0;
-            this.inventory = ["兵士", "兵士"];
-            this.castleHP = 1000;
-            this.placedTowers = [];
-            this.save();
-            location.reload();
-        }
-    },
+    updateHeaderUI();
     
-    removeOneFromInventory(towerName) {
-        const index = this.inventory.indexOf(towerName);
-        if (index > -1) {
-            this.inventory.splice(index, 1);
-            return true;
-        }
-        return false;
+    // 同意書チェック
+    if (!localStorage.getItem('agreementAccepted')) {
+        document.getElementById('agreement-modal').classList.add('active');
     }
-};
+}
 
-const TOWER_TYPES = {
-    "兵士": { price: 250, ct: 1, dmg: 10, range: 3, type: "normal" },
-    "ファーストタレット": { price: 3500, ct: 0.5, dmg: 25, range: 5, type: "normal" },
-    "大砲": { price: 2500, ct: 3.5, dmg: 100, range: 6, type: "hard" },
-    "キャロットファーム": { price: 1000, ct: 10, income: 5, range: 0, type: "income" }
-};
-
-const ENEMY_TYPES = {
-    "normal": { hp: 30, speed: 2, atk: 5, color: "#ef4444" },
-    "speed": { hp: 20, speed: 4, atk: 3, color: "#f97316" }
-};
-
-// ----- Typing (効果音追加) -----
-const Typing = {
-    currentWord: null,
-    typedIndex: 0,
-    inputBuffer: "",
-
-    init() {
-        window.addEventListener('keydown', (e) => this.handleKey(e));
-        this.nextWord();
-    },
-
-    nextWord() {
-        this.currentWord = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
-        this.typedIndex = 0;
-        this.inputBuffer = "";
-        this.updateDisplay();
-    },
-
-    updateDisplay() {
-        const wordEl = document.getElementById('word-display');
-        const romajiEl = document.getElementById('romaji-display');
-        wordEl.innerText = this.currentWord.k;
-
-        let html = "";
-        const r = this.currentWord.r;
-        for(let i=0; i<r.length; i++) {
-            if(i < this.typedIndex) html += `<span class="typed">${r[i]}</span>`;
-            else html += `<span>${r[i]}</span>`;
-        }
-        romajiEl.innerHTML = html;
-        document.getElementById('combo-display').innerText = `COMBO: ${Data.combo}`;
-        document.getElementById('coin-display').innerText = `💰 ${Math.floor(Data.coins)}`;
-    },
-
-    handleKey(e) {
-        if(e.key.length !== 1) return;
-
-        const targetChar = this.currentWord.r[this.typedIndex];
-        const pressedKey = e.key.toLowerCase();
-
-        if(pressedKey === targetChar) {
-            Sound.play('success');
-            this.onSuccess();
-        } else {
-            Sound.play('miss');
-            this.onMiss();
-        }
-    },
-
-    onSuccess() {
-        this.typedIndex++;
-        Data.combo++;
-        Data.coins += (Data.combo * 5 * Data.multiplier) / 10;
-        this.updateDisplay();
-        Data.save();
-
-        if(this.typedIndex >= this.currentWord.r.length) {
-            Sound.play('complete');
-            this.nextWord();
-        }
-    },
-
-    onMiss() {
-        Data.combo = 0;
-        this.updateDisplay();
-        Data.save();
+async function saveUserData() {
+    try {
+        await update(userRef, userData);
+        updateHeaderUI();
+    } catch (e) {
+        console.error("Firebase save error", e);
     }
-};
+}
 
-// ----- Battle (変更なし) -----
-const Battle = {
-    canvas: null,
-    ctx: null,
-    enemies: [],
-    bullets: [],
-    tileSize: 40,
-    spawnTimer: 0,
-    selectedTile: null,
+// ==========================================
+// UI更新系
+// ==========================================
+function updateHeaderUI() {
+    document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin)}`;
+    document.getElementById('level-display').innerText = `Lv.${userData.level}`;
+    
+    const nextXp = getNextLevelXp(userData.level);
+    const xpPercent = Math.min(100, (userData.xp / nextXp) * 100);
+    document.getElementById('xp-bar-fill').style.width = `${xpPercent}%`;
+    document.getElementById('xp-text').innerText = `${Math.floor(userData.xp)} / ${nextXp} XP`;
+}
 
-    init() {
-        this.canvas = document.getElementById('battleCanvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.resize();
-        this.loop();
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+}
 
-        this.canvas.addEventListener('mousedown', (e) => this.handleClick(e));
-        window.addEventListener('resize', () => this.resize());
-    },
+// ==========================================
+// ゲームロジック
+// ==========================================
+function startGame(mode) {
+    gameState.mode = mode;
+    gameState.isPlaying = true;
+    gameState.timeLeft = 60;
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.comboMultiplier = 1.0;
+    
+    // スキル初期化
+    resetSkillUI();
+    
+    showScreen('game-screen');
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(() => {
+        gameState.timeLeft--;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        if (gameState.timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+}
 
-    resize() {
-        const side = Math.min(window.innerWidth * 0.45, window.innerHeight * 0.85);
-        this.canvas.width = side;
-        this.canvas.height = side;
-        this.tileSize = side / Data.gridSize;
-    },
+function setNextWord() {
+    const randomObj = typingData[Math.floor(Math.random() * typingData.length)];
+    gameState.currentWordObj = { ...randomObj, typedLength: 0 };
+    renderWord();
+}
 
-    handleClick(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        const x = Math.floor((e.clientX - rect.left) / this.tileSize);
-        const y = Math.floor((e.clientY - rect.top) / this.tileSize);
-        const center = Math.floor(Data.gridSize / 2);
-
-        if(x === center && y === center) return;
-        if(x < 0 || x >= Data.gridSize || y < 0 || y >= Data.gridSize) return;
-
-        const existing = Data.placedTowers.find(t => t.x === x && t.y === y);
-        if(existing) {
-            Data.managingTower = { x, y, tower: existing };
-            UI.showTowerManageModal();
+function renderWord() {
+    const obj = gameState.currentWordObj;
+    document.getElementById('japanese-text').innerText = obj.ja;
+    
+    const romajiContainer = document.getElementById('romaji-text');
+    romajiContainer.innerHTML = '';
+    
+    for (let i = 0; i < obj.romaji.length; i++) {
+        const span = document.createElement('span');
+        span.innerText = obj.romaji[i];
+        if (i < obj.typedLength) {
+            span.className = 'typed';
         } else {
-            Data.pendingTileSelect = {x, y};
-            UI.showTowerSelectModal();
-        }
-    },
-
-    spawnEnemy() {
-        const side = Math.floor(Math.random() * 4);
-        let x, y;
-        const max = Data.gridSize - 1;
-        if(side === 0) { x = Math.random() * max; y = 0; }
-        else if(side === 1) { x = max; y = Math.random() * max; }
-        else if(side === 2) { x = Math.random() * max; y = max; }
-        else { x = 0; y = Math.random() * max; }
-
-        const type = Math.random() > 0.8 ? "speed" : "normal";
-        const config = ENEMY_TYPES[type];
-        this.enemies.push({
-            x, y,
-            ...config,
-            currentHP: config.hp,
-            id: Math.random()
-        });
-    },
-
-    update() {
-        const center = Math.floor(Data.gridSize / 2);
-
-        this.enemies.forEach((en, index) => {
-            const dx = center - en.x;
-            const dy = center - en.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-
-            if(dist < 0.2) {
-                Data.castleHP -= en.atk;
-                this.enemies.splice(index, 1);
-                if(Data.castleHP <= 0) this.gameOver();
-                return;
-            }
-
-            const moveStep = (en.speed * 0.2) / 60;
-            en.x += (dx / dist) * moveStep;
-            en.y += (dy / dist) * moveStep;
-        });
-
-        const now = Date.now();
-        Data.placedTowers.forEach(t => {
-            t.lastFire = t.lastFire || 0;
-            
-            if(t.income) {
-                if(now - t.lastFire > t.ct * 1000) {
-                    Data.coins += t.income / 10;
-                    t.lastFire = now;
-                }
-                return;
-            }
-
-            if(now - t.lastFire > t.ct * 1000) {
-                const target = this.enemies.find(en => {
-                    const d = Math.sqrt(Math.pow(en.x - t.x, 2) + Math.pow(en.y - t.y, 2));
-                    return d <= t.range;
-                });
-
-                if(target) {
-                    this.bullets.push({
-                        fromX: t.x + 0.5,
-                        fromY: t.y + 0.5,
-                        toX: target.x,
-                        toY: target.y,
-                        progress: 0,
-                        speed: 0.15,
-                        damage: t.dmg,
-                        targetId: target.id
-                    });
-                    t.lastFire = now;
-                }
-            }
-        });
-
-        this.bullets.forEach((bullet, idx) => {
-            bullet.progress += bullet.speed;
-            if(bullet.progress >= 1) {
-                const target = this.enemies.find(en => en.id === bullet.targetId);
-                if(target) {
-                    target.currentHP -= bullet.damage;
-                    if(target.currentHP <= 0) {
-                        this.enemies = this.enemies.filter(e => e !== target);
-                    }
-                }
-                this.bullets.splice(idx, 1);
-            }
-        });
-
-        this.spawnTimer++;
-        if(this.spawnTimer > 120) {
-            this.spawnEnemy();
-            this.spawnTimer = 0;
-        }
-
-        document.getElementById('castle-hp').innerText = `城HP: ${Math.max(0, Data.castleHP)} / ${Data.maxCastleHP}`;
-    },
-
-    draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, '#87ceeb');
-        gradient.addColorStop(0.5, '#90ee90');
-        gradient.addColorStop(1, '#228b22');
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
-        this.ctx.lineWidth = 1;
-        for(let i=0; i<=Data.gridSize; i++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(i * this.tileSize, 0);
-            this.ctx.lineTo(i * this.tileSize, this.canvas.height);
-            this.ctx.stroke();
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, i * this.tileSize);
-            this.ctx.lineTo(this.canvas.width, i * this.tileSize);
-            this.ctx.stroke();
-        }
-
-        const center = Math.floor(Data.gridSize / 2);
-        const castleX = center * this.tileSize;
-        const castleY = center * this.tileSize;
-        
-        this.ctx.fillStyle = "#8b4513";
-        this.ctx.fillRect(castleX + 3, castleY + 3, this.tileSize - 6, this.tileSize - 6);
-        
-        this.ctx.fillStyle = "#ef4444";
-        this.ctx.shadowColor = "rgba(239, 68, 68, 0.6)";
-        this.ctx.shadowBlur = 15;
-        this.ctx.fillRect(castleX + 8, castleY + 8, this.tileSize - 16, this.tileSize - 16);
-        this.ctx.shadowColor = "transparent";
-        
-        this.ctx.fillStyle = "#ffffff";
-        this.ctx.font = "bold 13px Arial";
-        this.ctx.textAlign = "center";
-        this.ctx.fillText(`HP${Data.castleHP}`, castleX + this.tileSize / 2, castleY + this.tileSize / 2 + 5);
-
-        Data.placedTowers.forEach(t => {
-            const towerX = (t.x + 0.5) * this.tileSize;
-            const towerY = (t.y + 0.5) * this.tileSize;
-            
-            if(t.type === "income") {
-                this.ctx.fillStyle = "#22c55e";
-                this.ctx.shadowColor = "rgba(34, 197, 94, 0.7)";
-                this.ctx.shadowBlur = 12;
-                const radius = this.tileSize * 0.35;
-                this.ctx.fillRect(towerX - radius, towerY - radius, radius * 2, radius * 2);
-                
-                this.ctx.strokeStyle = "#15803d";
-                this.ctx.lineWidth = 1;
-                this.ctx.beginPath();
-                this.ctx.moveTo(towerX - radius + 5, towerY);
-                this.ctx.lineTo(towerX + radius - 5, towerY);
-                this.ctx.moveTo(towerX, towerY - radius + 5);
-                this.ctx.lineTo(towerX, towerY + radius - 5);
-                this.ctx.stroke();
-            } else if(t.type === "hard") {
-                this.ctx.fillStyle = "#8b5cf6";
-                this.ctx.shadowColor = "rgba(139, 92, 246, 0.7)";
-                this.ctx.shadowBlur = 12;
-                this.ctx.beginPath();
-                this.ctx.arc(towerX, towerY, this.tileSize * 0.35, 0, Math.PI*2);
-                this.ctx.fill();
-                
-                this.ctx.strokeStyle = "#6d28d9";
-                this.ctx.lineWidth = 4;
-                this.ctx.beginPath();
-                this.ctx.moveTo(towerX, towerY);
-                this.ctx.lineTo(towerX + this.tileSize * 0.3, towerY - this.tileSize * 0.25);
-                this.ctx.stroke();
+            if (gameState.mode === 'hard') {
+                span.className = 'untyped-hidden'; // ハードモードは未入力非表示
             } else {
-                this.ctx.fillStyle = "#3b82f6";
-                this.ctx.shadowColor = "rgba(59, 130, 246, 0.7)";
-                this.ctx.shadowBlur = 12;
-                const shieldSize = this.tileSize * 0.35;
-                this.ctx.beginPath();
-                this.ctx.moveTo(towerX, towerY - shieldSize);
-                this.ctx.lineTo(towerX + shieldSize, towerY - shieldSize * 0.5);
-                this.ctx.lineTo(towerX + shieldSize * 0.7, towerY + shieldSize);
-                this.ctx.lineTo(towerX, towerY + shieldSize * 1.2);
-                this.ctx.lineTo(towerX - shieldSize * 0.7, towerY + shieldSize);
-                this.ctx.lineTo(towerX - shieldSize, towerY - shieldSize * 0.5);
-                this.ctx.closePath();
-                this.ctx.fill();
-                
-                this.ctx.fillStyle = "#1e40af";
-                this.ctx.beginPath();
-                this.ctx.arc(towerX, towerY, this.tileSize * 0.1, 0, Math.PI*2);
-                this.ctx.fill();
+                span.className = 'untyped';
             }
-            this.ctx.shadowColor = "transparent";
-            
-            const elapsed = Date.now() - (t.lastFire || 0);
-            const cooldownPercent = Math.min(elapsed / (t.ct * 1000), 1);
-            
-            if(cooldownPercent < 1) {
-                this.ctx.fillStyle = "rgba(255, 165, 0, 0.7)";
-                const barWidth = this.tileSize * 0.6;
-                const barHeight = 4;
-                this.ctx.fillRect(towerX - barWidth/2, towerY + this.tileSize * 0.45, barWidth * cooldownPercent, barHeight);
-                
-                this.ctx.strokeStyle = "rgba(255, 165, 0, 0.9)";
-                this.ctx.lineWidth = 1;
-                this.ctx.strokeRect(towerX - barWidth/2, towerY + this.tileSize * 0.45, barWidth, barHeight);
-            }
-        });
+        }
+        romajiContainer.appendChild(span);
+    }
+}
 
-        this.enemies.forEach(en => {
-            const enemyX = en.x * this.tileSize;
-            const enemyY = en.y * this.tileSize;
-            
-            this.ctx.fillStyle = en.color;
-            this.ctx.shadowColor = en.color.replace(')', ', 0.5)').replace('rgb', 'rgba');
-            this.ctx.shadowBlur = 10;
-            this.ctx.beginPath();
-            this.ctx.arc(enemyX + this.tileSize / 2, enemyY + this.tileSize / 2 + 2, this.tileSize * 0.35, 0, Math.PI*2);
-            this.ctx.fill();
-            
-            this.ctx.fillStyle = "white";
-            this.ctx.beginPath();
-            this.ctx.arc(enemyX + this.tileSize / 2 - 5, enemyY + this.tileSize / 2 - 2, 3, 0, Math.PI*2);
-            this.ctx.fill();
-            this.ctx.beginPath();
-            this.ctx.arc(enemyX + this.tileSize / 2 + 5, enemyY + this.tileSize / 2 - 2, 3, 0, Math.PI*2);
-            this.ctx.fill();
-            
-            this.ctx.fillStyle = "black";
-            this.ctx.beginPath();
-            this.ctx.arc(enemyX + this.tileSize / 2 - 5, enemyY + this.tileSize / 2 - 2, 1.5, 0, Math.PI*2);
-            this.ctx.fill();
-            this.ctx.beginPath();
-            this.ctx.arc(enemyX + this.tileSize / 2 + 5, enemyY + this.tileSize / 2 - 2, 1.5, 0, Math.PI*2);
-            this.ctx.fill();
-            
-            this.ctx.shadowColor = "transparent";
-            
-            this.ctx.fillStyle = "#000000";
-            this.ctx.font = "bold 12px Arial";
-            this.ctx.textAlign = "center";
-            this.ctx.fillText(`HP${en.currentHP}`, enemyX + this.tileSize / 2, enemyY + this.tileSize - 8);
-        });
+function handleCorrectKey() {
+    const obj = gameState.currentWordObj;
+    obj.typedLength++;
+    
+    gameState.combo += 1 * gameState.comboMultiplier;
+    if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+    
+    gameState.score += Math.floor(gameState.combo * 5);
+    
+    updateGameUI();
+    renderWord();
+    
+    if (obj.typedLength >= obj.romaji.length) {
+        setNextWord();
+    }
+}
 
-        this.bullets.forEach(bullet => {
-            const currentX = bullet.fromX + (bullet.toX - bullet.fromX) * bullet.progress;
-            const currentY = bullet.fromY + (bullet.toY - bullet.fromY) * bullet.progress;
-            
-            this.ctx.fillStyle = "#ffff00";
-            this.ctx.shadowColor = "rgba(255, 255, 0, 0.8)";
-            this.ctx.shadowBlur = 8;
-            this.ctx.beginPath();
-            this.ctx.arc(currentX * this.tileSize, currentY * this.tileSize, 4, 0, Math.PI*2);
-            this.ctx.fill();
-            this.ctx.shadowColor = "transparent";
-        });
+function handleWrongKey() {
+    gameState.combo = 0;
+    updateGameUI();
+}
 
-        if(this.selectedTile) {
-            const t = this.selectedTile.tower;
-            const towerX = (t.x + 0.5) * this.tileSize;
-            const towerY = (t.y + 0.5) * this.tileSize;
+function updateGameUI() {
+    document.getElementById('score-display').innerText = gameState.score;
+    document.getElementById('combo-display').innerText = Math.floor(gameState.combo);
+}
+
+// キーボードイベント
+document.addEventListener('keydown', (e) => {
+    // スキル発動 (スペースキー)
+    if (e.code === 'Space' && gameState.isPlaying && gameState.isSkillReady) {
+        e.preventDefault();
+        activateSkill();
+        return;
+    }
+    
+    if (!gameState.isPlaying || gameState.isAutoTyping) return;
+    
+    const obj = gameState.currentWordObj;
+    if (!obj) return;
+    
+    const expectedChar = obj.romaji[obj.typedLength];
+    // アルファベットのみ判定
+    if (/^[a-zA-Z]$/.test(e.key)) {
+        if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
+            handleCorrectKey();
+        } else {
+            handleWrongKey();
+        }
+    }
+});
+
+function endGame() {
+    gameState.isPlaying = false;
+    clearInterval(gameState.timer);
+    if (gameState.autoTypeInterval) clearInterval(gameState.autoTypeInterval);
+    if (gameState.skillCooldownTimer) clearInterval(gameState.skillCooldownTimer);
+    
+    // リザルト計算
+    let earnedCoin = Math.floor(gameState.score / 10);
+    if (gameState.mode === 'hard') earnedCoin *= 2;
+    const earnedXp = Math.floor(gameState.score / 100);
+    
+    // データ更新
+    userData.coin += earnedCoin;
+    userData.xp += earnedXp;
+    userData.playCount += 1;
+    
+    if (gameState.mode === 'normal') {
+        if (gameState.score > userData.bestScore) userData.bestScore = gameState.score;
+        if (gameState.maxCombo > userData.bestCombo) userData.bestCombo = Math.floor(gameState.maxCombo);
+        // ランキング送信
+        submitRanking();
+    }
+    
+    // レベルアップ判定
+    let leveledUp = false;
+    while (userData.xp >= getNextLevelXp(userData.level)) {
+        userData.xp -= getNextLevelXp(userData.level);
+        userData.level++;
+        leveledUp = true;
+    }
+    
+    saveUserData();
+    
+    // リザルト画面表示
+    document.getElementById('result-score').innerText = gameState.score;
+    document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo);
+    document.getElementById('result-coin').innerText = earnedCoin;
+    document.getElementById('result-xp').innerText = earnedXp;
+    document.getElementById('level-up-msg').style.display = leveledUp ? 'block' : 'none';
+    
+    showScreen('result-screen');
+}
+
+// ==========================================
+// スキルシステム
+// ==========================================
+function resetSkillUI() {
+    const btn = document.getElementById('skill-btn');
+    const overlay = document.getElementById('skill-cooldown-overlay');
+    const text = document.getElementById('skill-btn-text');
+    
+    if (!userData.equippedSkill || !skillData[userData.equippedSkill]) {
+        text.innerText = "スキル\n無し";
+        btn.disabled = true;
+        overlay.style.height = '0%';
+        gameState.isSkillReady = false;
+        return;
+    }
+    
+    const skill = skillData[userData.equippedSkill];
+    text.innerText = skill.name.replace('α', '\nα');
+    btn.disabled = false;
+    btn.onclick = activateSkill;
+    overlay.style.height = '0%';
+    gameState.isSkillReady = true;
+}
+
+function activateSkill() {
+    if (!gameState.isPlaying || !gameState.isSkillReady) return;
+    
+    const skill = skillData[userData.equippedSkill];
+    skill.execute();
+    
+    gameState.isSkillReady = false;
+    gameState.skillCooldownLeft = skill.cooldown;
+    document.getElementById('skill-btn').disabled = true;
+    
+    const overlay = document.getElementById('skill-cooldown-overlay');
+    overlay.style.transition = 'none';
+    overlay.style.height = '100%';
+    
+    // クールダウンアニメーション用に小刻みに更新
+    let tick = 100; // ms
+    gameState.skillCooldownTimer = setInterval(() => {
+        if(!gameState.isPlaying) {
+            clearInterval(gameState.skillCooldownTimer);
+            return;
+        }
+        gameState.skillCooldownLeft -= tick / 1000;
+        const percent = Math.max(0, (gameState.skillCooldownLeft / skill.cooldown) * 100);
+        overlay.style.height = `${percent}%`;
+        
+        if (gameState.skillCooldownLeft <= 0) {
+            clearInterval(gameState.skillCooldownTimer);
+            gameState.isSkillReady = true;
+            document.getElementById('skill-btn').disabled = false;
+            overlay.style.height = '0%';
+        }
+    }, tick);
+}
+
+// ==========================================
+// ランキング機能
+// ==========================================
+async function submitRanking() {
+    if (gameState.mode !== 'normal') return;
+    const dateKey = getRankingDateKey();
+    
+    const rankData = {
+        name: userData.name,
+        score: userData.bestScore,
+        combo: userData.bestCombo,
+        playCount: userData.playCount,
+        timestamp: Date.now() // ソート安定用
+    };
+    
+    try {
+        await update(ref(db, `rankings/${dateKey}/${uid}`), rankData);
+    } catch (e) {
+        console.error("Ranking submit error", e);
+    }
+}
+
+async function fetchRanking(type) {
+    const listContainer = document.getElementById('ranking-list');
+    listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">読み込み中...</div>';
+    
+    const dateKey = getRankingDateKey();
+    // orderByChild を使用して取得（Firebase側でインデックスがなくてもクライアントソート可能）
+    const q = query(ref(db, `rankings/${dateKey}`), orderByChild(type), limitToLast(100));
+    
+    try {
+        const snapshot = await get(q);
+        const results = [];
+        snapshot.forEach(child => {
+            results.push({ uid: child.key, ...child.val() });
+        });
+        
+        // 降順ソート
+        results.sort((a, b) => b[type] - a[type]);
+        
+        listContainer.innerHTML = '';
+        if (results.length === 0) {
+            listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">まだデータがありません</div>';
+            return;
+        }
+        
+        results.forEach((data, index) => {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            let icon = '';
+            if(index === 0) icon = '🥇 ';
+            else if(index === 1) icon = '🥈 ';
+            else if(index === 2) icon = '🥉 ';
             
-            this.ctx.strokeStyle = "#ff8c00";
-            this.ctx.lineWidth = 3;
-            this.ctx.beginPath();
-            this.ctx.arc(towerX, towerY, t.range * this.tileSize, 0, Math.PI*2);
-            this.ctx.stroke();
+            div.innerHTML = `
+                <div class="rank-item-info">${icon}${index + 1}位：${escapeHTML(data.name)}</div>
+                <div style="font-weight:bold; font-size: 20px;">${Math.floor(data[type])}</div>
+            `;
+            listContainer.appendChild(div);
+        });
+    } catch (e) {
+        console.error("Ranking fetch error", e);
+        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: red;">取得エラーが発生しました</div>';
+    }
+}
+
+// ==========================================
+// UI イベント（カプセル化用）
+// ==========================================
+const uiControllers = {
+    showScreen: showScreen,
+    startGame: startGame,
+    endResult: () => showScreen('menu-screen'),
+    
+    // モーダル系
+    acceptAgreement: () => {
+        localStorage.setItem('agreementAccepted', 'true');
+        document.getElementById('agreement-modal').classList.remove('active');
+    },
+    showAgreement: () => {
+        document.getElementById('settings-modal').classList.remove('active');
+        document.getElementById('agreement-modal').classList.add('active');
+    },
+    closeSettings: () => document.getElementById('settings-modal').classList.remove('active'),
+    saveName: () => {
+        const input = document.getElementById('name-input').value.trim();
+        if (input && input.length <= 20) {
+            userData.name = input;
+            saveUserData();
+            alert("名前を保存しました！");
+        } else {
+            alert("1文字以上、20文字以内で入力してください。");
         }
     },
-
-    loop() {
-        this.update();
-        this.draw();
-        requestAnimationFrame(() => this.loop());
+    resetDataConfirm: () => {
+        document.getElementById('reset-confirm-modal').classList.add('active');
+    },
+    resetDataExecute: async () => {
+        userData = { ...defaultUserData };
+        await saveUserData();
+        document.getElementById('reset-confirm-modal').classList.remove('active');
+        document.getElementById('settings-modal').classList.remove('active');
+        alert("データを初期化しました。");
+        location.reload();
     },
 
-    gameOver() {
-        const overlay = document.getElementById('game-over-overlay');
-        overlay.style.display = 'flex';
-        Data.coins = Math.floor(Data.coins / 2);
-        Data.save();
-        setTimeout(() => {
-            location.reload();
-        }, 5000);
+    // ランキング
+    openRanking: () => {
+        showScreen('ranking-screen');
+        uiControllers.switchRankingTab('score');
+    },
+    switchRankingTab: (type) => {
+        const tabs = document.querySelectorAll('#ranking-screen .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if(type === 'score') tabs[0].classList.add('active');
+        if(type === 'combo') tabs[1].classList.add('active');
+        if(type === 'playCount') tabs[2].classList.add('active');
+        fetchRanking(type);
+    },
+
+    // ショップ
+    openShop: () => {
+        showScreen('shop-screen');
+        const list = document.getElementById('shop-list');
+        list.innerHTML = '';
+        Object.values(skillData).forEach(skill => {
+            const hasSkill = userData.skills.includes(skill.id);
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `
+                <div class="shop-item-info">
+                    <h3>${skill.name}</h3>
+                    <p>${skill.desc}</p>
+                    <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${skill.price}</div>
+                </div>
+                <button class="action-btn" ${hasSkill ? 'disabled' : ''} id="buy-${skill.id}">
+                    ${hasSkill ? '購入済み' : '購入'}
+                </button>
+            `;
+            list.appendChild(div);
+            
+            if(!hasSkill) {
+                div.querySelector('button').onclick = () => {
+                    if (userData.coin >= skill.price) {
+                        userData.coin -= skill.price;
+                        userData.skills.push(skill.id);
+                        saveUserData();
+                        alert(`${skill.name}を購入しました！`);
+                        uiControllers.openShop(); // 再描画
+                    } else {
+                        alert("コインが足りません。");
+                    }
+                };
+            }
+        });
+    },
+
+    // 持ち物
+    openInventory: () => {
+        showScreen('inventory-screen');
+        const list = document.getElementById('inventory-list');
+        list.innerHTML = '';
+        
+        if (userData.skills.length === 0) {
+            list.innerHTML = '<div style="text-align:center; padding: 20px;">スキルを所持していません</div>';
+            return;
+        }
+
+        userData.skills.forEach(skillId => {
+            const skill = skillData[skillId];
+            if (!skill) return;
+            const isEquipped = userData.equippedSkill === skillId;
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `
+                <div class="shop-item-info">
+                    <h3>${skill.name}</h3>
+                    <p>${skill.desc}</p>
+                </div>
+                <button class="action-btn ${isEquipped ? 'equipped' : ''}" id="equip-${skill.id}">
+                    ${isEquipped ? '装備中' : '装備する'}
+                </button>
+            `;
+            list.appendChild(div);
+            
+            div.querySelector('button').onclick = () => {
+                if (isEquipped) {
+                    userData.equippedSkill = null;
+                } else {
+                    userData.equippedSkill = skillId;
+                }
+                saveUserData();
+                uiControllers.openInventory(); // 再描画
+            };
+        });
     }
 };
 
-// ----- UI (変更なし) -----
-const UI = {
-    currentShopTab: 0,
+// XSS対策
+function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag] || tag));
+}
 
-    showModal(type) {
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-        const modal = document.getElementById('modal-' + type);
-        if(modal) modal.style.display = 'flex';
-        
-        if(type === 'shop') this.renderShop();
-        else if(type === 'inventory') this.renderInventory();
-        else if(type === 'levelUp') this.renderLevelUp();
-        else if(type === 'settings') this.renderSettings();
-    },
+// グローバルにバインド（HTMLのonclickで呼び出せるようにするが、名前空間を絞る）
+window.app = uiControllers;
 
-    hideModal() {
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-        Data.managingTower = null;
-        Data.pendingTileSelect = null;
-    },
+// 設定ボタンのイベントリスナー
+document.getElementById('settings-btn').addEventListener('click', () => {
+    document.getElementById('name-input').value = userData.name;
+    document.getElementById('settings-modal').classList.add('active');
+});
 
-    showTowerManageModal() {
-        this.hideModal();
-        const modal = document.getElementById('modal-tower-manage');
-        modal.style.display = 'flex';
-        this.renderTowerManageContent();
-    },
+// アプリ起動
+initApp();
 
-    renderTowerManageContent() {
-        const content = document.getElementById('tower-manage-content');
-        if (!Data.managingTower) {
-            this.hideModal();
-            return;
-        }
-        const t = Data.managingTower.tower;
-        content.innerHTML = `
-            <div style="padding: 20px; text-align: center;">
-                <h3 style="color: var(--field-green); margin-bottom: 15px;">${t.name}</h3>
-                <p style="margin-bottom: 10px;">位置: (${t.x}, ${t.y})</p>
-                <p style="margin-bottom: 20px;">攻撃力: ${t.dmg || '-'} / 間隔: ${t.ct}秒 / 範囲: ${t.range}</p>
-                <div class="action-buttons">
-                    <button class="menu-btn" onclick="UI.removeTower()">🗑️ 撤去</button>
-                    <button class="menu-btn" onclick="UI.replaceTower()">🔄 入れ替え</button>
-                </div>
-                <p style="margin-top: 20px; font-size: 12px; color: #cbd5e1;">撤去してもタワーは戻りません。入れ替えは手持ちのタワーと交換します。</p>
-            </div>
-        `;
-    },
-
-    removeTower() {
-        if (!Data.managingTower) return;
-        const { x, y, tower } = Data.managingTower;
-        Data.placedTowers = Data.placedTowers.filter(t => !(t.x === x && t.y === y));
-        Data.save();
-        this.hideModal();
-    },
-
-    replaceTower() {
-        if (!Data.managingTower) return;
-        if (Data.inventory.length === 0) {
-            alert("手持ちにタワーがありません。");
-            return;
-        }
-        this.hideModal();
-        Data.pendingTileSelect = { 
-            x: Data.managingTower.x, 
-            y: Data.managingTower.y,
-            isReplace: true
-        };
-        this.showTowerSelectModal();
-    },
-
-    showTowerSelectModal() {
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-        const modal = document.getElementById('modal-tower-select');
-        modal.style.display = 'flex';
-        this.renderTowerSelectContent();
-    },
-
-    cancelTowerSelect() {
-        Data.pendingTileSelect = null;
-        this.hideModal();
-    },
-
-    renderTowerSelectContent() {
-        const content = document.getElementById('tower-select-content');
-        content.innerHTML = "";
-
-        if(Data.inventory.length === 0) {
-            content.innerHTML = "<p style='text-align:center; color: #cbd5e1; padding: 40px 0;'>タワーがありません</p>";
-            return;
-        }
-
-        const towerCounts = {};
-        Data.inventory.forEach(name => {
-            towerCounts[name] = (towerCounts[name] || 0) + 1;
-        });
-
-        for(let name in towerCounts) {
-            const count = towerCounts[name];
-            content.innerHTML += `
-                <div class="tower-card" onclick="UI.placeTowerOnPendingTile('${name}')">
-                    <div>
-                        <strong>${name}</strong>
-                    </div>
-                    <div class="tower-card-count">×${count}</div>
-                </div>
-            `;
-        }
-    },
-
-    placeTowerOnPendingTile(towerName) {
-        if(!Data.pendingTileSelect) return;
-        
-        const config = TOWER_TYPES[towerName];
-        const { x, y, isReplace } = Data.pendingTileSelect;
-
-        if (isReplace) {
-            const existingIndex = Data.placedTowers.findIndex(t => t.x === x && t.y === y);
-            if (existingIndex === -1) {
-                alert("エラー: タワーが見つかりません");
-                Data.pendingTileSelect = null;
-                this.hideModal();
-                return;
-            }
-            const oldTower = Data.placedTowers[existingIndex];
-            Data.inventory.push(oldTower.name);
-            Data.placedTowers.splice(existingIndex, 1);
-        }
-
-        Data.placedTowers.push({
-            x, y,
-            name: towerName,
-            ...config,
-            lastFire: 0
-        });
-
-        Data.removeOneFromInventory(towerName);
-        
-        Data.pendingTileSelect = null;
-        Data.save();
-        this.hideModal();
-    },
-
-    switchShopTab(tabIndex) {
-        this.currentShopTab = tabIndex;
-        document.querySelectorAll('#modal-shop .tab-btn').forEach((btn, idx) => {
-            if(idx === tabIndex) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
-        document.querySelectorAll('#modal-shop .tab-content').forEach((content, idx) => {
-            if(idx === tabIndex) content.classList.add('active');
-            else content.classList.remove('active');
-        });
-        this.renderShopContent(tabIndex);
-    },
-
-    renderShop() {
-        this.currentShopTab = 0;
-        document.querySelectorAll('#modal-shop .tab-btn').forEach((btn, idx) => {
-            if(idx === 0) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
-        this.renderShopContent(0);
-    },
-
-    renderShopContent(tabIndex) {
-        const contents = ['shop-normal', 'shop-hard', 'shop-income'];
-        const types = ['normal', 'hard', 'income'];
-        
-        const content = document.getElementById(contents[tabIndex]);
-        content.innerHTML = "";
-
-        for(let name in TOWER_TYPES) {
-            const t = TOWER_TYPES[name];
-            if(t.type !== types[tabIndex]) continue;
-
-            content.innerHTML += `
-                <div class="shop-item">
-                    <div>
-                        <strong>${name}</strong><br>
-                        💰 ${t.price}コイン ${t.dmg ? '| 💥 ' + t.dmg + '': ''} ${t.income ? '| 💸 ' + t.income : ''} | 📏 ${t.range}
-                    </div>
-                    <button class="menu-btn" onclick="UI.buyTower('${name}')">購入</button>
-                </div>
-            `;
-        }
-    },
-
-    buyTower(name) {
-        const t = TOWER_TYPES[name];
-        if(Data.coins >= t.price) {
-            Data.coins -= t.price;
-            Data.inventory.push(name);
-            Data.save();
-            this.renderShopContent(this.currentShopTab);
-            alert("✓ " + name + "を購入しました！");
-        } else {
-            alert("✗ コインが足りません");
-        }
-    },
-
-    renderInventory() {
-        const content = document.getElementById('inventory-content');
-        content.innerHTML = "";
-        if(Data.inventory.length === 0) {
-            content.innerHTML = "<p style='text-align:center; color: #cbd5e1; padding: 40px 0;'>持ち物がありません</p>";
-            return;
-        }
-
-        const towerCounts = {};
-        Data.inventory.forEach(name => {
-            towerCounts[name] = (towerCounts[name] || 0) + 1;
-        });
-
-        for(let name in towerCounts) {
-            const count = towerCounts[name];
-            content.innerHTML += `
-                <div class="tower-card">
-                    <div>
-                        <strong>${name}</strong>
-                    </div>
-                    <div class="tower-card-count">×${count}</div>
-                </div>
-            `;
-        }
-    },
-
-    renderLevelUp() {
-        const content = document.getElementById('level-content');
-        const nextCost = Data.levelCosts[Data.level] || "MAX";
-        const isMax = !Data.levelCosts[Data.level];
-        
-        content.innerHTML = `
-            <div class="level-info">
-                <h3>現在のレベル: ${Data.level}</h3>
-                ${isMax ? '<p style="color: var(--highlight-yellow);">最大レベルに達しました！</p>' : 
-                `<p>次のレベルへの必要コイン</p>
-                <p style="color: var(--highlight-yellow); font-weight: 700; font-size: 20px;">${nextCost}</p>`}
-            </div>
-            <div style="background: rgba(34, 197, 94, 0.1); padding: 20px; border-radius: 10px; border: 2px solid rgba(74, 222, 128, 0.3);">
-                <h4 style="color: var(--field-green); margin-bottom: 10px;">報酬:</h4>
-                <p style="color: #cbd5e1;">✓ タイピング報酬が2倍になります</p>
-                <p style="color: #cbd5e1;">✓ マップが1タイル拡大します（横縦両方）</p>
-            </div>
-            ${!isMax ? '<button class="level-up-btn" onclick="UI.doLevelUp()">レベルアップする</button>' : ''}
-        `;
-    },
-
-    doLevelUp() {
-        const cost = Data.levelCosts[Data.level];
-        if(!cost) return;
-        if(Data.coins >= cost) {
-            Data.coins -= cost;
-            Data.level++;
-            Data.applyLevelEffects();
-            Battle.resize();
-            Data.save();
-            this.renderLevelUp();
-            alert("🎉 レベルアップしました！");
-        } else {
-            alert("✗ コインが足りません");
-        }
-    },
-
-    renderSettings() {
-        const content = document.getElementById('settings-content');
-        content.innerHTML = `
-            <div class="settings-item">
-                <label>👤 プレイヤー名</label>
-                <input type="text" id="player-name-input" value="${Data.playerName}" placeholder="名前を入力">
-                <button class="menu-btn" onclick="Data.saveName()" style="margin-top: 10px; width: 100%;">💾 保存</button>
-            </div>
-            <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 10px; border: 2px solid rgba(74, 222, 128, 0.3); margin: 20px 0;">
-                <p style="color: #cbd5e1; font-size: 14px;">
-                    <strong>ゲーム情報</strong><br>
-                    レベル: ${Data.level}<br>
-                    コイン: ${Math.floor(Data.coins)}<br>
-                    グリッドサイズ: ${Data.gridSize}x${Data.gridSize}<br>
-                    設置タワー数: ${Data.placedTowers.length}
-                </p>
-            </div>
-            <button class="reset-btn" onclick="Data.resetData()">🗑️ データを消去する</button>
-        `;
-    },
-
-    updateTowerSelector() {}
-};
-
-setInterval(() => {
-    document.getElementById('coin-display').innerText = `💰 ${Math.floor(Data.coins)}`;
-}, 100);
-
-window.onload = async () => {
-    await Data.load();
-    Typing.init();
-    Battle.init();
-};
 </script>
-
 </body>
 </html>
