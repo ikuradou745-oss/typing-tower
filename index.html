@@ -7,93 +7,204 @@
     <style>
         /* CSSリセットと基本設定 */
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #ffffff; overflow: hidden; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f0f0f; color: #ffffff; overflow: hidden; }
         
         /* 全体レイアウト */
         #app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
         /* 上側：ヘッダー */
-        #header { display: flex; align-items: center; justify-content: space-between; height: 60px; background-color: #1e1e1e; padding: 0 20px; border-bottom: 2px solid #333; }
+        #header { display: flex; align-items: center; justify-content: space-between; height: 60px; background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%); padding: 0 20px; border-bottom: 1px solid #2a2a2a; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         #header-left { display: flex; align-items: center; gap: 20px; }
-        #settings-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #fff; transition: transform 0.2s; }
-        #settings-btn:hover { transform: rotate(90deg); }
-        #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; }
+        #settings-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #e0e0e0; transition: transform 0.3s ease; }
+        #settings-btn:hover { transform: rotate(90deg); color: #ffffff; }
+        #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
         #header-right { display: flex; align-items: center; gap: 10px; width: 300px; }
-        #level-display { font-size: 18px; font-weight: bold; white-space: nowrap; }
-        #xp-bar-container { width: 100%; height: 15px; background-color: #333; border-radius: 10px; overflow: hidden; position: relative; }
-        #xp-bar-fill { height: 100%; background-color: #4caf50; width: 0%; transition: width 0.3s ease; }
-        #xp-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        #level-display { font-size: 18px; font-weight: bold; white-space: nowrap; color: #e0e0e0; }
+        #xp-bar-container { width: 100%; height: 15px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #444; }
+        #xp-bar-fill { height: 100%; background: linear-gradient(90deg, #6bcf7f, #4caf50); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 8px #4caf50; }
+        #xp-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; }
 
         /* 下側：メインコンテンツ */
-        #main-content { flex: 1; position: relative; background-color: #121212; overflow-y: auto; padding: 20px; }
+        #main-content { flex: 1; position: relative; background: radial-gradient(circle at 20% 30%, #1e1e1e, #121212); overflow-y: auto; padding: 20px; }
         .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; }
         .screen.active { display: flex; }
 
         /* メニュー画面 */
-        #menu-screen .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 80%; max-width: 600px; margin-top: 50px; }
-        .menu-btn { background-color: #333; color: #fff; border: 2px solid #555; padding: 30px; font-size: 24px; border-radius: 15px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
-        .menu-btn:hover { background-color: #444; border-color: #777; transform: translateY(-5px); }
+        #menu-screen { justify-content: center; } /* 中央配置 */
+        #menu-screen h1 { 
+            font-size: 64px; 
+            margin-bottom: 40px; 
+            text-shadow: 0 0 20px #00bcd4, 0 0 40px #00bcd4; 
+            color: #ffffff;
+            letter-spacing: 4px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a0e9ff, #00bcd4, #007bff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-top: 0;
+        }
+        #menu-screen .menu-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 30px; 
+            width: 80%; 
+            max-width: 700px; 
+            margin-top: 0; 
+        }
+        .menu-btn { 
+            background: linear-gradient(145deg, #2c2c2c, #1f1f1f); 
+            color: #f0f0f0; 
+            border: none; 
+            padding: 35px 20px; 
+            font-size: 26px; 
+            border-radius: 24px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            font-weight: bold; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(255,255,255,0.05) inset;
+            border: 1px solid #3a3a3a;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 2px black;
+        }
+        .menu-btn:hover { 
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a); 
+            border-color: #00bcd4; 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0, 188, 212, 0.4);
+            color: #ffffff;
+        }
 
         /* プレイ選択画面 */
-        #play-select-screen .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 80%; max-width: 600px; margin-top: 50px; }
-        .mode-btn { background-color: #2196f3; color: #fff; border: none; padding: 30px; font-size: 24px; border-radius: 15px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
-        .mode-btn.hard { background-color: #f44336; }
-        .mode-btn:hover { filter: brightness(1.2); transform: translateY(-5px); }
+        #play-select-screen { justify-content: center; }
+        #play-select-screen h2 { font-size: 48px; margin-bottom: 50px; text-shadow: 0 0 15px #2196f3; }
+        #play-select-screen .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 80%; max-width: 700px; }
+        .mode-btn { 
+            background: linear-gradient(145deg, #1e88e5, #1565c0); 
+            color: #fff; 
+            border: none; 
+            padding: 35px; 
+            font-size: 28px; 
+            border-radius: 24px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            font-weight: bold; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5), 0 2px 4px rgba(255,255,255,0.2) inset;
+            border: 1px solid #42a5f5;
+        }
+        .mode-btn.hard { background: linear-gradient(145deg, #e53935, #c62828); border-color: #ef5350; }
+        .mode-btn:hover { filter: brightness(1.15); transform: translateY(-8px); box-shadow: 0 15px 25px rgba(0,0,0,0.6); }
 
         /* ゲーム画面 */
         #game-screen { justify-content: center; position: relative; }
-        #game-info { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 24px; font-weight: bold; }
+        #game-info { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-around; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px black; }
         #typing-area { text-align: center; margin-top: 20px; }
-        #japanese-text { font-size: 48px; margin-bottom: 20px; }
-        #romaji-text { font-size: 36px; letter-spacing: 2px; font-family: monospace; }
-        .typed { color: #4caf50; text-shadow: 0 0 10px #4caf50; }
-        .untyped { color: #888; }
+        #japanese-text { font-size: 56px; margin-bottom: 20px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
+        #romaji-text { font-size: 44px; letter-spacing: 4px; font-family: 'Courier New', monospace; }
+        .typed { color: #76ff03; text-shadow: 0 0 15px #76ff03; }
+        .untyped { color: #b0bec5; }
         .untyped-hidden { color: transparent; }
-        #skill-button-container { position: absolute; bottom: 40px; right: 40px; }
-        #skill-btn { background-color: #9c27b0; color: #fff; border: none; padding: 20px; font-size: 20px; border-radius: 50%; width: 100px; height: 100px; cursor: pointer; font-weight: bold; box-shadow: 0 0 15px #9c27b0; position: relative; overflow: hidden; }
-        #skill-btn:disabled { background-color: #555; box-shadow: none; cursor: not-allowed; color: #aaa; }
-        #skill-cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0,0,0,0.5); height: 0%; transition: height 0.1s linear; }
+        #skill-button-container { position: absolute; bottom: 50px; right: 50px; }
+        #skill-btn { 
+            background: radial-gradient(circle at 30% 30%, #ab47bc, #6a1b9a); 
+            color: #fff; 
+            border: none; 
+            padding: 20px; 
+            font-size: 20px; 
+            border-radius: 50%; 
+            width: 110px; 
+            height: 110px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            box-shadow: 0 0 25px #ce93d8, 0 4px 8px black; 
+            position: relative; 
+            overflow: hidden; 
+            border: 2px solid #e1bee7;
+        }
+        #skill-btn:disabled { background: #424242; box-shadow: none; cursor: not-allowed; color: #9e9e9e; border-color: #616161; }
+        #skill-cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0,0,0,0.6); height: 0%; transition: height 0.1s linear; }
 
         /* リザルト画面 */
         #result-screen { justify-content: center; }
-        .result-box { background-color: #1e1e1e; padding: 40px; border-radius: 15px; text-align: center; border: 2px solid #333; }
-        .result-item { font-size: 24px; margin: 15px 0; }
-        .back-btn { margin-top: 30px; background-color: #555; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; }
-        .back-btn:hover { background-color: #666; }
+        .result-box { 
+            background: rgba(30, 30, 30, 0.9); 
+            backdrop-filter: blur(5px);
+            padding: 40px; 
+            border-radius: 30px; 
+            text-align: center; 
+            border: 1px solid #444; 
+            box-shadow: 0 20px 30px rgba(0,0,0,0.7);
+        }
+        .result-item { font-size: 28px; margin: 15px 0; }
+        .back-btn { 
+            margin-top: 30px; 
+            background: linear-gradient(145deg, #424242, #212121); 
+            color: white; 
+            border: none; 
+            padding: 15px 35px; 
+            font-size: 20px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: bold;
+            border: 1px solid #555;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: #555; transform: scale(1.02); box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
 
         /* 共通タブUI (ランキング・ショップ・持ち物) */
-        .tab-container { width: 90%; max-width: 800px; margin-top: 20px; }
+        .tab-container { width: 90%; max-width: 800px; margin-top: 30px; background: rgba(20,20,20,0.7); padding: 20px; border-radius: 30px; backdrop-filter: blur(4px); border: 1px solid #3a3a3a; }
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; cursor: pointer; font-size: 18px; border-bottom: 3px solid transparent; }
-        .tab.active { border-bottom-color: #2196f3; color: #2196f3; font-weight: bold; }
+        .tab { padding: 12px 24px; cursor: pointer; font-size: 20px; border-bottom: 3px solid transparent; transition: 0.2s; }
+        .tab.active { border-bottom-color: #00bcd4; color: #00bcd4; font-weight: bold; text-shadow: 0 0 8px #00bcd4; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
         /* リストUI */
-        .list-container { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
-        .list-item { background-color: #1e1e1e; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
-        .rank-item-info { font-size: 18px; }
-        .shop-item-info h3 { color: #fff; margin-bottom: 5px; }
-        .shop-item-info p { color: #aaa; font-size: 14px; }
-        .action-btn { background-color: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .action-btn:disabled { background-color: #555; cursor: not-allowed; }
-        .action-btn.equipped { background-color: #ff9800; }
+        .list-container { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
+        .list-item { 
+            background: rgba(40, 40, 40, 0.8); 
+            backdrop-filter: blur(2px);
+            padding: 18px; 
+            border-radius: 18px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid #4a4a4a; 
+        }
+        .rank-item-info { font-size: 20px; }
+        .shop-item-info h3 { color: #fff; margin-bottom: 5px; font-size: 22px; }
+        .shop-item-info p { color: #ccc; font-size: 15px; }
+        .action-btn { 
+            background: linear-gradient(145deg, #4caf50, #2e7d32); 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .action-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
+        .action-btn:disabled { background: #555; cursor: not-allowed; }
+        .action-btn.equipped { background: linear-gradient(145deg, #ff9800, #b26500); }
 
         /* モーダル */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background-color: #1e1e1e; padding: 30px; border-radius: 15px; width: 80%; max-width: 500px; text-align: center; border: 2px solid #444; }
-        .modal-content h2 { margin-bottom: 20px; color: #f44336; }
-        .modal-content p { font-size: 18px; line-height: 1.5; margin-bottom: 30px; }
-        .modal-btn { background-color: #2196f3; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
-        .modal-btn.danger { background-color: #f44336; }
-        .modal-input { width: 100%; padding: 10px; font-size: 18px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #555; background-color: #121212; color: white; }
+        .modal-content { background: linear-gradient(145deg, #202020, #151515); padding: 35px; border-radius: 30px; width: 80%; max-width: 500px; text-align: center; border: 1px solid #555; box-shadow: 0 20px 30px black; }
+        .modal-content h2 { margin-bottom: 20px; color: #ff5252; }
+        .modal-content p { font-size: 18px; line-height: 1.6; margin-bottom: 30px; color: #ddd; }
+        .modal-btn { background: linear-gradient(145deg, #2196f3, #0d47a1); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 50px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.2s; }
+        .modal-btn.danger { background: linear-gradient(145deg, #f44336, #b71c1c); }
+        .modal-input { width: 100%; padding: 12px; font-size: 18px; margin-bottom: 20px; border-radius: 30px; border: 1px solid #666; background-color: #0a0a0a; color: white; }
 
         /* スクロールバー */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #121212; }
-        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #777; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #121212; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; border: 2px solid #121212; }
+        ::-webkit-scrollbar-thumb:hover { background: #666; }
     </style>
 </head>
 <body>
@@ -115,7 +226,7 @@
 
     <div id="main-content">
         <div id="menu-screen" class="screen active">
-            <h1 style="font-size: 48px; text-shadow: 0 0 20px #2196f3; margin-top: 20px;">Typing RPG</h1>
+            <h1>Typing RPG</h1>
             <div class="menu-grid">
                 <button class="menu-btn" onclick="app.showScreen('play-select-screen')">プレイ</button>
                 <button class="menu-btn" onclick="app.openRanking()">ランキングモード</button>
@@ -125,7 +236,7 @@
         </div>
 
         <div id="play-select-screen" class="screen">
-            <h2 style="font-size: 36px; margin-top: 20px;">難易度選択</h2>
+            <h2>難易度選択</h2>
             <div class="select-grid">
                 <button class="mode-btn" onclick="app.startGame('normal')">ノーマル<br><span style="font-size: 16px;">通常ルール</span></button>
                 <button class="mode-btn hard" onclick="app.startGame('hard')">ハード<br><span style="font-size: 16px;">未入力非表示 / コイン2倍</span></button>
@@ -278,10 +389,10 @@ const typingData = [
     { ja: "かわいい子には旅をさせよ", romaji: "kawaiikoniwatabiosaseyo" },
     { ja: "親しき中にも礼儀あり", romaji: "sitasikinakanimoreigiari" },
     { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru" },
-    { ja: "朝ごはんを食べる", romaji: "asagohanotaberu" }, // 元データのスペースは除去
+    { ja: "朝ごはんを食べる", romaji: "asagohanotaberu" },
     { ja: "学校へ行く", romaji: "gakkoueiku" },
     { ja: "図書館で本を読む", romaji: "tosyokandehonoyomu" },
-    { ja: "公園で友だちと遊ぶ", romaji: "kouendetomodatitoasobu" }, // 修正：tobusobu -> toasobu
+    { ja: "公園で友だちと遊ぶ", romaji: "kouendetomodatitoasobu" },
     { ja: "電車に乗る", romaji: "densyaninoru" },
     { ja: "自転車で走る", romaji: "zitensyadehasiru" },
     { ja: "海で泳ぐ", romaji: "umideoyogu" },
@@ -310,7 +421,7 @@ const skillData = {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
                 if (gameState.isPlaying) handleCorrectKey();
-            }, 60); // 0.3秒で5文字 = 0.06秒(60ms)/文字
+            }, 60);
             setTimeout(() => {
                 gameState.isAutoTyping = false;
                 clearInterval(gameState.autoTypeInterval);
@@ -341,8 +452,8 @@ const defaultUserData = {
     level: 1,
     xp: 0,
     coin: 0,
-    skills: [], // 所持スキルID
-    equippedSkill: null, // 装備中スキルID
+    skills: [],
+    equippedSkill: null,
     playCount: 0,
     bestScore: 0,
     bestCombo: 0
@@ -362,8 +473,6 @@ const gameState = {
     currentWordIndex: 0,
     currentWordObj: null,
     timer: null,
-    
-    // スキル関連
     isAutoTyping: false,
     autoTypeInterval: null,
     comboMultiplier: 1.0,
@@ -383,12 +492,11 @@ function generateUUID() {
 }
 
 function getNextLevelXp(level) {
-    return 100 * level; // Lv1->2: 100XP, Lv2->3: 200XP...
+    return 100 * level;
 }
 
 function getRankingDateKey() {
     const now = new Date();
-    // JST (+9) に変換し、朝7時を境界とするため7時間引く
     const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
     jstNow.setHours(jstNow.getHours() - 7);
     return `${jstNow.getFullYear()}-${(jstNow.getMonth()+1).toString().padStart(2, '0')}-${jstNow.getDate().toString().padStart(2, '0')}`;
@@ -417,7 +525,6 @@ async function initApp() {
 
     updateHeaderUI();
     
-    // 同意書チェック
     if (!localStorage.getItem('agreementAccepted')) {
         document.getElementById('agreement-modal').classList.add('active');
     }
@@ -462,7 +569,6 @@ function startGame(mode) {
     gameState.maxCombo = 0;
     gameState.comboMultiplier = 1.0;
     
-    // スキル初期化
     resetSkillUI();
     
     showScreen('game-screen');
@@ -497,11 +603,7 @@ function renderWord() {
         if (i < obj.typedLength) {
             span.className = 'typed';
         } else {
-            if (gameState.mode === 'hard') {
-                span.className = 'untyped-hidden'; // ハードモードは未入力非表示
-            } else {
-                span.className = 'untyped';
-            }
+            span.className = gameState.mode === 'hard' ? 'untyped-hidden' : 'untyped';
         }
         romajiContainer.appendChild(span);
     }
@@ -536,7 +638,6 @@ function updateGameUI() {
 
 // キーボードイベント
 document.addEventListener('keydown', (e) => {
-    // スキル発動 (スペースキー)
     if (e.code === 'Space' && gameState.isPlaying && gameState.isSkillReady) {
         e.preventDefault();
         activateSkill();
@@ -549,7 +650,6 @@ document.addEventListener('keydown', (e) => {
     if (!obj) return;
     
     const expectedChar = obj.romaji[obj.typedLength];
-    // アルファベットのみ判定
     if (/^[a-zA-Z]$/.test(e.key)) {
         if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
             handleCorrectKey();
@@ -565,12 +665,10 @@ function endGame() {
     if (gameState.autoTypeInterval) clearInterval(gameState.autoTypeInterval);
     if (gameState.skillCooldownTimer) clearInterval(gameState.skillCooldownTimer);
     
-    // リザルト計算
     let earnedCoin = Math.floor(gameState.score / 10);
     if (gameState.mode === 'hard') earnedCoin *= 2;
     const earnedXp = Math.floor(gameState.score / 100);
     
-    // データ更新
     userData.coin += earnedCoin;
     userData.xp += earnedXp;
     userData.playCount += 1;
@@ -578,11 +676,9 @@ function endGame() {
     if (gameState.mode === 'normal') {
         if (gameState.score > userData.bestScore) userData.bestScore = gameState.score;
         if (gameState.maxCombo > userData.bestCombo) userData.bestCombo = Math.floor(gameState.maxCombo);
-        // ランキング送信
         submitRanking();
     }
     
-    // レベルアップ判定
     let leveledUp = false;
     while (userData.xp >= getNextLevelXp(userData.level)) {
         userData.xp -= getNextLevelXp(userData.level);
@@ -592,7 +688,6 @@ function endGame() {
     
     saveUserData();
     
-    // リザルト画面表示
     document.getElementById('result-score').innerText = gameState.score;
     document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo);
     document.getElementById('result-coin').innerText = earnedCoin;
@@ -640,8 +735,7 @@ function activateSkill() {
     overlay.style.transition = 'none';
     overlay.style.height = '100%';
     
-    // クールダウンアニメーション用に小刻みに更新
-    let tick = 100; // ms
+    let tick = 100;
     gameState.skillCooldownTimer = setInterval(() => {
         if(!gameState.isPlaying) {
             clearInterval(gameState.skillCooldownTimer);
@@ -672,7 +766,7 @@ async function submitRanking() {
         score: userData.bestScore,
         combo: userData.bestCombo,
         playCount: userData.playCount,
-        timestamp: Date.now() // ソート安定用
+        timestamp: Date.now()
     };
     
     try {
@@ -687,7 +781,6 @@ async function fetchRanking(type) {
     listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">読み込み中...</div>';
     
     const dateKey = getRankingDateKey();
-    // orderByChild を使用して取得（Firebase側でインデックスがなくてもクライアントソート可能）
     const q = query(ref(db, `rankings/${dateKey}`), orderByChild(type), limitToLast(100));
     
     try {
@@ -697,7 +790,6 @@ async function fetchRanking(type) {
             results.push({ uid: child.key, ...child.val() });
         });
         
-        // 降順ソート
         results.sort((a, b) => b[type] - a[type]);
         
         listContainer.innerHTML = '';
@@ -734,7 +826,6 @@ const uiControllers = {
     startGame: startGame,
     endResult: () => showScreen('menu-screen'),
     
-    // モーダル系
     acceptAgreement: () => {
         localStorage.setItem('agreementAccepted', 'true');
         document.getElementById('agreement-modal').classList.remove('active');
@@ -766,7 +857,6 @@ const uiControllers = {
         location.reload();
     },
 
-    // ランキング
     openRanking: () => {
         showScreen('ranking-screen');
         uiControllers.switchRankingTab('score');
@@ -780,7 +870,6 @@ const uiControllers = {
         fetchRanking(type);
     },
 
-    // ショップ
     openShop: () => {
         showScreen('shop-screen');
         const list = document.getElementById('shop-list');
@@ -808,7 +897,7 @@ const uiControllers = {
                         userData.skills.push(skill.id);
                         saveUserData();
                         alert(`${skill.name}を購入しました！`);
-                        uiControllers.openShop(); // 再描画
+                        uiControllers.openShop();
                     } else {
                         alert("コインが足りません。");
                     }
@@ -817,7 +906,6 @@ const uiControllers = {
         });
     },
 
-    // 持ち物
     openInventory: () => {
         showScreen('inventory-screen');
         const list = document.getElementById('inventory-list');
@@ -852,29 +940,25 @@ const uiControllers = {
                     userData.equippedSkill = skillId;
                 }
                 saveUserData();
-                uiControllers.openInventory(); // 再描画
+                uiControllers.openInventory();
             };
         });
     }
 };
 
-// XSS対策
 function escapeHTML(str) {
     return str.replace(/[&<>'"]/g, tag => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
     }[tag] || tag));
 }
 
-// グローバルにバインド（HTMLのonclickで呼び出せるようにするが、名前空間を絞る）
 window.app = uiControllers;
 
-// 設定ボタンのイベントリスナー
 document.getElementById('settings-btn').addEventListener('click', () => {
     document.getElementById('name-input').value = userData.name;
     document.getElementById('settings-modal').classList.add('active');
 });
 
-// アプリ起動
 initApp();
 
 </script>
