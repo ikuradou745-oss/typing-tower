@@ -118,15 +118,50 @@
             font-weight: bold;
             text-align: center;
         }
-        .stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; }
+        .stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; cursor: not-allowed; opacity: 0.8; }
         .stage-btn.current { background: linear-gradient(145deg, #2196f3, #1565c0); border-color: #64b5f6; box-shadow: 0 0 15px #2196f3; }
         .stage-btn.locked { background: linear-gradient(145deg, #1a1a1a, #111); border-color: #444; color: #666; cursor: not-allowed; }
-        .stage-btn:not(.locked):hover { transform: scale(1.05); filter: brightness(1.2); }
+        .stage-btn.current:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .stage-btn.completed:hover { transform: none; filter: none; }
         .stage-info { font-size: 18px; margin: 15px 0; color: #ccc; }
 
         /* ゲーム画面 */
         #game-screen { justify-content: center; position: relative; }
-        #story-target-info { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); font-size: 24px; font-weight: bold; color: #9c27b0; text-shadow: 0 0 10px #9c27b0; }
+        #story-target-container { 
+            position: absolute; 
+            top: 80px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 400px; 
+            text-align: center; 
+        }
+        #story-target-info { 
+            font-size: 20px; 
+            font-weight: bold; 
+            color: #9c27b0; 
+            text-shadow: 0 0 10px #9c27b0; 
+            margin-bottom: 8px; 
+        }
+        #story-target-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #9c27b0;
+        }
+        #story-target-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ce93d8, #9c27b0, #7b1fa2);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px #9c27b0;
+        }
+        #story-target-text {
+            margin-top: 5px;
+            font-size: 16px;
+            color: #ccc;
+        }
         #game-info { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-around; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px black; }
         #typing-area { text-align: center; margin-top: 20px; }
         #japanese-text { font-size: 56px; margin-bottom: 20px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
@@ -309,7 +344,13 @@
                 <div>スコア: <span id="score-display">0</span></div>
                 <div>コンボ: <span id="combo-display">0</span></div>
             </div>
-            <div id="story-target-info"></div>
+            <div id="story-target-container">
+                <div id="story-target-info"></div>
+                <div id="story-target-bar-container">
+                    <div id="story-target-bar-fill"></div>
+                </div>
+                <div id="story-target-text"></div>
+            </div>
             <div id="typing-area">
                 <div id="japanese-text"></div>
                 <div id="romaji-text"></div>
@@ -754,15 +795,19 @@ function renderStoryMap() {
         
         btn.innerText = label;
         
-        if (i <= currentStage) {
+        // 現在のステージのみクリック可能（クリア済みは再プレイ不可）
+        if (i === currentStage) {
             btn.onclick = () => startStoryStage(i);
+        } else {
+            btn.style.cursor = 'not-allowed';
         }
         grid.appendChild(btn);
     }
 }
 
 function startStoryStage(stage) {
-    if (stage > userData.storyStage) return;
+    // 現在のステージのみプレイ可能
+    if (stage !== userData.storyStage) return;
     
     gameState.mode = 'story';
     gameState.storyStage = stage;
@@ -786,9 +831,9 @@ function startStoryStage(stage) {
     resetSkillUI();
     
     showScreen('game-screen');
-    document.getElementById('story-target-info').innerHTML = `
-        🎯 ステージ${stage} 目標スコア: ${gameState.targetScore.toLocaleString()}
-    `;
+    
+    // 目標スコア表示の更新
+    updateStoryTargetUI();
     updateGameUI();
     setNextWord();
     
@@ -820,6 +865,23 @@ function startStoryStage(stage) {
             animEl.style.opacity = '0';
         }, 1500);
     }
+}
+
+function updateStoryTargetUI() {
+    if (gameState.mode !== 'story') return;
+    
+    const target = gameState.targetScore;
+    const current = gameState.score;
+    const percent = Math.min(100, (current / target) * 100);
+    const remaining = Math.max(0, target - current);
+    
+    document.getElementById('story-target-info').innerHTML = `
+        🎯 ステージ${gameState.storyStage} 目標スコア
+    `;
+    document.getElementById('story-target-bar-fill').style.width = `${percent}%`;
+    document.getElementById('story-target-text').innerHTML = `
+        ${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})
+    `;
 }
 
 function triggerDarkness() {
@@ -875,7 +937,7 @@ function startGame(mode) {
     resetSkillUI();
     
     showScreen('game-screen');
-    document.getElementById('story-target-info').innerHTML = '';
+    document.getElementById('story-target-container').style.display = 'none';
     updateGameUI();
     setNextWord();
     
@@ -940,12 +1002,8 @@ function updateGameUI() {
     document.getElementById('combo-display').innerText = Math.floor(gameState.combo);
     
     if (gameState.mode === 'story') {
-        const targetEl = document.getElementById('story-target-info');
-        const remaining = Math.max(0, gameState.targetScore - gameState.score);
-        targetEl.innerHTML = `
-            🎯 ステージ${gameState.storyStage} 目標: ${gameState.targetScore.toLocaleString()} 
-            (残り ${remaining.toLocaleString()})
-        `;
+        document.getElementById('story-target-container').style.display = 'block';
+        updateStoryTargetUI();
         if (gameState.score >= gameState.targetScore) {
             endGame(true);
         }
