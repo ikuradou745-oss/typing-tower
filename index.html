@@ -17,8 +17,9 @@
         #header-left { display: flex; align-items: center; gap: 20px; }
         #settings-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #e0e0e0; transition: transform 0.3s ease; }
         #settings-btn:hover { transform: rotate(90deg); color: #ffffff; }
-        #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        #header-right { display: flex; align-items: center; gap: 10px; width: 300px; }
+        #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); display: flex; align-items: center; gap: 5px; }
+        #gold-coin-display { font-size: 18px; font-weight: bold; color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 15px; }
+        #header-right { display: flex; align-items: center; gap: 10px; width: 350px; }
         #level-display { font-size: 18px; font-weight: bold; white-space: nowrap; color: #e0e0e0; }
         #xp-bar-container { width: 100%; height: 15px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #444; }
         #xp-bar-fill { height: 100%; background: linear-gradient(90deg, #6bcf7f, #4caf50); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 8px #4caf50; }
@@ -30,7 +31,7 @@
         .screen.active { display: flex; }
 
         /* メニュー画面 */
-        #menu-screen { justify-content: center; } /* 中央配置 */
+        #menu-screen { justify-content: center; }
         #menu-screen h1 { 
             font-size: 64px; 
             margin-bottom: 40px; 
@@ -74,11 +75,16 @@
             box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0, 188, 212, 0.4);
             color: #ffffff;
         }
+        .menu-btn.story-mode {
+            grid-column: span 2;
+            background: linear-gradient(145deg, #7b1fa2, #4a148c);
+            border-color: #9c27b0;
+        }
 
         /* プレイ選択画面 */
         #play-select-screen { justify-content: center; }
         #play-select-screen h2 { font-size: 48px; margin-bottom: 50px; text-shadow: 0 0 15px #2196f3; }
-        #play-select-screen .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 80%; max-width: 700px; }
+        #play-select-screen .select-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; width: 90%; max-width: 900px; }
         .mode-btn { 
             background: linear-gradient(145deg, #1e88e5, #1565c0); 
             color: #fff; 
@@ -93,10 +99,34 @@
             border: 1px solid #42a5f5;
         }
         .mode-btn.hard { background: linear-gradient(145deg, #e53935, #c62828); border-color: #ef5350; }
+        .mode-btn.story { background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; }
         .mode-btn:hover { filter: brightness(1.15); transform: translateY(-8px); box-shadow: 0 15px 25px rgba(0,0,0,0.6); }
+
+        /* ストーリーマップ画面 */
+        #story-map-screen { justify-content: center; }
+        #story-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #9c27b0; text-shadow: 0 0 15px #9c27b0; }
+        .stage-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; width: 90%; max-width: 1000px; margin: 20px 0; max-height: 500px; overflow-y: auto; padding: 10px; }
+        .stage-btn { 
+            background: linear-gradient(145deg, #333, #222); 
+            color: #fff; 
+            border: 2px solid #555; 
+            padding: 15px 5px; 
+            font-size: 14px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-weight: bold;
+            text-align: center;
+        }
+        .stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; }
+        .stage-btn.current { background: linear-gradient(145deg, #2196f3, #1565c0); border-color: #64b5f6; box-shadow: 0 0 15px #2196f3; }
+        .stage-btn.locked { background: linear-gradient(145deg, #1a1a1a, #111); border-color: #444; color: #666; cursor: not-allowed; }
+        .stage-btn:not(.locked):hover { transform: scale(1.05); filter: brightness(1.2); }
+        .stage-info { font-size: 18px; margin: 15px 0; color: #ccc; }
 
         /* ゲーム画面 */
         #game-screen { justify-content: center; position: relative; }
+        #story-target-info { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); font-size: 24px; font-weight: bold; color: #9c27b0; text-shadow: 0 0 10px #9c27b0; }
         #game-info { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-around; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px black; }
         #typing-area { text-align: center; margin-top: 20px; }
         #japanese-text { font-size: 56px; margin-bottom: 20px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
@@ -104,6 +134,12 @@
         .typed { color: #76ff03; text-shadow: 0 0 15px #76ff03; }
         .untyped { color: #b0bec5; }
         .untyped-hidden { color: transparent; }
+        
+        /* 妨害エフェクト */
+        #game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 500; transition: background-color 0.5s ease; }
+        #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; }
+        #time-reduce-animation { position: fixed; top: 30px; right: 30px; font-size: 48px; font-weight: bold; color: #ff5252; text-shadow: 0 0 20px #ff5252; z-index: 501; opacity: 0; pointer-events: none; }
+        
         #skill-button-container { position: absolute; bottom: 50px; right: 50px; }
         #skill-btn { 
             background: radial-gradient(circle at 30% 30%, #ab47bc, #6a1b9a); 
@@ -134,6 +170,7 @@
             text-align: center; 
             border: 1px solid #444; 
             box-shadow: 0 20px 30px rgba(0,0,0,0.7);
+            max-width: 500px;
         }
         .result-item { font-size: 28px; margin: 15px 0; }
         .back-btn { 
@@ -151,13 +188,14 @@
         }
         .back-btn:hover { background: #555; transform: scale(1.02); box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
 
-        /* 共通タブUI (ランキング・ショップ・持ち物) */
+        /* 共通タブUI */
         .tab-container { width: 90%; max-width: 800px; margin-top: 30px; background: rgba(20,20,20,0.7); padding: 20px; border-radius: 30px; backdrop-filter: blur(4px); border: 1px solid #3a3a3a; }
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
         .tab { padding: 12px 24px; cursor: pointer; font-size: 20px; border-bottom: 3px solid transparent; transition: 0.2s; }
         .tab.active { border-bottom-color: #00bcd4; color: #00bcd4; font-weight: bold; text-shadow: 0 0 8px #00bcd4; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        
+        /* ランキングタイマー */
+        #ranking-timer { font-size: 18px; color: #ff9800; margin: 10px 0; font-weight: bold; }
         
         /* リストUI */
         .list-container { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
@@ -189,16 +227,24 @@
         .action-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
         .action-btn:disabled { background: #555; cursor: not-allowed; }
         .action-btn.equipped { background: linear-gradient(145deg, #ff9800, #b26500); }
+        .use-btn { background: linear-gradient(145deg, #2196f3, #1565c0); }
 
         /* モーダル */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: linear-gradient(145deg, #202020, #151515); padding: 35px; border-radius: 30px; width: 80%; max-width: 500px; text-align: center; border: 1px solid #555; box-shadow: 0 20px 30px black; }
+        .modal-content { background: linear-gradient(145deg, #202020, #151515); padding: 35px; border-radius: 30px; width: 80%; max-width: 500px; text-align: center; border: 1px solid #555; box-shadow: 0 20px 30px black; max-height: 80vh; overflow-y: auto; }
         .modal-content h2 { margin-bottom: 20px; color: #ff5252; }
         .modal-content p { font-size: 18px; line-height: 1.6; margin-bottom: 30px; color: #ddd; }
         .modal-btn { background: linear-gradient(145deg, #2196f3, #0d47a1); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 50px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.2s; }
         .modal-btn.danger { background: linear-gradient(145deg, #f44336, #b71c1c); }
         .modal-input { width: 100%; padding: 12px; font-size: 18px; margin-bottom: 20px; border-radius: 30px; border: 1px solid #666; background-color: #0a0a0a; color: white; }
+
+        /* 報酬モーダル */
+        .reward-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin: 10px 0; display: flex; align-items: center; gap: 15px; }
+        .reward-icon { font-size: 32px; }
+        .reward-info { flex: 1; text-align: left; }
+        .reward-name { font-size: 20px; font-weight: bold; }
+        .reward-desc { font-size: 14px; color: #aaa; }
 
         /* スクロールバー */
         ::-webkit-scrollbar { width: 10px; }
@@ -214,6 +260,7 @@
         <div id="header-left">
             <button id="settings-btn">⚙️</button>
             <div id="coin-display">🪙0</div>
+            <div id="gold-coin-display">🥇0</div>
         </div>
         <div id="header-right">
             <div id="level-display">Lv.1</div>
@@ -229,9 +276,10 @@
             <h1>Typing RPG</h1>
             <div class="menu-grid">
                 <button class="menu-btn" onclick="app.showScreen('play-select-screen')">プレイ</button>
-                <button class="menu-btn" onclick="app.openRanking()">ランキングモード</button>
+                <button class="menu-btn" onclick="app.openRanking()">ランキング</button>
                 <button class="menu-btn" onclick="app.openShop()">ショップ</button>
                 <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
+                <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
             </div>
         </div>
 
@@ -240,16 +288,28 @@
             <div class="select-grid">
                 <button class="mode-btn" onclick="app.startGame('normal')">ノーマル<br><span style="font-size: 16px;">通常ルール</span></button>
                 <button class="mode-btn hard" onclick="app.startGame('hard')">ハード<br><span style="font-size: 16px;">未入力非表示 / コイン2倍</span></button>
+                <button class="mode-btn story" onclick="app.openStoryMap()">ストーリー<br><span style="font-size: 16px;">全100ステージ</span></button>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 50px;">戻る</button>
         </div>
 
+        <div id="story-map-screen" class="screen">
+            <h2>📖 ストーリーモード</h2>
+            <div class="stage-info">現在のステージ: <span id="current-story-stage">1</span> / 100</div>
+            <div class="stage-grid" id="stage-grid"></div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
         <div id="game-screen" class="screen">
+            <div id="game-overlay"></div>
+            <div id="game-message"></div>
+            <div id="time-reduce-animation">-10s</div>
             <div id="game-info">
                 <div>残り時間: <span id="time-display">60</span>秒</div>
                 <div>スコア: <span id="score-display">0</span></div>
                 <div>コンボ: <span id="combo-display">0</span></div>
             </div>
+            <div id="story-target-info"></div>
             <div id="typing-area">
                 <div id="japanese-text"></div>
                 <div id="romaji-text"></div>
@@ -265,59 +325,60 @@
 
         <div id="result-screen" class="screen">
             <div class="result-box">
-                <h2 style="font-size: 36px; margin-bottom: 20px;">ゲーム終了！</h2>
+                <h2 style="font-size: 36px; margin-bottom: 20px;" id="result-title">ゲーム終了！</h2>
                 <div class="result-item">最終スコア: <span id="result-score">0</span></div>
                 <div class="result-item">最大コンボ: <span id="result-combo">0</span></div>
                 <div class="result-item" style="color: #ffd700;">獲得コイン: 🪙<span id="result-coin">0</span></div>
+                <div class="result-item" style="color: #ffaa00;" id="gold-coin-result" style="display: none;">🥇 ゴールドコイン: <span id="result-gold">0</span></div>
                 <div class="result-item" style="color: #4caf50;">獲得XP: <span id="result-xp">0</span></div>
                 <div id="level-up-msg" style="color: #ff9800; font-weight: bold; margin-top: 10px; display: none;">レベルアップ！</div>
+                <div id="story-clear-msg" style="color: #4caf50; font-weight: bold; margin-top: 10px; display: none;">✅ ステージクリア！</div>
                 <button class="back-btn" onclick="app.endResult()">メニューに戻る</button>
             </div>
         </div>
 
         <div id="ranking-screen" class="screen">
-            <h2 style="font-size: 32px;">ランキング (毎日朝7時更新)</h2>
-            <p style="color: #ff9800; margin-bottom: 10px; font-size: 14px;">※1位に報酬を追加する予定はある</p>
+            <h2 style="font-size: 32px;">🏆 ランキング</h2>
+            <p style="color: #ff9800; margin-bottom: 5px; font-size: 14px;">毎日朝7時にリセット</p>
+            <div id="ranking-timer">次のリセットまで: 計算中...</div>
             <div class="tab-container">
                 <div class="tabs">
                     <div class="tab active" onclick="app.switchRankingTab('score')">スコア</div>
                     <div class="tab" onclick="app.switchRankingTab('combo')">コンボ</div>
                     <div class="tab" onclick="app.switchRankingTab('playCount')">プレイ回数</div>
                 </div>
-                <div id="ranking-list" class="list-container">
-                    </div>
+                <div id="ranking-list" class="list-container"></div>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
         </div>
 
         <div id="shop-screen" class="screen">
-            <h2 style="font-size: 32px;">ショップ</h2>
+            <h2 style="font-size: 32px;">🛒 ショップ</h2>
             <div class="tab-container">
                 <div class="tabs">
-                    <div class="tab active">スキル</div>
-                    <div class="tab" style="color: #666; cursor: not-allowed;">アイテム (準備中)</div>
+                    <div class="tab active" onclick="app.switchShopTab('skills')">スキル</div>
+                    <div class="tab" onclick="app.switchShopTab('items')">アイテム</div>
                 </div>
-                <div id="shop-list" class="list-container">
-                    </div>
+                <div id="shop-list" class="list-container"></div>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
         </div>
 
         <div id="inventory-screen" class="screen">
-            <h2 style="font-size: 32px;">持ち物</h2>
+            <h2 style="font-size: 32px;">🎒 持ち物</h2>
             <div class="tab-container">
                 <div class="tabs">
-                    <div class="tab active">スキル</div>
-                    <div class="tab" style="color: #666; cursor: not-allowed;">アイテム (準備中)</div>
+                    <div class="tab active" onclick="app.switchInventoryTab('skills')">スキル</div>
+                    <div class="tab" onclick="app.switchInventoryTab('items')">アイテム</div>
                 </div>
-                <div id="inventory-list" class="list-container">
-                    </div>
+                <div id="inventory-list" class="list-container"></div>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
         </div>
     </div>
 </div>
 
+<!-- モーダル類 -->
 <div id="agreement-modal" class="modal-overlay">
     <div class="modal-content">
         <h2>⚠️ 注意事項</h2>
@@ -347,13 +408,21 @@
     </div>
 </div>
 
+<div id="reward-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #ffd700;">🎉 報酬獲得！</h2>
+        <div id="reward-content"></div>
+        <button class="modal-btn" onclick="document.getElementById('reward-modal').classList.remove('active')">受け取る</button>
+    </div>
+</div>
+
 <script type="module">
 // ==========================================
 // Firebase 設定と初期化
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, child, update, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBXnNXQ5khcR0EvRide4C0PjshJZpSF4oM",
@@ -413,15 +482,35 @@ const skillData = {
     "auto_input_alpha": {
         id: "auto_input_alpha",
         name: "自動入力α",
-        desc: "3.5秒間、約0.06秒間隔で自動タイピングする。クールダウン25秒。",
+        desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。",
         price: 10000,
         cooldown: 25,
         duration: 3.5,
+        interval: 60,
         execute: function() {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
                 if (gameState.isPlaying) handleCorrectKey();
-            }, 60);
+            }, this.interval);
+            setTimeout(() => {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }, this.duration * 1000);
+        }
+    },
+    "auto_input_gamma": {
+        id: "auto_input_gamma",
+        name: "自動入力γ",
+        desc: "6秒間、0.25秒間隔で自動タイピング。クールダウン40秒。",
+        price: 0,
+        cooldown: 40,
+        duration: 6,
+        interval: 250,
+        execute: function() {
+            gameState.isAutoTyping = true;
+            gameState.autoTypeInterval = setInterval(() => {
+                if (gameState.isPlaying) handleCorrectKey();
+            }, this.interval);
             setTimeout(() => {
                 gameState.isAutoTyping = false;
                 clearInterval(gameState.autoTypeInterval);
@@ -431,7 +520,7 @@ const skillData = {
     "combo_up_alpha": {
         id: "combo_up_alpha",
         name: "コンボアップα",
-        desc: "5秒間、貰えるコンボが1.5倍になる。クールダウン35秒。",
+        desc: "5秒間、コンボが1.5倍。クールダウン35秒。",
         price: 10000,
         cooldown: 35,
         duration: 5,
@@ -445,6 +534,33 @@ const skillData = {
 };
 
 // ==========================================
+// アイテムデータ
+// ==========================================
+const itemData = {
+    "coin_boost_alpha": {
+        id: "coin_boost_alpha",
+        name: "コインブーストα",
+        desc: "10分間、獲得コインが2倍になる。",
+        duration: 600,
+        effect: (active) => { gameState.coinMultiplier = active ? 2 : 1; }
+    },
+    "xp_boost_alpha": {
+        id: "xp_boost_alpha",
+        name: "XPブーストα",
+        desc: "10分間、獲得XPが2倍になる。",
+        duration: 600,
+        effect: (active) => { gameState.xpMultiplier = active ? 2 : 1; }
+    },
+    "gold_luck_boost_alpha": {
+        id: "gold_luck_boost_alpha",
+        name: "ゴールドコインラックブーストα",
+        desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。",
+        duration: 600,
+        effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; }
+    }
+};
+
+// ==========================================
 // 状態管理
 // ==========================================
 const defaultUserData = {
@@ -452,11 +568,14 @@ const defaultUserData = {
     level: 1,
     xp: 0,
     coin: 0,
+    goldCoin: 0,
     skills: [],
     equippedSkill: null,
+    items: {},
     playCount: 0,
     bestScore: 0,
-    bestCombo: 0
+    bestCombo: 0,
+    storyStage: 1
 };
 
 let userRef = null;
@@ -466,19 +585,27 @@ let uid = localStorage.getItem('typingGameUid');
 const gameState = {
     isPlaying: false,
     mode: 'normal',
+    storyStage: null,
     timeLeft: 60,
+    initialTime: 60,
     score: 0,
     combo: 0,
     maxCombo: 0,
-    currentWordIndex: 0,
     currentWordObj: null,
     timer: null,
     isAutoTyping: false,
     autoTypeInterval: null,
     comboMultiplier: 1.0,
+    coinMultiplier: 1,
+    xpMultiplier: 1,
+    goldDropRate: 0.01,
     skillCooldownTimer: null,
     skillCooldownLeft: 0,
-    isSkillReady: false
+    isSkillReady: false,
+    activeBoosts: {},
+    obstacleTriggered: false,
+    typingDisabled: false,
+    targetScore: 0
 };
 
 // ==========================================
@@ -502,6 +629,34 @@ function getRankingDateKey() {
     return `${jstNow.getFullYear()}-${(jstNow.getMonth()+1).toString().padStart(2, '0')}-${jstNow.getDate().toString().padStart(2, '0')}`;
 }
 
+function getNextResetTime() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    jstNow.setHours(7, 0, 0, 0);
+    if (jstNow <= new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000)) {
+        jstNow.setDate(jstNow.getDate() + 1);
+    }
+    return jstNow;
+}
+
+function formatTimeRemaining(ms) {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${hours}時間${minutes}分${seconds}秒`;
+}
+
+function getStoryTargetScore(stage) {
+    return 10000 + (stage - 1) * 1000;
+}
+
+function getStageObstacle(stage) {
+    if (stage >= 76) return 'freeze';
+    if (stage >= 51) return 'time_reduce';
+    if (stage >= 26) return 'darkness';
+    return null;
+}
+
 // ==========================================
 // 初期化・データロード
 // ==========================================
@@ -516,6 +671,9 @@ async function initApp() {
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
             userData = { ...defaultUserData, ...snapshot.val() };
+            if (!userData.items) userData.items = {};
+            if (!userData.goldCoin) userData.goldCoin = 0;
+            if (!userData.storyStage) userData.storyStage = 1;
         } else {
             await set(userRef, userData);
         }
@@ -528,6 +686,8 @@ async function initApp() {
     if (!localStorage.getItem('agreementAccepted')) {
         document.getElementById('agreement-modal').classList.add('active');
     }
+    
+    startRankingTimer();
 }
 
 async function saveUserData() {
@@ -544,12 +704,13 @@ async function saveUserData() {
 // ==========================================
 function updateHeaderUI() {
     document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin)}`;
+    document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin || 0}`;
     document.getElementById('level-display').innerText = `Lv.${userData.level}`;
     
     const nextXp = getNextLevelXp(userData.level);
-    const xpPercent = Math.min(100, (userData.xp / nextXp) * 100);
+    const xpPercent = Math.min(100, ((userData.xp || 0) / nextXp) * 100);
     document.getElementById('xp-bar-fill').style.width = `${xpPercent}%`;
-    document.getElementById('xp-text').innerText = `${Math.floor(userData.xp)} / ${nextXp} XP`;
+    document.getElementById('xp-text').innerText = `${Math.floor(userData.xp || 0)} / ${nextXp} XP`;
 }
 
 function showScreen(screenId) {
@@ -557,21 +718,164 @@ function showScreen(screenId) {
     document.getElementById(screenId).classList.add('active');
 }
 
+function startRankingTimer() {
+    const updateTimer = () => {
+        const resetTime = getNextResetTime();
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const diff = resetTime - jstNow;
+        document.getElementById('ranking-timer').innerText = `次のリセットまで: ${formatTimeRemaining(diff)}`;
+    };
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+// ==========================================
+// ストーリーマップ
+// ==========================================
+function renderStoryMap() {
+    const grid = document.getElementById('stage-grid');
+    grid.innerHTML = '';
+    const currentStage = userData.storyStage || 1;
+    document.getElementById('current-story-stage').innerText = currentStage;
+    
+    for (let i = 1; i <= 100; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'stage-btn';
+        if (i < currentStage) btn.classList.add('completed');
+        else if (i === currentStage) btn.classList.add('current');
+        else btn.classList.add('locked');
+        
+        let label = `${i}`;
+        if (i === 25) label += '\n🎁';
+        if (i === 50) label += '\n🎁';
+        if (i === 75) label += '\n🎁';
+        if (i === 100) label += '\n👑';
+        
+        btn.innerText = label;
+        
+        if (i <= currentStage) {
+            btn.onclick = () => startStoryStage(i);
+        }
+        grid.appendChild(btn);
+    }
+}
+
+function startStoryStage(stage) {
+    if (stage > userData.storyStage) return;
+    
+    gameState.mode = 'story';
+    gameState.storyStage = stage;
+    gameState.isPlaying = true;
+    
+    let initialTime = 60;
+    if (stage >= 51) initialTime = 50;
+    gameState.timeLeft = initialTime;
+    gameState.initialTime = initialTime;
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.comboMultiplier = 1.0;
+    gameState.coinMultiplier = 1;
+    gameState.xpMultiplier = 1;
+    gameState.goldDropRate = 0.01;
+    gameState.obstacleTriggered = false;
+    gameState.typingDisabled = false;
+    gameState.targetScore = getStoryTargetScore(stage);
+    
+    resetSkillUI();
+    
+    showScreen('game-screen');
+    document.getElementById('story-target-info').innerHTML = `
+        🎯 ステージ${stage} 目標スコア: ${gameState.targetScore.toLocaleString()}
+    `;
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(() => {
+        gameState.timeLeft--;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        
+        // 妨害発動チェック
+        if (!gameState.obstacleTriggered) {
+            const obstacle = getStageObstacle(stage);
+            if (obstacle === 'darkness' && gameState.timeLeft <= 30) {
+                triggerDarkness();
+            } else if (obstacle === 'freeze' && gameState.timeLeft <= 40) {
+                triggerFreeze();
+            }
+        }
+        
+        if (gameState.timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+    
+    // 時間短縮アニメーション
+    if (stage >= 51) {
+        const animEl = document.getElementById('time-reduce-animation');
+        animEl.style.opacity = '1';
+        animEl.style.transition = 'opacity 0.5s';
+        setTimeout(() => {
+            animEl.style.opacity = '0';
+        }, 1500);
+    }
+}
+
+function triggerDarkness() {
+    gameState.obstacleTriggered = true;
+    const overlay = document.getElementById('game-overlay');
+    overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+    overlay.style.transition = 'background-color 1s';
+    setTimeout(() => {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.95)';
+        setTimeout(() => {
+            overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+        }, 2500);
+    }, 10);
+}
+
+function triggerFreeze() {
+    gameState.obstacleTriggered = true;
+    gameState.typingDisabled = true;
+    
+    const overlay = document.getElementById('game-overlay');
+    const message = document.getElementById('game-message');
+    
+    overlay.style.backgroundColor = 'rgba(0,100,255,0.3)';
+    overlay.style.transition = 'background-color 0.5s';
+    message.innerText = '❄️ BrrBrrフローズン！ ❄️';
+    message.style.opacity = '1';
+    
+    setTimeout(() => {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+        message.style.opacity = '0';
+        gameState.typingDisabled = false;
+    }, 5000);
+}
+
 // ==========================================
 // ゲームロジック
 // ==========================================
 function startGame(mode) {
     gameState.mode = mode;
+    gameState.storyStage = null;
     gameState.isPlaying = true;
     gameState.timeLeft = 60;
+    gameState.initialTime = 60;
     gameState.score = 0;
     gameState.combo = 0;
     gameState.maxCombo = 0;
     gameState.comboMultiplier = 1.0;
+    gameState.coinMultiplier = 1;
+    gameState.xpMultiplier = 1;
+    gameState.goldDropRate = 0.01;
+    gameState.targetScore = 0;
     
     resetSkillUI();
     
     showScreen('game-screen');
+    document.getElementById('story-target-info').innerHTML = '';
     updateGameUI();
     setNextWord();
     
@@ -634,6 +938,18 @@ function handleWrongKey() {
 function updateGameUI() {
     document.getElementById('score-display').innerText = gameState.score;
     document.getElementById('combo-display').innerText = Math.floor(gameState.combo);
+    
+    if (gameState.mode === 'story') {
+        const targetEl = document.getElementById('story-target-info');
+        const remaining = Math.max(0, gameState.targetScore - gameState.score);
+        targetEl.innerHTML = `
+            🎯 ステージ${gameState.storyStage} 目標: ${gameState.targetScore.toLocaleString()} 
+            (残り ${remaining.toLocaleString()})
+        `;
+        if (gameState.score >= gameState.targetScore) {
+            endGame(true);
+        }
+    }
 }
 
 // キーボードイベント
@@ -644,7 +960,7 @@ document.addEventListener('keydown', (e) => {
         return;
     }
     
-    if (!gameState.isPlaying || gameState.isAutoTyping) return;
+    if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled) return;
     
     const obj = gameState.currentWordObj;
     if (!obj) return;
@@ -659,28 +975,70 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-function endGame() {
+function endGame(isCleared = false) {
     gameState.isPlaying = false;
     clearInterval(gameState.timer);
     if (gameState.autoTypeInterval) clearInterval(gameState.autoTypeInterval);
     if (gameState.skillCooldownTimer) clearInterval(gameState.skillCooldownTimer);
     
-    let earnedCoin = Math.floor(gameState.score / 10);
-    if (gameState.mode === 'hard') earnedCoin *= 2;
-    const earnedXp = Math.floor(gameState.score / 100);
+    document.getElementById('game-overlay').style.backgroundColor = 'rgba(0,0,0,0)';
+    document.getElementById('game-message').style.opacity = '0';
     
-    userData.coin += earnedCoin;
-    userData.xp += earnedXp;
-    userData.playCount += 1;
+    let earnedCoin = Math.floor(gameState.score / 10) * gameState.coinMultiplier;
+    if (gameState.mode === 'hard') earnedCoin *= 2;
+    const earnedXp = Math.floor(gameState.score / 100) * gameState.xpMultiplier;
+    
+    userData.coin = (userData.coin || 0) + earnedCoin;
+    userData.xp = (userData.xp || 0) + earnedXp;
+    userData.playCount = (userData.playCount || 0) + 1;
+    
+    // ゴールドコインドロップ
+    let earnedGold = 0;
+    if (Math.random() < gameState.goldDropRate) {
+        earnedGold = 1;
+        userData.goldCoin = (userData.goldCoin || 0) + 1;
+    }
+    
+    // ストーリーモード処理
+    let storyCleared = false;
+    let rewards = [];
+    if (gameState.mode === 'story' && isCleared) {
+        const stage = gameState.storyStage;
+        if (stage === userData.storyStage) {
+            userData.storyStage = Math.min(100, stage + 1);
+            storyCleared = true;
+            
+            // 報酬
+            if (stage === 25) {
+                addItemToInventory('coin_boost_alpha', 5);
+                rewards.push({ type: 'item', id: 'coin_boost_alpha', name: 'コインブーストα', count: 5 });
+            } else if (stage === 50) {
+                addItemToInventory('coin_boost_alpha', 3);
+                addItemToInventory('xp_boost_alpha', 2);
+                rewards.push({ type: 'item', id: 'coin_boost_alpha', name: 'コインブーストα', count: 3 });
+                rewards.push({ type: 'item', id: 'xp_boost_alpha', name: 'XPブーストα', count: 2 });
+            } else if (stage === 75) {
+                userData.goldCoin = (userData.goldCoin || 0) + 5;
+                addItemToInventory('gold_luck_boost_alpha', 1);
+                rewards.push({ type: 'gold', count: 5 });
+                rewards.push({ type: 'item', id: 'gold_luck_boost_alpha', name: 'ゴールドコインラックブーストα', count: 1 });
+            } else if (stage === 100) {
+                if (!userData.skills.includes('auto_input_gamma')) {
+                    userData.skills.push('auto_input_gamma');
+                }
+                rewards.push({ type: 'skill', id: 'auto_input_gamma', name: '自動入力γ' });
+            }
+        }
+    }
     
     if (gameState.mode === 'normal') {
-        if (gameState.score > userData.bestScore) userData.bestScore = gameState.score;
-        if (gameState.maxCombo > userData.bestCombo) userData.bestCombo = Math.floor(gameState.maxCombo);
+        if (gameState.score > (userData.bestScore || 0)) userData.bestScore = gameState.score;
+        if (gameState.maxCombo > (userData.bestCombo || 0)) userData.bestCombo = Math.floor(gameState.maxCombo);
         submitRanking();
     }
     
     let leveledUp = false;
-    while (userData.xp >= getNextLevelXp(userData.level)) {
+    while ((userData.xp || 0) >= getNextLevelXp(userData.level)) {
         userData.xp -= getNextLevelXp(userData.level);
         userData.level++;
         leveledUp = true;
@@ -688,13 +1046,53 @@ function endGame() {
     
     saveUserData();
     
+    document.getElementById('result-title').innerText = isCleared ? '🎉 ステージクリア！' : 'ゲーム終了！';
     document.getElementById('result-score').innerText = gameState.score;
     document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo);
     document.getElementById('result-coin').innerText = earnedCoin;
     document.getElementById('result-xp').innerText = earnedXp;
     document.getElementById('level-up-msg').style.display = leveledUp ? 'block' : 'none';
+    document.getElementById('story-clear-msg').style.display = storyCleared ? 'block' : 'none';
+    
+    const goldResultEl = document.getElementById('gold-coin-result');
+    if (earnedGold > 0) {
+        goldResultEl.style.display = 'block';
+        document.getElementById('result-gold').innerText = earnedGold;
+    } else {
+        goldResultEl.style.display = 'none';
+    }
     
     showScreen('result-screen');
+    
+    // 報酬モーダル
+    if (rewards.length > 0) {
+        showRewardModal(rewards);
+    }
+}
+
+function addItemToInventory(itemId, count) {
+    if (!userData.items) userData.items = {};
+    userData.items[itemId] = (userData.items[itemId] || 0) + count;
+}
+
+function showRewardModal(rewards) {
+    const content = document.getElementById('reward-content');
+    content.innerHTML = '';
+    rewards.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'reward-item';
+        if (r.type === 'gold') {
+            div.innerHTML = `<div class="reward-icon">🥇</div><div class="reward-info"><div class="reward-name">ゴールドコイン x${r.count}</div></div>`;
+        } else if (r.type === 'item') {
+            const item = itemData[r.id];
+            div.innerHTML = `<div class="reward-icon">🎁</div><div class="reward-info"><div class="reward-name">${item.name} x${r.count}</div><div class="reward-desc">${item.desc}</div></div>`;
+        } else if (r.type === 'skill') {
+            const skill = skillData[r.id];
+            div.innerHTML = `<div class="reward-icon">⚡</div><div class="reward-info"><div class="reward-name">${skill.name}</div><div class="reward-desc">${skill.desc}</div></div>`;
+        }
+        content.appendChild(div);
+    });
+    document.getElementById('reward-modal').classList.add('active');
 }
 
 // ==========================================
@@ -714,7 +1112,7 @@ function resetSkillUI() {
     }
     
     const skill = skillData[userData.equippedSkill];
-    text.innerText = skill.name.replace('α', '\nα');
+    text.innerText = skill.name.replace('α', '\nα').replace('γ', '\nγ');
     btn.disabled = false;
     btn.onclick = activateSkill;
     overlay.style.height = '0%';
@@ -763,9 +1161,9 @@ async function submitRanking() {
     
     const rankData = {
         name: userData.name,
-        score: userData.bestScore,
-        combo: userData.bestCombo,
-        playCount: userData.playCount,
+        score: userData.bestScore || 0,
+        combo: userData.bestCombo || 0,
+        playCount: userData.playCount || 0,
         timestamp: Date.now()
     };
     
@@ -781,16 +1179,17 @@ async function fetchRanking(type) {
     listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">読み込み中...</div>';
     
     const dateKey = getRankingDateKey();
-    const q = query(ref(db, `rankings/${dateKey}`), orderByChild(type), limitToLast(100));
     
     try {
-        const snapshot = await get(q);
+        const snapshot = await get(ref(db, `rankings/${dateKey}`));
         const results = [];
-        snapshot.forEach(child => {
-            results.push({ uid: child.key, ...child.val() });
-        });
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                results.push({ uid: child.key, ...child.val() });
+            });
+        }
         
-        results.sort((a, b) => b[type] - a[type]);
+        results.sort((a, b) => (b[type] || 0) - (a[type] || 0));
         
         listContainer.innerHTML = '';
         if (results.length === 0) {
@@ -798,7 +1197,7 @@ async function fetchRanking(type) {
             return;
         }
         
-        results.forEach((data, index) => {
+        results.slice(0, 50).forEach((data, index) => {
             const div = document.createElement('div');
             div.className = 'list-item';
             let icon = '';
@@ -807,24 +1206,29 @@ async function fetchRanking(type) {
             else if(index === 2) icon = '🥉 ';
             
             div.innerHTML = `
-                <div class="rank-item-info">${icon}${index + 1}位：${escapeHTML(data.name)}</div>
-                <div style="font-weight:bold; font-size: 20px;">${Math.floor(data[type])}</div>
+                <div class="rank-item-info">${icon}${index + 1}位：${escapeHTML(data.name || '名無し')}</div>
+                <div style="font-weight:bold; font-size: 20px;">${Math.floor(data[type] || 0).toLocaleString()}</div>
             `;
             listContainer.appendChild(div);
         });
     } catch (e) {
         console.error("Ranking fetch error", e);
-        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: red;">取得エラーが発生しました</div>';
+        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: red;">読み込みに失敗しました。再読み込みしてください。</div>';
     }
 }
 
 // ==========================================
-// UI イベント（カプセル化用）
+// UI イベント
 // ==========================================
 const uiControllers = {
-    showScreen: showScreen,
-    startGame: startGame,
+    showScreen,
+    startGame,
     endResult: () => showScreen('menu-screen'),
+    
+    openStoryMap: () => {
+        renderStoryMap();
+        showScreen('story-map-screen');
+    },
     
     acceptAgreement: () => {
         localStorage.setItem('agreementAccepted', 'true');
@@ -870,83 +1274,150 @@ const uiControllers = {
         fetchRanking(type);
     },
 
+    switchShopTab: (tab) => {
+        const tabs = document.querySelectorAll('#shop-screen .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if (tab === 'skills') tabs[0].classList.add('active');
+        else tabs[1].classList.add('active');
+        uiControllers.openShop();
+    },
+    
     openShop: () => {
         showScreen('shop-screen');
         const list = document.getElementById('shop-list');
+        const activeTab = document.querySelector('#shop-screen .tab.active');
+        const isSkillsTab = activeTab.innerText.includes('スキル');
+        
         list.innerHTML = '';
-        Object.values(skillData).forEach(skill => {
-            const hasSkill = userData.skills.includes(skill.id);
-            const div = document.createElement('div');
-            div.className = 'list-item';
-            div.innerHTML = `
-                <div class="shop-item-info">
-                    <h3>${skill.name}</h3>
-                    <p>${skill.desc}</p>
-                    <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${skill.price}</div>
-                </div>
-                <button class="action-btn" ${hasSkill ? 'disabled' : ''} id="buy-${skill.id}">
-                    ${hasSkill ? '購入済み' : '購入'}
-                </button>
-            `;
-            list.appendChild(div);
-            
-            if(!hasSkill) {
-                div.querySelector('button').onclick = () => {
-                    if (userData.coin >= skill.price) {
-                        userData.coin -= skill.price;
-                        userData.skills.push(skill.id);
-                        saveUserData();
-                        alert(`${skill.name}を購入しました！`);
-                        uiControllers.openShop();
-                    } else {
-                        alert("コインが足りません。");
-                    }
-                };
-            }
-        });
+        
+        if (isSkillsTab) {
+            Object.values(skillData).forEach(skill => {
+                if (skill.price === 0) return;
+                const hasSkill = (userData.skills || []).includes(skill.id);
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${skill.name}</h3>
+                        <p>${skill.desc}</p>
+                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${skill.price.toLocaleString()}</div>
+                    </div>
+                    <button class="action-btn" ${hasSkill ? 'disabled' : ''}>
+                        ${hasSkill ? '購入済み' : '購入'}
+                    </button>
+                `;
+                list.appendChild(div);
+                
+                if(!hasSkill) {
+                    div.querySelector('button').onclick = () => {
+                        if ((userData.coin || 0) >= skill.price) {
+                            userData.coin -= skill.price;
+                            if (!userData.skills) userData.skills = [];
+                            userData.skills.push(skill.id);
+                            saveUserData();
+                            alert(`${skill.name}を購入しました！`);
+                            uiControllers.openShop();
+                        } else {
+                            alert("コインが足りません。");
+                        }
+                    };
+                }
+            });
+        }
     },
 
+    switchInventoryTab: (tab) => {
+        const tabs = document.querySelectorAll('#inventory-screen .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if (tab === 'skills') tabs[0].classList.add('active');
+        else tabs[1].classList.add('active');
+        uiControllers.openInventory();
+    },
+    
     openInventory: () => {
         showScreen('inventory-screen');
         const list = document.getElementById('inventory-list');
+        const activeTab = document.querySelector('#inventory-screen .tab.active');
+        const isSkillsTab = activeTab.innerText.includes('スキル');
+        
         list.innerHTML = '';
         
-        if (userData.skills.length === 0) {
-            list.innerHTML = '<div style="text-align:center; padding: 20px;">スキルを所持していません</div>';
-            return;
-        }
+        if (isSkillsTab) {
+            if (!userData.skills || userData.skills.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding: 20px;">スキルを所持していません</div>';
+                return;
+            }
 
-        userData.skills.forEach(skillId => {
-            const skill = skillData[skillId];
-            if (!skill) return;
-            const isEquipped = userData.equippedSkill === skillId;
-            const div = document.createElement('div');
-            div.className = 'list-item';
-            div.innerHTML = `
-                <div class="shop-item-info">
-                    <h3>${skill.name}</h3>
-                    <p>${skill.desc}</p>
-                </div>
-                <button class="action-btn ${isEquipped ? 'equipped' : ''}" id="equip-${skill.id}">
-                    ${isEquipped ? '装備中' : '装備する'}
-                </button>
-            `;
-            list.appendChild(div);
+            userData.skills.forEach(skillId => {
+                const skill = skillData[skillId];
+                if (!skill) return;
+                const isEquipped = userData.equippedSkill === skillId;
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${skill.name}</h3>
+                        <p>${skill.desc}</p>
+                    </div>
+                    <button class="action-btn ${isEquipped ? 'equipped' : ''}">
+                        ${isEquipped ? '装備中' : '装備する'}
+                    </button>
+                `;
+                list.appendChild(div);
+                
+                div.querySelector('button').onclick = () => {
+                    userData.equippedSkill = isEquipped ? null : skillId;
+                    saveUserData();
+                    uiControllers.openInventory();
+                };
+            });
+        } else {
+            if (!userData.items || Object.keys(userData.items).length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding: 20px;">アイテムを所持していません</div>';
+                return;
+            }
             
-            div.querySelector('button').onclick = () => {
-                if (isEquipped) {
-                    userData.equippedSkill = null;
-                } else {
-                    userData.equippedSkill = skillId;
-                }
-                saveUserData();
-                uiControllers.openInventory();
-            };
-        });
+            Object.entries(userData.items).forEach(([itemId, count]) => {
+                if (count <= 0) return;
+                const item = itemData[itemId];
+                if (!item) return;
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${item.name}</h3>
+                        <p>${item.desc}</p>
+                        <div style="color: #4caf50; margin-top: 5px;">所持数: ${count}</div>
+                    </div>
+                    <button class="action-btn use-btn">使う</button>
+                `;
+                list.appendChild(div);
+                
+                div.querySelector('button').onclick = () => {
+                    if (gameState.activeBoosts[itemId]) {
+                        alert("すでに効果が発動中です！");
+                        return;
+                    }
+                    userData.items[itemId]--;
+                    gameState.activeBoosts[itemId] = true;
+                    item.effect(true);
+                    
+                    setTimeout(() => {
+                        gameState.activeBoosts[itemId] = false;
+                        item.effect(false);
+                    }, item.duration * 1000);
+                    
+                    saveUserData();
+                    alert(`${item.name}を使用しました！(${item.duration/60}分間)`);
+                    uiControllers.openInventory();
+                };
+            });
+        }
     }
 };
 
 function escapeHTML(str) {
+    if (!str) return '';
     return str.replace(/[&<>'"]/g, tag => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
     }[tag] || tag));
@@ -955,12 +1426,11 @@ function escapeHTML(str) {
 window.app = uiControllers;
 
 document.getElementById('settings-btn').addEventListener('click', () => {
-    document.getElementById('name-input').value = userData.name;
+    document.getElementById('name-input').value = userData.name || '';
     document.getElementById('settings-modal').classList.add('active');
 });
 
 initApp();
-
 </script>
 </body>
 </html>
