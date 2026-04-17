@@ -14,11 +14,12 @@
         
         /* 上側：ヘッダー */
         #header { display: flex; align-items: center; justify-content: space-between; height: 60px; background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%); padding: 0 20px; border-bottom: 1px solid #2a2a2a; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        #header-left { display: flex; align-items: center; gap: 20px; }
-        #settings-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #e0e0e0; transition: transform 0.3s ease; }
-        #settings-btn:hover { transform: rotate(90deg); color: #ffffff; }
+        #header-left { display: flex; align-items: center; gap: 15px; }
+        #settings-btn, #greek-info-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #e0e0e0; transition: transform 0.3s ease; }
+        #settings-btn:hover, #greek-info-btn:hover { transform: scale(1.1); color: #ffffff; }
         #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); display: flex; align-items: center; gap: 5px; }
         #gold-coin-display { font-size: 18px; font-weight: bold; color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 15px; }
+        #raid-point-display { font-size: 18px; font-weight: bold; color: #ff5722; text-shadow: 0 0 10px rgba(255, 87, 34, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 15px; }
         #header-right { display: flex; align-items: center; gap: 10px; width: 350px; }
         #level-display { font-size: 18px; font-weight: bold; white-space: nowrap; color: #e0e0e0; }
         #xp-bar-container { width: 100%; height: 15px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #444; }
@@ -80,6 +81,19 @@
             background: linear-gradient(145deg, #7b1fa2, #4a148c);
             border-color: #9c27b0;
         }
+        .menu-btn.raid-mode {
+            grid-column: span 2;
+            background: linear-gradient(145deg, #c62828, #b71c1c);
+            border-color: #ef5350;
+        }
+        .raid-timer-info {
+            grid-column: span 2;
+            text-align: center;
+            font-size: 18px;
+            color: #ff9800;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
 
         /* プレイ選択画面 */
         #play-select-screen { justify-content: center; }
@@ -125,9 +139,31 @@
         .stage-btn.completed:hover { transform: none; filter: none; }
         .stage-info { font-size: 18px; margin: 15px 0; color: #ccc; }
 
+        /* レイドマップ画面 */
+        #raid-map-screen { justify-content: center; }
+        #raid-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #ef5350; text-shadow: 0 0 15px #ef5350; }
+        .raid-stages-grid { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 600px; margin: 20px 0; }
+        .raid-stage-btn { 
+            background: linear-gradient(145deg, #333, #222); 
+            color: #fff; 
+            border: 2px solid #ef5350; 
+            padding: 20px; 
+            font-size: 20px; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-weight: bold;
+            text-align: center;
+        }
+        .raid-stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; cursor: not-allowed; opacity: 0.8; }
+        .raid-stage-btn.current { background: linear-gradient(145deg, #ff5722, #d84315); border-color: #ff8a65; box-shadow: 0 0 15px #ff5722; }
+        .raid-stage-btn.locked { background: linear-gradient(145deg, #1a1a1a, #111); border-color: #444; color: #666; cursor: not-allowed; }
+        .raid-stage-btn.current:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .raid-timer { font-size: 20px; color: #ff9800; margin: 10px 0; }
+
         /* ゲーム画面 */
         #game-screen { justify-content: center; position: relative; }
-        #story-target-container { 
+        #story-target-container, #raid-target-container { 
             position: absolute; 
             top: 80px; 
             left: 50%; 
@@ -135,14 +171,15 @@
             width: 400px; 
             text-align: center; 
         }
-        #story-target-info { 
+        #story-target-info, #raid-target-info { 
             font-size: 20px; 
             font-weight: bold; 
             color: #9c27b0; 
             text-shadow: 0 0 10px #9c27b0; 
             margin-bottom: 8px; 
         }
-        #story-target-bar-container {
+        #raid-target-info { color: #ef5350; text-shadow: 0 0 10px #ef5350; }
+        #story-target-bar-container, #raid-target-bar-container {
             width: 100%;
             height: 20px;
             background-color: #2a2a2a;
@@ -150,6 +187,7 @@
             overflow: hidden;
             border: 1px solid #9c27b0;
         }
+        #raid-target-bar-container { border-color: #ef5350; }
         #story-target-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, #ce93d8, #9c27b0, #7b1fa2);
@@ -157,7 +195,14 @@
             transition: width 0.3s ease;
             box-shadow: 0 0 10px #9c27b0;
         }
-        #story-target-text {
+        #raid-target-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffab91, #ff5722, #d84315);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px #ff5722;
+        }
+        #story-target-text, #raid-target-text {
             margin-top: 5px;
             font-size: 16px;
             color: #ccc;
@@ -170,10 +215,33 @@
         .untyped { color: #b0bec5; }
         .untyped-hidden { color: transparent; }
         
+        /* ペイント妨害エフェクト */
+        .paint-blob {
+            position: fixed;
+            font-size: 80px;
+            opacity: 0.9;
+            pointer-events: none;
+            z-index: 502;
+            transition: opacity 10s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
         /* 妨害エフェクト */
         #game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 500; transition: background-color 0.5s ease; }
         #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; }
         #time-reduce-animation { position: fixed; top: 30px; right: 30px; font-size: 48px; font-weight: bold; color: #ff5252; text-shadow: 0 0 20px #ff5252; z-index: 501; opacity: 0; pointer-events: none; }
+        
+        /* 時間伸ばしミニゲーム */
+        #time-extend-game { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: rgba(0,0,0,0.9); border-radius: 20px; padding: 30px; text-align: center; z-index: 600; border: 2px solid #4caf50; display: none; }
+        #time-extend-bar-container { width: 100%; height: 30px; background: #333; border-radius: 15px; margin: 20px 0; position: relative; overflow: hidden; }
+        #time-extend-bar { height: 100%; width: 5px; background: #4caf50; position: absolute; }
+        #time-extend-marker { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 10px; height: 40px; background: #ffd700; border-radius: 5px; z-index: 1; }
+        #time-extend-center { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 20px; height: 40px; background: rgba(255,215,0,0.3); border-radius: 5px; }
+        #time-extend-perfect { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 6px; height: 40px; background: #ff5252; border-radius: 3px; }
         
         #skill-button-container { position: absolute; bottom: 50px; right: 50px; }
         #skill-btn { 
@@ -267,9 +335,9 @@
         /* モーダル */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: linear-gradient(145deg, #202020, #151515); padding: 35px; border-radius: 30px; width: 80%; max-width: 500px; text-align: center; border: 1px solid #555; box-shadow: 0 20px 30px black; max-height: 80vh; overflow-y: auto; }
-        .modal-content h2 { margin-bottom: 20px; color: #ff5252; }
-        .modal-content p { font-size: 18px; line-height: 1.6; margin-bottom: 30px; color: #ddd; }
+        .modal-content { background: linear-gradient(145deg, #202020, #151515); padding: 35px; border-radius: 30px; width: 80%; max-width: 600px; text-align: left; border: 1px solid #555; box-shadow: 0 20px 30px black; max-height: 80vh; overflow-y: auto; }
+        .modal-content h2 { margin-bottom: 20px; color: #ff5252; text-align: center; }
+        .modal-content p { font-size: 16px; line-height: 1.8; margin-bottom: 20px; color: #ddd; }
         .modal-btn { background: linear-gradient(145deg, #2196f3, #0d47a1); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 50px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.2s; }
         .modal-btn.danger { background: linear-gradient(145deg, #f44336, #b71c1c); }
         .modal-input { width: 100%; padding: 12px; font-size: 18px; margin-bottom: 20px; border-radius: 30px; border: 1px solid #666; background-color: #0a0a0a; color: white; }
@@ -294,8 +362,10 @@
     <div id="header">
         <div id="header-left">
             <button id="settings-btn">⚙️</button>
+            <button id="greek-info-btn">🔍</button>
             <div id="coin-display">🪙0</div>
             <div id="gold-coin-display">🥇0</div>
+            <div id="raid-point-display">🎯0</div>
         </div>
         <div id="header-right">
             <div id="level-display">Lv.1</div>
@@ -315,6 +385,8 @@
                 <button class="menu-btn" onclick="app.openShop()">ショップ</button>
                 <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
                 <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
+                <div class="raid-timer-info" id="raid-menu-timer"></div>
+                <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
             </div>
         </div>
 
@@ -335,10 +407,29 @@
             <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
         </div>
 
+        <div id="raid-map-screen" class="screen">
+            <h2>🔥 レイドモード</h2>
+            <div class="raid-timer" id="raid-status-timer"></div>
+            <div class="stage-info">レイドポイント: 🎯<span id="raid-point-info">0</span></div>
+            <div class="raid-stages-grid" id="raid-stages-grid"></div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
         <div id="game-screen" class="screen">
             <div id="game-overlay"></div>
             <div id="game-message"></div>
             <div id="time-reduce-animation">-10s</div>
+            <div id="time-extend-game">
+                <h3>⏱️ 時間伸ばし</h3>
+                <p>スペースキーで止めよう！</p>
+                <div id="time-extend-bar-container">
+                    <div id="time-extend-bar"></div>
+                    <div id="time-extend-marker"></div>
+                    <div id="time-extend-center"></div>
+                    <div id="time-extend-perfect"></div>
+                </div>
+                <p id="time-extend-result"></p>
+            </div>
             <div id="game-info">
                 <div>残り時間: <span id="time-display">60</span>秒</div>
                 <div>スコア: <span id="score-display">0</span></div>
@@ -350,6 +441,13 @@
                     <div id="story-target-bar-fill"></div>
                 </div>
                 <div id="story-target-text"></div>
+            </div>
+            <div id="raid-target-container" style="display: none;">
+                <div id="raid-target-info"></div>
+                <div id="raid-target-bar-container">
+                    <div id="raid-target-bar-fill"></div>
+                </div>
+                <div id="raid-target-text"></div>
             </div>
             <div id="typing-area">
                 <div id="japanese-text"></div>
@@ -371,9 +469,11 @@
                 <div class="result-item">最大コンボ: <span id="result-combo">0</span></div>
                 <div class="result-item" style="color: #ffd700;">獲得コイン: 🪙<span id="result-coin">0</span></div>
                 <div class="result-item" style="color: #ffaa00;" id="gold-coin-result" style="display: none;">🥇 ゴールドコイン: <span id="result-gold">0</span></div>
+                <div class="result-item" style="color: #ff5722;" id="raid-point-result" style="display: none;">🎯 レイドポイント: <span id="result-raid">0</span></div>
                 <div class="result-item" style="color: #4caf50;">獲得XP: <span id="result-xp">0</span></div>
                 <div id="level-up-msg" style="color: #ff9800; font-weight: bold; margin-top: 10px; display: none;">レベルアップ！</div>
                 <div id="story-clear-msg" style="color: #4caf50; font-weight: bold; margin-top: 10px; display: none;">✅ ステージクリア！</div>
+                <div id="raid-clear-msg" style="color: #ff5722; font-weight: bold; margin-top: 10px; display: none;">🔥 レイドクリア！</div>
                 <button class="back-btn" onclick="app.endResult()">メニューに戻る</button>
             </div>
         </div>
@@ -399,6 +499,7 @@
                 <div class="tabs">
                     <div class="tab active" onclick="app.switchShopTab('skills')">スキル</div>
                     <div class="tab" onclick="app.switchShopTab('items')">アイテム</div>
+                    <div class="tab" onclick="app.switchShopTab('raid')">レイド</div>
                 </div>
                 <div id="shop-list" class="list-container"></div>
             </div>
@@ -437,6 +538,18 @@
         <button class="modal-btn" onclick="app.showAgreement()">注意事項をもう一度見る</button>
         <button class="modal-btn danger" onclick="app.resetDataConfirm()" style="margin-top: 20px;">データの初期化</button>
         <button class="back-btn" onclick="app.closeSettings()" style="width: 100%; margin-top: 10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="greek-info-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #00bcd4;">🔍 ギリシャ文字について</h2>
+        <p><strong style="color: #ffd700;">α (アルファ)</strong> ... 初期のスキル。弱いことが多い。</p>
+        <p><strong style="color: #4caf50;">β, γ, Δ, Ω</strong> ... 強化版。右に行くにつれて強くなる。</p>
+        <p><strong style="color: #ff5722;">ε, ζ</strong> ... レイドなどで獲得が可能。</p>
+        <p><strong style="color: #2196f3;">Σ, π, Ο</strong> ... 強化部分が違う時に使われる。<br>例：α→βは効果時間が長い。Σは効果が強くなる。</p>
+        <p><strong style="color: #9c27b0;">その他</strong> ... 説明に載っていないことが多い。載っていなかったら強化版の種類に入れよう。</p>
+        <button class="modal-btn" onclick="document.getElementById('greek-info-modal').classList.remove('active')">閉じる</button>
     </div>
 </div>
 
@@ -481,30 +594,30 @@ const analytics = getAnalytics(appInstance);
 const db = getDatabase(appInstance);
 
 // ==========================================
-// 出題データ（修正版）
+// 出題データ（修正版 - ハイフン対応）
 // ==========================================
 const typingData = [
-    { ja: "早起きは三文の得", romaji: "hayaokihasanmonnotoku" },
-    { ja: "石の上にも三年", romaji: "isinouenimosannen" },
+    { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku" },
+    { ja: "石の上にも三年", romaji: "isinouenimosannnenn" },
     { ja: "塵も積もれば山となる", romaji: "tirimotumorebayamatonaru" },
     { ja: "猿も木から落ちる", romaji: "sarumokikaraotiru" },
     { ja: "犬も歩けば棒に当たる", romaji: "inumoarukebabouniataru" },
     { ja: "雨降って地固まる", romaji: "amehuttezikatamaru" },
-    { ja: "花より団子", romaji: "hanayoridango" },
-    { ja: "転ばぬ先の杖", romaji: "korobanusakinotuye" },
-    { ja: "三人寄れば文殊の知恵", romaji: "sanninyorebamonzyunotie" },
-    { ja: "百聞は一見に如かず", romaji: "hyakubunhaikkennisikazu" },
+    { ja: "花より団子", romaji: "hanayoridanngo" },
+    { ja: "転ばぬ先の杖", romaji: "korobannusakinotuye" },
+    { ja: "三人寄れば文殊の知恵", romaji: "sannninnyorebamonnzyunotie" },
+    { ja: "百聞は一見に如かず", romaji: "hyakubunnnhaikkennnisikazu" },
     { ja: "好きこそ物の上手なれ", romaji: "sukikosomononozyouzunare" },
-    { ja: "案ずるより産むが易し", romaji: "anzuruyoriumugayasusi" },
+    { ja: "案ずるより産むが易し", romaji: "annzuruyoriumugayasusi" },
     { ja: "かわいい子には旅をさせよ", romaji: "kawaiikonihatabiosaseyo" },
     { ja: "親しき中にも礼儀あり", romaji: "sitasikinakaniimoreigiari" },
     { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru" },
-    { ja: "朝ごはんを食べる", romaji: "asagohannotaberu" },
+    { ja: "朝ごはんを食べる", romaji: "asagohannnotaberu" },
     { ja: "学校へ行く", romaji: "gakkoueiku" },
-    { ja: "図書館で本を読む", romaji: "tosyokandehonnoyomu" },
-    { ja: "公園で友だちと遊ぶ", romaji: "kouendetomodatitoasobu" },
-    { ja: "電車に乗る", romaji: "densyaninoru" },
-    { ja: "自転車で走る", romaji: "zitensyadehasiru" },
+    { ja: "図書館で本を読む", romaji: "tosyokanndehonnnoyomu" },
+    { ja: "公園で友だちと遊ぶ", romaji: "kouenndetomodatitoasobu" },
+    { ja: "電車に乗る", romaji: "dennsyaninoru" },
+    { ja: "自転車で走る", romaji: "zitennsyadehasiru" },
     { ja: "海で泳ぐ", romaji: "umideoyogu" },
     { ja: "山へ登る", romaji: "yamaenoboru" },
     { ja: "星を数える", romaji: "hosiokazoeru" },
@@ -512,7 +625,7 @@ const typingData = [
     { ja: "夏はとてもあつい", romaji: "natuhatotemoatui" },
     { ja: "秋に葉っぱが色づく", romaji: "akinihappagairoduku" },
     { ja: "冬に雪がふる", romaji: "huyuniyukigahuru" },
-    { ja: "おいしいラーメンを食べる", romaji: "oisiiraamenotaberu" },
+    { ja: "おいしいラーメンを食べる", romaji: "oisiira-mennnotaberu" },
     { ja: "大きな船が海をわたる", romaji: "ookinahunegaumiowataru" }
 ];
 
@@ -525,13 +638,14 @@ const skillData = {
         name: "自動入力α",
         desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。",
         price: 10000,
+        priceType: 'coin',
         cooldown: 25,
         duration: 3.5,
         interval: 60,
         execute: function() {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
-                if (gameState.isPlaying) handleCorrectKey();
+                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
             }, this.interval);
             setTimeout(() => {
                 gameState.isAutoTyping = false;
@@ -544,13 +658,14 @@ const skillData = {
         name: "自動入力γ",
         desc: "6秒間、0.25秒間隔で自動タイピング。クールダウン40秒。",
         price: 0,
+        priceType: 'coin',
         cooldown: 40,
         duration: 6,
         interval: 250,
         execute: function() {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
-                if (gameState.isPlaying) handleCorrectKey();
+                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
             }, this.interval);
             setTimeout(() => {
                 gameState.isAutoTyping = false;
@@ -558,11 +673,48 @@ const skillData = {
             }, this.duration * 1000);
         }
     },
+    "auto_input_epsilon": {
+        id: "auto_input_epsilon",
+        name: "自動入力ε",
+        desc: "2.5秒間自動入力 + コンボが5秒間1.5倍。クールダウン25秒。",
+        price: 50,
+        priceType: 'raid',
+        cooldown: 25,
+        duration: 2.5,
+        interval: 60,
+        execute: function() {
+            gameState.isAutoTyping = true;
+            gameState.autoTypeInterval = setInterval(() => {
+                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+            }, this.interval);
+            setTimeout(() => {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }, this.duration * 1000);
+            
+            gameState.comboMultiplier = 1.5;
+            setTimeout(() => {
+                gameState.comboMultiplier = 1.0;
+            }, 5000);
+        }
+    },
+    "time_extend_alpha": {
+        id: "time_extend_alpha",
+        name: "時間伸ばしα",
+        desc: "タイマーを止めてゲージを止めるミニゲーム。クールダウン120秒。",
+        price: 50,
+        priceType: 'raid',
+        cooldown: 120,
+        execute: function() {
+            startTimeExtendGame();
+        }
+    },
     "combo_up_alpha": {
         id: "combo_up_alpha",
         name: "コンボアップα",
         desc: "5秒間、コンボが1.5倍。クールダウン35秒。",
         price: 10000,
+        priceType: 'coin',
         cooldown: 35,
         duration: 5,
         execute: function() {
@@ -575,7 +727,7 @@ const skillData = {
 };
 
 // ==========================================
-// アイテムデータ（ミニコインブーストα追加）
+// アイテムデータ
 // ==========================================
 const itemData = {
     "coin_boost_alpha": {
@@ -583,6 +735,7 @@ const itemData = {
         name: "コインブーストα",
         desc: "10分間、獲得コインが2倍になる。",
         price: 0,
+        priceType: 'coin',
         duration: 600,
         effect: (active) => { gameState.coinMultiplier = active ? 2 : 1; }
     },
@@ -591,6 +744,7 @@ const itemData = {
         name: "ミニコインブーストα",
         desc: "5分間、獲得コインが1.5倍になる。",
         price: 5000,
+        priceType: 'coin',
         duration: 300,
         effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; }
     },
@@ -599,6 +753,7 @@ const itemData = {
         name: "XPブーストα",
         desc: "10分間、獲得XPが2倍になる。",
         price: 0,
+        priceType: 'coin',
         duration: 600,
         effect: (active) => { gameState.xpMultiplier = active ? 2 : 1; }
     },
@@ -607,6 +762,7 @@ const itemData = {
         name: "ゴールドコインラックブーストα",
         desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。",
         price: 0,
+        priceType: 'coin',
         duration: 600,
         effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; }
     }
@@ -621,13 +777,16 @@ const defaultUserData = {
     xp: 0,
     coin: 0,
     goldCoin: 0,
+    raidPoint: 0,
     skills: [],
     equippedSkill: null,
     items: {},
     playCount: 0,
     bestScore: 0,
     bestCombo: 0,
-    storyStage: 1
+    storyStage: 1,
+    raidCleared: false,
+    raidClearTime: null
 };
 
 let userRef = null;
@@ -638,6 +797,7 @@ const gameState = {
     isPlaying: false,
     mode: 'normal',
     storyStage: null,
+    raidStage: null,
     timeLeft: 60,
     initialTime: 60,
     score: 0,
@@ -657,7 +817,16 @@ const gameState = {
     activeBoosts: {},
     obstacleTriggered: false,
     typingDisabled: false,
-    targetScore: 0
+    targetScore: 0,
+    timeExtendActive: false,
+    raidObstacle: null
+};
+
+// レイド状態
+let raidState = {
+    isOpen: false,
+    currentStage: 1,
+    stages: []
 };
 
 // ==========================================
@@ -692,14 +861,88 @@ function getNextResetTime() {
 }
 
 function formatTimeRemaining(ms) {
+    if (ms <= 0) return "まもなく";
     const hours = Math.floor(ms / (1000 * 60 * 60));
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((ms % (1000 * 60)) / 1000);
     return `${hours}時間${minutes}分${seconds}秒`;
 }
 
+function getRaidOpenTime() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const currentHour = jstNow.getHours();
+    const currentMinute = jstNow.getMinutes();
+    
+    // 7:30, 8:30, 9:30, ... の次回開始時間を計算
+    let nextOpen = new Date(jstNow);
+    nextOpen.setMinutes(30, 0, 0);
+    
+    if (currentHour < 7) {
+        nextOpen.setHours(7);
+    } else {
+        let found = false;
+        for (let h = 7; h <= 23; h++) {
+            const openTime = new Date(jstNow);
+            openTime.setHours(h, 30, 0, 0);
+            if (openTime > jstNow) {
+                nextOpen = openTime;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            nextOpen.setDate(nextOpen.getDate() + 1);
+            nextOpen.setHours(7, 30, 0, 0);
+        }
+    }
+    
+    return nextOpen;
+}
+
+function isRaidOpen() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const hour = jstNow.getHours();
+    const minute = jstNow.getMinutes();
+    
+    // 7:30-7:45, 8:30-8:45, ... の間かチェック
+    for (let h = 7; h <= 23; h++) {
+        if (hour === h && minute >= 30 && minute < 45) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function getRaidCloseTime() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const hour = jstNow.getHours();
+    
+    let closeTime = new Date(jstNow);
+    closeTime.setMinutes(45, 0, 0);
+    
+    for (let h = 7; h <= 23; h++) {
+        if (hour === h && jstNow.getMinutes() < 45) {
+            closeTime.setHours(h);
+            return closeTime;
+        }
+    }
+    
+    // 次の開始時間の15分後
+    const nextOpen = getRaidOpenTime();
+    nextOpen.setMinutes(45);
+    return nextOpen;
+}
+
 function getStoryTargetScore(stage) {
     return 10000 + (stage - 1) * 1000;
+}
+
+function getRaidTargetScore(stage) {
+    if (stage === 6) return 60000;
+    return 30000 + Math.floor(Math.random() * 10001);
 }
 
 function getStageObstacle(stage) {
@@ -707,6 +950,83 @@ function getStageObstacle(stage) {
     if (stage >= 51) return 'time_reduce';
     if (stage >= 26) return 'darkness';
     return null;
+}
+
+function getRandomRaidObstacle() {
+    const obstacles = ['darkness', 'time_reduce', 'freeze'];
+    return obstacles[Math.floor(Math.random() * obstacles.length)];
+}
+
+// 時間伸ばしミニゲーム
+function startTimeExtendGame() {
+    if (!gameState.isPlaying) return;
+    
+    gameState.timeExtendActive = true;
+    gameState.typingDisabled = true;
+    clearInterval(gameState.timer);
+    
+    const gameEl = document.getElementById('time-extend-game');
+    const bar = document.getElementById('time-extend-bar');
+    gameEl.style.display = 'block';
+    
+    let position = 0;
+    let direction = 1;
+    const speed = 5;
+    let animationId;
+    
+    const animate = () => {
+        position += direction * speed;
+        if (position >= 100 || position <= 0) {
+            direction *= -1;
+        }
+        bar.style.left = position + '%';
+        animationId = requestAnimationFrame(animate);
+    };
+    animate();
+    
+    const stopGame = () => {
+        cancelAnimationFrame(animationId);
+        const finalPos = parseFloat(bar.style.left) || 0;
+        let addedTime = 0;
+        
+        if (finalPos >= 48 && finalPos <= 52) {
+            addedTime = 12;
+            document.getElementById('time-extend-result').innerHTML = '🎯 パーフェクト！ +12秒！';
+        } else if (finalPos >= 40 && finalPos <= 60) {
+            addedTime = 8;
+            document.getElementById('time-extend-result').innerHTML = '🎉 グッド！ +8秒！';
+        } else {
+            addedTime = 5;
+            document.getElementById('time-extend-result').innerHTML = '👍 ナイス！ +5秒！';
+        }
+        
+        gameState.timeLeft += addedTime;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        
+        setTimeout(() => {
+            gameEl.style.display = 'none';
+            gameState.timeExtendActive = false;
+            gameState.typingDisabled = false;
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                document.getElementById('time-display').innerText = gameState.timeLeft;
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            document.removeEventListener('keydown', spaceHandler);
+        }, 1500);
+    };
+    
+    const spaceHandler = (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            stopGame();
+        }
+    };
+    document.addEventListener('keydown', spaceHandler);
 }
 
 // ==========================================
@@ -725,6 +1045,7 @@ async function initApp() {
             userData = { ...defaultUserData, ...snapshot.val() };
             if (!userData.items) userData.items = {};
             if (!userData.goldCoin) userData.goldCoin = 0;
+            if (!userData.raidPoint) userData.raidPoint = 0;
             if (!userData.storyStage) userData.storyStage = 1;
         } else {
             await set(userRef, userData);
@@ -740,6 +1061,7 @@ async function initApp() {
     }
     
     startRankingTimer();
+    startRaidTimer();
 }
 
 async function saveUserData() {
@@ -755,11 +1077,12 @@ async function saveUserData() {
 // UI更新系
 // ==========================================
 function updateHeaderUI() {
-    document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin)}`;
+    document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin || 0)}`;
     document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin || 0}`;
-    document.getElementById('level-display').innerText = `Lv.${userData.level}`;
+    document.getElementById('raid-point-display').innerText = `🎯${userData.raidPoint || 0}`;
+    document.getElementById('level-display').innerText = `Lv.${userData.level || 1}`;
     
-    const nextXp = getNextLevelXp(userData.level);
+    const nextXp = getNextLevelXp(userData.level || 1);
     const xpPercent = Math.min(100, ((userData.xp || 0) / nextXp) * 100);
     document.getElementById('xp-bar-fill').style.width = `${xpPercent}%`;
     document.getElementById('xp-text').innerText = `${Math.floor(userData.xp || 0)} / ${nextXp} XP`;
@@ -780,6 +1103,207 @@ function startRankingTimer() {
     };
     updateTimer();
     setInterval(updateTimer, 1000);
+}
+
+function startRaidTimer() {
+    const updateRaidTimer = () => {
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const isOpen = isRaidOpen();
+        
+        let timerText = '';
+        let canPlay = false;
+        
+        if (isOpen) {
+            const closeTime = getRaidCloseTime();
+            const diff = closeTime - jstNow;
+            timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
+            canPlay = true;
+        } else {
+            const nextOpen = getRaidOpenTime();
+            const diff = nextOpen - jstNow;
+            timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
+        }
+        
+        document.getElementById('raid-menu-timer').innerText = timerText;
+        const raidBtn = document.getElementById('raid-menu-btn');
+        if (!canPlay) {
+            raidBtn.style.opacity = '0.6';
+            raidBtn.style.cursor = 'not-allowed';
+        } else {
+            raidBtn.style.opacity = '1';
+            raidBtn.style.cursor = 'pointer';
+        }
+    };
+    updateRaidTimer();
+    setInterval(updateRaidTimer, 1000);
+}
+
+// ==========================================
+// レイドマップ
+// ==========================================
+function renderRaidMap() {
+    const grid = document.getElementById('raid-stages-grid');
+    grid.innerHTML = '';
+    const isOpen = isRaidOpen();
+    
+    document.getElementById('raid-point-info').innerText = userData.raidPoint || 0;
+    
+    if (!isOpen) {
+        const nextOpen = getRaidOpenTime();
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const diff = nextOpen - jstNow;
+        document.getElementById('raid-status-timer').innerHTML = `
+            ⏳ 次のレイド開始まで: ${formatTimeRemaining(diff)}
+        `;
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">レイドは開催時間外です</div>';
+        return;
+    }
+    
+    const closeTime = getRaidCloseTime();
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const diff = closeTime - jstNow;
+    document.getElementById('raid-status-timer').innerHTML = `
+        🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}
+    `;
+    
+    // レイドステージ初期化
+    if (!raidState.stages.length) {
+        raidState.stages = [];
+        for (let i = 1; i <= 6; i++) {
+            raidState.stages.push({
+                stage: i,
+                cleared: false,
+                targetScore: getRaidTargetScore(i),
+                obstacle: i === 6 ? 'paint' : getRandomRaidObstacle()
+            });
+        }
+        raidState.currentStage = 1;
+    }
+    
+    for (let i = 0; i < 6; i++) {
+        const stage = raidState.stages[i];
+        const btn = document.createElement('button');
+        btn.className = 'raid-stage-btn';
+        
+        if (stage.cleared) {
+            btn.classList.add('completed');
+            btn.innerText = `ステージ ${i+1} - クリア済み ✅`;
+        } else if (i + 1 === raidState.currentStage) {
+            btn.classList.add('current');
+            btn.innerText = `ステージ ${i+1} - 目標: ${stage.targetScore.toLocaleString()}`;
+            btn.onclick = () => startRaidStage(i + 1);
+        } else {
+            btn.classList.add('locked');
+            btn.innerText = `ステージ ${i+1} - ロック 🔒`;
+        }
+        
+        grid.appendChild(btn);
+    }
+}
+
+function startRaidStage(stage) {
+    if (!isRaidOpen()) return;
+    if (stage !== raidState.currentStage) return;
+    
+    const stageData = raidState.stages[stage - 1];
+    
+    gameState.mode = 'raid';
+    gameState.raidStage = stage;
+    gameState.isPlaying = true;
+    gameState.raidObstacle = stageData.obstacle;
+    
+    let initialTime = 60;
+    if (stageData.obstacle === 'time_reduce') initialTime = 50;
+    gameState.timeLeft = initialTime;
+    gameState.initialTime = initialTime;
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.comboMultiplier = 1.0;
+    gameState.coinMultiplier = 1;
+    gameState.xpMultiplier = 1;
+    gameState.goldDropRate = 0.01;
+    gameState.obstacleTriggered = false;
+    gameState.typingDisabled = false;
+    gameState.targetScore = stageData.targetScore;
+    
+    resetSkillUI();
+    
+    showScreen('game-screen');
+    document.getElementById('story-target-container').style.display = 'none';
+    document.getElementById('raid-target-container').style.display = 'block';
+    
+    updateRaidTargetUI();
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(() => {
+        gameState.timeLeft--;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        
+        if (!gameState.obstacleTriggered) {
+            if (gameState.raidObstacle === 'darkness' && gameState.timeLeft <= 30) {
+                triggerDarkness();
+            } else if (gameState.raidObstacle === 'freeze' && gameState.timeLeft <= 40) {
+                triggerFreeze();
+            } else if (gameState.raidObstacle === 'paint' && gameState.timeLeft <= 40) {
+                triggerPaint();
+            }
+        }
+        
+        if (gameState.timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+    
+    if (stageData.obstacle === 'time_reduce') {
+        const animEl = document.getElementById('time-reduce-animation');
+        animEl.style.opacity = '1';
+        setTimeout(() => animEl.style.opacity = '0', 1500);
+    }
+}
+
+function updateRaidTargetUI() {
+    if (gameState.mode !== 'raid') return;
+    
+    const target = gameState.targetScore;
+    const current = gameState.score;
+    const percent = Math.min(100, (current / target) * 100);
+    const remaining = Math.max(0, target - current);
+    
+    document.getElementById('raid-target-info').innerHTML = `
+        🔥 レイド ステージ${gameState.raidStage}/6 目標スコア
+    `;
+    document.getElementById('raid-target-bar-fill').style.width = `${percent}%`;
+    document.getElementById('raid-target-text').innerHTML = `
+        ${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})
+    `;
+}
+
+function triggerPaint() {
+    gameState.obstacleTriggered = true;
+    
+    const blobs = [];
+    for (let i = 0; i < 15; i++) {
+        const blob = document.createElement('div');
+        blob.className = 'paint-blob';
+        blob.innerText = '🫟';
+        blob.style.left = Math.random() * 90 + 5 + '%';
+        blob.style.top = Math.random() * 90 + 5 + '%';
+        blob.style.opacity = '0.9';
+        document.body.appendChild(blob);
+        blobs.push(blob);
+    }
+    
+    setTimeout(() => {
+        blobs.forEach(blob => {
+            blob.style.opacity = '0';
+            setTimeout(() => blob.remove(), 10000);
+        });
+    }, 5000);
 }
 
 // ==========================================
@@ -821,6 +1345,7 @@ function startStoryStage(stage) {
     gameState.mode = 'story';
     gameState.storyStage = stage;
     gameState.isPlaying = true;
+    gameState.raidObstacle = null;
     
     let initialTime = 60;
     if (stage >= 51) initialTime = 50;
@@ -840,6 +1365,8 @@ function startStoryStage(stage) {
     resetSkillUI();
     
     showScreen('game-screen');
+    document.getElementById('story-target-container').style.display = 'block';
+    document.getElementById('raid-target-container').style.display = 'none';
     
     updateStoryTargetUI();
     updateGameUI();
@@ -866,10 +1393,7 @@ function startStoryStage(stage) {
     if (stage >= 51) {
         const animEl = document.getElementById('time-reduce-animation');
         animEl.style.opacity = '1';
-        animEl.style.transition = 'opacity 0.5s';
-        setTimeout(() => {
-            animEl.style.opacity = '0';
-        }, 1500);
+        setTimeout(() => animEl.style.opacity = '0', 1500);
     }
 }
 
@@ -928,6 +1452,8 @@ function triggerFreeze() {
 function startGame(mode) {
     gameState.mode = mode;
     gameState.storyStage = null;
+    gameState.raidStage = null;
+    gameState.raidObstacle = null;
     gameState.isPlaying = true;
     gameState.timeLeft = 60;
     gameState.initialTime = 60;
@@ -939,11 +1465,13 @@ function startGame(mode) {
     gameState.xpMultiplier = 1;
     gameState.goldDropRate = 0.01;
     gameState.targetScore = 0;
+    gameState.timeExtendActive = false;
     
     resetSkillUI();
     
     showScreen('game-screen');
     document.getElementById('story-target-container').style.display = 'none';
+    document.getElementById('raid-target-container').style.display = 'none';
     updateGameUI();
     setNextWord();
     
@@ -1008,8 +1536,12 @@ function updateGameUI() {
     document.getElementById('combo-display').innerText = Math.floor(gameState.combo);
     
     if (gameState.mode === 'story') {
-        document.getElementById('story-target-container').style.display = 'block';
         updateStoryTargetUI();
+        if (gameState.score >= gameState.targetScore) {
+            endGame(true);
+        }
+    } else if (gameState.mode === 'raid') {
+        updateRaidTargetUI();
         if (gameState.score >= gameState.targetScore) {
             endGame(true);
         }
@@ -1018,19 +1550,20 @@ function updateGameUI() {
 
 // キーボードイベント
 document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && gameState.isPlaying && gameState.isSkillReady) {
+    if (e.code === 'Space' && gameState.isPlaying && gameState.isSkillReady && !gameState.timeExtendActive) {
         e.preventDefault();
         activateSkill();
         return;
     }
     
-    if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled) return;
+    if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive) return;
     
     const obj = gameState.currentWordObj;
     if (!obj) return;
     
     const expectedChar = obj.romaji[obj.typedLength];
-    if (/^[a-zA-Z]$/.test(e.key)) {
+    // ハイフンも対応
+    if (/^[a-zA-Z\-]$/.test(e.key)) {
         if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
             handleCorrectKey();
         } else {
@@ -1047,6 +1580,7 @@ function endGame(isCleared = false) {
     
     document.getElementById('game-overlay').style.backgroundColor = 'rgba(0,0,0,0)';
     document.getElementById('game-message').style.opacity = '0';
+    document.querySelectorAll('.paint-blob').forEach(b => b.remove());
     
     let earnedCoin = Math.floor(gameState.score / 10) * gameState.coinMultiplier;
     if (gameState.mode === 'hard') earnedCoin *= 2;
@@ -1063,7 +1597,10 @@ function endGame(isCleared = false) {
     }
     
     let storyCleared = false;
+    let raidCleared = false;
+    let earnedRaidPoint = 0;
     let rewards = [];
+    
     if (gameState.mode === 'story' && isCleared) {
         const stage = gameState.storyStage;
         if (stage === userData.storyStage) {
@@ -1090,6 +1627,21 @@ function endGame(isCleared = false) {
                 rewards.push({ type: 'skill', id: 'auto_input_gamma', name: '自動入力γ' });
             }
         }
+    } else if (gameState.mode === 'raid' && isCleared) {
+        const stage = gameState.raidStage;
+        if (stage === raidState.currentStage) {
+            raidState.stages[stage - 1].cleared = true;
+            
+            if (stage === 6) {
+                raidCleared = true;
+                earnedRaidPoint = 5 + Math.floor(Math.random() * 6);
+                userData.raidPoint = (userData.raidPoint || 0) + earnedRaidPoint;
+                rewards.push({ type: 'raid', count: earnedRaidPoint });
+                raidState = { isOpen: false, currentStage: 1, stages: [] };
+            } else {
+                raidState.currentStage = stage + 1;
+            }
+        }
     }
     
     if (gameState.mode === 'normal') {
@@ -1107,13 +1659,14 @@ function endGame(isCleared = false) {
     
     saveUserData();
     
-    document.getElementById('result-title').innerText = isCleared ? '🎉 ステージクリア！' : 'ゲーム終了！';
+    document.getElementById('result-title').innerText = isCleared ? (raidCleared ? '🔥 レイド制覇！' : '🎉 ステージクリア！') : 'ゲーム終了！';
     document.getElementById('result-score').innerText = gameState.score;
     document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo);
     document.getElementById('result-coin').innerText = earnedCoin;
     document.getElementById('result-xp').innerText = earnedXp;
     document.getElementById('level-up-msg').style.display = leveledUp ? 'block' : 'none';
     document.getElementById('story-clear-msg').style.display = storyCleared ? 'block' : 'none';
+    document.getElementById('raid-clear-msg').style.display = raidCleared ? 'block' : 'none';
     
     const goldResultEl = document.getElementById('gold-coin-result');
     if (earnedGold > 0) {
@@ -1121,6 +1674,14 @@ function endGame(isCleared = false) {
         document.getElementById('result-gold').innerText = earnedGold;
     } else {
         goldResultEl.style.display = 'none';
+    }
+    
+    const raidResultEl = document.getElementById('raid-point-result');
+    if (earnedRaidPoint > 0) {
+        raidResultEl.style.display = 'block';
+        document.getElementById('result-raid').innerText = earnedRaidPoint;
+    } else {
+        raidResultEl.style.display = 'none';
     }
     
     showScreen('result-screen');
@@ -1143,6 +1704,8 @@ function showRewardModal(rewards) {
         div.className = 'reward-item';
         if (r.type === 'gold') {
             div.innerHTML = `<div class="reward-icon">🥇</div><div class="reward-info"><div class="reward-name">ゴールドコイン x${r.count}</div></div>`;
+        } else if (r.type === 'raid') {
+            div.innerHTML = `<div class="reward-icon">🎯</div><div class="reward-info"><div class="reward-name">レイドポイント x${r.count}</div></div>`;
         } else if (r.type === 'item') {
             const item = itemData[r.id];
             div.innerHTML = `<div class="reward-icon">🎁</div><div class="reward-info"><div class="reward-name">${item.name} x${r.count}</div><div class="reward-desc">${item.desc}</div></div>`;
@@ -1172,7 +1735,7 @@ function resetSkillUI() {
     }
     
     const skill = skillData[userData.equippedSkill];
-    text.innerText = skill.name.replace('α', '\nα').replace('γ', '\nγ');
+    text.innerText = skill.name.replace('α', '\nα').replace('γ', '\nγ').replace('ε', '\nε');
     btn.disabled = false;
     btn.onclick = activateSkill;
     overlay.style.height = '0%';
@@ -1180,7 +1743,7 @@ function resetSkillUI() {
 }
 
 function activateSkill() {
-    if (!gameState.isPlaying || !gameState.isSkillReady) return;
+    if (!gameState.isPlaying || !gameState.isSkillReady || gameState.timeExtendActive) return;
     
     const skill = skillData[userData.equippedSkill];
     skill.execute();
@@ -1199,6 +1762,8 @@ function activateSkill() {
             clearInterval(gameState.skillCooldownTimer);
             return;
         }
+        if (gameState.timeExtendActive) return;
+        
         gameState.skillCooldownLeft -= tick / 1000;
         const percent = Math.max(0, (gameState.skillCooldownLeft / skill.cooldown) * 100);
         overlay.style.height = `${percent}%`;
@@ -1290,6 +1855,15 @@ const uiControllers = {
         showScreen('story-map-screen');
     },
     
+    openRaidMap: () => {
+        if (!isRaidOpen()) {
+            alert("レイドは開催時間外です。");
+            return;
+        }
+        renderRaidMap();
+        showScreen('raid-map-screen');
+    },
+    
     acceptAgreement: () => {
         localStorage.setItem('agreementAccepted', 'true');
         document.getElementById('agreement-modal').classList.remove('active');
@@ -1314,6 +1888,7 @@ const uiControllers = {
     },
     resetDataExecute: async () => {
         userData = { ...defaultUserData };
+        raidState = { isOpen: false, currentStage: 1, stages: [] };
         await saveUserData();
         document.getElementById('reset-confirm-modal').classList.remove('active');
         document.getElementById('settings-modal').classList.remove('active');
@@ -1338,7 +1913,8 @@ const uiControllers = {
         const tabs = document.querySelectorAll('#shop-screen .tab');
         tabs.forEach(t => t.classList.remove('active'));
         if (tab === 'skills') tabs[0].classList.add('active');
-        else tabs[1].classList.add('active');
+        else if (tab === 'items') tabs[1].classList.add('active');
+        else tabs[2].classList.add('active');
         uiControllers.openShop();
     },
     
@@ -1346,45 +1922,51 @@ const uiControllers = {
         showScreen('shop-screen');
         const list = document.getElementById('shop-list');
         const activeTab = document.querySelector('#shop-screen .tab.active');
-        const isSkillsTab = activeTab.innerText.includes('スキル');
+        const tabText = activeTab.innerText;
         
         list.innerHTML = '';
         
-        if (isSkillsTab) {
+        if (tabText.includes('スキル')) {
             Object.values(skillData).forEach(skill => {
-                if (skill.price === 0) return;
+                if (skill.priceType === 'coin' && skill.price === 0) return;
                 const hasSkill = (userData.skills || []).includes(skill.id);
+                const canAfford = skill.priceType === 'coin' ? (userData.coin || 0) >= skill.price : (userData.raidPoint || 0) >= skill.price;
+                const currency = skill.priceType === 'coin' ? '🪙' : '🎯';
+                
                 const div = document.createElement('div');
                 div.className = 'list-item';
                 div.innerHTML = `
                     <div class="shop-item-info">
                         <h3>${skill.name}</h3>
                         <p>${skill.desc}</p>
-                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${skill.price.toLocaleString()}</div>
+                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">${currency}${skill.price.toLocaleString()}</div>
                     </div>
-                    <button class="action-btn" ${hasSkill ? 'disabled' : ''}>
+                    <button class="action-btn" ${hasSkill || !canAfford ? 'disabled' : ''}>
                         ${hasSkill ? '購入済み' : '購入'}
                     </button>
                 `;
                 list.appendChild(div);
                 
-                if(!hasSkill) {
+                if(!hasSkill && canAfford) {
                     div.querySelector('button').onclick = () => {
-                        if ((userData.coin || 0) >= skill.price) {
-                            userData.coin -= skill.price;
-                            if (!userData.skills) userData.skills = [];
-                            userData.skills.push(skill.id);
-                            saveUserData();
-                            alert(`${skill.name}を購入しました！`);
-                            uiControllers.openShop();
+                        if (skill.priceType === 'coin') {
+                            if ((userData.coin || 0) >= skill.price) {
+                                userData.coin -= skill.price;
+                            } else return;
                         } else {
-                            alert("コインが足りません。");
+                            if ((userData.raidPoint || 0) >= skill.price) {
+                                userData.raidPoint -= skill.price;
+                            } else return;
                         }
+                        if (!userData.skills) userData.skills = [];
+                        userData.skills.push(skill.id);
+                        saveUserData();
+                        alert(`${skill.name}を購入しました！`);
+                        uiControllers.openShop();
                     };
                 }
             });
-        } else {
-            // アイテムタブ - ミニコインブーストαを表示
+        } else if (tabText.includes('アイテム')) {
             Object.values(itemData).forEach(item => {
                 if (item.price === 0) return;
                 const div = document.createElement('div');
@@ -1395,7 +1977,7 @@ const uiControllers = {
                         <p>${item.desc}</p>
                         <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${item.price.toLocaleString()}</div>
                     </div>
-                    <button class="action-btn">
+                    <button class="action-btn" ${(userData.coin || 0) < item.price ? 'disabled' : ''}>
                         購入
                     </button>
                 `;
@@ -1412,6 +1994,39 @@ const uiControllers = {
                         alert("コインが足りません。");
                     }
                 };
+            });
+        } else if (tabText.includes('レイド')) {
+            const raidSkills = Object.values(skillData).filter(s => s.priceType === 'raid');
+            raidSkills.forEach(skill => {
+                const hasSkill = (userData.skills || []).includes(skill.id);
+                const canAfford = (userData.raidPoint || 0) >= skill.price;
+                
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${skill.name}</h3>
+                        <p>${skill.desc}</p>
+                        <div style="color: #ff5722; margin-top: 5px; font-weight: bold;">🎯${skill.price.toLocaleString()}</div>
+                    </div>
+                    <button class="action-btn" ${hasSkill || !canAfford ? 'disabled' : ''}>
+                        ${hasSkill ? '購入済み' : '購入'}
+                    </button>
+                `;
+                list.appendChild(div);
+                
+                if(!hasSkill && canAfford) {
+                    div.querySelector('button').onclick = () => {
+                        if ((userData.raidPoint || 0) >= skill.price) {
+                            userData.raidPoint -= skill.price;
+                            if (!userData.skills) userData.skills = [];
+                            userData.skills.push(skill.id);
+                            saveUserData();
+                            alert(`${skill.name}を購入しました！`);
+                            uiControllers.openShop();
+                        }
+                    };
+                }
             });
         }
     },
@@ -1518,6 +2133,10 @@ window.app = uiControllers;
 document.getElementById('settings-btn').addEventListener('click', () => {
     document.getElementById('name-input').value = userData.name || '';
     document.getElementById('settings-modal').classList.add('active');
+});
+
+document.getElementById('greek-info-btn').addEventListener('click', () => {
+    document.getElementById('greek-info-modal').classList.add('active');
 });
 
 initApp();
