@@ -86,6 +86,11 @@
             background: linear-gradient(145deg, #c62828, #b71c1c);
             border-color: #ef5350;
         }
+        .menu-btn.raid-mode.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
         .raid-timer-info {
             grid-column: span 2;
             text-align: center;
@@ -218,7 +223,7 @@
         /* ペイント妨害エフェクト */
         .paint-blob {
             position: fixed;
-            font-size: 80px;
+            font-size: 240px;
             opacity: 0.9;
             pointer-events: none;
             z-index: 502;
@@ -594,7 +599,7 @@ const analytics = getAnalytics(appInstance);
 const db = getDatabase(appInstance);
 
 // ==========================================
-// 出題データ（修正版 - ハイフン対応）
+// 出題データ（最新版）
 // ==========================================
 const typingData = [
     { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku" },
@@ -785,8 +790,7 @@ const defaultUserData = {
     bestScore: 0,
     bestCombo: 0,
     storyStage: 1,
-    raidCleared: false,
-    raidClearTime: null
+    raidClearedTime: null
 };
 
 let userRef = null;
@@ -872,9 +876,7 @@ function getRaidOpenTime() {
     const now = new Date();
     const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
     const currentHour = jstNow.getHours();
-    const currentMinute = jstNow.getMinutes();
     
-    // 7:30, 8:30, 9:30, ... の次回開始時間を計算
     let nextOpen = new Date(jstNow);
     nextOpen.setMinutes(30, 0, 0);
     
@@ -906,7 +908,6 @@ function isRaidOpen() {
     const hour = jstNow.getHours();
     const minute = jstNow.getMinutes();
     
-    // 7:30-7:45, 8:30-8:45, ... の間かチェック
     for (let h = 7; h <= 23; h++) {
         if (hour === h && minute >= 30 && minute < 45) {
             return true;
@@ -930,10 +931,24 @@ function getRaidCloseTime() {
         }
     }
     
-    // 次の開始時間の15分後
     const nextOpen = getRaidOpenTime();
     nextOpen.setMinutes(45);
     return nextOpen;
+}
+
+function canPlayRaid() {
+    if (!userData.raidClearedTime) return true;
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+    return (now - userData.raidClearedTime) >= oneHour;
+}
+
+function getRaidCooldownRemaining() {
+    if (!userData.raidClearedTime) return 0;
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+    const elapsed = now - userData.raidClearedTime;
+    return Math.max(0, oneHour - elapsed);
 }
 
 function getStoryTargetScore(stage) {
@@ -957,7 +972,6 @@ function getRandomRaidObstacle() {
     return obstacles[Math.floor(Math.random() * obstacles.length)];
 }
 
-// 時間伸ばしミニゲーム
 function startTimeExtendGame() {
     if (!gameState.isPlaying) return;
     
@@ -1110,15 +1124,17 @@ function startRaidTimer() {
         const now = new Date();
         const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
         const isOpen = isRaidOpen();
+        const canPlay = canPlayRaid();
         
         let timerText = '';
-        let canPlay = false;
         
-        if (isOpen) {
+        if (!canPlay) {
+            const remaining = getRaidCooldownRemaining();
+            timerText = `⏳ レイドクールタイム: ${formatTimeRemaining(remaining)}`;
+        } else if (isOpen) {
             const closeTime = getRaidCloseTime();
             const diff = closeTime - jstNow;
             timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
-            canPlay = true;
         } else {
             const nextOpen = getRaidOpenTime();
             const diff = nextOpen - jstNow;
@@ -1127,12 +1143,11 @@ function startRaidTimer() {
         
         document.getElementById('raid-menu-timer').innerText = timerText;
         const raidBtn = document.getElementById('raid-menu-btn');
-        if (!canPlay) {
-            raidBtn.style.opacity = '0.6';
-            raidBtn.style.cursor = 'not-allowed';
+        
+        if (!isOpen || !canPlay) {
+            raidBtn.classList.add('disabled');
         } else {
-            raidBtn.style.opacity = '1';
-            raidBtn.style.cursor = 'pointer';
+            raidBtn.classList.remove('disabled');
         }
     };
     updateRaidTimer();
@@ -1161,6 +1176,15 @@ function renderRaidMap() {
         return;
     }
     
+    if (!canPlayRaid()) {
+        const remaining = getRaidCooldownRemaining();
+        document.getElementById('raid-status-timer').innerHTML = `
+            ⏳ レイドクールタイム: ${formatTimeRemaining(remaining)}
+        `;
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">1時間のクールタイム中です</div>';
+        return;
+    }
+    
     const closeTime = getRaidCloseTime();
     const now = new Date();
     const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
@@ -1169,7 +1193,6 @@ function renderRaidMap() {
         🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}
     `;
     
-    // レイドステージ初期化
     if (!raidState.stages.length) {
         raidState.stages = [];
         for (let i = 1; i <= 6; i++) {
@@ -1205,7 +1228,7 @@ function renderRaidMap() {
 }
 
 function startRaidStage(stage) {
-    if (!isRaidOpen()) return;
+    if (!isRaidOpen() || !canPlayRaid()) return;
     if (stage !== raidState.currentStage) return;
     
     const stageData = raidState.stages[stage - 1];
@@ -1287,13 +1310,14 @@ function triggerPaint() {
     gameState.obstacleTriggered = true;
     
     const blobs = [];
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 12; i++) {
         const blob = document.createElement('div');
         blob.className = 'paint-blob';
         blob.innerText = '🫟';
-        blob.style.left = Math.random() * 90 + 5 + '%';
-        blob.style.top = Math.random() * 90 + 5 + '%';
-        blob.style.opacity = '0.9';
+        blob.style.left = Math.random() * 80 + 10 + '%';
+        blob.style.top = Math.random() * 80 + 10 + '%';
+        blob.style.fontSize = (180 + Math.random() * 120) + 'px';
+        blob.style.opacity = '0.95';
         document.body.appendChild(blob);
         blobs.push(blob);
     }
@@ -1548,7 +1572,6 @@ function updateGameUI() {
     }
 }
 
-// キーボードイベント
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space' && gameState.isPlaying && gameState.isSkillReady && !gameState.timeExtendActive) {
         e.preventDefault();
@@ -1562,7 +1585,6 @@ document.addEventListener('keydown', (e) => {
     if (!obj) return;
     
     const expectedChar = obj.romaji[obj.typedLength];
-    // ハイフンも対応
     if (/^[a-zA-Z\-]$/.test(e.key)) {
         if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
             handleCorrectKey();
@@ -1636,6 +1658,7 @@ function endGame(isCleared = false) {
                 raidCleared = true;
                 earnedRaidPoint = 5 + Math.floor(Math.random() * 6);
                 userData.raidPoint = (userData.raidPoint || 0) + earnedRaidPoint;
+                userData.raidClearedTime = Date.now();
                 rewards.push({ type: 'raid', count: earnedRaidPoint });
                 raidState = { isOpen: false, currentStage: 1, stages: [] };
             } else {
@@ -1860,6 +1883,11 @@ const uiControllers = {
             alert("レイドは開催時間外です。");
             return;
         }
+        if (!canPlayRaid()) {
+            const remaining = getRaidCooldownRemaining();
+            alert(`レイドクールタイム中です。あと${formatTimeRemaining(remaining)}お待ちください。`);
+            return;
+        }
         renderRaidMap();
         showScreen('raid-map-screen');
     },
@@ -1927,11 +1955,11 @@ const uiControllers = {
         list.innerHTML = '';
         
         if (tabText.includes('スキル')) {
+            // スキルタブ：コインで買えるスキルのみ表示
             Object.values(skillData).forEach(skill => {
-                if (skill.priceType === 'coin' && skill.price === 0) return;
+                if (skill.priceType !== 'coin' || skill.price === 0) return;
                 const hasSkill = (userData.skills || []).includes(skill.id);
-                const canAfford = skill.priceType === 'coin' ? (userData.coin || 0) >= skill.price : (userData.raidPoint || 0) >= skill.price;
-                const currency = skill.priceType === 'coin' ? '🪙' : '🎯';
+                const canAfford = (userData.coin || 0) >= skill.price;
                 
                 const div = document.createElement('div');
                 div.className = 'list-item';
@@ -1939,7 +1967,7 @@ const uiControllers = {
                     <div class="shop-item-info">
                         <h3>${skill.name}</h3>
                         <p>${skill.desc}</p>
-                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">${currency}${skill.price.toLocaleString()}</div>
+                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${skill.price.toLocaleString()}</div>
                     </div>
                     <button class="action-btn" ${hasSkill || !canAfford ? 'disabled' : ''}>
                         ${hasSkill ? '購入済み' : '購入'}
@@ -1949,24 +1977,19 @@ const uiControllers = {
                 
                 if(!hasSkill && canAfford) {
                     div.querySelector('button').onclick = () => {
-                        if (skill.priceType === 'coin') {
-                            if ((userData.coin || 0) >= skill.price) {
-                                userData.coin -= skill.price;
-                            } else return;
-                        } else {
-                            if ((userData.raidPoint || 0) >= skill.price) {
-                                userData.raidPoint -= skill.price;
-                            } else return;
+                        if ((userData.coin || 0) >= skill.price) {
+                            userData.coin -= skill.price;
+                            if (!userData.skills) userData.skills = [];
+                            userData.skills.push(skill.id);
+                            saveUserData();
+                            alert(`${skill.name}を購入しました！`);
+                            uiControllers.openShop();
                         }
-                        if (!userData.skills) userData.skills = [];
-                        userData.skills.push(skill.id);
-                        saveUserData();
-                        alert(`${skill.name}を購入しました！`);
-                        uiControllers.openShop();
                     };
                 }
             });
         } else if (tabText.includes('アイテム')) {
+            // アイテムタブ：コインで買えるアイテムのみ表示
             Object.values(itemData).forEach(item => {
                 if (item.price === 0) return;
                 const div = document.createElement('div');
@@ -1996,7 +2019,12 @@ const uiControllers = {
                 };
             });
         } else if (tabText.includes('レイド')) {
+            // レイドタブ：レイドポイントで買えるスキルのみ表示
             const raidSkills = Object.values(skillData).filter(s => s.priceType === 'raid');
+            if (raidSkills.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding: 20px;">レイド商品はありません</div>';
+                return;
+            }
             raidSkills.forEach(skill => {
                 const hasSkill = (userData.skills || []).includes(skill.id);
                 const canAfford = (userData.raidPoint || 0) >= skill.price;
