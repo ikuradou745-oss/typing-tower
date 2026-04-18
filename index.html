@@ -223,7 +223,7 @@
         /* ペイント妨害エフェクト */
         .paint-blob {
             position: fixed;
-            font-size: 240px;
+            font-size: 2400px;
             opacity: 0.9;
             pointer-events: none;
             z-index: 502;
@@ -232,7 +232,7 @@
         }
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(10deg); }
+            50% { transform: translateY(-30px) rotate(15deg); }
         }
 
         /* 妨害エフェクト */
@@ -599,7 +599,7 @@ const analytics = getAnalytics(appInstance);
 const db = getDatabase(appInstance);
 
 // ==========================================
-// 出題データ（最新版）
+// 出題データ
 // ==========================================
 const typingData = [
     { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku" },
@@ -790,7 +790,7 @@ const defaultUserData = {
     bestScore: 0,
     bestCombo: 0,
     storyStage: 1,
-    raidClearedTime: null
+    raidCleared: false
 };
 
 let userRef = null;
@@ -823,7 +823,9 @@ const gameState = {
     typingDisabled: false,
     targetScore: 0,
     timeExtendActive: false,
-    raidObstacle: null
+    raidObstacle: null,
+    paintTriggered50: false,
+    paintTriggered25: false
 };
 
 // レイド状態
@@ -872,15 +874,18 @@ function formatTimeRemaining(ms) {
     return `${hours}時間${minutes}分${seconds}秒`;
 }
 
-function getRaidOpenTime() {
+function getNextRaidOpenTime() {
     const now = new Date();
     const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
     const currentHour = jstNow.getHours();
+    const currentMinute = jstNow.getMinutes();
     
     let nextOpen = new Date(jstNow);
     nextOpen.setMinutes(30, 0, 0);
+    nextOpen.setSeconds(0, 0);
     
-    if (currentHour < 7) {
+    // 現在時刻が7:30より前なら7:30
+    if (currentHour < 7 || (currentHour === 7 && currentMinute < 30)) {
         nextOpen.setHours(7);
     } else {
         let found = false;
@@ -923,6 +928,7 @@ function getRaidCloseTime() {
     
     let closeTime = new Date(jstNow);
     closeTime.setMinutes(45, 0, 0);
+    closeTime.setSeconds(0, 0);
     
     for (let h = 7; h <= 23; h++) {
         if (hour === h && jstNow.getMinutes() < 45) {
@@ -931,24 +937,14 @@ function getRaidCloseTime() {
         }
     }
     
-    const nextOpen = getRaidOpenTime();
+    const nextOpen = getNextRaidOpenTime();
     nextOpen.setMinutes(45);
     return nextOpen;
 }
 
 function canPlayRaid() {
-    if (!userData.raidClearedTime) return true;
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
-    return (now - userData.raidClearedTime) >= oneHour;
-}
-
-function getRaidCooldownRemaining() {
-    if (!userData.raidClearedTime) return 0;
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
-    const elapsed = now - userData.raidClearedTime;
-    return Math.max(0, oneHour - elapsed);
+    if (!userData.raidCleared) return true;
+    return isRaidOpen() && !userData.raidCleared;
 }
 
 function getStoryTargetScore(stage) {
@@ -1128,15 +1124,16 @@ function startRaidTimer() {
         
         let timerText = '';
         
-        if (!canPlay) {
-            const remaining = getRaidCooldownRemaining();
-            timerText = `⏳ レイドクールタイム: ${formatTimeRemaining(remaining)}`;
+        if (userData.raidCleared) {
+            const nextOpen = getNextRaidOpenTime();
+            const diff = nextOpen - jstNow;
+            timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
         } else if (isOpen) {
             const closeTime = getRaidCloseTime();
             const diff = closeTime - jstNow;
             timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
         } else {
-            const nextOpen = getRaidOpenTime();
+            const nextOpen = getNextRaidOpenTime();
             const diff = nextOpen - jstNow;
             timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
         }
@@ -1144,7 +1141,7 @@ function startRaidTimer() {
         document.getElementById('raid-menu-timer').innerText = timerText;
         const raidBtn = document.getElementById('raid-menu-btn');
         
-        if (!isOpen || !canPlay) {
+        if (!isOpen || userData.raidCleared) {
             raidBtn.classList.add('disabled');
         } else {
             raidBtn.classList.remove('disabled');
@@ -1165,7 +1162,7 @@ function renderRaidMap() {
     document.getElementById('raid-point-info').innerText = userData.raidPoint || 0;
     
     if (!isOpen) {
-        const nextOpen = getRaidOpenTime();
+        const nextOpen = getNextRaidOpenTime();
         const now = new Date();
         const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
         const diff = nextOpen - jstNow;
@@ -1176,12 +1173,15 @@ function renderRaidMap() {
         return;
     }
     
-    if (!canPlayRaid()) {
-        const remaining = getRaidCooldownRemaining();
+    if (userData.raidCleared) {
+        const nextOpen = getNextRaidOpenTime();
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const diff = nextOpen - jstNow;
         document.getElementById('raid-status-timer').innerHTML = `
-            ⏳ レイドクールタイム: ${formatTimeRemaining(remaining)}
+            ⏳ 次のレイドまで: ${formatTimeRemaining(diff)}
         `;
-        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">1時間のクールタイム中です</div>';
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">本日のレイドはクリア済みです</div>';
         return;
     }
     
@@ -1228,7 +1228,7 @@ function renderRaidMap() {
 }
 
 function startRaidStage(stage) {
-    if (!isRaidOpen() || !canPlayRaid()) return;
+    if (!isRaidOpen() || userData.raidCleared) return;
     if (stage !== raidState.currentStage) return;
     
     const stageData = raidState.stages[stage - 1];
@@ -1237,6 +1237,8 @@ function startRaidStage(stage) {
     gameState.raidStage = stage;
     gameState.isPlaying = true;
     gameState.raidObstacle = stageData.obstacle;
+    gameState.paintTriggered50 = false;
+    gameState.paintTriggered25 = false;
     
     let initialTime = 60;
     if (stageData.obstacle === 'time_reduce') initialTime = 50;
@@ -1267,12 +1269,16 @@ function startRaidStage(stage) {
         gameState.timeLeft--;
         document.getElementById('time-display').innerText = gameState.timeLeft;
         
-        if (!gameState.obstacleTriggered) {
-            if (gameState.raidObstacle === 'darkness' && gameState.timeLeft <= 30) {
-                triggerDarkness();
-            } else if (gameState.raidObstacle === 'freeze' && gameState.timeLeft <= 40) {
-                triggerFreeze();
-            } else if (gameState.raidObstacle === 'paint' && gameState.timeLeft <= 40) {
+        if (gameState.raidObstacle === 'darkness' && !gameState.obstacleTriggered && gameState.timeLeft <= 30) {
+            triggerDarkness();
+        } else if (gameState.raidObstacle === 'freeze' && !gameState.obstacleTriggered && gameState.timeLeft <= 40) {
+            triggerFreeze();
+        } else if (gameState.raidObstacle === 'paint') {
+            if (!gameState.paintTriggered50 && gameState.timeLeft <= 50) {
+                gameState.paintTriggered50 = true;
+                triggerPaint();
+            } else if (!gameState.paintTriggered25 && gameState.timeLeft <= 25) {
+                gameState.paintTriggered25 = true;
                 triggerPaint();
             }
         }
@@ -1307,16 +1313,14 @@ function updateRaidTargetUI() {
 }
 
 function triggerPaint() {
-    gameState.obstacleTriggered = true;
-    
     const blobs = [];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 10; i++) {
         const blob = document.createElement('div');
         blob.className = 'paint-blob';
         blob.innerText = '🫟';
         blob.style.left = Math.random() * 80 + 10 + '%';
         blob.style.top = Math.random() * 80 + 10 + '%';
-        blob.style.fontSize = (180 + Math.random() * 120) + 'px';
+        blob.style.fontSize = (2000 + Math.random() * 1000) + 'px';
         blob.style.opacity = '0.95';
         document.body.appendChild(blob);
         blobs.push(blob);
@@ -1658,7 +1662,7 @@ function endGame(isCleared = false) {
                 raidCleared = true;
                 earnedRaidPoint = 5 + Math.floor(Math.random() * 6);
                 userData.raidPoint = (userData.raidPoint || 0) + earnedRaidPoint;
-                userData.raidClearedTime = Date.now();
+                userData.raidCleared = true;
                 rewards.push({ type: 'raid', count: earnedRaidPoint });
                 raidState = { isOpen: false, currentStage: 1, stages: [] };
             } else {
@@ -1883,9 +1887,8 @@ const uiControllers = {
             alert("レイドは開催時間外です。");
             return;
         }
-        if (!canPlayRaid()) {
-            const remaining = getRaidCooldownRemaining();
-            alert(`レイドクールタイム中です。あと${formatTimeRemaining(remaining)}お待ちください。`);
+        if (userData.raidCleared) {
+            alert("本日のレイドはクリア済みです。次の開催時間をお待ちください。");
             return;
         }
         renderRaidMap();
@@ -1955,7 +1958,6 @@ const uiControllers = {
         list.innerHTML = '';
         
         if (tabText.includes('スキル')) {
-            // スキルタブ：コインで買えるスキルのみ表示
             Object.values(skillData).forEach(skill => {
                 if (skill.priceType !== 'coin' || skill.price === 0) return;
                 const hasSkill = (userData.skills || []).includes(skill.id);
@@ -1989,7 +1991,6 @@ const uiControllers = {
                 }
             });
         } else if (tabText.includes('アイテム')) {
-            // アイテムタブ：コインで買えるアイテムのみ表示
             Object.values(itemData).forEach(item => {
                 if (item.price === 0) return;
                 const div = document.createElement('div');
@@ -2019,7 +2020,6 @@ const uiControllers = {
                 };
             });
         } else if (tabText.includes('レイド')) {
-            // レイドタブ：レイドポイントで買えるスキルのみ表示
             const raidSkills = Object.values(skillData).filter(s => s.priceType === 'raid');
             if (raidSkills.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding: 20px;">レイド商品はありません</div>';
