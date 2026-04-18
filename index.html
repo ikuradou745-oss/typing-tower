@@ -219,21 +219,6 @@
         .typed { color: #76ff03; text-shadow: 0 0 15px #76ff03; }
         .untyped { color: #b0bec5; }
         .untyped-hidden { color: transparent; }
-        
-        /* ペイント妨害エフェクト */
-        .paint-blob {
-            position: fixed;
-            font-size: 2400px;
-            opacity: 0.9;
-            pointer-events: none;
-            z-index: 502;
-            transition: opacity 10s ease;
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(15deg); }
-        }
 
         /* 妨害エフェクト */
         #game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 500; transition: background-color 0.5s ease; }
@@ -823,9 +808,7 @@ const gameState = {
     typingDisabled: false,
     targetScore: 0,
     timeExtendActive: false,
-    raidObstacle: null,
-    paintTriggered50: false,
-    paintTriggered25: false
+    raidObstacle: null
 };
 
 // レイド状態
@@ -884,7 +867,6 @@ function getNextRaidOpenTime() {
     nextOpen.setMinutes(30, 0, 0);
     nextOpen.setSeconds(0, 0);
     
-    // 現在時刻が7:30より前なら7:30
     if (currentHour < 7 || (currentHour === 7 && currentMinute < 30)) {
         nextOpen.setHours(7);
     } else {
@@ -952,7 +934,7 @@ function getStoryTargetScore(stage) {
 }
 
 function getRaidTargetScore(stage) {
-    if (stage === 6) return 60000;
+    if (stage === 6) return 100000;
     return 30000 + Math.floor(Math.random() * 10001);
 }
 
@@ -1120,7 +1102,6 @@ function startRaidTimer() {
         const now = new Date();
         const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
         const isOpen = isRaidOpen();
-        const canPlay = canPlayRaid();
         
         let timerText = '';
         
@@ -1200,7 +1181,7 @@ function renderRaidMap() {
                 stage: i,
                 cleared: false,
                 targetScore: getRaidTargetScore(i),
-                obstacle: i === 6 ? 'paint' : getRandomRaidObstacle()
+                obstacle: i === 6 ? null : getRandomRaidObstacle()
             });
         }
         raidState.currentStage = 1;
@@ -1237,8 +1218,6 @@ function startRaidStage(stage) {
     gameState.raidStage = stage;
     gameState.isPlaying = true;
     gameState.raidObstacle = stageData.obstacle;
-    gameState.paintTriggered50 = false;
-    gameState.paintTriggered25 = false;
     
     let initialTime = 60;
     if (stageData.obstacle === 'time_reduce') initialTime = 50;
@@ -1273,14 +1252,6 @@ function startRaidStage(stage) {
             triggerDarkness();
         } else if (gameState.raidObstacle === 'freeze' && !gameState.obstacleTriggered && gameState.timeLeft <= 40) {
             triggerFreeze();
-        } else if (gameState.raidObstacle === 'paint') {
-            if (!gameState.paintTriggered50 && gameState.timeLeft <= 50) {
-                gameState.paintTriggered50 = true;
-                triggerPaint();
-            } else if (!gameState.paintTriggered25 && gameState.timeLeft <= 25) {
-                gameState.paintTriggered25 = true;
-                triggerPaint();
-            }
         }
         
         if (gameState.timeLeft <= 0) {
@@ -1310,28 +1281,6 @@ function updateRaidTargetUI() {
     document.getElementById('raid-target-text').innerHTML = `
         ${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})
     `;
-}
-
-function triggerPaint() {
-    const blobs = [];
-    for (let i = 0; i < 10; i++) {
-        const blob = document.createElement('div');
-        blob.className = 'paint-blob';
-        blob.innerText = '🫟';
-        blob.style.left = Math.random() * 80 + 10 + '%';
-        blob.style.top = Math.random() * 80 + 10 + '%';
-        blob.style.fontSize = (2000 + Math.random() * 1000) + 'px';
-        blob.style.opacity = '0.95';
-        document.body.appendChild(blob);
-        blobs.push(blob);
-    }
-    
-    setTimeout(() => {
-        blobs.forEach(blob => {
-            blob.style.opacity = '0';
-            setTimeout(() => blob.remove(), 10000);
-        });
-    }, 5000);
 }
 
 // ==========================================
@@ -1606,7 +1555,6 @@ function endGame(isCleared = false) {
     
     document.getElementById('game-overlay').style.backgroundColor = 'rgba(0,0,0,0)';
     document.getElementById('game-message').style.opacity = '0';
-    document.querySelectorAll('.paint-blob').forEach(b => b.remove());
     
     let earnedCoin = Math.floor(gameState.score / 10) * gameState.coinMultiplier;
     if (gameState.mode === 'hard') earnedCoin *= 2;
