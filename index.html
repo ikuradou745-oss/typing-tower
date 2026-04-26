@@ -91,6 +91,11 @@
             cursor: not-allowed;
             pointer-events: none;
         }
+        .menu-btn.event-mode {
+            grid-column: span 2;
+            background: linear-gradient(145deg, #ff9800, #e65100);
+            border-color: #ffb74d;
+        }
         .raid-timer-info {
             grid-column: span 2;
             text-align: center;
@@ -98,6 +103,31 @@
             color: #ff9800;
             margin-top: -10px;
             margin-bottom: 10px;
+        }
+
+        /* イベント応援画面 */
+        #event-screen { justify-content: flex-start; padding-top: 30px; }
+        #event-screen h2 { font-size: 40px; margin-bottom: 20px; color: #ff9800; text-shadow: 0 0 15px #ff9800; }
+        .event-content { width: 90%; max-width: 800px; display: flex; gap: 30px; }
+        .event-main { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        #like-btn { 
+            font-size: 60px; 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            transition: transform 0.1s ease; 
+            position: relative;
+        }
+        #like-btn:active { transform: scale(1.3); }
+        #like-count { font-size: 32px; font-weight: bold; margin: 10px 0; color: #ff9800; }
+        .event-ranking { flex: 1; background: rgba(20,20,20,0.7); padding: 15px; border-radius: 15px; border: 1px solid #333; max-height: 400px; overflow-y: auto; }
+        .event-ranking h3 { color: #ff9800; margin-bottom: 10px; }
+        .event-ranking-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; }
+        #event-announcement { margin-top: 20px; font-size: 18px; color: #4caf50; font-weight: bold; }
+        .like-animation { position: fixed; pointer-events: none; font-size: 24px; color: #ff9800; font-weight: bold; z-index: 600; animation: likeUp 1.5s ease-out forwards; }
+        @keyframes likeUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
         }
 
         /* プレイ選択画面 */
@@ -253,6 +283,13 @@
         #skill-btn:disabled { background: #424242; box-shadow: none; cursor: not-allowed; color: #9e9e9e; border-color: #616161; }
         #skill-cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0,0,0,0.6); height: 0%; transition: height 0.1s linear; }
 
+        /* パッシブコンボエフェクト */
+        .passive-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; font-weight: bold; color: #ff9800; text-shadow: 0 0 30px #ff9800; z-index: 502; opacity: 0; pointer-events: none; animation: passiveFade 2s ease-out forwards; }
+        @keyframes passiveFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
+
         /* リザルト画面 */
         #result-screen { justify-content: center; }
         .result-box { 
@@ -283,7 +320,7 @@
 
         /* 共通タブUI */
         .tab-container { width: 90%; max-width: 800px; margin-top: 30px; background: rgba(20,20,20,0.7); padding: 20px; border-radius: 30px; backdrop-filter: blur(4px); border: 1px solid #3a3a3a; }
-        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
+        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; flex-wrap: wrap; }
         .tab { padding: 12px 24px; cursor: pointer; font-size: 20px; border-bottom: 3px solid transparent; transition: 0.2s; }
         .tab.active { border-bottom-color: #00bcd4; color: #00bcd4; font-weight: bold; text-shadow: 0 0 8px #00bcd4; }
         
@@ -375,9 +412,26 @@
                 <button class="menu-btn" onclick="app.openShop()">ショップ</button>
                 <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
                 <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
+                <button class="menu-btn event-mode" onclick="app.openEvent()">イベント応援</button>
                 <div class="raid-timer-info" id="raid-menu-timer"></div>
                 <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
             </div>
+        </div>
+
+        <div id="event-screen" class="screen">
+            <h2>🎉 イベント応援</h2>
+            <div class="event-content">
+                <div class="event-main">
+                    <button id="like-btn">👍</button>
+                    <div id="like-count">0 いいね</div>
+                </div>
+                <div class="event-ranking">
+                    <h3>いいねランキング</h3>
+                    <div id="event-ranking-list"></div>
+                </div>
+            </div>
+            <div id="event-announcement"></div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">ホームに戻る</button>
         </div>
 
         <div id="play-select-screen" class="screen">
@@ -490,6 +544,7 @@
                     <div class="tab active" onclick="app.switchShopTab('skills')">スキル</div>
                     <div class="tab" onclick="app.switchShopTab('items')">アイテム</div>
                     <div class="tab" onclick="app.switchShopTab('raid')">レイド</div>
+                    <div class="tab" onclick="app.switchShopTab('passive')">パッシブ</div>
                 </div>
                 <div id="shop-list" class="list-container"></div>
             </div>
@@ -502,6 +557,7 @@
                 <div class="tabs">
                     <div class="tab active" onclick="app.switchInventoryTab('skills')">スキル</div>
                     <div class="tab" onclick="app.switchInventoryTab('items')">アイテム</div>
+                    <div class="tab" onclick="app.switchInventoryTab('passive')">パッシブ</div>
                 </div>
                 <div id="inventory-list" class="list-container"></div>
             </div>
@@ -566,7 +622,7 @@
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBXnNXQ5khcR0EvRide4C0PjshJZpSF4oM",
@@ -717,6 +773,32 @@ const skillData = {
 };
 
 // ==========================================
+// パッシブスキルデータ
+// ==========================================
+const passiveData = {
+    "combo_set_alpha": {
+        id: "combo_set_alpha",
+        name: "コンボセットα",
+        desc: "ゲーム開始時のコンボが30になります。",
+        price: 30000,
+        priceType: 'coin',
+        onGameStart: function() {
+            gameState.combo = 30;
+            if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+            updateGameUI();
+        }
+    },
+    "combo_no_reset_alpha": {
+        id: "combo_no_reset_alpha",
+        name: "コンボノットリセットα",
+        desc: "一度だけミスしてもコンボが0になりません。",
+        price: 30000,
+        priceType: 'coin',
+        usedInGame: false
+    }
+};
+
+// ==========================================
 // アイテムデータ
 // ==========================================
 const itemData = {
@@ -770,12 +852,14 @@ const defaultUserData = {
     raidPoint: 0,
     skills: [],
     equippedSkill: null,
+    passives: [],
+    equippedPassive: null,
     items: {},
     playCount: 0,
     bestScore: 0,
     bestCombo: 0,
     storyStage: 1,
-    raidCleared: false
+    raidClearedTime: 0
 };
 
 let userRef = null;
@@ -808,7 +892,8 @@ const gameState = {
     typingDisabled: false,
     targetScore: 0,
     timeExtendActive: false,
-    raidObstacle: null
+    raidObstacle: null,
+    passiveUsed: false
 };
 
 // レイド状態
@@ -816,6 +901,12 @@ let raidState = {
     isOpen: false,
     currentStage: 1,
     stages: []
+};
+
+// イベントデータ
+let eventData = {
+    totalLikes: 0,
+    userLikes: 0
 };
 
 // ==========================================
@@ -895,38 +986,42 @@ function isRaidOpen() {
     const hour = jstNow.getHours();
     const minute = jstNow.getMinutes();
     
-    for (let h = 7; h <= 23; h++) {
-        if (hour === h && minute >= 30 && minute < 45) {
-            return true;
-        }
-    }
+    if (hour < 7) return false;
+    if (minute >= 30 && minute < 45) return true;
     return false;
 }
 
 function getRaidCloseTime() {
     const now = new Date();
     const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-    const hour = jstNow.getHours();
     
     let closeTime = new Date(jstNow);
     closeTime.setMinutes(45, 0, 0);
     closeTime.setSeconds(0, 0);
     
-    for (let h = 7; h <= 23; h++) {
-        if (hour === h && jstNow.getMinutes() < 45) {
-            closeTime.setHours(h);
-            return closeTime;
-        }
+    if (jstNow.getMinutes() >= 45) {
+        closeTime.setHours(jstNow.getHours() + 1);
     }
     
-    const nextOpen = getNextRaidOpenTime();
-    nextOpen.setMinutes(45);
-    return nextOpen;
+    return closeTime;
 }
 
 function canPlayRaid() {
-    if (!userData.raidCleared) return true;
-    return isRaidOpen() && !userData.raidCleared;
+    if (!isRaidOpen()) return false;
+    
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const clearedTime = new Date(userData.raidClearedTime || 0);
+    const clearedJst = new Date(clearedTime.getTime() + (clearedTime.getTimezoneOffset() + 540) * 60000);
+    
+    // 同じ時間帯のレイドかをチェック
+    if (userData.raidClearedTime) {
+        const clearedHour = clearedJst.getHours();
+        const currentHour = jstNow.getHours();
+        if (clearedHour === currentHour) return false;
+    }
+    
+    return true;
 }
 
 function getStoryTargetScore(stage) {
@@ -1030,6 +1125,7 @@ async function initApp() {
         localStorage.setItem('typingGameUid', uid);
     }
     userRef = ref(db, `users/${uid}`);
+    const eventRef = ref(db, 'eventData');
 
     try {
         const snapshot = await get(userRef);
@@ -1039,9 +1135,27 @@ async function initApp() {
             if (!userData.goldCoin) userData.goldCoin = 0;
             if (!userData.raidPoint) userData.raidPoint = 0;
             if (!userData.storyStage) userData.storyStage = 1;
+            if (!userData.passives) userData.passives = [];
+            if (!userData.equippedPassive) userData.equippedPassive = null;
+            if (!userData.raidClearedTime) userData.raidClearedTime = 0;
         } else {
             await set(userRef, userData);
         }
+        
+        const eventSnapshot = await get(eventRef);
+        if (eventSnapshot.exists()) {
+            eventData = eventSnapshot.val();
+        } else {
+            await set(eventRef, eventData);
+        }
+        
+        // イベントデータのリアルタイム監視
+        onValue(eventRef, (snap) => {
+            if (snap.exists()) {
+                eventData = snap.val();
+                updateEventUI();
+            }
+        });
     } catch (e) {
         console.error("Firebase load error", e);
     }
@@ -1065,6 +1179,14 @@ async function saveUserData() {
     }
 }
 
+async function saveEventData() {
+    try {
+        await set(ref(db, 'eventData'), eventData);
+    } catch (e) {
+        console.error("Event data save error", e);
+    }
+}
+
 // ==========================================
 // UI更新系
 // ==========================================
@@ -1085,6 +1207,19 @@ function showScreen(screenId) {
     document.getElementById(screenId).classList.add('active');
 }
 
+function updateEventUI() {
+    document.getElementById('like-count').innerText = `${eventData.totalLikes || 0} いいね`;
+    const announcement = document.getElementById('event-announcement');
+    if ((eventData.totalLikes || 0) >= 5000) {
+        announcement.innerText = '✅ いいねが5000に達しました！アプデの準備をします。';
+        announcement.style.color = '#4caf50';
+    } else {
+        const remaining = 5000 - (eventData.totalLikes || 0);
+        announcement.innerText = `あと ${remaining.toLocaleString()} いいねでアプデの準備をします。`;
+        announcement.style.color = '#ff9800';
+    }
+}
+
 function startRankingTimer() {
     const updateTimer = () => {
         const resetTime = getNextResetTime();
@@ -1102,14 +1237,11 @@ function startRaidTimer() {
         const now = new Date();
         const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
         const isOpen = isRaidOpen();
+        const canPlay = canPlayRaid();
         
         let timerText = '';
         
-        if (userData.raidCleared) {
-            const nextOpen = getNextRaidOpenTime();
-            const diff = nextOpen - jstNow;
-            timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
-        } else if (isOpen) {
+        if (isOpen && canPlay) {
             const closeTime = getRaidCloseTime();
             const diff = closeTime - jstNow;
             timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
@@ -1122,7 +1254,7 @@ function startRaidTimer() {
         document.getElementById('raid-menu-timer').innerText = timerText;
         const raidBtn = document.getElementById('raid-menu-btn');
         
-        if (!isOpen || userData.raidCleared) {
+        if (!isOpen || !canPlay) {
             raidBtn.classList.add('disabled');
         } else {
             raidBtn.classList.remove('disabled');
@@ -1133,12 +1265,83 @@ function startRaidTimer() {
 }
 
 // ==========================================
+// イベント機能
+// ==========================================
+function renderEvent() {
+    updateEventUI();
+    fetchEventRanking();
+}
+
+async function handleLike() {
+    eventData.totalLikes = (eventData.totalLikes || 0) + 1;
+    
+    const userLikesRef = ref(db, `eventLikes/${uid}`);
+    try {
+        const snap = await get(userLikesRef);
+        const currentLikes = snap.exists() ? (snap.val().likes || 0) : 0;
+        await set(userLikesRef, { name: userData.name, likes: currentLikes + 1 });
+    } catch(e) {
+        console.error("Like save error", e);
+    }
+    
+    await saveEventData();
+    updateEventUI();
+    fetchEventRanking();
+    
+    // アニメーション
+    const anim = document.createElement('div');
+    anim.className = 'like-animation';
+    anim.innerText = '+1';
+    anim.style.left = '50%';
+    anim.style.top = '50%';
+    document.body.appendChild(anim);
+    setTimeout(() => anim.remove(), 1500);
+}
+
+async function fetchEventRanking() {
+    const list = document.getElementById('event-ranking-list');
+    list.innerHTML = '<div style="text-align:center;">読み込み中...</div>';
+    
+    try {
+        const snapshot = await get(ref(db, 'eventLikes'));
+        const results = [];
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                results.push({ uid: child.key, ...child.val() });
+            });
+        }
+        
+        results.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+        
+        list.innerHTML = '';
+        if (results.length === 0) {
+            list.innerHTML = '<div style="text-align:center;">まだデータがありません</div>';
+            return;
+        }
+        
+        results.slice(0, 20).forEach((data, index) => {
+            const div = document.createElement('div');
+            div.className = 'event-ranking-item';
+            div.innerHTML = `
+                <span>${index + 1}位：${escapeHTML(data.name || '名無し')}</span>
+                <span>${data.likes || 0} 回</span>
+            `;
+            list.appendChild(div);
+        });
+    } catch(e) {
+        console.error("Event ranking error", e);
+        list.innerHTML = '<div style="color:red;">読み込み失敗</div>';
+    }
+}
+
+// ==========================================
 // レイドマップ
 // ==========================================
 function renderRaidMap() {
     const grid = document.getElementById('raid-stages-grid');
     grid.innerHTML = '';
     const isOpen = isRaidOpen();
+    const canPlay = canPlayRaid();
     
     document.getElementById('raid-point-info').innerText = userData.raidPoint || 0;
     
@@ -1154,7 +1357,7 @@ function renderRaidMap() {
         return;
     }
     
-    if (userData.raidCleared) {
+    if (!canPlay) {
         const nextOpen = getNextRaidOpenTime();
         const now = new Date();
         const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
@@ -1162,7 +1365,7 @@ function renderRaidMap() {
         document.getElementById('raid-status-timer').innerHTML = `
             ⏳ 次のレイドまで: ${formatTimeRemaining(diff)}
         `;
-        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">本日のレイドはクリア済みです</div>';
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">この回のレイドはクリア済みです。次の開催時間をお待ちください。</div>';
         return;
     }
     
@@ -1209,7 +1412,7 @@ function renderRaidMap() {
 }
 
 function startRaidStage(stage) {
-    if (!isRaidOpen() || userData.raidCleared) return;
+    if (!isRaidOpen() || !canPlayRaid()) return;
     if (stage !== raidState.currentStage) return;
     
     const stageData = raidState.stages[stage - 1];
@@ -1218,6 +1421,7 @@ function startRaidStage(stage) {
     gameState.raidStage = stage;
     gameState.isPlaying = true;
     gameState.raidObstacle = stageData.obstacle;
+    gameState.passiveUsed = false;
     
     let initialTime = 60;
     if (stageData.obstacle === 'time_reduce') initialTime = 50;
@@ -1234,6 +1438,7 @@ function startRaidStage(stage) {
     gameState.typingDisabled = false;
     gameState.targetScore = stageData.targetScore;
     
+    applyPassiveOnStart();
     resetSkillUI();
     
     showScreen('game-screen');
@@ -1323,6 +1528,7 @@ function startStoryStage(stage) {
     gameState.storyStage = stage;
     gameState.isPlaying = true;
     gameState.raidObstacle = null;
+    gameState.passiveUsed = false;
     
     let initialTime = 60;
     if (stage >= 51) initialTime = 50;
@@ -1339,6 +1545,7 @@ function startStoryStage(stage) {
     gameState.typingDisabled = false;
     gameState.targetScore = getStoryTargetScore(stage);
     
+    applyPassiveOnStart();
     resetSkillUI();
     
     showScreen('game-screen');
@@ -1424,6 +1631,19 @@ function triggerFreeze() {
 }
 
 // ==========================================
+// パッシブシステム
+// ==========================================
+function applyPassiveOnStart() {
+    if (!userData.equippedPassive || !passiveData[userData.equippedPassive]) return;
+    
+    const passive = passiveData[userData.equippedPassive];
+    if (passive.onGameStart) {
+        passive.onGameStart();
+    }
+    gameState.passiveUsed = false;
+}
+
+// ==========================================
 // ゲームロジック
 // ==========================================
 function startGame(mode) {
@@ -1443,7 +1663,9 @@ function startGame(mode) {
     gameState.goldDropRate = 0.01;
     gameState.targetScore = 0;
     gameState.timeExtendActive = false;
+    gameState.passiveUsed = false;
     
+    applyPassiveOnStart();
     resetSkillUI();
     
     showScreen('game-screen');
@@ -1504,6 +1726,19 @@ function handleCorrectKey() {
 }
 
 function handleWrongKey() {
+    // パッシブ: コンボノットリセットα
+    if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_alpha' && gameState.combo > 0) {
+        gameState.passiveUsed = true;
+        // エフェクト
+        const effect = document.createElement('div');
+        effect.className = 'passive-effect';
+        effect.innerText = '🛡️ コンボ保護！';
+        document.body.appendChild(effect);
+        setTimeout(() => effect.remove(), 2000);
+        updateGameUI();
+        return;
+    }
+    
     gameState.combo = 0;
     updateGameUI();
 }
@@ -1610,7 +1845,10 @@ function endGame(isCleared = false) {
                 raidCleared = true;
                 earnedRaidPoint = 5 + Math.floor(Math.random() * 6);
                 userData.raidPoint = (userData.raidPoint || 0) + earnedRaidPoint;
-                userData.raidCleared = true;
+                
+                const now = new Date();
+                userData.raidClearedTime = now.getTime();
+                
                 rewards.push({ type: 'raid', count: earnedRaidPoint });
                 raidState = { isOpen: false, currentStage: 1, stages: [] };
             } else {
@@ -1825,6 +2063,11 @@ const uiControllers = {
     startGame,
     endResult: () => showScreen('menu-screen'),
     
+    openEvent: () => {
+        renderEvent();
+        showScreen('event-screen');
+    },
+    
     openStoryMap: () => {
         renderStoryMap();
         showScreen('story-map-screen');
@@ -1835,8 +2078,8 @@ const uiControllers = {
             alert("レイドは開催時間外です。");
             return;
         }
-        if (userData.raidCleared) {
-            alert("本日のレイドはクリア済みです。次の開催時間をお待ちください。");
+        if (!canPlayRaid()) {
+            alert("この回のレイドはクリア済みです。次の開催時間をお待ちください。");
             return;
         }
         renderRaidMap();
@@ -1893,7 +2136,8 @@ const uiControllers = {
         tabs.forEach(t => t.classList.remove('active'));
         if (tab === 'skills') tabs[0].classList.add('active');
         else if (tab === 'items') tabs[1].classList.add('active');
-        else tabs[2].classList.add('active');
+        else if (tab === 'raid') tabs[2].classList.add('active');
+        else if (tab === 'passive') tabs[3].classList.add('active');
         uiControllers.openShop();
     },
     
@@ -1905,7 +2149,39 @@ const uiControllers = {
         
         list.innerHTML = '';
         
-        if (tabText.includes('スキル')) {
+        if (tabText.includes('パッシブ')) {
+            Object.values(passiveData).forEach(passive => {
+                const hasPassive = (userData.passives || []).includes(passive.id);
+                const canAfford = (userData.coin || 0) >= passive.price;
+                
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${passive.name}</h3>
+                        <p>${passive.desc}</p>
+                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${passive.price.toLocaleString()}</div>
+                    </div>
+                    <button class="action-btn" ${hasPassive || !canAfford ? 'disabled' : ''}>
+                        ${hasPassive ? '購入済み' : '購入'}
+                    </button>
+                `;
+                list.appendChild(div);
+                
+                if(!hasPassive && canAfford) {
+                    div.querySelector('button').onclick = () => {
+                        if ((userData.coin || 0) >= passive.price) {
+                            userData.coin -= passive.price;
+                            if (!userData.passives) userData.passives = [];
+                            userData.passives.push(passive.id);
+                            saveUserData();
+                            alert(`${passive.name}を購入しました！`);
+                            uiControllers.openShop();
+                        }
+                    };
+                }
+            });
+        } else if (tabText.includes('スキル')) {
             Object.values(skillData).forEach(skill => {
                 if (skill.priceType !== 'coin' || skill.price === 0) return;
                 const hasSkill = (userData.skills || []).includes(skill.id);
@@ -2011,7 +2287,8 @@ const uiControllers = {
         const tabs = document.querySelectorAll('#inventory-screen .tab');
         tabs.forEach(t => t.classList.remove('active'));
         if (tab === 'skills') tabs[0].classList.add('active');
-        else tabs[1].classList.add('active');
+        else if (tab === 'items') tabs[1].classList.add('active');
+        else if (tab === 'passive') tabs[2].classList.add('active');
         uiControllers.openInventory();
     },
     
@@ -2019,11 +2296,40 @@ const uiControllers = {
         showScreen('inventory-screen');
         const list = document.getElementById('inventory-list');
         const activeTab = document.querySelector('#inventory-screen .tab.active');
-        const isSkillsTab = activeTab.innerText.includes('スキル');
+        const tabText = activeTab.innerText;
         
         list.innerHTML = '';
         
-        if (isSkillsTab) {
+        if (tabText.includes('パッシブ')) {
+            if (!userData.passives || userData.passives.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding: 20px;">パッシブを所持していません</div>';
+                return;
+            }
+
+            userData.passives.forEach(passiveId => {
+                const passive = passiveData[passiveId];
+                if (!passive) return;
+                const isEquipped = userData.equippedPassive === passiveId;
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${passive.name}</h3>
+                        <p>${passive.desc}</p>
+                    </div>
+                    <button class="action-btn ${isEquipped ? 'equipped' : ''}">
+                        ${isEquipped ? '装備中' : '装備する'}
+                    </button>
+                `;
+                list.appendChild(div);
+                
+                div.querySelector('button').onclick = () => {
+                    userData.equippedPassive = isEquipped ? null : passiveId;
+                    saveUserData();
+                    uiControllers.openInventory();
+                };
+            });
+        } else if (tabText.includes('スキル')) {
             if (!userData.skills || userData.skills.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding: 20px;">スキルを所持していません</div>';
                 return;
@@ -2113,6 +2419,10 @@ document.getElementById('settings-btn').addEventListener('click', () => {
 
 document.getElementById('greek-info-btn').addEventListener('click', () => {
     document.getElementById('greek-info-modal').classList.add('active');
+});
+
+document.getElementById('like-btn').addEventListener('click', () => {
+    handleLike();
 });
 
 initApp();
