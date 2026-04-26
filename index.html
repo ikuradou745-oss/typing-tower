@@ -1211,11 +1211,11 @@ function updateEventUI() {
     document.getElementById('like-count').innerText = `${eventData.totalLikes || 0} いいね`;
     const announcement = document.getElementById('event-announcement');
     if ((eventData.totalLikes || 0) >= 100000) {
-        announcement.innerText = '✅ いいねが100000（一万）に達しました！アプデの準備をします。';
+        announcement.innerText = '✅ いいねが100000（十万）に達しました！アプデの準備をします。';
         announcement.style.color = '#4caf50';
     } else {
         const remaining = 100000 - (eventData.totalLikes || 0);
-        announcement.innerText = `あと ${remaining.toLocaleString()} いいねでアプデの準備をします。ちなみに全部で一万いいね必要です。`;
+        announcement.innerText = `あと ${remaining.toLocaleString()} いいねでアプデの準備をします。ちなみに全部で十万いいね必要です。`;
         announcement.style.color = '#ff9800';
     }
 }
