@@ -9,6 +9,25 @@
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f0f0f; color: #ffffff; overflow: hidden; }
         
+        /* 準備中ローディング画面 */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0f0f0f;
+            color: #00bcd4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-size: 48px;
+            font-weight: bold;
+            transition: opacity 0.5s ease;
+            text-shadow: 0 0 20px #00bcd4;
+        }
+
         /* 全体レイアウト */
         #app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
@@ -32,7 +51,15 @@
         .screen.active { display: flex; }
 
         /* メニュー画面 */
-        #menu-screen { justify-content: center; }
+        #menu-screen { justify-content: center; overflow: hidden; }
+        #menu-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-origin: center center;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
         #menu-screen h1 { 
             font-size: 64px; 
             margin-bottom: 40px; 
@@ -273,7 +300,8 @@
         }
         #game-info { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-around; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px black; }
         #typing-area { text-align: center; margin-top: 20px; }
-        #japanese-text { font-size: 56px; margin-bottom: 20px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
+        #japanese-text { font-size: 56px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
+        #furigana-text { font-size: 24px; color: #a0e9ff; margin-bottom: 5px; height: 36px; line-height: 36px; font-weight: bold; }
         #romaji-text { font-size: 44px; letter-spacing: 4px; font-family: 'Courier New', monospace; }
         .typed { color: #76ff03; text-shadow: 0 0 15px #76ff03; }
         .untyped { color: #b0bec5; }
@@ -284,6 +312,55 @@
         #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; }
         #time-reduce-animation { position: fixed; top: 30px; right: 30px; font-size: 48px; font-weight: bold; color: #ff5252; text-shadow: 0 0 20px #ff5252; z-index: 501; opacity: 0; pointer-events: none; }
         
+        /* コンボ保護エフェクト・テキスト */
+        #combo-protect-indicator {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #00e676;
+            text-shadow: 0 0 15px #00e676;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 2px solid #00e676;
+            z-index: 600;
+            display: none;
+            pointer-events: none;
+        }
+
+        /* ブースト表示エリア */
+        #boost-status-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 550;
+            pointer-events: none;
+        }
+        .boost-indicator {
+            background: rgba(0, 0, 0, 0.8);
+            border-left: 4px solid #4caf50;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 0 10px 10px 0;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            animation: slideInLeft 0.3s ease-out;
+        }
+        .boost-indicator.mini-coin { border-left-color: #ff9800; }
+        .boost-indicator.gold { border-left-color: #ffc107; }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         /* 時間伸ばしミニゲーム */
         #time-extend-game { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: rgba(0,0,0,0.9); border-radius: 20px; padding: 30px; text-align: center; z-index: 600; border: 2px solid #4caf50; display: none; }
         #time-extend-bar-container { width: 100%; height: 30px; background: #333; border-radius: 15px; margin: 20px 0; position: relative; overflow: hidden; }
@@ -397,6 +474,8 @@
         .modal-btn { background: linear-gradient(145deg, #2196f3, #0d47a1); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 50px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.2s; }
         .modal-btn.danger { background: linear-gradient(145deg, #f44336, #b71c1c); }
         .modal-input { width: 100%; padding: 12px; font-size: 18px; margin-bottom: 20px; border-radius: 30px; border: 1px solid #666; background-color: #0a0a0a; color: white; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 18px; color: white; cursor: pointer; margin-bottom: 20px; }
+        .checkbox-label input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
 
         /* 報酬モーダル */
         .reward-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin: 10px 0; display: flex; align-items: center; gap: 15px; }
@@ -413,6 +492,13 @@
     </style>
 </head>
 <body>
+
+<div id="loading-screen">
+    ⏳ 準備中だよ...
+</div>
+
+<div id="boost-status-container"></div>
+<div id="combo-protect-indicator"></div>
 
 <div id="app-container">
     <div id="header">
@@ -434,16 +520,18 @@
 
     <div id="main-content">
         <div id="menu-screen" class="screen active">
-            <h1>Typing RPG</h1>
-            <div class="menu-grid">
-                <button class="menu-btn" onclick="app.showScreen('play-select-screen')">プレイ</button>
-                <button class="menu-btn" onclick="app.openRanking()">ランキング</button>
-                <button class="menu-btn" onclick="app.openShop()">ショップ</button>
-                <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
-                <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
-                <button class="menu-btn event-mode" onclick="app.openEvent()">イベント応援</button>
-                <div class="raid-timer-info" id="raid-menu-timer"></div>
-                <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
+            <div id="menu-content-wrapper">
+                <h1>Typing RPG</h1>
+                <div class="menu-grid">
+                    <button class="menu-btn" onclick="app.showScreen('play-select-screen')">プレイ</button>
+                    <button class="menu-btn" onclick="app.openRanking()">ランキング</button>
+                    <button class="menu-btn" onclick="app.openShop()">ショップ</button>
+                    <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
+                    <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
+                    <button class="menu-btn event-mode" onclick="app.openEvent()">イベント応援</button>
+                    <div class="raid-timer-info" id="raid-menu-timer"></div>
+                    <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
+                </div>
             </div>
         </div>
 
@@ -527,6 +615,7 @@
             </div>
             <div id="typing-area">
                 <div id="japanese-text"></div>
+                <div id="furigana-text"></div>
                 <div id="romaji-text"></div>
             </div>
             <div id="skill-button-container">
@@ -598,7 +687,6 @@
     </div>
 </div>
 
-<!-- モーダル類 -->
 <div id="agreement-modal" class="modal-overlay">
     <div class="modal-content">
         <h2>⚠️ 注意事項</h2>
@@ -610,9 +698,26 @@
 <div id="settings-modal" class="modal-overlay">
     <div class="modal-content">
         <h2 style="color: white;">設定</h2>
+        
         <div style="text-align: left; margin-bottom: 10px;">名前変更 (20文字以内)</div>
         <input type="text" id="name-input" class="modal-input" maxlength="20">
         <button class="modal-btn" onclick="app.saveName()">名前を保存</button>
+        
+        <hr style="border-color: #444; margin: 20px 0;">
+        
+        <label class="checkbox-label">
+            <input type="checkbox" id="furigana-toggle" onchange="app.toggleFurigana(this.checked)">
+            ふりがな表示
+        </label>
+        
+        <div style="text-align: left; margin-bottom: 10px;">ホーム画面サイズ: <span id="home-scale-val">50%</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+            <input type="range" id="home-scale-slider" min="0" max="100" step="5" value="50" style="flex: 1;" oninput="app.changeHomeScale(this.value)">
+            <button class="modal-btn" style="width: auto; padding: 10px 20px; font-size: 14px; margin: 0;" onclick="app.resetHomeScale()">リセット</button>
+        </div>
+        
+        <hr style="border-color: #444; margin: 20px 0;">
+
         <button class="modal-btn" onclick="app.showAgreement()">注意事項をもう一度見る</button>
         <button class="modal-btn danger" onclick="app.resetDataConfirm()" style="margin-top: 20px;">データの初期化</button>
         <button class="back-btn" onclick="app.closeSettings()" style="width: 100%; margin-top: 10px;">閉じる</button>
@@ -675,36 +780,36 @@ const db = getDatabase(appInstance);
 // 出題データ
 // ==========================================
 const typingData = [
-    { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku" },
-    { ja: "石の上にも三年", romaji: "isinouenimosannnenn" },
-    { ja: "塵も積もれば山となる", romaji: "tirimotumorebayamatonaru" },
-    { ja: "猿も木から落ちる", romaji: "sarumokikaraotiru" },
-    { ja: "犬も歩けば棒に当たる", romaji: "inumoarukebabouniataru" },
-    { ja: "雨降って地固まる", romaji: "amehuttezikatamaru" },
-    { ja: "花より団子", romaji: "hanayoridanngo" },
-    { ja: "転ばぬ先の杖", romaji: "korobanusakinotue" },
-    { ja: "三人寄れば文殊の知恵", romaji: "sannninnyorebamonnzyunotie" },
-    { ja: "百聞は一見に如かず", romaji: "hyakubunnhaikkennnisikazu" },
-    { ja: "好きこそ物の上手なれ", romaji: "sukikosomononozyouzunare" },
-    { ja: "案ずるより産むが易し", romaji: "annzuruyoriumugayasusi" },
-    { ja: "かわいい子には旅をさせよ", romaji: "kawaiikonihatabiwosaseyo" },
-    { ja: "親しき中にも礼儀あり", romaji: "sitasikinakanimoreigiari" },
-    { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru" },
-    { ja: "朝ごはんを食べる", romaji: "asagohannwotaberu" },
-    { ja: "学校へ行く", romaji: "gakkoueiku" },
-    { ja: "図書館で本を読む", romaji: "tosyokanndehonnwoyomu" },
-    { ja: "公園で友だちと遊ぶ", romaji: "kouenndetomodatitoasobu" },
-    { ja: "電車に乗る", romaji: "dennsyaninoru" },
-    { ja: "自転車で走る", romaji: "zitennsyadehasiru" },
-    { ja: "海で泳ぐ", romaji: "umideoyogu" },
-    { ja: "山へ登る", romaji: "yamahenoboru" },
-    { ja: "星を数える", romaji: "hosiwokazoeru" },
-    { ja: "春に花がさく", romaji: "harunihanagasaku" },
-    { ja: "夏はとてもあつい", romaji: "natuhatotemoatui" },
-    { ja: "秋に葉っぱが色づく", romaji: "akinihappagairoduku" },
-    { ja: "冬に雪がふる", romaji: "huyuniyukigahuru" },
-    { ja: "おいしいラーメンを食べる", romaji: "oisiira-mennwotaberu" },
-    { ja: "大きな船が海をわたる", romaji: "ookinahunegaumiwowataru" }
+    { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku", furigana: "はやおきはさんもんのとく" },
+    { ja: "石の上にも三年", romaji: "isinouenimosannnenn", furigana: "いしのうえにもさんねん" },
+    { ja: "塵も積もれば山となる", romaji: "tirimotumorebayamatonaru", furigana: "ちりもつもればやまとなる" },
+    { ja: "猿も木から落ちる", romaji: "sarumokikaraotiru", furigana: "さるもきからおちる" },
+    { ja: "犬も歩けば棒に当たる", romaji: "inumoarukebabouniataru", furigana: "いぬもあるけばぼうにあたる" },
+    { ja: "雨降って地固まる", romaji: "amehuttezikatamaru", furigana: "あめふってじがたまる" },
+    { ja: "花より団子", romaji: "hanayoridanngo", furigana: "はなよりだんご" },
+    { ja: "転ばぬ先の杖", romaji: "korobanusakinotue", furigana: "ころばぬさきのつえ" },
+    { ja: "三人寄れば文殊の知恵", romaji: "sannninnyorebamonnzyunotie", furigana: "さんにんよればもんじゅのちえ" },
+    { ja: "百聞は一見に如かず", romaji: "hyakubunnhaikkennnisikazu", furigana: "ひゃくぶんはいっけんにしかず" },
+    { ja: "好きこそ物の上手なれ", romaji: "sukikosomononozyouzunare", furigana: "すきこそもののじょうずなれ" },
+    { ja: "案ずるより産むが易し", romaji: "annzuruyoriumugayasusi", furigana: "あんずるよりうむがやすし" },
+    { ja: "かわいい子には旅をさせよ", romaji: "kawaiikonihatabiwosaseyo", furigana: "かわいいこにはたびをさせよ" },
+    { ja: "親しき中にも礼儀あり", romaji: "sitasikinakanimoreigiari", furigana: "したしきなかにもれいぎあり" },
+    { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru", furigana: "わらうかどにはふくきたる" },
+    { ja: "朝ごはんを食べる", romaji: "asagohannwotaberu", furigana: "あさごはんをたべる" },
+    { ja: "学校へ行く", romaji: "gakkoueiku", furigana: "がっこうへいく" },
+    { ja: "図書館で本を読む", romaji: "tosyokanndehonnwoyomu", furigana: "としょかんでほんをよむ" },
+    { ja: "公園で友だちと遊ぶ", romaji: "kouenndetomodatitoasobu", furigana: "こうえんでともだちとあそぶ" },
+    { ja: "電車に乗る", romaji: "dennsyaninoru", furigana: "でんしゃにのる" },
+    { ja: "自転車で走る", romaji: "zitennsyadehasiru", furigana: "じてんしゃではしる" },
+    { ja: "海で泳ぐ", romaji: "umideoyogu", furigana: "うみでおよぐ" },
+    { ja: "山へ登る", romaji: "yamahenoboru", furigana: "やまえのぼる" },
+    { ja: "星を数える", romaji: "hosiwokazoeru", furigana: "ほしをかぞえる" },
+    { ja: "春に花がさく", romaji: "harunihanagasaku", furigana: "はるにはながさく" },
+    { ja: "夏はとてもあつい", romaji: "natuhatotemoatui", furigana: "なつはとてもあつい" },
+    { ja: "秋に葉っぱが色づく", romaji: "akinihappagairoduku", furigana: "あきにはっぱがいろづく" },
+    { ja: "冬に雪がふる", romaji: "huyuniyukigahuru", furigana: "ふゆにゆきがふる" },
+    { ja: "おいしいラーメンを食べる", romaji: "oisiira-mennwotaberu", furigana: "おいしいらーめんをたべる" },
+    { ja: "大きな船が海をわたる", romaji: "ookinahunegaumiwowataru", furigana: "おおきなふねがうみをわたる" }
 ];
 
 // ==========================================
@@ -720,6 +825,26 @@ const skillData = {
         cooldown: 25,
         duration: 3.5,
         interval: 60,
+        execute: function() {
+            gameState.isAutoTyping = true;
+            gameState.autoTypeInterval = setInterval(() => {
+                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+            }, this.interval);
+            setTimeout(() => {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }, this.duration * 1000);
+        }
+    },
+    "auto_input_beta": {
+        id: "auto_input_beta",
+        name: "自動入力β",
+        desc: "5.5秒間、約0.05秒間隔で自動タイピング。クールダウン25秒。",
+        price: 500000,
+        priceType: 'coin',
+        cooldown: 25,
+        duration: 5.5,
+        interval: 50,
         execute: function() {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
@@ -801,6 +926,21 @@ const skillData = {
                 gameState.comboMultiplier = 1.0;
             }, this.duration * 1000);
         }
+    },
+    "combo_up_beta": {
+        id: "combo_up_beta",
+        name: "コンボアップβ",
+        desc: "7.5秒間、コンボが1.85倍。クールダウン35秒。",
+        price: 500000,
+        priceType: 'coin',
+        cooldown: 35,
+        duration: 7.5,
+        execute: function() {
+            gameState.comboMultiplier = 1.85;
+            setTimeout(() => {
+                gameState.comboMultiplier = 1.0;
+            }, this.duration * 1000);
+        }
     }
 };
 
@@ -827,6 +967,28 @@ const passiveData = {
         price: 30000,
         priceType: 'coin',
         usedInGame: false
+    },
+    "combo_no_reset_epsilon": {
+        id: "combo_no_reset_epsilon",
+        name: "コンボノットリセットε",
+        desc: "一度だけミスしても、コンボが0にならない状態が3.5秒続きます。",
+        price: 100000,
+        priceType: 'coin',
+        usedInGame: false
+    },
+    "raid_point_increase_alpha": {
+        id: "raid_point_increase_alpha",
+        name: "レイドポイントフエールα",
+        desc: "貰えるレイドポイントが1.5倍になります。",
+        price: 5,
+        priceType: 'raid'
+    },
+    "raid_point_increase_beta": {
+        id: "raid_point_increase_beta",
+        name: "レイドポイントフエールβ",
+        desc: "貰えるレイドポイントが2倍になります。",
+        price: 25,
+        priceType: 'raid'
     }
 };
 
@@ -850,6 +1012,15 @@ const itemData = {
         price: 5000,
         priceType: 'coin',
         duration: 300,
+        effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; }
+    },
+    "mini_coin_boost_gamma": {
+        id: "mini_coin_boost_gamma",
+        name: "ミニコインブーストγ",
+        desc: "15分間、獲得コインが1.5倍になる。",
+        price: 15000,
+        priceType: 'coin',
+        duration: 900,
         effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; }
     },
     "xp_boost_alpha": {
@@ -891,7 +1062,11 @@ const defaultUserData = {
     bestScore: 0,
     bestCombo: 0,
     storyStage: 1,
-    raidClearedTime: 0
+    raidClearedTime: 0,
+    settings: {
+        homeScale: 50,
+        showFurigana: true
+    }
 };
 
 let userRef = null;
@@ -919,13 +1094,14 @@ const gameState = {
     skillCooldownTimer: null,
     skillCooldownLeft: 0,
     isSkillReady: false,
-    activeBoosts: {},
+    activeBoosts: {}, // { itemId: { endTime: 1234567, name: "...", type: "mini-coin" } }
     obstacleTriggered: false,
     typingDisabled: false,
     targetScore: 0,
     timeExtendActive: false,
     raidObstacle: null,
-    passiveUsed: false
+    passiveUsed: false,
+    comboNoResetTime: 0
 };
 
 // レイド状態
@@ -1048,7 +1224,6 @@ function canPlayRaid() {
     const clearedTime = new Date(userData.raidClearedTime || 0);
     const clearedJst = new Date(clearedTime.getTime() + (clearedTime.getTimezoneOffset() + 540) * 60000);
     
-    // 同じ時間帯のレイドかをチェック
     if (userData.raidClearedTime) {
         const clearedHour = clearedJst.getHours();
         const currentHour = jstNow.getHours();
@@ -1171,6 +1346,11 @@ async function initApp() {
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
             userData = { ...defaultUserData, ...snapshot.val() };
+            // 足りない設定を補完
+            if (!userData.settings) userData.settings = { ...defaultUserData.settings };
+            if (userData.settings.homeScale === undefined) userData.settings.homeScale = 50;
+            if (userData.settings.showFurigana === undefined) userData.settings.showFurigana = true;
+
             if (!userData.items) userData.items = {};
             if (!userData.goldCoin) userData.goldCoin = 0;
             if (!userData.raidPoint) userData.raidPoint = 0;
@@ -1201,6 +1381,7 @@ async function initApp() {
     }
 
     updateHeaderUI();
+    applySettings();
     
     if (!localStorage.getItem('agreementAccepted')) {
         document.getElementById('agreement-modal').classList.add('active');
@@ -1208,7 +1389,19 @@ async function initApp() {
     
     startRankingTimer();
     startRaidTimer();
+    startBoostStatusTimer();
 }
+
+// 読み込み完了時にローディングを消す
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        }
+    }, 500);
+});
 
 async function saveUserData() {
     try {
@@ -1224,6 +1417,27 @@ async function saveEventData() {
         await set(ref(db, 'eventData'), eventData);
     } catch (e) {
         console.error("Event data save error", e);
+    }
+}
+
+function applySettings() {
+    // ふりがなチェックボックスの状態同期
+    const toggle = document.getElementById('furigana-toggle');
+    if (toggle) toggle.checked = userData.settings.showFurigana;
+    
+    // スケールスライダーの状態同期
+    const slider = document.getElementById('home-scale-slider');
+    const scaleVal = document.getElementById('home-scale-val');
+    if (slider && scaleVal) {
+        slider.value = userData.settings.homeScale;
+        scaleVal.innerText = `${userData.settings.homeScale}%`;
+    }
+
+    // メニュー画面のスケール適用
+    const wrapper = document.getElementById('menu-content-wrapper');
+    if (wrapper) {
+        const scale = userData.settings.homeScale / 50;
+        wrapper.style.transform = `scale(${scale})`;
     }
 }
 
@@ -1260,13 +1474,11 @@ function updateEventUI() {
     const likeBtn = document.getElementById('like-btn');
     
     if (stage === 1 && totalLikes >= eventData.stage1Target) {
-        // 第1段階クリア
         announcement.innerText = '✅ 第1段階達成！「つぎへ」ボタンを押して第2段階へ！';
         announcement.style.color = '#4caf50';
         nextStageBtn.style.display = 'block';
         likeBtn.disabled = true;
     } else if (stage === 2 && totalLikes >= eventData.stage2Target) {
-        // 第2段階クリア
         announcement.innerText = '✅ 全ての段階を達成しました！';
         announcement.style.color = '#4caf50';
         nextStageBtn.style.display = 'none';
@@ -1279,7 +1491,6 @@ function updateEventUI() {
         likeBtn.disabled = false;
     }
     
-    // 特権ユーザー: らもビルダーマン
     const superLikeBtn = document.getElementById('super-like-btn');
     if (userData.name === 'らもビルダーマン' && stage >= 1 && !likeBtn.disabled) {
         superLikeBtn.style.display = 'block';
@@ -1332,6 +1543,35 @@ function startRaidTimer() {
     setInterval(updateRaidTimer, 1000);
 }
 
+function startBoostStatusTimer() {
+    setInterval(() => {
+        const container = document.getElementById('boost-status-container');
+        if (!container) return;
+        
+        let html = '';
+        const now = Date.now();
+        
+        for (const [itemId, boost] of Object.entries(gameState.activeBoosts)) {
+            if (now < boost.endTime) {
+                const diff = Math.ceil((boost.endTime - now) / 1000);
+                const m = Math.floor(diff / 60);
+                const s = diff % 60;
+                let className = 'boost-indicator';
+                if (itemId.includes('mini_coin')) className += ' mini-coin';
+                else if (itemId.includes('gold')) className += ' gold';
+                
+                html += `<div class="${className}">${boost.name}: ${m}分${s}秒</div>`;
+            } else {
+                delete gameState.activeBoosts[itemId];
+                if (itemData[itemId] && itemData[itemId].effect) {
+                    itemData[itemId].effect(false);
+                }
+            }
+        }
+        container.innerHTML = html;
+    }, 1000);
+}
+
 // ==========================================
 // イベント機能
 // ==========================================
@@ -1359,7 +1599,6 @@ async function handleLike() {
     updateEventUI();
     fetchEventRanking();
     
-    // アニメーション
     const anim = document.createElement('div');
     anim.className = 'like-animation';
     anim.innerText = '+1';
@@ -1388,7 +1627,6 @@ async function handleSuperLike() {
     updateEventUI();
     fetchEventRanking();
     
-    // アニメーション
     const anim = document.createElement('div');
     anim.className = 'like-animation';
     anim.innerText = '+51';
@@ -1534,6 +1772,7 @@ function startRaidStage(stage) {
     gameState.isPlaying = true;
     gameState.raidObstacle = stageData.obstacle;
     gameState.passiveUsed = false;
+    gameState.comboNoResetTime = 0;
     
     let initialTime = 60;
     if (stageData.obstacle === 'time_reduce') initialTime = 50;
@@ -1543,9 +1782,6 @@ function startRaidStage(stage) {
     gameState.combo = 0;
     gameState.maxCombo = 0;
     gameState.comboMultiplier = 1.0;
-    gameState.coinMultiplier = 1;
-    gameState.xpMultiplier = 1;
-    gameState.goldDropRate = 0.01;
     gameState.obstacleTriggered = false;
     gameState.typingDisabled = false;
     gameState.targetScore = stageData.targetScore;
@@ -1641,6 +1877,7 @@ function startStoryStage(stage) {
     gameState.isPlaying = true;
     gameState.raidObstacle = null;
     gameState.passiveUsed = false;
+    gameState.comboNoResetTime = 0;
     
     let initialTime = 60;
     if (stage >= 51) initialTime = 50;
@@ -1650,9 +1887,6 @@ function startStoryStage(stage) {
     gameState.combo = 0;
     gameState.maxCombo = 0;
     gameState.comboMultiplier = 1.0;
-    gameState.coinMultiplier = 1;
-    gameState.xpMultiplier = 1;
-    gameState.goldDropRate = 0.01;
     gameState.obstacleTriggered = false;
     gameState.typingDisabled = false;
     gameState.targetScore = getStoryTargetScore(stage);
@@ -1770,12 +2004,10 @@ function startGame(mode) {
     gameState.combo = 0;
     gameState.maxCombo = 0;
     gameState.comboMultiplier = 1.0;
-    gameState.coinMultiplier = 1;
-    gameState.xpMultiplier = 1;
-    gameState.goldDropRate = 0.01;
     gameState.targetScore = 0;
     gameState.timeExtendActive = false;
     gameState.passiveUsed = false;
+    gameState.comboNoResetTime = 0;
     
     applyPassiveOnStart();
     resetSkillUI();
@@ -1805,6 +2037,14 @@ function renderWord() {
     const obj = gameState.currentWordObj;
     document.getElementById('japanese-text').innerText = obj.ja;
     
+    const furiganaEl = document.getElementById('furigana-text');
+    if (userData.settings.showFurigana && obj.furigana) {
+        furiganaEl.innerText = obj.furigana;
+        furiganaEl.style.display = 'block';
+    } else {
+        furiganaEl.style.display = 'none';
+    }
+
     const romajiContainer = document.getElementById('romaji-text');
     romajiContainer.innerHTML = '';
     
@@ -1838,10 +2078,44 @@ function handleCorrectKey() {
 }
 
 function handleWrongKey() {
+    // 既にコンボ保護が発動中で効果時間内の場合はミスを無視
+    if (gameState.comboNoResetTime > 0) {
+        return;
+    }
+
+    // パッシブ: コンボノットリセットε
+    if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_epsilon' && gameState.combo > 0) {
+        gameState.passiveUsed = true;
+        gameState.comboNoResetTime = 3.5;
+        
+        const indicator = document.getElementById('combo-protect-indicator');
+        indicator.innerText = '🛡️ コンボが0になりません！';
+        indicator.style.display = 'block';
+        
+        let localInterval = setInterval(() => {
+            if (!gameState.isPlaying) {
+                clearInterval(localInterval);
+                return;
+            }
+            gameState.comboNoResetTime -= 0.1;
+            if (gameState.comboNoResetTime <= 0) {
+                clearInterval(localInterval);
+                indicator.style.display = 'none';
+            }
+        }, 100);
+
+        const effect = document.createElement('div');
+        effect.className = 'passive-effect';
+        effect.innerText = '🛡️ コンボ保護発動！';
+        document.body.appendChild(effect);
+        setTimeout(() => effect.remove(), 2000);
+        updateGameUI();
+        return;
+    }
+
     // パッシブ: コンボノットリセットα
     if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_alpha' && gameState.combo > 0) {
         gameState.passiveUsed = true;
-        // エフェクト
         const effect = document.createElement('div');
         effect.className = 'passive-effect';
         effect.innerText = '🛡️ コンボ保護！';
@@ -1902,10 +2176,14 @@ function endGame(isCleared = false) {
     
     document.getElementById('game-overlay').style.backgroundColor = 'rgba(0,0,0,0)';
     document.getElementById('game-message').style.opacity = '0';
+    document.getElementById('combo-protect-indicator').style.display = 'none';
     
-    let earnedCoin = Math.floor(gameState.score / 10) * gameState.coinMultiplier;
+    let currentCoinMultiplier = gameState.coinMultiplier;
+    let currentXpMultiplier = gameState.xpMultiplier;
+
+    let earnedCoin = Math.floor(gameState.score / 10) * currentCoinMultiplier;
     if (gameState.mode === 'hard') earnedCoin *= 2;
-    const earnedXp = Math.floor(gameState.score / 100) * gameState.xpMultiplier;
+    const earnedXp = Math.floor(gameState.score / 100) * currentXpMultiplier;
     
     userData.coin = (userData.coin || 0) + earnedCoin;
     userData.xp = (userData.xp || 0) + earnedXp;
@@ -1956,6 +2234,14 @@ function endGame(isCleared = false) {
             if (stage === 6) {
                 raidCleared = true;
                 earnedRaidPoint = 5 + Math.floor(Math.random() * 6);
+                
+                // パッシブ: レイドポイントフエール系
+                if (userData.equippedPassive === 'raid_point_increase_beta') {
+                    earnedRaidPoint = earnedRaidPoint * 2;
+                } else if (userData.equippedPassive === 'raid_point_increase_alpha') {
+                    earnedRaidPoint = Math.floor(earnedRaidPoint * 1.5);
+                }
+
                 userData.raidPoint = (userData.raidPoint || 0) + earnedRaidPoint;
                 
                 const now = new Date();
@@ -2060,7 +2346,7 @@ function resetSkillUI() {
     }
     
     const skill = skillData[userData.equippedSkill];
-    text.innerText = skill.name.replace('α', '\nα').replace('γ', '\nγ').replace('ε', '\nε');
+    text.innerText = skill.name.replace('α', '\nα').replace('β', '\nβ').replace('γ', '\nγ').replace('ε', '\nε');
     btn.disabled = false;
     btn.onclick = activateSkill;
     overlay.style.height = '0%';
@@ -2206,7 +2492,10 @@ const uiControllers = {
         document.getElementById('settings-modal').classList.remove('active');
         document.getElementById('agreement-modal').classList.add('active');
     },
-    closeSettings: () => document.getElementById('settings-modal').classList.remove('active'),
+    closeSettings: () => {
+        document.getElementById('settings-modal').classList.remove('active');
+        saveUserData(); // 閉じるときに設定を保存
+    },
     saveName: () => {
         const input = document.getElementById('name-input').value.trim();
         if (input && input.length <= 20) {
@@ -2216,6 +2505,18 @@ const uiControllers = {
         } else {
             alert("1文字以上、20文字以内で入力してください。");
         }
+    },
+    toggleFurigana: (checked) => {
+        userData.settings.showFurigana = checked;
+        applySettings();
+    },
+    changeHomeScale: (val) => {
+        userData.settings.homeScale = parseInt(val);
+        applySettings();
+    },
+    resetHomeScale: () => {
+        userData.settings.homeScale = 50;
+        applySettings();
     },
     resetDataConfirm: () => {
         document.getElementById('reset-confirm-modal').classList.add('active');
@@ -2263,6 +2564,7 @@ const uiControllers = {
         
         if (tabText.includes('パッシブ')) {
             Object.values(passiveData).forEach(passive => {
+                if (passive.priceType !== 'coin') return;
                 const hasPassive = (userData.passives || []).includes(passive.id);
                 const canAfford = (userData.coin || 0) >= passive.price;
                 
@@ -2356,37 +2658,47 @@ const uiControllers = {
                 };
             });
         } else if (tabText.includes('レイド')) {
-            const raidSkills = Object.values(skillData).filter(s => s.priceType === 'raid');
-            if (raidSkills.length === 0) {
+            const raidSkills = Object.values(skillData).filter(s => s.priceType === 'raid').map(s => ({...s, _category: 'skill'}));
+            const raidPassives = Object.values(passiveData).filter(p => p.priceType === 'raid').map(p => ({...p, _category: 'passive'}));
+            const raidItems = [...raidSkills, ...raidPassives];
+
+            if (raidItems.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding: 20px;">レイド商品はありません</div>';
                 return;
             }
-            raidSkills.forEach(skill => {
-                const hasSkill = (userData.skills || []).includes(skill.id);
-                const canAfford = (userData.raidPoint || 0) >= skill.price;
+            raidItems.forEach(item => {
+                const targetArray = item._category === 'skill' ? (userData.skills || []) : (userData.passives || []);
+                const hasItem = targetArray.includes(item.id);
+                const canAfford = (userData.raidPoint || 0) >= item.price;
+                const typeLabel = item._category === 'passive' ? '<span style="font-size:12px; color:#ff9800;">[パッシブ]</span> ' : '';
                 
                 const div = document.createElement('div');
                 div.className = 'list-item';
                 div.innerHTML = `
                     <div class="shop-item-info">
-                        <h3>${skill.name}</h3>
-                        <p>${skill.desc}</p>
-                        <div style="color: #ff5722; margin-top: 5px; font-weight: bold;">🎯${skill.price.toLocaleString()}</div>
+                        <h3>${typeLabel}${item.name}</h3>
+                        <p>${item.desc}</p>
+                        <div style="color: #ff5722; margin-top: 5px; font-weight: bold;">🎯${item.price.toLocaleString()}</div>
                     </div>
-                    <button class="action-btn" ${hasSkill || !canAfford ? 'disabled' : ''}>
-                        ${hasSkill ? '購入済み' : '購入'}
+                    <button class="action-btn" ${hasItem || !canAfford ? 'disabled' : ''}>
+                        ${hasItem ? '購入済み' : '購入'}
                     </button>
                 `;
                 list.appendChild(div);
                 
-                if(!hasSkill && canAfford) {
+                if(!hasItem && canAfford) {
                     div.querySelector('button').onclick = () => {
-                        if ((userData.raidPoint || 0) >= skill.price) {
-                            userData.raidPoint -= skill.price;
-                            if (!userData.skills) userData.skills = [];
-                            userData.skills.push(skill.id);
+                        if ((userData.raidPoint || 0) >= item.price) {
+                            userData.raidPoint -= item.price;
+                            if (item._category === 'skill') {
+                                if (!userData.skills) userData.skills = [];
+                                userData.skills.push(item.id);
+                            } else {
+                                if (!userData.passives) userData.passives = [];
+                                userData.passives.push(item.id);
+                            }
                             saveUserData();
-                            alert(`${skill.name}を購入しました！`);
+                            alert(`${item.name}を購入しました！`);
                             uiControllers.openShop();
                         }
                     };
@@ -2498,13 +2810,12 @@ const uiControllers = {
                         return;
                     }
                     userData.items[itemId]--;
-                    gameState.activeBoosts[itemId] = true;
-                    item.effect(true);
                     
-                    setTimeout(() => {
-                        gameState.activeBoosts[itemId] = false;
-                        item.effect(false);
-                    }, item.duration * 1000);
+                    gameState.activeBoosts[itemId] = {
+                        endTime: Date.now() + item.duration * 1000,
+                        name: item.name
+                    };
+                    item.effect(true);
                     
                     saveUserData();
                     alert(`${item.name}を使用しました！(${item.duration/60}分間)`);
@@ -2526,6 +2837,7 @@ window.app = uiControllers;
 
 document.getElementById('settings-btn').addEventListener('click', () => {
     document.getElementById('name-input').value = userData.name || '';
+    applySettings();
     document.getElementById('settings-modal').classList.add('active');
 });
 
