@@ -1210,11 +1210,11 @@ function showScreen(screenId) {
 function updateEventUI() {
     document.getElementById('like-count').innerText = `${eventData.totalLikes || 0} いいね`;
     const announcement = document.getElementById('event-announcement');
-    if ((eventData.totalLikes || 0) >= 5000) {
-        announcement.innerText = '✅ いいねが5000に達しました！アプデの準備をします。';
+    if ((eventData.totalLikes || 0) >= 50000) {
+        announcement.innerText = '✅ いいねが50000に達しました！アプデの準備をします。';
         announcement.style.color = '#4caf50';
     } else {
-        const remaining = 5000 - (eventData.totalLikes || 0);
+        const remaining = 50000 - (eventData.totalLikes || 0);
         announcement.innerText = `あと ${remaining.toLocaleString()} いいねでアプデの準備をします。`;
         announcement.style.color = '#ff9800';
     }
