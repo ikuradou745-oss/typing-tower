@@ -12,14 +12,6 @@
         /* 全体レイアウト */
         #app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
-        /* 準備中オーバーレイ */
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.95); z-index: 9999; display: flex;
-            justify-content: center; align-items: center; font-size: 48px;
-            color: #ffd700; text-shadow: 0 0 30px #ffd700; transition: opacity 0.5s ease;
-        }
-        
         /* 上側：ヘッダー */
         #header { display: flex; align-items: center; justify-content: space-between; height: 60px; background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%); padding: 0 20px; border-bottom: 1px solid #2a2a2a; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         #header-left { display: flex; align-items: center; gap: 15px; }
@@ -42,25 +34,76 @@
         /* メニュー画面 */
         #menu-screen { justify-content: center; }
         #menu-screen h1 { 
-            font-size: 64px; margin-bottom: 40px; text-shadow: 0 0 20px #00bcd4, 0 0 40px #00bcd4; 
-            letter-spacing: 4px; font-weight: 700;
+            font-size: 64px; 
+            margin-bottom: 40px; 
+            text-shadow: 0 0 20px #00bcd4, 0 0 40px #00bcd4; 
+            color: #ffffff;
+            letter-spacing: 4px;
+            font-weight: 700;
             background: linear-gradient(135deg, #a0e9ff, #00bcd4, #007bff);
-            -webkit-background-clip: text; background-clip: text; color: transparent; margin-top: 0;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-top: 0;
         }
         #menu-screen .menu-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 80%; max-width: 700px; margin-top: 0; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 30px; 
+            width: 80%; 
+            max-width: 700px; 
+            margin-top: 0; 
         }
         .menu-btn { 
-            background: linear-gradient(145deg, #2c2c2c, #1f1f1f); color: #f0f0f0; border: none; padding: 35px 20px; font-size: 26px; 
-            border-radius: 24px; cursor: pointer; transition: all 0.3s; font-weight: bold; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(255,255,255,0.05) inset; border: 1px solid #3a3a3a; letter-spacing: 2px;
+            background: linear-gradient(145deg, #2c2c2c, #1f1f1f); 
+            color: #f0f0f0; 
+            border: none; 
+            padding: 35px 20px; 
+            font-size: 26px; 
+            border-radius: 24px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            font-weight: bold; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(255,255,255,0.05) inset;
+            border: 1px solid #3a3a3a;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 2px black;
         }
-        .menu-btn:hover { background: linear-gradient(145deg, #3a3a3a, #2a2a2a); border-color: #00bcd4; transform: translateY(-8px); }
-        .menu-btn.story-mode { grid-column: span 2; background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; }
-        .menu-btn.raid-mode { grid-column: span 2; background: linear-gradient(145deg, #c62828, #b71c1c); border-color: #ef5350; }
-        .menu-btn.raid-mode.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-        .menu-btn.event-mode { grid-column: span 2; background: linear-gradient(145deg, #ff9800, #e65100); border-color: #ffb74d; }
-        .raid-timer-info { grid-column: span 2; text-align: center; font-size: 18px; color: #ff9800; margin-top: -10px; margin-bottom: 10px; }
+        .menu-btn:hover { 
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a); 
+            border-color: #00bcd4; 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0, 188, 212, 0.4);
+            color: #ffffff;
+        }
+        .menu-btn.story-mode {
+            grid-column: span 2;
+            background: linear-gradient(145deg, #7b1fa2, #4a148c);
+            border-color: #9c27b0;
+        }
+        .menu-btn.raid-mode {
+            grid-column: span 2;
+            background: linear-gradient(145deg, #c62828, #b71c1c);
+            border-color: #ef5350;
+        }
+        .menu-btn.raid-mode.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .menu-btn.event-mode {
+            grid-column: span 2;
+            background: linear-gradient(145deg, #ff9800, #e65100);
+            border-color: #ffb74d;
+        }
+        .raid-timer-info {
+            grid-column: span 2;
+            text-align: center;
+            font-size: 18px;
+            color: #ff9800;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
 
         /* イベント応援画面 */
         #event-screen { justify-content: flex-start; padding-top: 30px; }
@@ -68,100 +111,241 @@
         #event-stage-info { font-size: 24px; color: #ffd700; margin-bottom: 20px; }
         .event-content { width: 90%; max-width: 800px; display: flex; gap: 30px; }
         .event-main { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        #like-btn { font-size: 60px; background: none; border: none; cursor: pointer; transition: transform 0.1s ease; }
+        #like-btn { 
+            font-size: 60px; 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            transition: transform 0.1s ease; 
+            position: relative;
+        }
         #like-btn:active { transform: scale(1.3); }
         #like-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        #super-like-btn { font-size: 24px; background: linear-gradient(145deg, #ff5722, #bf360c); color: white; border: none; padding: 15px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; box-shadow: 0 0 15px #ff5722; }
-        #next-stage-btn { font-size: 28px; background: linear-gradient(145deg, #4caf50, #2e7d32); color: white; border: none; padding: 20px 40px; border-radius: 30px; cursor: pointer; font-weight: bold; display: none; }
+        #super-like-btn {
+            font-size: 24px;
+            background: linear-gradient(145deg, #ff5722, #bf360c);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 15px #ff5722;
+            transition: all 0.2s;
+        }
+        #super-like-btn:hover { transform: scale(1.05); }
+        #next-stage-btn {
+            font-size: 28px;
+            background: linear-gradient(145deg, #4caf50, #2e7d32);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 20px #4caf50;
+            transition: all 0.2s;
+            display: none;
+        }
+        #next-stage-btn:hover { transform: scale(1.05); }
         #like-count { font-size: 32px; font-weight: bold; margin: 10px 0; color: #ff9800; }
         .event-ranking { flex: 1; background: rgba(20,20,20,0.7); padding: 15px; border-radius: 15px; border: 1px solid #333; max-height: 400px; overflow-y: auto; }
         .event-ranking h3 { color: #ff9800; margin-bottom: 10px; }
         .event-ranking-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; }
         #event-announcement { margin-top: 20px; font-size: 18px; color: #4caf50; font-weight: bold; }
         .like-animation { position: fixed; pointer-events: none; font-size: 24px; color: #ff9800; font-weight: bold; z-index: 600; animation: likeUp 1.5s ease-out forwards; }
-        @keyframes likeUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        @keyframes likeUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
 
         /* プレイ選択画面 */
         #play-select-screen { justify-content: center; }
         #play-select-screen h2 { font-size: 48px; margin-bottom: 50px; text-shadow: 0 0 15px #2196f3; }
         #play-select-screen .select-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; width: 90%; max-width: 900px; }
-        .mode-btn { background: linear-gradient(145deg, #1e88e5, #1565c0); color: #fff; border: none; padding: 35px; font-size: 28px; border-radius: 24px; cursor: pointer; transition: all 0.3s ease; font-weight: bold; }
-        .mode-btn.hard { background: linear-gradient(145deg, #e53935, #c62828); }
-        .mode-btn.story { background: linear-gradient(145deg, #7b1fa2, #4a148c); }
-        .mode-btn:hover { filter: brightness(1.15); transform: translateY(-8px); }
+        .mode-btn { 
+            background: linear-gradient(145deg, #1e88e5, #1565c0); 
+            color: #fff; 
+            border: none; 
+            padding: 35px; 
+            font-size: 28px; 
+            border-radius: 24px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            font-weight: bold; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5), 0 2px 4px rgba(255,255,255,0.2) inset;
+            border: 1px solid #42a5f5;
+        }
+        .mode-btn.hard { background: linear-gradient(145deg, #e53935, #c62828); border-color: #ef5350; }
+        .mode-btn.story { background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; }
+        .mode-btn:hover { filter: brightness(1.15); transform: translateY(-8px); box-shadow: 0 15px 25px rgba(0,0,0,0.6); }
 
         /* ストーリーマップ画面 */
         #story-map-screen { justify-content: center; }
         #story-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #9c27b0; text-shadow: 0 0 15px #9c27b0; }
         .stage-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; width: 90%; max-width: 1000px; margin: 20px 0; max-height: 500px; overflow-y: auto; padding: 10px; }
-        .stage-btn { background: linear-gradient(145deg, #333, #222); color: #fff; border: 2px solid #555; padding: 15px 5px; font-size: 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; font-weight: bold; text-align: center; }
+        .stage-btn { 
+            background: linear-gradient(145deg, #333, #222); 
+            color: #fff; 
+            border: 2px solid #555; 
+            padding: 15px 5px; 
+            font-size: 14px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-weight: bold;
+            text-align: center;
+        }
         .stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; cursor: not-allowed; opacity: 0.8; }
         .stage-btn.current { background: linear-gradient(145deg, #2196f3, #1565c0); border-color: #64b5f6; box-shadow: 0 0 15px #2196f3; }
         .stage-btn.locked { background: linear-gradient(145deg, #1a1a1a, #111); border-color: #444; color: #666; cursor: not-allowed; }
+        .stage-btn.current:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .stage-btn.completed:hover { transform: none; filter: none; }
+        .stage-info { font-size: 18px; margin: 15px 0; color: #ccc; }
 
         /* レイドマップ画面 */
         #raid-map-screen { justify-content: center; }
         #raid-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #ef5350; text-shadow: 0 0 15px #ef5350; }
         .raid-stages-grid { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 600px; margin: 20px 0; }
-        .raid-stage-btn { background: linear-gradient(145deg, #333, #222); color: #fff; border: 2px solid #ef5350; padding: 20px; font-size: 20px; border-radius: 15px; cursor: pointer; transition: all 0.2s; font-weight: bold; text-align: center; }
+        .raid-stage-btn { 
+            background: linear-gradient(145deg, #333, #222); 
+            color: #fff; 
+            border: 2px solid #ef5350; 
+            padding: 20px; 
+            font-size: 20px; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-weight: bold;
+            text-align: center;
+        }
         .raid-stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; cursor: not-allowed; opacity: 0.8; }
         .raid-stage-btn.current { background: linear-gradient(145deg, #ff5722, #d84315); border-color: #ff8a65; box-shadow: 0 0 15px #ff5722; }
         .raid-stage-btn.locked { background: linear-gradient(145deg, #1a1a1a, #111); border-color: #444; color: #666; cursor: not-allowed; }
+        .raid-stage-btn.current:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .raid-timer { font-size: 20px; color: #ff9800; margin: 10px 0; }
 
         /* ゲーム画面 */
         #game-screen { justify-content: center; position: relative; }
-        #story-target-container, #raid-target-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 400px; text-align: center; }
-        #story-target-info, #raid-target-info { font-size: 20px; font-weight: bold; color: #9c27b0; text-shadow: 0 0 10px #9c27b0; margin-bottom: 8px; }
+        #story-target-container, #raid-target-container { 
+            position: absolute; 
+            top: 80px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 400px; 
+            text-align: center; 
+        }
+        #story-target-info, #raid-target-info { 
+            font-size: 20px; 
+            font-weight: bold; 
+            color: #9c27b0; 
+            text-shadow: 0 0 10px #9c27b0; 
+            margin-bottom: 8px; 
+        }
         #raid-target-info { color: #ef5350; text-shadow: 0 0 10px #ef5350; }
-        #story-target-bar-container, #raid-target-bar-container { width: 100%; height: 20px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; border: 1px solid #9c27b0; }
+        #story-target-bar-container, #raid-target-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #9c27b0;
+        }
         #raid-target-bar-container { border-color: #ef5350; }
-        #story-target-bar-fill { height: 100%; background: linear-gradient(90deg, #ce93d8, #9c27b0, #7b1fa2); width: 0%; transition: width 0.3s ease; }
-        #raid-target-bar-fill { height: 100%; background: linear-gradient(90deg, #ffab91, #ff5722, #d84315); width: 0%; transition: width 0.3s ease; }
-        #story-target-text, #raid-target-text { margin-top: 5px; font-size: 16px; color: #ccc; }
+        #story-target-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ce93d8, #9c27b0, #7b1fa2);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px #9c27b0;
+        }
+        #raid-target-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffab91, #ff5722, #d84315);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px #ff5722;
+        }
+        #story-target-text, #raid-target-text {
+            margin-top: 5px;
+            font-size: 16px;
+            color: #ccc;
+        }
         #game-info { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-around; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px black; }
         #typing-area { text-align: center; margin-top: 20px; }
-        #japanese-text { font-size: 56px; margin-bottom: 5px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
-        #furigana-text { font-size: 18px; color: #aaa; margin-bottom: 10px; min-height: 24px; }
+        #japanese-text { font-size: 56px; margin-bottom: 20px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
         #romaji-text { font-size: 44px; letter-spacing: 4px; font-family: 'Courier New', monospace; }
         .typed { color: #76ff03; text-shadow: 0 0 15px #76ff03; }
         .untyped { color: #b0bec5; }
         .untyped-hidden { color: transparent; }
 
-        /* ブースト表示 */
-        #boost-info { position: fixed; bottom: 20px; left: 20px; z-index: 500; display: flex; flex-direction: column; gap: 5px; }
-        .boost-item { background: rgba(0,0,0,0.8); padding: 8px 15px; border-radius: 10px; font-size: 14px; color: #ffd700; border: 1px solid #ffd700; }
-
-        /* コンボ保護表示 */
-        #combo-protect-indicator { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); z-index: 503; font-size: 20px; color: #ff9800; text-shadow: 0 0 15px #ff9800; display: none; }
-
         /* 妨害エフェクト */
         #game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 500; transition: background-color 0.5s ease; }
-        #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; }
         #time-reduce-animation { position: fixed; top: 30px; right: 30px; font-size: 48px; font-weight: bold; color: #ff5252; text-shadow: 0 0 20px #ff5252; z-index: 501; opacity: 0; pointer-events: none; }
         
         /* 時間伸ばしミニゲーム */
         #time-extend-game { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: rgba(0,0,0,0.9); border-radius: 20px; padding: 30px; text-align: center; z-index: 600; border: 2px solid #4caf50; display: none; }
         #time-extend-bar-container { width: 100%; height: 30px; background: #333; border-radius: 15px; margin: 20px 0; position: relative; overflow: hidden; }
         #time-extend-bar { height: 100%; width: 5px; background: #4caf50; position: absolute; }
-        #time-extend-marker { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 10px; height: 40px; background: #ffd700; border-radius: 5px; }
+        #time-extend-marker { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 10px; height: 40px; background: #ffd700; border-radius: 5px; z-index: 1; }
         #time-extend-center { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 20px; height: 40px; background: rgba(255,215,0,0.3); border-radius: 5px; }
         #time-extend-perfect { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 6px; height: 40px; background: #ff5252; border-radius: 3px; }
         
         #skill-button-container { position: absolute; bottom: 50px; right: 50px; }
-        #skill-btn { background: radial-gradient(circle at 30% 30%, #ab47bc, #6a1b9a); color: #fff; border: none; padding: 20px; font-size: 20px; border-radius: 50%; width: 110px; height: 110px; cursor: pointer; font-weight: bold; box-shadow: 0 0 25px #ce93d8, 0 4px 8px black; position: relative; overflow: hidden; border: 2px solid #e1bee7; }
+        #skill-btn { 
+            background: radial-gradient(circle at 30% 30%, #ab47bc, #6a1b9a); 
+            color: #fff; 
+            border: none; 
+            padding: 20px; 
+            font-size: 20px; 
+            border-radius: 50%; 
+            width: 110px; 
+            height: 110px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            box-shadow: 0 0 25px #ce93d8, 0 4px 8px black; 
+            position: relative; 
+            overflow: hidden; 
+            border: 2px solid #e1bee7;
+        }
         #skill-btn:disabled { background: #424242; box-shadow: none; cursor: not-allowed; color: #9e9e9e; border-color: #616161; }
         #skill-cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0,0,0,0.6); height: 0%; transition: height 0.1s linear; }
 
         /* パッシブコンボエフェクト */
         .passive-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; font-weight: bold; color: #ff9800; text-shadow: 0 0 30px #ff9800; z-index: 502; opacity: 0; pointer-events: none; animation: passiveFade 2s ease-out forwards; }
-        @keyframes passiveFade { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
+        @keyframes passiveFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
 
         /* リザルト画面 */
         #result-screen { justify-content: center; }
-        .result-box { background: rgba(30, 30, 30, 0.9); backdrop-filter: blur(5px); padding: 40px; border-radius: 30px; text-align: center; border: 1px solid #444; max-width: 500px; }
+        .result-box { 
+            background: rgba(30, 30, 30, 0.9); 
+            backdrop-filter: blur(5px);
+            padding: 40px; 
+            border-radius: 30px; 
+            text-align: center; 
+            border: 1px solid #444; 
+            box-shadow: 0 20px 30px rgba(0,0,0,0.7);
+            max-width: 500px;
+        }
         .result-item { font-size: 28px; margin: 15px 0; }
-        .back-btn { margin-top: 30px; background: linear-gradient(145deg, #424242, #212121); color: white; border: none; padding: 15px 35px; font-size: 20px; border-radius: 50px; cursor: pointer; font-weight: bold; border: 1px solid #555; transition: all 0.2s; }
-        .back-btn:hover { background: #555; transform: scale(1.02); }
+        .back-btn { 
+            margin-top: 30px; 
+            background: linear-gradient(145deg, #424242, #212121); 
+            color: white; 
+            border: none; 
+            padding: 15px 35px; 
+            font-size: 20px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: bold;
+            border: 1px solid #555;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: #555; transform: scale(1.02); box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
 
         /* 共通タブUI */
         .tab-container { width: 90%; max-width: 800px; margin-top: 30px; background: rgba(20,20,20,0.7); padding: 20px; border-radius: 30px; backdrop-filter: blur(4px); border: 1px solid #3a3a3a; }
@@ -169,37 +353,47 @@
         .tab { padding: 12px 24px; cursor: pointer; font-size: 20px; border-bottom: 3px solid transparent; transition: 0.2s; }
         .tab.active { border-bottom-color: #00bcd4; color: #00bcd4; font-weight: bold; text-shadow: 0 0 8px #00bcd4; }
         
+        /* ランキングタイマー */
         #ranking-timer { font-size: 18px; color: #ff9800; margin: 10px 0; font-weight: bold; }
         
+        /* リストUI */
         .list-container { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
-        .list-item { background: rgba(40, 40, 40, 0.8); backdrop-filter: blur(2px); padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #4a4a4a; }
+        .list-item { 
+            background: rgba(40, 40, 40, 0.8); 
+            backdrop-filter: blur(2px);
+            padding: 18px; 
+            border-radius: 18px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid #4a4a4a; 
+        }
         .rank-item-info { font-size: 20px; }
         .shop-item-info h3 { color: #fff; margin-bottom: 5px; font-size: 22px; }
         .shop-item-info p { color: #ccc; font-size: 15px; }
-        .action-btn { background: linear-gradient(145deg, #4caf50, #2e7d32); color: white; border: none; padding: 12px 24px; border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: 0.2s; }
+        .action-btn { 
+            background: linear-gradient(145deg, #4caf50, #2e7d32); 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
         .action-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
         .action-btn:disabled { background: #555; cursor: not-allowed; }
         .action-btn.equipped { background: linear-gradient(145deg, #ff9800, #b26500); }
         .use-btn { background: linear-gradient(145deg, #2196f3, #1565c0); }
-
-        /* 設定スライダー */
-        .setting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; }
-        .setting-row label { flex: 1; font-size: 18px; }
-        .setting-row input[type="range"] { flex: 2; margin: 0 10px; }
-        .setting-row span { min-width: 40px; text-align: right; }
-        .setting-row button { padding: 8px 16px; font-size: 14px; border-radius: 10px; background: #555; color: white; border: none; cursor: pointer; }
-        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 24px; }
-        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .toggle-slider { background-color: #4caf50; }
-        input:checked + .toggle-slider:before { transform: translateX(26px); }
 
         /* モーダル */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: linear-gradient(145deg, #202020, #151515); padding: 35px; border-radius: 30px; width: 80%; max-width: 600px; text-align: left; border: 1px solid #555; box-shadow: 0 20px 30px black; max-height: 80vh; overflow-y: auto; }
         .modal-content h2 { margin-bottom: 20px; color: #ff5252; text-align: center; }
+        .modal-content p { font-size: 16px; line-height: 1.8; margin-bottom: 20px; color: #ddd; }
         .modal-btn { background: linear-gradient(145deg, #2196f3, #0d47a1); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 50px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.2s; }
         .modal-btn.danger { background: linear-gradient(145deg, #f44336, #b71c1c); }
         .modal-input { width: 100%; padding: 12px; font-size: 18px; margin-bottom: 20px; border-radius: 30px; border: 1px solid #666; background-color: #0a0a0a; color: white; }
@@ -211,6 +405,7 @@
         .reward-name { font-size: 20px; font-weight: bold; }
         .reward-desc { font-size: 14px; color: #aaa; }
 
+        /* スクロールバー */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #121212; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; border: 2px solid #121212; }
@@ -218,8 +413,6 @@
     </style>
 </head>
 <body>
-
-<div id="loading-overlay">準備中だよ...</div>
 
 <div id="app-container">
     <div id="header">
@@ -276,24 +469,41 @@
         <div id="play-select-screen" class="screen">
             <h2>難易度選択</h2>
             <div class="select-grid">
-                <button class="mode-btn" onclick="app.startGame('normal')">ノーマル<br><span style="font-size:16px;">通常ルール</span></button>
-                <button class="mode-btn hard" onclick="app.startGame('hard')">ハード<br><span style="font-size:16px;">未入力非表示 / コイン2倍</span></button>
-                <button class="mode-btn story" onclick="app.openStoryMap()">ストーリー<br><span style="font-size:16px;">全100ステージ</span></button>
+                <button class="mode-btn" onclick="app.startGame('normal')">ノーマル<br><span style="font-size: 16px;">通常ルール</span></button>
+                <button class="mode-btn hard" onclick="app.startGame('hard')">ハード<br><span style="font-size: 16px;">未入力非表示 / コイン2倍</span></button>
+                <button class="mode-btn story" onclick="app.openStoryMap()">ストーリー<br><span style="font-size: 16px;">全100ステージ</span></button>
             </div>
-            <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top:50px;">戻る</button>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 50px;">戻る</button>
         </div>
 
-        <div id="story-map-screen" class="screen"><h2>📖 ストーリーモード</h2><div class="stage-info">現在のステージ: <span id="current-story-stage">1</span> / 100</div><div class="stage-grid" id="stage-grid"></div><button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button></div>
-        <div id="raid-map-screen" class="screen"><h2>🔥 レイドモード</h2><div class="raid-timer" id="raid-status-timer"></div><div class="stage-info">レイドポイント: 🎯<span id="raid-point-info">0</span></div><div class="raid-stages-grid" id="raid-stages-grid"></div><button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button></div>
+        <div id="story-map-screen" class="screen">
+            <h2>📖 ストーリーモード</h2>
+            <div class="stage-info">現在のステージ: <span id="current-story-stage">1</span> / 100</div>
+            <div class="stage-grid" id="stage-grid"></div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="raid-map-screen" class="screen">
+            <h2>🔥 レイドモード</h2>
+            <div class="raid-timer" id="raid-status-timer"></div>
+            <div class="stage-info">レイドポイント: 🎯<span id="raid-point-info">0</span></div>
+            <div class="raid-stages-grid" id="raid-stages-grid"></div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
 
         <div id="game-screen" class="screen">
             <div id="game-overlay"></div>
             <div id="game-message"></div>
             <div id="time-reduce-animation">-10s</div>
-            <div id="combo-protect-indicator">🛡️ コンボが0になりません</div>
             <div id="time-extend-game">
-                <h3>⏱️ 時間伸ばし</h3><p>スペースキーで止めよう！</p>
-                <div id="time-extend-bar-container"><div id="time-extend-bar"></div><div id="time-extend-marker"></div><div id="time-extend-center"></div><div id="time-extend-perfect"></div></div>
+                <h3>⏱️ 時間伸ばし</h3>
+                <p>スペースキーで止めよう！</p>
+                <div id="time-extend-bar-container">
+                    <div id="time-extend-bar"></div>
+                    <div id="time-extend-marker"></div>
+                    <div id="time-extend-center"></div>
+                    <div id="time-extend-perfect"></div>
+                </div>
                 <p id="time-extend-result"></p>
             </div>
             <div id="game-info">
@@ -301,33 +511,142 @@
                 <div>スコア: <span id="score-display">0</span></div>
                 <div>コンボ: <span id="combo-display">0</span></div>
             </div>
-            <div id="story-target-container"><div id="story-target-info"></div><div id="story-target-bar-container"><div id="story-target-bar-fill"></div></div><div id="story-target-text"></div></div>
-            <div id="raid-target-container" style="display:none;"><div id="raid-target-info"></div><div id="raid-target-bar-container"><div id="raid-target-bar-fill"></div></div><div id="raid-target-text"></div></div>
+            <div id="story-target-container">
+                <div id="story-target-info"></div>
+                <div id="story-target-bar-container">
+                    <div id="story-target-bar-fill"></div>
+                </div>
+                <div id="story-target-text"></div>
+            </div>
+            <div id="raid-target-container" style="display: none;">
+                <div id="raid-target-info"></div>
+                <div id="raid-target-bar-container">
+                    <div id="raid-target-bar-fill"></div>
+                </div>
+                <div id="raid-target-text"></div>
+            </div>
             <div id="typing-area">
                 <div id="japanese-text"></div>
-                <div id="furigana-text"></div>
                 <div id="romaji-text"></div>
             </div>
             <div id="skill-button-container">
-                <button id="skill-btn" disabled><span id="skill-btn-text">スキル無し</span><div id="skill-cooldown-overlay"></div></button>
-                <div style="text-align:center;font-size:12px;margin-top:5px;">Spaceキー</div>
+                <button id="skill-btn" disabled>
+                    <span id="skill-btn-text">スキル無し</span>
+                    <div id="skill-cooldown-overlay"></div>
+                </button>
+                <div style="text-align: center; font-size: 12px; margin-top: 5px;">Spaceキー</div>
             </div>
         </div>
 
-        <div id="result-screen" class="screen"><div class="result-box"><h2 style="font-size:36px;" id="result-title">ゲーム終了！</h2><div class="result-item">最終スコア: <span id="result-score">0</span></div><div class="result-item">最大コンボ: <span id="result-combo">0</span></div><div class="result-item" style="color:#ffd700;">獲得コイン: 🪙<span id="result-coin">0</span></div><div class="result-item" style="color:#ffaa00;" id="gold-coin-result" style="display:none;">🥇 ゴールドコイン: <span id="result-gold">0</span></div><div class="result-item" style="color:#ff5722;" id="raid-point-result" style="display:none;">🎯 レイドポイント: <span id="result-raid">0</span></div><div class="result-item" style="color:#4caf50;">獲得XP: <span id="result-xp">0</span></div><div id="level-up-msg" style="color:#ff9800;font-weight:bold;margin-top:10px;display:none;">レベルアップ！</div><div id="story-clear-msg" style="color:#4caf50;font-weight:bold;margin-top:10px;display:none;">✅ ステージクリア！</div><div id="raid-clear-msg" style="color:#ff5722;font-weight:bold;margin-top:10px;display:none;">🔥 レイドクリア！</div><button class="back-btn" onclick="app.endResult()">メニューに戻る</button></div></div>
-        <div id="ranking-screen" class="screen"><h2 style="font-size:32px;">🏆 ランキング</h2><p style="color:#ff9800;font-size:14px;">毎日朝7時にリセット</p><div id="ranking-timer">次のリセットまで: 計算中...</div><div class="tab-container"><div class="tabs"><div class="tab active" onclick="app.switchRankingTab('score')">スコア</div><div class="tab" onclick="app.switchRankingTab('combo')">コンボ</div><div class="tab" onclick="app.switchRankingTab('playCount')">プレイ回数</div></div><div id="ranking-list" class="list-container"></div></div><button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button></div>
-        <div id="shop-screen" class="screen"><h2 style="font-size:32px;">🛒 ショップ</h2><div class="tab-container"><div class="tabs"><div class="tab active" onclick="app.switchShopTab('skills')">スキル</div><div class="tab" onclick="app.switchShopTab('items')">アイテム</div><div class="tab" onclick="app.switchShopTab('raid')">レイド</div><div class="tab" onclick="app.switchShopTab('passive')">パッシブ</div></div><div id="shop-list" class="list-container"></div></div><button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button></div>
-        <div id="inventory-screen" class="screen"><h2 style="font-size:32px;">🎒 持ち物</h2><div class="tab-container"><div class="tabs"><div class="tab active" onclick="app.switchInventoryTab('skills')">スキル</div><div class="tab" onclick="app.switchInventoryTab('items')">アイテム</div><div class="tab" onclick="app.switchInventoryTab('passive')">パッシブ</div></div><div id="inventory-list" class="list-container"></div></div><button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button></div>
+        <div id="result-screen" class="screen">
+            <div class="result-box">
+                <h2 style="font-size: 36px; margin-bottom: 20px;" id="result-title">ゲーム終了！</h2>
+                <div class="result-item">最終スコア: <span id="result-score">0</span></div>
+                <div class="result-item">最大コンボ: <span id="result-combo">0</span></div>
+                <div class="result-item" style="color: #ffd700;">獲得コイン: 🪙<span id="result-coin">0</span></div>
+                <div class="result-item" style="color: #ffaa00;" id="gold-coin-result" style="display: none;">🥇 ゴールドコイン: <span id="result-gold">0</span></div>
+                <div class="result-item" style="color: #ff5722;" id="raid-point-result" style="display: none;">🎯 レイドポイント: <span id="result-raid">0</span></div>
+                <div class="result-item" style="color: #4caf50;">獲得XP: <span id="result-xp">0</span></div>
+                <div id="level-up-msg" style="color: #ff9800; font-weight: bold; margin-top: 10px; display: none;">レベルアップ！</div>
+                <div id="story-clear-msg" style="color: #4caf50; font-weight: bold; margin-top: 10px; display: none;">✅ ステージクリア！</div>
+                <div id="raid-clear-msg" style="color: #ff5722; font-weight: bold; margin-top: 10px; display: none;">🔥 レイドクリア！</div>
+                <button class="back-btn" onclick="app.endResult()">メニューに戻る</button>
+            </div>
+        </div>
+
+        <div id="ranking-screen" class="screen">
+            <h2 style="font-size: 32px;">🏆 ランキング</h2>
+            <p style="color: #ff9800; margin-bottom: 5px; font-size: 14px;">毎日朝7時にリセット</p>
+            <div id="ranking-timer">次のリセットまで: 計算中...</div>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="app.switchRankingTab('score')">スコア</div>
+                    <div class="tab" onclick="app.switchRankingTab('combo')">コンボ</div>
+                    <div class="tab" onclick="app.switchRankingTab('playCount')">プレイ回数</div>
+                </div>
+                <div id="ranking-list" class="list-container"></div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="shop-screen" class="screen">
+            <h2 style="font-size: 32px;">🛒 ショップ</h2>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="app.switchShopTab('skills')">スキル</div>
+                    <div class="tab" onclick="app.switchShopTab('items')">アイテム</div>
+                    <div class="tab" onclick="app.switchShopTab('raid')">レイド</div>
+                    <div class="tab" onclick="app.switchShopTab('passive')">パッシブ</div>
+                </div>
+                <div id="shop-list" class="list-container"></div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="inventory-screen" class="screen">
+            <h2 style="font-size: 32px;">🎒 持ち物</h2>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="app.switchInventoryTab('skills')">スキル</div>
+                    <div class="tab" onclick="app.switchInventoryTab('items')">アイテム</div>
+                    <div class="tab" onclick="app.switchInventoryTab('passive')">パッシブ</div>
+                </div>
+                <div id="inventory-list" class="list-container"></div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
     </div>
-    <div id="boost-info"></div>
 </div>
 
 <!-- モーダル類 -->
-<div id="agreement-modal" class="modal-overlay"><div class="modal-content"><h2>⚠️ 注意事項</h2><p>このゲームはバグ、チートを使った場合はBANとなります。<br>そちらが不利にしているので言い訳はしないでください。</p><button class="modal-btn" onclick="app.acceptAgreement()">読み終わった</button></div></div>
-<div id="settings-modal" class="modal-overlay"><div class="modal-content"><h2 style="color:white;">設定</h2><div style="text-align:left;margin-bottom:10px;">名前変更 (20文字以内)</div><input type="text" id="name-input" class="modal-input" maxlength="20"><button class="modal-btn" onclick="app.saveName()">名前を保存</button><div class="setting-row"><label>ホーム画面の大きさ</label><input type="range" id="home-scale-slider" min="0" max="100" value="50" step="5" oninput="document.getElementById('home-scale-value').innerText=this.value+'%'"><span id="home-scale-value">50%</span><button onclick="document.getElementById('home-scale-slider').value=50;document.getElementById('home-scale-value').innerText='50%'">リセット</button></div><div class="setting-row"><label>ふりがな表示</label><label class="toggle-switch"><input type="checkbox" id="furigana-toggle" onchange="app.saveFuriganaSetting()"><span class="toggle-slider"></span></label></div><button class="modal-btn" onclick="app.saveSettings()">設定を保存</button><button class="modal-btn" onclick="app.showAgreement()">注意事項をもう一度見る</button><button class="modal-btn danger" onclick="app.resetDataConfirm()" style="margin-top:20px;">データの初期化</button><button class="back-btn" onclick="app.closeSettings()" style="width:100%;margin-top:10px;">閉じる</button></div></div>
-<div id="greek-info-modal" class="modal-overlay"><div class="modal-content"><h2 style="color:#00bcd4;">🔍 ギリシャ文字について</h2><p><strong style="color:#ffd700;">α (アルファ)</strong> ... 初期のスキル。弱いことが多い。</p><p><strong style="color:#4caf50;">β, γ, Δ, Ω</strong> ... 強化版。右に行くにつれて強くなる。</p><p><strong style="color:#ff5722;">ε, ζ</strong> ... レイドなどで獲得が可能。</p><p><strong style="color:#2196f3;">Σ, π, Ο</strong> ... 強化部分が違う時に使われる。<br>例：α→βは効果時間が長い。Σは効果が強くなる。</p><p><strong style="color:#9c27b0;">その他</strong> ... 説明に載っていないことが多い。載っていなかったら強化版の種類に入れよう。</p><button class="modal-btn" onclick="document.getElementById('greek-info-modal').classList.remove('active')">閉じる</button></div></div>
-<div id="reset-confirm-modal" class="modal-overlay" style="z-index:1001;"><div class="modal-content"><h2>⚠️ 警告</h2><p>本当に初期化しますか？<br>この操作は取り消せません。</p><button class="modal-btn danger" onclick="app.resetDataExecute()">はい、初期化します</button><button class="modal-btn" onclick="document.getElementById('reset-confirm-modal').classList.remove('active')">キャンセル</button></div></div>
-<div id="reward-modal" class="modal-overlay"><div class="modal-content"><h2 style="color:#ffd700;">🎉 報酬獲得！</h2><div id="reward-content"></div><button class="modal-btn" onclick="document.getElementById('reward-modal').classList.remove('active')">受け取る</button></div></div>
+<div id="agreement-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>⚠️ 注意事項</h2>
+        <p>このゲームはバグ、チートを使った場合はBANとなります。<br>そちらが不利にしているので言い訳はしないでください。</p>
+        <button class="modal-btn" onclick="app.acceptAgreement()">読み終わった</button>
+    </div>
+</div>
+
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: white;">設定</h2>
+        <div style="text-align: left; margin-bottom: 10px;">名前変更 (20文字以内)</div>
+        <input type="text" id="name-input" class="modal-input" maxlength="20">
+        <button class="modal-btn" onclick="app.saveName()">名前を保存</button>
+        <button class="modal-btn" onclick="app.showAgreement()">注意事項をもう一度見る</button>
+        <button class="modal-btn danger" onclick="app.resetDataConfirm()" style="margin-top: 20px;">データの初期化</button>
+        <button class="back-btn" onclick="app.closeSettings()" style="width: 100%; margin-top: 10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="greek-info-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #00bcd4;">🔍 ギリシャ文字について</h2>
+        <p><strong style="color: #ffd700;">α (アルファ)</strong> ... 初期のスキル。弱いことが多い。</p>
+        <p><strong style="color: #4caf50;">β, γ, Δ, Ω</strong> ... 強化版。右に行くにつれて強くなる。</p>
+        <p><strong style="color: #ff5722;">ε, ζ</strong> ... レイドなどで獲得が可能。</p>
+        <p><strong style="color: #2196f3;">Σ, π, Ο</strong> ... 強化部分が違う時に使われる。<br>例：α→βは効果時間が長い。Σは効果が強くなる。</p>
+        <p><strong style="color: #9c27b0;">その他</strong> ... 説明に載っていないことが多い。載っていなかったら強化版の種類に入れよう。</p>
+        <button class="modal-btn" onclick="document.getElementById('greek-info-modal').classList.remove('active')">閉じる</button>
+    </div>
+</div>
+
+<div id="reset-confirm-modal" class="modal-overlay" style="z-index: 1001;">
+    <div class="modal-content">
+        <h2>⚠️ 警告</h2>
+        <p>本当に初期化しますか？<br>この操作は取り消せません。</p>
+        <button class="modal-btn danger" onclick="app.resetDataExecute()">はい、初期化します</button>
+        <button class="modal-btn" onclick="document.getElementById('reset-confirm-modal').classList.remove('active')">キャンセル</button>
+    </div>
+</div>
+
+<div id="reward-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #ffd700;">🎉 報酬獲得！</h2>
+        <div id="reward-content"></div>
+        <button class="modal-btn" onclick="document.getElementById('reward-modal').classList.remove('active')">受け取る</button>
+    </div>
+</div>
 
 <script type="module">
 // ==========================================
@@ -356,81 +675,223 @@ const db = getDatabase(appInstance);
 // 出題データ
 // ==========================================
 const typingData = [
-    { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku", furigana: "はやおきはさんもんのとく" },
-    { ja: "石の上にも三年", romaji: "isinouenimosannnenn", furigana: "いしのうえにもさんねん" },
-    { ja: "塵も積もれば山となる", romaji: "tirimotumorebayamatonaru", furigana: "ちりもつもればやまとなる" },
-    { ja: "猿も木から落ちる", romaji: "sarumokikaraotiru", furigana: "さるもきからおちる" },
-    { ja: "犬も歩けば棒に当たる", romaji: "inumoarukebabouniataru", furigana: "いぬもあるけばぼうにあたる" },
-    { ja: "雨降って地固まる", romaji: "amehuttezikatamaru", furigana: "あめふってじがたまる" },
-    { ja: "花より団子", romaji: "hanayoridanngo", furigana: "はなよりだんご" },
-    { ja: "転ばぬ先の杖", romaji: "korobanusakinotue", furigana: "ころばぬさきのつえ" },
-    { ja: "三人寄れば文殊の知恵", romaji: "sannninnyorebamonnzyunotie", furigana: "さんにんよればもんじゅのちえ" },
-    { ja: "百聞は一見に如かず", romaji: "hyakubunnhaikkennnisikazu", furigana: "ひゃくぶんはいっけんにしかず" },
-    { ja: "好きこそ物の上手なれ", romaji: "sukikosomononozyouzunare", furigana: "すきこそもののじょうずなれ" },
-    { ja: "案ずるより産むが易し", romaji: "annzuruyoriumugayasusi", furigana: "あんずるよりうむがやすし" },
-    { ja: "かわいい子には旅をさせよ", romaji: "kawaiikonihatabiwosaseyo", furigana: "かわいいこにはたびをさせよ" },
-    { ja: "親しき中にも礼儀あり", romaji: "sitasikinakanimoreigiari", furigana: "したしきなかにもれいぎあり" },
-    { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru", furigana: "わらうかどにはふくきたる" },
-    { ja: "朝ごはんを食べる", romaji: "asagohannwotaberu", furigana: "あさごはんをたべる" },
-    { ja: "学校へ行く", romaji: "gakkoueiku", furigana: "がっこうへいく" },
-    { ja: "図書館で本を読む", romaji: "tosyokanndehonnwoyomu", furigana: "としょかんでほんをよむ" },
-    { ja: "公園で友だちと遊ぶ", romaji: "kouenndetomodatitoasobu", furigana: "こうえんでともだちとあそぶ" },
-    { ja: "電車に乗る", romaji: "dennsyaninoru", furigana: "でんしゃにのる" },
-    { ja: "自転車で走る", romaji: "zitennsyadehasiru", furigana: "じてんしゃではしる" },
-    { ja: "海で泳ぐ", romaji: "umideoyogu", furigana: "うみでおよぐ" },
-    { ja: "山へ登る", romaji: "yamahenoboru", furigana: "やまへのぼる" },
-    { ja: "星を数える", romaji: "hosiwokazoeru", furigana: "ほしをかぞえる" },
-    { ja: "春に花がさく", romaji: "harunihanagasaku", furigana: "はるにはながさく" },
-    { ja: "夏はとてもあつい", romaji: "natuhatotemoatui", furigana: "なつはとてもあつい" },
-    { ja: "秋に葉っぱが色づく", romaji: "akinihappagairoduku", furigana: "あきにはっぱがいろづく" },
-    { ja: "冬に雪がふる", romaji: "huyuniyukigahuru", furigana: "ふゆにゆきがふる" },
-    { ja: "おいしいラーメンを食べる", romaji: "oisiira-mennwotaberu", furigana: "おいしいらーめんをたべる" },
-    { ja: "大きな船が海をわたる", romaji: "ookinahunegaumiwowataru", furigana: "おおきなふねがうみをわたる" }
+    { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku" },
+    { ja: "石の上にも三年", romaji: "isinouenimosannnenn" },
+    { ja: "塵も積もれば山となる", romaji: "tirimotumorebayamatonaru" },
+    { ja: "猿も木から落ちる", romaji: "sarumokikaraotiru" },
+    { ja: "犬も歩けば棒に当たる", romaji: "inumoarukebabouniataru" },
+    { ja: "雨降って地固まる", romaji: "amehuttezikatamaru" },
+    { ja: "花より団子", romaji: "hanayoridanngo" },
+    { ja: "転ばぬ先の杖", romaji: "korobanusakinotue" },
+    { ja: "三人寄れば文殊の知恵", romaji: "sannninnyorebamonnzyunotie" },
+    { ja: "百聞は一見に如かず", romaji: "hyakubunnhaikkennnisikazu" },
+    { ja: "好きこそ物の上手なれ", romaji: "sukikosomononozyouzunare" },
+    { ja: "案ずるより産むが易し", romaji: "annzuruyoriumugayasusi" },
+    { ja: "かわいい子には旅をさせよ", romaji: "kawaiikonihatabiwosaseyo" },
+    { ja: "親しき中にも礼儀あり", romaji: "sitasikinakanimoreigiari" },
+    { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru" },
+    { ja: "朝ごはんを食べる", romaji: "asagohannwotaberu" },
+    { ja: "学校へ行く", romaji: "gakkoueiku" },
+    { ja: "図書館で本を読む", romaji: "tosyokanndehonnwoyomu" },
+    { ja: "公園で友だちと遊ぶ", romaji: "kouenndetomodatitoasobu" },
+    { ja: "電車に乗る", romaji: "dennsyaninoru" },
+    { ja: "自転車で走る", romaji: "zitennsyadehasiru" },
+    { ja: "海で泳ぐ", romaji: "umideoyogu" },
+    { ja: "山へ登る", romaji: "yamahenoboru" },
+    { ja: "星を数える", romaji: "hosiwokazoeru" },
+    { ja: "春に花がさく", romaji: "harunihanagasaku" },
+    { ja: "夏はとてもあつい", romaji: "natuhatotemoatui" },
+    { ja: "秋に葉っぱが色づく", romaji: "akinihappagairoduku" },
+    { ja: "冬に雪がふる", romaji: "huyuniyukigahuru" },
+    { ja: "おいしいラーメンを食べる", romaji: "oisiira-mennwotaberu" },
+    { ja: "大きな船が海をわたる", romaji: "ookinahunegaumiwowataru" }
 ];
 
 // ==========================================
 // スキルデータ
 // ==========================================
 const skillData = {
-    "auto_input_alpha": { id: "auto_input_alpha", name: "自動入力α", desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。", price: 10000, priceType: 'coin', cooldown: 25, duration: 3.5, interval: 60, execute: function() { gameState.isAutoTyping = true; gameState.autoTypeInterval = setInterval(() => { if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey(); }, this.interval); setTimeout(() => { gameState.isAutoTyping = false; clearInterval(gameState.autoTypeInterval); }, this.duration * 1000); } },
-    "auto_input_beta": { id: "auto_input_beta", name: "自動入力β", desc: "5.5秒間、約0.05秒間隔で自動タイピング。クールダウン25秒。", price: 500000, priceType: 'coin', cooldown: 25, duration: 5.5, interval: 50, execute: function() { gameState.isAutoTyping = true; gameState.autoTypeInterval = setInterval(() => { if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey(); }, this.interval); setTimeout(() => { gameState.isAutoTyping = false; clearInterval(gameState.autoTypeInterval); }, this.duration * 1000); } },
-    "auto_input_gamma": { id: "auto_input_gamma", name: "自動入力γ", desc: "6秒間、0.25秒間隔で自動タイピング。クールダウン40秒。", price: 0, priceType: 'free', cooldown: 40, duration: 6, interval: 250, execute: function() { gameState.isAutoTyping = true; gameState.autoTypeInterval = setInterval(() => { if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey(); }, this.interval); setTimeout(() => { gameState.isAutoTyping = false; clearInterval(gameState.autoTypeInterval); }, this.duration * 1000); } },
-    "auto_input_epsilon": { id: "auto_input_epsilon", name: "自動入力ε", desc: "2.5秒間自動入力 + コンボが5秒間1.5倍。クールダウン25秒。", price: 50, priceType: 'raid', cooldown: 25, duration: 2.5, interval: 60, execute: function() { gameState.isAutoTyping = true; gameState.autoTypeInterval = setInterval(() => { if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey(); }, this.interval); setTimeout(() => { gameState.isAutoTyping = false; clearInterval(gameState.autoTypeInterval); }, this.duration * 1000); gameState.comboMultiplier = 1.5; setTimeout(() => { gameState.comboMultiplier = 1.0; }, 5000); } },
-    "time_extend_alpha": { id: "time_extend_alpha", name: "時間伸ばしα", desc: "タイマーを止めてゲージを止めるミニゲーム。クールダウン120秒。", price: 50, priceType: 'raid', cooldown: 120, execute: function() { startTimeExtendGame(); } },
-    "combo_up_alpha": { id: "combo_up_alpha", name: "コンボアップα", desc: "5秒間、コンボが1.5倍。クールダウン35秒。", price: 10000, priceType: 'coin', cooldown: 35, duration: 5, execute: function() { gameState.comboMultiplier = 1.5; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } },
-    "combo_up_beta": { id: "combo_up_beta", name: "コンボアップβ", desc: "7.5秒間、コンボが1.85倍。クールダウン35秒。", price: 500000, priceType: 'coin', cooldown: 35, duration: 7.5, execute: function() { gameState.comboMultiplier = 1.85; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } }
+    "auto_input_alpha": {
+        id: "auto_input_alpha",
+        name: "自動入力α",
+        desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。",
+        price: 10000,
+        priceType: 'coin',
+        cooldown: 25,
+        duration: 3.5,
+        interval: 60,
+        execute: function() {
+            gameState.isAutoTyping = true;
+            gameState.autoTypeInterval = setInterval(() => {
+                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+            }, this.interval);
+            setTimeout(() => {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }, this.duration * 1000);
+        }
+    },
+    "auto_input_gamma": {
+        id: "auto_input_gamma",
+        name: "自動入力γ",
+        desc: "6秒間、0.25秒間隔で自動タイピング。クールダウン40秒。",
+        price: 0,
+        priceType: 'coin',
+        cooldown: 40,
+        duration: 6,
+        interval: 250,
+        execute: function() {
+            gameState.isAutoTyping = true;
+            gameState.autoTypeInterval = setInterval(() => {
+                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+            }, this.interval);
+            setTimeout(() => {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }, this.duration * 1000);
+        }
+    },
+    "auto_input_epsilon": {
+        id: "auto_input_epsilon",
+        name: "自動入力ε",
+        desc: "2.5秒間自動入力 + コンボが5秒間1.5倍。クールダウン25秒。",
+        price: 50,
+        priceType: 'raid',
+        cooldown: 25,
+        duration: 2.5,
+        interval: 60,
+        execute: function() {
+            gameState.isAutoTyping = true;
+            gameState.autoTypeInterval = setInterval(() => {
+                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+            }, this.interval);
+            setTimeout(() => {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }, this.duration * 1000);
+            
+            gameState.comboMultiplier = 1.5;
+            setTimeout(() => {
+                gameState.comboMultiplier = 1.0;
+            }, 5000);
+        }
+    },
+    "time_extend_alpha": {
+        id: "time_extend_alpha",
+        name: "時間伸ばしα",
+        desc: "タイマーを止めてゲージを止めるミニゲーム。クールダウン120秒。",
+        price: 50,
+        priceType: 'raid',
+        cooldown: 120,
+        execute: function() {
+            startTimeExtendGame();
+        }
+    },
+    "combo_up_alpha": {
+        id: "combo_up_alpha",
+        name: "コンボアップα",
+        desc: "5秒間、コンボが1.5倍。クールダウン35秒。",
+        price: 10000,
+        priceType: 'coin',
+        cooldown: 35,
+        duration: 5,
+        execute: function() {
+            gameState.comboMultiplier = 1.5;
+            setTimeout(() => {
+                gameState.comboMultiplier = 1.0;
+            }, this.duration * 1000);
+        }
+    }
 };
 
 // ==========================================
 // パッシブスキルデータ
 // ==========================================
 const passiveData = {
-    "combo_set_alpha": { id: "combo_set_alpha", name: "コンボセットα", desc: "ゲーム開始時のコンボが30になります。", price: 30000, priceType: 'coin', onGameStart: function() { gameState.combo = 30; if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo; updateGameUI(); } },
-    "combo_no_reset_alpha": { id: "combo_no_reset_alpha", name: "コンボノットリセットα", desc: "一度だけミスしてもコンボが0になりません。", price: 30000, priceType: 'coin' },
-    "combo_no_reset_epsilon": { id: "combo_no_reset_epsilon", name: "コンボノットリセットε", desc: "ミスしても3.5秒間コンボが0になりません。", price: 100000, priceType: 'coin', duration: 3.5 },
-    "raid_point_boost_alpha": { id: "raid_point_boost_alpha", name: "レイドポイントフエールα", desc: "貰えるレイドポイントが1.5倍になります。", price: 5, priceType: 'raid', multiplier: 1.5 },
-    "raid_point_boost_beta": { id: "raid_point_boost_beta", name: "レイドポイントフエールβ", desc: "貰えるレイドポイントが2倍になります。", price: 25, priceType: 'raid', multiplier: 2 }
+    "combo_set_alpha": {
+        id: "combo_set_alpha",
+        name: "コンボセットα",
+        desc: "ゲーム開始時のコンボが30になります。",
+        price: 30000,
+        priceType: 'coin',
+        onGameStart: function() {
+            gameState.combo = 30;
+            if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+            updateGameUI();
+        }
+    },
+    "combo_no_reset_alpha": {
+        id: "combo_no_reset_alpha",
+        name: "コンボノットリセットα",
+        desc: "一度だけミスしてもコンボが0になりません。",
+        price: 30000,
+        priceType: 'coin',
+        usedInGame: false
+    }
 };
 
 // ==========================================
 // アイテムデータ
 // ==========================================
 const itemData = {
-    "coin_boost_alpha": { id: "coin_boost_alpha", name: "コインブーストα", desc: "10分間、獲得コインが2倍になる。", price: 0, priceType: 'free', duration: 600, effect: (active) => { gameState.coinBoostActive = active; updateBoostUI(); } },
-    "mini_coin_boost_alpha": { id: "mini_coin_boost_alpha", name: "ミニコインブーストα", desc: "5分間、獲得コインが1.5倍になる。", price: 5000, priceType: 'coin', duration: 300, effect: (active) => { gameState.coinBoostActive = active; updateBoostUI(); } },
-    "mini_coin_boost_gamma": { id: "mini_coin_boost_gamma", name: "ミニコインブーストγ", desc: "15分間、獲得コインが1.5倍になる。", price: 15000, priceType: 'coin', duration: 900, effect: (active) => { gameState.coinBoostActive = active; updateBoostUI(); } },
-    "xp_boost_alpha": { id: "xp_boost_alpha", name: "XPブーストα", desc: "10分間、獲得XPが2倍になる。", price: 0, priceType: 'free', duration: 600, effect: (active) => { gameState.xpBoostActive = active; updateBoostUI(); } },
-    "gold_luck_boost_alpha": { id: "gold_luck_boost_alpha", name: "ゴールドコインラックブーストα", desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。", price: 0, priceType: 'free', duration: 600, effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; } }
+    "coin_boost_alpha": {
+        id: "coin_boost_alpha",
+        name: "コインブーストα",
+        desc: "10分間、獲得コインが2倍になる。",
+        price: 0,
+        priceType: 'coin',
+        duration: 600,
+        effect: (active) => { gameState.coinMultiplier = active ? 2 : 1; }
+    },
+    "mini_coin_boost_alpha": {
+        id: "mini_coin_boost_alpha",
+        name: "ミニコインブーストα",
+        desc: "5分間、獲得コインが1.5倍になる。",
+        price: 5000,
+        priceType: 'coin',
+        duration: 300,
+        effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; }
+    },
+    "xp_boost_alpha": {
+        id: "xp_boost_alpha",
+        name: "XPブーストα",
+        desc: "10分間、獲得XPが2倍になる。",
+        price: 0,
+        priceType: 'coin',
+        duration: 600,
+        effect: (active) => { gameState.xpMultiplier = active ? 2 : 1; }
+    },
+    "gold_luck_boost_alpha": {
+        id: "gold_luck_boost_alpha",
+        name: "ゴールドコインラックブーストα",
+        desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。",
+        price: 0,
+        priceType: 'coin',
+        duration: 600,
+        effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; }
+    }
 };
 
 // ==========================================
 // 状態管理
 // ==========================================
 const defaultUserData = {
-    name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
-    skills: [], equippedSkill: null, passives: [], equippedPassive: null,
-    items: {}, playCount: 0, bestScore: 0, bestCombo: 0, storyStage: 1, raidClearedTime: 0,
-    homeScale: 50, furiganaOn: true
+    name: "冒険者",
+    level: 1,
+    xp: 0,
+    coin: 0,
+    goldCoin: 0,
+    raidPoint: 0,
+    skills: [],
+    equippedSkill: null,
+    passives: [],
+    equippedPassive: null,
+    items: {},
+    playCount: 0,
+    bestScore: 0,
+    bestCombo: 0,
+    storyStage: 1,
+    raidClearedTime: 0
 };
 
 let userRef = null;
@@ -438,86 +899,274 @@ let userData = { ...defaultUserData };
 let uid = localStorage.getItem('typingGameUid');
 
 const gameState = {
-    isPlaying: false, mode: 'normal', storyStage: null, raidStage: null,
-    timeLeft: 60, initialTime: 60, score: 0, combo: 0, maxCombo: 0,
-    currentWordObj: null, timer: null, isAutoTyping: false, autoTypeInterval: null,
-    comboMultiplier: 1.0, coinMultiplier: 1, xpMultiplier: 1, goldDropRate: 0.01,
-    skillCooldownTimer: null, skillCooldownLeft: 0, isSkillReady: false,
-    activeBoosts: {}, obstacleTriggered: false, typingDisabled: false,
-    targetScore: 0, timeExtendActive: false, raidObstacle: null,
-    passiveUsed: false, noResetTimer: null, coinBoostActive: false, xpBoostActive: false
+    isPlaying: false,
+    mode: 'normal',
+    storyStage: null,
+    raidStage: null,
+    timeLeft: 60,
+    initialTime: 60,
+    score: 0,
+    combo: 0,
+    maxCombo: 0,
+    currentWordObj: null,
+    timer: null,
+    isAutoTyping: false,
+    autoTypeInterval: null,
+    comboMultiplier: 1.0,
+    coinMultiplier: 1,
+    xpMultiplier: 1,
+    goldDropRate: 0.01,
+    skillCooldownTimer: null,
+    skillCooldownLeft: 0,
+    isSkillReady: false,
+    activeBoosts: {},
+    obstacleTriggered: false,
+    typingDisabled: false,
+    targetScore: 0,
+    timeExtendActive: false,
+    raidObstacle: null,
+    passiveUsed: false
 };
 
-let raidState = { isOpen: false, currentStage: 1, stages: [] };
-let eventData = { totalLikes: 0, currentStage: 1, stage1Target: 100000, stage2Target: 500000 };
+// レイド状態
+let raidState = {
+    isOpen: false,
+    currentStage: 1,
+    stages: []
+};
+
+// イベントデータ
+let eventData = {
+    totalLikes: 0,
+    currentStage: 1,
+    stage1Target: 100000,
+    stage2Target: 500000
+};
 
 // ==========================================
-// ユーティリティ (既存の関数はそのまま)
+// ユーティリティ
 // ==========================================
-function generateUUID() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { var r = Math.random() * 16 | 0; return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16); }); }
-function getNextLevelXp(level) { return 100 * level; }
-function getRankingDateKey() { const now = new Date(); const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); jstNow.setHours(jstNow.getHours() - 7); return `${jstNow.getFullYear()}-${(jstNow.getMonth()+1).toString().padStart(2, '0')}-${jstNow.getDate().toString().padStart(2, '0')}`; }
-function getNextResetTime() { const now = new Date(); const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); jstNow.setHours(7, 0, 0, 0); if (jstNow <= new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000)) jstNow.setDate(jstNow.getDate() + 1); return jstNow; }
-function formatTimeRemaining(ms) { if (ms <= 0) return "まもなく"; const hours = Math.floor(ms / (1000 * 60 * 60)); const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60)); const seconds = Math.floor((ms % (1000 * 60)) / 1000); return `${hours}時間${minutes}分${seconds}秒`; }
-function getNextRaidOpenTime() { const now = new Date(); const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); const currentHour = jstNow.getHours(); const currentMinute = jstNow.getMinutes(); let nextOpen = new Date(jstNow); nextOpen.setMinutes(30, 0, 0); nextOpen.setSeconds(0, 0); if (currentHour < 7 || (currentHour === 7 && currentMinute < 30)) { nextOpen.setHours(7); } else { let found = false; for (let h = 7; h <= 23; h++) { const openTime = new Date(jstNow); openTime.setHours(h, 30, 0, 0); if (openTime > jstNow) { nextOpen = openTime; found = true; break; } } if (!found) { nextOpen.setDate(nextOpen.getDate() + 1); nextOpen.setHours(7, 30, 0, 0); } } return nextOpen; }
-function isRaidOpen() { const now = new Date(); const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); const hour = jstNow.getHours(); const minute = jstNow.getMinutes(); if (hour < 7) return false; if (minute >= 30 && minute < 45) return true; return false; }
-function getRaidCloseTime() { const now = new Date(); const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); let closeTime = new Date(jstNow); closeTime.setMinutes(45, 0, 0); closeTime.setSeconds(0, 0); if (jstNow.getMinutes() >= 45) closeTime.setHours(jstNow.getHours() + 1); return closeTime; }
-function canPlayRaid() { if (!isRaidOpen()) return false; const now = new Date(); const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); const clearedTime = new Date(userData.raidClearedTime || 0); const clearedJst = new Date(clearedTime.getTime() + (clearedTime.getTimezoneOffset() + 540) * 60000); if (userData.raidClearedTime) { const clearedHour = clearedJst.getHours(); const currentHour = jstNow.getHours(); if (clearedHour === currentHour) return false; } return true; }
-function getStoryTargetScore(stage) { return 10000 + (stage - 1) * 1000; }
-function getRaidTargetScore(stage) { if (stage === 6) return 100000; return 30000 + Math.floor(Math.random() * 10001); }
-function getStageObstacle(stage) { if (stage >= 76) return 'freeze'; if (stage >= 51) return 'time_reduce'; if (stage >= 26) return 'darkness'; return null; }
-function getRandomRaidObstacle() { const obstacles = ['darkness', 'time_reduce', 'freeze']; return obstacles[Math.floor(Math.random() * obstacles.length)]; }
-function getEventTarget() { if (eventData.currentStage === 1) return eventData.stage1Target; if (eventData.currentStage === 2) return eventData.stage2Target; return Infinity; }
-function escapeHTML(str) { if (!str) return ''; return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
-
-function getCoinMultiplier() {
-    let mult = 1;
-    if (gameState.coinBoostActive) mult *= 1.5;
-    if (gameState.activeBoosts['coin_boost_alpha']) mult *= 2;
-    return mult;
-}
-function getXpMultiplier() {
-    let mult = 1;
-    if (gameState.xpBoostActive) mult *= 2;
-    return mult;
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
-function startTimeExtendGame() { /* ... 既存のまま ... */ if (!gameState.isPlaying) return; gameState.timeExtendActive = true; gameState.typingDisabled = true; clearInterval(gameState.timer); const gameEl = document.getElementById('time-extend-game'); const bar = document.getElementById('time-extend-bar'); gameEl.style.display = 'block'; let position = 0; let direction = 1; const speed = 5; let animationId; const animate = () => { position += direction * speed; if (position >= 100 || position <= 0) direction *= -1; bar.style.left = position + '%'; animationId = requestAnimationFrame(animate); }; animate(); const stopGame = () => { cancelAnimationFrame(animationId); const finalPos = parseFloat(bar.style.left) || 0; let addedTime = 0; if (finalPos >= 48 && finalPos <= 52) { addedTime = 12; document.getElementById('time-extend-result').innerHTML = '🎯 パーフェクト！ +12秒！'; } else if (finalPos >= 40 && finalPos <= 60) { addedTime = 8; document.getElementById('time-extend-result').innerHTML = '🎉 グッド！ +8秒！'; } else { addedTime = 5; document.getElementById('time-extend-result').innerHTML = '👍 ナイス！ +5秒！'; } gameState.timeLeft += addedTime; document.getElementById('time-display').innerText = gameState.timeLeft; setTimeout(() => { gameEl.style.display = 'none'; gameState.timeExtendActive = false; gameState.typingDisabled = false; gameState.timer = setInterval(() => { gameState.timeLeft--; document.getElementById('time-display').innerText = gameState.timeLeft; if (gameState.timeLeft <= 0) endGame(); }, 1000); document.removeEventListener('keydown', spaceHandler); }, 1500); }; const spaceHandler = (e) => { if (e.code === 'Space') { e.preventDefault(); stopGame(); } }; document.addEventListener('keydown', spaceHandler); }
+function getNextLevelXp(level) {
+    return 100 * level;
+}
 
-function updateBoostUI() {
-    const container = document.getElementById('boost-info');
-    container.innerHTML = '';
-    const now = new Date().getTime();
-    Object.entries(gameState.activeBoosts).forEach(([id, expireTime]) => {
-        if (expireTime > now) {
-            const remaining = Math.ceil((expireTime - now) / 1000);
-            const minutes = Math.floor(remaining / 60);
-            const seconds = remaining % 60;
-            const item = itemData[id] || passiveData[id];
-            if (item) {
-                const div = document.createElement('div');
-                div.className = 'boost-item';
-                div.innerText = `${item.name}: ${minutes}分${seconds.toString().padStart(2, '0')}秒`;
-                container.appendChild(div);
+function getRankingDateKey() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    jstNow.setHours(jstNow.getHours() - 7);
+    return `${jstNow.getFullYear()}-${(jstNow.getMonth()+1).toString().padStart(2, '0')}-${jstNow.getDate().toString().padStart(2, '0')}`;
+}
+
+function getNextResetTime() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    jstNow.setHours(7, 0, 0, 0);
+    if (jstNow <= new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000)) {
+        jstNow.setDate(jstNow.getDate() + 1);
+    }
+    return jstNow;
+}
+
+function formatTimeRemaining(ms) {
+    if (ms <= 0) return "まもなく";
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${hours}時間${minutes}分${seconds}秒`;
+}
+
+function getNextRaidOpenTime() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const currentHour = jstNow.getHours();
+    const currentMinute = jstNow.getMinutes();
+    
+    let nextOpen = new Date(jstNow);
+    nextOpen.setMinutes(30, 0, 0);
+    nextOpen.setSeconds(0, 0);
+    
+    if (currentHour < 7 || (currentHour === 7 && currentMinute < 30)) {
+        nextOpen.setHours(7);
+    } else {
+        let found = false;
+        for (let h = 7; h <= 23; h++) {
+            const openTime = new Date(jstNow);
+            openTime.setHours(h, 30, 0, 0);
+            if (openTime > jstNow) {
+                nextOpen = openTime;
+                found = true;
+                break;
             }
         }
-    });
-    // コインブーストアクティブ
-    if (gameState.coinBoostActive && !Object.keys(gameState.activeBoosts).some(id => itemData[id] && itemData[id].effect && gameState.activeBoosts[id] > now)) {
-        const div = document.createElement('div');
-        div.className = 'boost-item';
-        div.innerText = 'コインブースト: 有効';
-        container.appendChild(div);
+        if (!found) {
+            nextOpen.setDate(nextOpen.getDate() + 1);
+            nextOpen.setHours(7, 30, 0, 0);
+        }
     }
+    
+    return nextOpen;
+}
+
+function isRaidOpen() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const hour = jstNow.getHours();
+    const minute = jstNow.getMinutes();
+    
+    if (hour < 7) return false;
+    if (minute >= 30 && minute < 45) return true;
+    return false;
+}
+
+function getRaidCloseTime() {
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    
+    let closeTime = new Date(jstNow);
+    closeTime.setMinutes(45, 0, 0);
+    closeTime.setSeconds(0, 0);
+    
+    if (jstNow.getMinutes() >= 45) {
+        closeTime.setHours(jstNow.getHours() + 1);
+    }
+    
+    return closeTime;
+}
+
+function canPlayRaid() {
+    if (!isRaidOpen()) return false;
+    
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const clearedTime = new Date(userData.raidClearedTime || 0);
+    const clearedJst = new Date(clearedTime.getTime() + (clearedTime.getTimezoneOffset() + 540) * 60000);
+    
+    // 同じ時間帯のレイドかをチェック
+    if (userData.raidClearedTime) {
+        const clearedHour = clearedJst.getHours();
+        const currentHour = jstNow.getHours();
+        if (clearedHour === currentHour) return false;
+    }
+    
+    return true;
+}
+
+function getStoryTargetScore(stage) {
+    return 10000 + (stage - 1) * 1000;
+}
+
+function getRaidTargetScore(stage) {
+    if (stage === 6) return 100000;
+    return 30000 + Math.floor(Math.random() * 10001);
+}
+
+function getStageObstacle(stage) {
+    if (stage >= 76) return 'freeze';
+    if (stage >= 51) return 'time_reduce';
+    if (stage >= 26) return 'darkness';
+    return null;
+}
+
+function getRandomRaidObstacle() {
+    const obstacles = ['darkness', 'time_reduce', 'freeze'];
+    return obstacles[Math.floor(Math.random() * obstacles.length)];
+}
+
+function getEventTarget() {
+    if (eventData.currentStage === 1) return eventData.stage1Target;
+    if (eventData.currentStage === 2) return eventData.stage2Target;
+    return Infinity;
+}
+
+function startTimeExtendGame() {
+    if (!gameState.isPlaying) return;
+    
+    gameState.timeExtendActive = true;
+    gameState.typingDisabled = true;
+    clearInterval(gameState.timer);
+    
+    const gameEl = document.getElementById('time-extend-game');
+    const bar = document.getElementById('time-extend-bar');
+    gameEl.style.display = 'block';
+    
+    let position = 0;
+    let direction = 1;
+    const speed = 5;
+    let animationId;
+    
+    const animate = () => {
+        position += direction * speed;
+        if (position >= 100 || position <= 0) {
+            direction *= -1;
+        }
+        bar.style.left = position + '%';
+        animationId = requestAnimationFrame(animate);
+    };
+    animate();
+    
+    const stopGame = () => {
+        cancelAnimationFrame(animationId);
+        const finalPos = parseFloat(bar.style.left) || 0;
+        let addedTime = 0;
+        
+        if (finalPos >= 48 && finalPos <= 52) {
+            addedTime = 12;
+            document.getElementById('time-extend-result').innerHTML = '🎯 パーフェクト！ +12秒！';
+        } else if (finalPos >= 40 && finalPos <= 60) {
+            addedTime = 8;
+            document.getElementById('time-extend-result').innerHTML = '🎉 グッド！ +8秒！';
+        } else {
+            addedTime = 5;
+            document.getElementById('time-extend-result').innerHTML = '👍 ナイス！ +5秒！';
+        }
+        
+        gameState.timeLeft += addedTime;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        
+        setTimeout(() => {
+            gameEl.style.display = 'none';
+            gameState.timeExtendActive = false;
+            gameState.typingDisabled = false;
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                document.getElementById('time-display').innerText = gameState.timeLeft;
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            document.removeEventListener('keydown', spaceHandler);
+        }, 1500);
+    };
+    
+    const spaceHandler = (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            stopGame();
+        }
+    };
+    document.addEventListener('keydown', spaceHandler);
 }
 
 // ==========================================
 // 初期化・データロード
 // ==========================================
 async function initApp() {
-    if (!uid) { uid = generateUUID(); localStorage.setItem('typingGameUid', uid); }
+    if (!uid) {
+        uid = generateUUID();
+        localStorage.setItem('typingGameUid', uid);
+    }
     userRef = ref(db, `users/${uid}`);
     const eventRef = ref(db, 'eventData');
+
     try {
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
@@ -529,42 +1178,53 @@ async function initApp() {
             if (!userData.passives) userData.passives = [];
             if (!userData.equippedPassive) userData.equippedPassive = null;
             if (!userData.raidClearedTime) userData.raidClearedTime = 0;
-            if (userData.homeScale === undefined) userData.homeScale = 50;
-            if (userData.furiganaOn === undefined) userData.furiganaOn = true;
-        } else { await set(userRef, userData); }
+        } else {
+            await set(userRef, userData);
+        }
+        
         const eventSnapshot = await get(eventRef);
-        if (eventSnapshot.exists()) { eventData = { ...eventData, ...eventSnapshot.val() }; } else { await set(eventRef, eventData); }
-        onValue(eventRef, (snap) => { if (snap.exists()) { eventData = { ...eventData, ...snap.val() }; updateEventUI(); } });
-    } catch (e) { console.error("Firebase load error", e); }
-    
-    // 設定の適用
-    applyHomeScale();
-    document.getElementById('furigana-toggle').checked = userData.furiganaOn;
-    document.getElementById('home-scale-slider').value = userData.homeScale || 50;
-    document.getElementById('home-scale-value').innerText = (userData.homeScale || 50) + '%';
-    
-    updateHeaderUI();
-    if (!localStorage.getItem('agreementAccepted')) { document.getElementById('agreement-modal').classList.add('active'); }
-    startRankingTimer(); startRaidTimer();
-    
-    // 準備中オーバーレイを0.5秒後に消す
-    setTimeout(() => {
-        const overlay = document.getElementById('loading-overlay');
-        overlay.style.opacity = '0';
-        setTimeout(() => overlay.remove(), 500);
-    }, 500);
-}
-async function saveUserData() { try { await update(userRef, userData); updateHeaderUI(); } catch (e) { console.error("Firebase save error", e); } }
-async function saveEventData() { try { await set(ref(db, 'eventData'), eventData); } catch (e) { console.error("Event data save error", e); } }
-
-function applyHomeScale() {
-    const scale = (userData.homeScale || 50) / 100;
-    const menuScreen = document.getElementById('menu-screen');
-    if (menuScreen) {
-        menuScreen.style.transform = `scale(${0.5 + scale * 0.5})`;
-        menuScreen.style.transformOrigin = 'center center';
+        if (eventSnapshot.exists()) {
+            eventData = { ...eventData, ...eventSnapshot.val() };
+        } else {
+            await set(eventRef, eventData);
+        }
+        
+        // イベントデータのリアルタイム監視
+        onValue(eventRef, (snap) => {
+            if (snap.exists()) {
+                eventData = { ...eventData, ...snap.val() };
+                updateEventUI();
+            }
+        });
+    } catch (e) {
+        console.error("Firebase load error", e);
     }
-    document.documentElement.style.setProperty('--home-scale', scale);
+
+    updateHeaderUI();
+    
+    if (!localStorage.getItem('agreementAccepted')) {
+        document.getElementById('agreement-modal').classList.add('active');
+    }
+    
+    startRankingTimer();
+    startRaidTimer();
+}
+
+async function saveUserData() {
+    try {
+        await update(userRef, userData);
+        updateHeaderUI();
+    } catch (e) {
+        console.error("Firebase save error", e);
+    }
+}
+
+async function saveEventData() {
+    try {
+        await set(ref(db, 'eventData'), eventData);
+    } catch (e) {
+        console.error("Event data save error", e);
+    }
 }
 
 // ==========================================
@@ -575,170 +1235,755 @@ function updateHeaderUI() {
     document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin || 0}`;
     document.getElementById('raid-point-display').innerText = `🎯${userData.raidPoint || 0}`;
     document.getElementById('level-display').innerText = `Lv.${userData.level || 1}`;
+    
     const nextXp = getNextLevelXp(userData.level || 1);
     const xpPercent = Math.min(100, ((userData.xp || 0) / nextXp) * 100);
     document.getElementById('xp-bar-fill').style.width = `${xpPercent}%`;
     document.getElementById('xp-text').innerText = `${Math.floor(userData.xp || 0)} / ${nextXp} XP`;
 }
+
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
 }
+
 function updateEventUI() {
-    const target = getEventTarget(); const totalLikes = eventData.totalLikes || 0; const stage = eventData.currentStage || 1;
+    const target = getEventTarget();
+    const totalLikes = eventData.totalLikes || 0;
+    const stage = eventData.currentStage || 1;
+    
     document.getElementById('event-stage-info').innerText = `第${stage}段階`;
     document.getElementById('like-count').innerText = `${totalLikes.toLocaleString()} いいね`;
-    const announcement = document.getElementById('event-announcement'); const nextStageBtn = document.getElementById('next-stage-btn'); const likeBtn = document.getElementById('like-btn');
-    if (stage === 1 && totalLikes >= eventData.stage1Target) { announcement.innerText = '✅ 第1段階達成！「つぎへ」ボタンを押して第2段階へ！'; announcement.style.color = '#4caf50'; nextStageBtn.style.display = 'block'; likeBtn.disabled = true; }
-    else if (stage === 2 && totalLikes >= eventData.stage2Target) { announcement.innerText = '✅ 全ての段階を達成しました！'; announcement.style.color = '#4caf50'; nextStageBtn.style.display = 'none'; likeBtn.disabled = true; }
-    else { const remaining = target - totalLikes; announcement.innerText = `あと ${remaining.toLocaleString()} いいねで第${stage}段階クリア！`; announcement.style.color = '#ff9800'; nextStageBtn.style.display = 'none'; likeBtn.disabled = false; }
+    
+    const announcement = document.getElementById('event-announcement');
+    const nextStageBtn = document.getElementById('next-stage-btn');
+    const likeBtn = document.getElementById('like-btn');
+    
+    if (stage === 1 && totalLikes >= eventData.stage1Target) {
+        // 第1段階クリア
+        announcement.innerText = '✅ 第1段階達成！「つぎへ」ボタンを押して第2段階へ！';
+        announcement.style.color = '#4caf50';
+        nextStageBtn.style.display = 'block';
+        likeBtn.disabled = true;
+    } else if (stage === 2 && totalLikes >= eventData.stage2Target) {
+        // 第2段階クリア
+        announcement.innerText = '✅ 全ての段階を達成しました！';
+        announcement.style.color = '#4caf50';
+        nextStageBtn.style.display = 'none';
+        likeBtn.disabled = true;
+    } else {
+        const remaining = target - totalLikes;
+        announcement.innerText = `あと ${remaining.toLocaleString()} いいねで第${stage}段階クリア！`;
+        announcement.style.color = '#ff9800';
+        nextStageBtn.style.display = 'none';
+        likeBtn.disabled = false;
+    }
+    
+    // 特権ユーザー: らもビルダーマン
     const superLikeBtn = document.getElementById('super-like-btn');
-    if (userData.name === 'らもビルダーマン' && stage >= 1 && !likeBtn.disabled) { superLikeBtn.style.display = 'block'; } else { superLikeBtn.style.display = 'none'; }
+    if (userData.name === 'らもビルダーマン' && stage >= 1 && !likeBtn.disabled) {
+        superLikeBtn.style.display = 'block';
+    } else {
+        superLikeBtn.style.display = 'none';
+    }
 }
-function startRankingTimer() { const updateTimer = () => { const resetTime = getNextResetTime(); const now = new Date(); const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); const diff = resetTime - jstNow; document.getElementById('ranking-timer').innerText = `次のリセットまで: ${formatTimeRemaining(diff)}`; }; updateTimer(); setInterval(updateTimer, 1000); }
-function startRaidTimer() { const updateRaidTimer = () => { const now = new Date(); const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); const isOpen = isRaidOpen(); const canPlay = canPlayRaid(); let timerText = ''; if (isOpen && canPlay) { const closeTime = getRaidCloseTime(); const diff = closeTime - jstNow; timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`; } else { const nextOpen = getNextRaidOpenTime(); const diff = nextOpen - jstNow; timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`; } document.getElementById('raid-menu-timer').innerText = timerText; const raidBtn = document.getElementById('raid-menu-btn'); if (!isOpen || !canPlay) { raidBtn.classList.add('disabled'); } else { raidBtn.classList.remove('disabled'); } }; updateRaidTimer(); setInterval(updateRaidTimer, 1000); }
+
+function startRankingTimer() {
+    const updateTimer = () => {
+        const resetTime = getNextResetTime();
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const diff = resetTime - jstNow;
+        document.getElementById('ranking-timer').innerText = `次のリセットまで: ${formatTimeRemaining(diff)}`;
+    };
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+function startRaidTimer() {
+    const updateRaidTimer = () => {
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const isOpen = isRaidOpen();
+        const canPlay = canPlayRaid();
+        
+        let timerText = '';
+        
+        if (isOpen && canPlay) {
+            const closeTime = getRaidCloseTime();
+            const diff = closeTime - jstNow;
+            timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
+        } else {
+            const nextOpen = getNextRaidOpenTime();
+            const diff = nextOpen - jstNow;
+            timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
+        }
+        
+        document.getElementById('raid-menu-timer').innerText = timerText;
+        const raidBtn = document.getElementById('raid-menu-btn');
+        
+        if (!isOpen || !canPlay) {
+            raidBtn.classList.add('disabled');
+        } else {
+            raidBtn.classList.remove('disabled');
+        }
+    };
+    updateRaidTimer();
+    setInterval(updateRaidTimer, 1000);
+}
 
 // ==========================================
-// イベント機能 (既存のまま)
+// イベント機能
 // ==========================================
-function renderEvent() { updateEventUI(); fetchEventRanking(); }
-async function handleLike() { if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) return; if (eventData.currentStage === 2 && (eventData.totalLikes || 0) >= eventData.stage2Target) return; eventData.totalLikes = (eventData.totalLikes || 0) + 1; const userLikesRef = ref(db, `eventLikes/${uid}`); try { const snap = await get(userLikesRef); const currentLikes = snap.exists() ? (snap.val().likes || 0) : 0; await set(userLikesRef, { name: userData.name, likes: currentLikes + 1 }); } catch(e) {} await saveEventData(); updateEventUI(); fetchEventRanking(); const anim = document.createElement('div'); anim.className = 'like-animation'; anim.innerText = '+1'; anim.style.left = '50%'; anim.style.top = '50%'; document.body.appendChild(anim); setTimeout(() => anim.remove(), 1500); }
-async function handleSuperLike() { if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) return; if (eventData.currentStage === 2 && (eventData.totalLikes || 0) >= eventData.stage2Target) return; eventData.totalLikes = (eventData.totalLikes || 0) + 51; const userLikesRef = ref(db, `eventLikes/${uid}`); try { const snap = await get(userLikesRef); const currentLikes = snap.exists() ? (snap.val().likes || 0) : 0; await set(userLikesRef, { name: userData.name, likes: currentLikes + 51 }); } catch(e) {} await saveEventData(); updateEventUI(); fetchEventRanking(); const anim = document.createElement('div'); anim.className = 'like-animation'; anim.innerText = '+51'; anim.style.left = '50%'; anim.style.top = '50%'; anim.style.color = '#ff5722'; anim.style.fontSize = '36px'; document.body.appendChild(anim); setTimeout(() => anim.remove(), 1500); }
-async function handleNextStage() { if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) { eventData.currentStage = 2; eventData.totalLikes = 0; await saveEventData(); updateEventUI(); fetchEventRanking(); } }
-async function fetchEventRanking() { const list = document.getElementById('event-ranking-list'); list.innerHTML = '<div style="text-align:center;">読み込み中...</div>'; try { const snapshot = await get(ref(db, 'eventLikes')); const results = []; if (snapshot.exists()) { snapshot.forEach(child => { results.push({ uid: child.key, ...child.val() }); }); } results.sort((a, b) => (b.likes || 0) - (a.likes || 0)); list.innerHTML = ''; if (results.length === 0) { list.innerHTML = '<div style="text-align:center;">まだデータがありません</div>'; return; } results.slice(0, 20).forEach((data, index) => { const div = document.createElement('div'); div.className = 'event-ranking-item'; div.innerHTML = `<span>${index + 1}位：${escapeHTML(data.name || '名無し')}</span><span>${data.likes || 0} 回</span>`; list.appendChild(div); }); } catch(e) { list.innerHTML = '<div style="color:red;">読み込み失敗</div>'; } }
+function renderEvent() {
+    updateEventUI();
+    fetchEventRanking();
+}
+
+async function handleLike() {
+    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) return;
+    if (eventData.currentStage === 2 && (eventData.totalLikes || 0) >= eventData.stage2Target) return;
+    
+    eventData.totalLikes = (eventData.totalLikes || 0) + 1;
+    
+    const userLikesRef = ref(db, `eventLikes/${uid}`);
+    try {
+        const snap = await get(userLikesRef);
+        const currentLikes = snap.exists() ? (snap.val().likes || 0) : 0;
+        await set(userLikesRef, { name: userData.name, likes: currentLikes + 1 });
+    } catch(e) {
+        console.error("Like save error", e);
+    }
+    
+    await saveEventData();
+    updateEventUI();
+    fetchEventRanking();
+    
+    // アニメーション
+    const anim = document.createElement('div');
+    anim.className = 'like-animation';
+    anim.innerText = '+1';
+    anim.style.left = '50%';
+    anim.style.top = '50%';
+    document.body.appendChild(anim);
+    setTimeout(() => anim.remove(), 1500);
+}
+
+async function handleSuperLike() {
+    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) return;
+    if (eventData.currentStage === 2 && (eventData.totalLikes || 0) >= eventData.stage2Target) return;
+    
+    eventData.totalLikes = (eventData.totalLikes || 0) + 51;
+    
+    const userLikesRef = ref(db, `eventLikes/${uid}`);
+    try {
+        const snap = await get(userLikesRef);
+        const currentLikes = snap.exists() ? (snap.val().likes || 0) : 0;
+        await set(userLikesRef, { name: userData.name, likes: currentLikes + 51 });
+    } catch(e) {
+        console.error("Super like save error", e);
+    }
+    
+    await saveEventData();
+    updateEventUI();
+    fetchEventRanking();
+    
+    // アニメーション
+    const anim = document.createElement('div');
+    anim.className = 'like-animation';
+    anim.innerText = '+51';
+    anim.style.left = '50%';
+    anim.style.top = '50%';
+    anim.style.color = '#ff5722';
+    anim.style.fontSize = '36px';
+    document.body.appendChild(anim);
+    setTimeout(() => anim.remove(), 1500);
+}
+
+async function handleNextStage() {
+    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) {
+        eventData.currentStage = 2;
+        eventData.totalLikes = 0;
+        await saveEventData();
+        updateEventUI();
+        fetchEventRanking();
+    }
+}
+
+async function fetchEventRanking() {
+    const list = document.getElementById('event-ranking-list');
+    list.innerHTML = '<div style="text-align:center;">読み込み中...</div>';
+    
+    try {
+        const snapshot = await get(ref(db, 'eventLikes'));
+        const results = [];
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                results.push({ uid: child.key, ...child.val() });
+            });
+        }
+        
+        results.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+        
+        list.innerHTML = '';
+        if (results.length === 0) {
+            list.innerHTML = '<div style="text-align:center;">まだデータがありません</div>';
+            return;
+        }
+        
+        results.slice(0, 20).forEach((data, index) => {
+            const div = document.createElement('div');
+            div.className = 'event-ranking-item';
+            div.innerHTML = `
+                <span>${index + 1}位：${escapeHTML(data.name || '名無し')}</span>
+                <span>${data.likes || 0} 回</span>
+            `;
+            list.appendChild(div);
+        });
+    } catch(e) {
+        console.error("Event ranking error", e);
+        list.innerHTML = '<div style="color:red;">読み込み失敗</div>';
+    }
+}
 
 // ==========================================
-// レイドマップ (既存のまま)
+// レイドマップ
 // ==========================================
-function renderRaidMap() { /* ... */ }
-function startRaidStage(stage) { /* ... */ }
-function updateRaidTargetUI() { /* ... */ }
-function renderStoryMap() { /* ... */ }
-function startStoryStage(stage) { /* ... */ }
-function updateStoryTargetUI() { /* ... */ }
-function triggerDarkness() { /* ... */ }
-function triggerFreeze() { /* ... */ }
+function renderRaidMap() {
+    const grid = document.getElementById('raid-stages-grid');
+    grid.innerHTML = '';
+    const isOpen = isRaidOpen();
+    const canPlay = canPlayRaid();
+    
+    document.getElementById('raid-point-info').innerText = userData.raidPoint || 0;
+    
+    if (!isOpen) {
+        const nextOpen = getNextRaidOpenTime();
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const diff = nextOpen - jstNow;
+        document.getElementById('raid-status-timer').innerHTML = `
+            ⏳ 次のレイド開始まで: ${formatTimeRemaining(diff)}
+        `;
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">レイドは開催時間外です</div>';
+        return;
+    }
+    
+    if (!canPlay) {
+        const nextOpen = getNextRaidOpenTime();
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const diff = nextOpen - jstNow;
+        document.getElementById('raid-status-timer').innerHTML = `
+            ⏳ 次のレイドまで: ${formatTimeRemaining(diff)}
+        `;
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">この回のレイドはクリア済みです。次の開催時間をお待ちください。</div>';
+        return;
+    }
+    
+    const closeTime = getRaidCloseTime();
+    const now = new Date();
+    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const diff = closeTime - jstNow;
+    document.getElementById('raid-status-timer').innerHTML = `
+        🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}
+    `;
+    
+    if (!raidState.stages.length) {
+        raidState.stages = [];
+        for (let i = 1; i <= 6; i++) {
+            raidState.stages.push({
+                stage: i,
+                cleared: false,
+                targetScore: getRaidTargetScore(i),
+                obstacle: i === 6 ? null : getRandomRaidObstacle()
+            });
+        }
+        raidState.currentStage = 1;
+    }
+    
+    for (let i = 0; i < 6; i++) {
+        const stage = raidState.stages[i];
+        const btn = document.createElement('button');
+        btn.className = 'raid-stage-btn';
+        
+        if (stage.cleared) {
+            btn.classList.add('completed');
+            btn.innerText = `ステージ ${i+1} - クリア済み ✅`;
+        } else if (i + 1 === raidState.currentStage) {
+            btn.classList.add('current');
+            btn.innerText = `ステージ ${i+1} - 目標: ${stage.targetScore.toLocaleString()}`;
+            btn.onclick = () => startRaidStage(i + 1);
+        } else {
+            btn.classList.add('locked');
+            btn.innerText = `ステージ ${i+1} - ロック 🔒`;
+        }
+        
+        grid.appendChild(btn);
+    }
+}
+
+function startRaidStage(stage) {
+    if (!isRaidOpen() || !canPlayRaid()) return;
+    if (stage !== raidState.currentStage) return;
+    
+    const stageData = raidState.stages[stage - 1];
+    
+    gameState.mode = 'raid';
+    gameState.raidStage = stage;
+    gameState.isPlaying = true;
+    gameState.raidObstacle = stageData.obstacle;
+    gameState.passiveUsed = false;
+    
+    let initialTime = 60;
+    if (stageData.obstacle === 'time_reduce') initialTime = 50;
+    gameState.timeLeft = initialTime;
+    gameState.initialTime = initialTime;
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.comboMultiplier = 1.0;
+    gameState.coinMultiplier = 1;
+    gameState.xpMultiplier = 1;
+    gameState.goldDropRate = 0.01;
+    gameState.obstacleTriggered = false;
+    gameState.typingDisabled = false;
+    gameState.targetScore = stageData.targetScore;
+    
+    applyPassiveOnStart();
+    resetSkillUI();
+    
+    showScreen('game-screen');
+    document.getElementById('story-target-container').style.display = 'none';
+    document.getElementById('raid-target-container').style.display = 'block';
+    
+    updateRaidTargetUI();
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(() => {
+        gameState.timeLeft--;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        
+        if (gameState.raidObstacle === 'darkness' && !gameState.obstacleTriggered && gameState.timeLeft <= 30) {
+            triggerDarkness();
+        } else if (gameState.raidObstacle === 'freeze' && !gameState.obstacleTriggered && gameState.timeLeft <= 40) {
+            triggerFreeze();
+        }
+        
+        if (gameState.timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+    
+    if (stageData.obstacle === 'time_reduce') {
+        const animEl = document.getElementById('time-reduce-animation');
+        animEl.style.opacity = '1';
+        setTimeout(() => animEl.style.opacity = '0', 1500);
+    }
+}
+
+function updateRaidTargetUI() {
+    if (gameState.mode !== 'raid') return;
+    
+    const target = gameState.targetScore;
+    const current = gameState.score;
+    const percent = Math.min(100, (current / target) * 100);
+    const remaining = Math.max(0, target - current);
+    
+    document.getElementById('raid-target-info').innerHTML = `
+        🔥 レイド ステージ${gameState.raidStage}/6 目標スコア
+    `;
+    document.getElementById('raid-target-bar-fill').style.width = `${percent}%`;
+    document.getElementById('raid-target-text').innerHTML = `
+        ${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})
+    `;
+}
+
+// ==========================================
+// ストーリーマップ
+// ==========================================
+function renderStoryMap() {
+    const grid = document.getElementById('stage-grid');
+    grid.innerHTML = '';
+    const currentStage = userData.storyStage || 1;
+    document.getElementById('current-story-stage').innerText = currentStage;
+    
+    for (let i = 1; i <= 100; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'stage-btn';
+        if (i < currentStage) btn.classList.add('completed');
+        else if (i === currentStage) btn.classList.add('current');
+        else btn.classList.add('locked');
+        
+        let label = `${i}`;
+        if (i === 25) label += '\n🎁';
+        if (i === 50) label += '\n🎁';
+        if (i === 75) label += '\n🎁';
+        if (i === 100) label += '\n👑';
+        
+        btn.innerText = label;
+        
+        if (i === currentStage) {
+            btn.onclick = () => startStoryStage(i);
+        } else {
+            btn.style.cursor = 'not-allowed';
+        }
+        grid.appendChild(btn);
+    }
+}
+
+function startStoryStage(stage) {
+    if (stage !== userData.storyStage) return;
+    
+    gameState.mode = 'story';
+    gameState.storyStage = stage;
+    gameState.isPlaying = true;
+    gameState.raidObstacle = null;
+    gameState.passiveUsed = false;
+    
+    let initialTime = 60;
+    if (stage >= 51) initialTime = 50;
+    gameState.timeLeft = initialTime;
+    gameState.initialTime = initialTime;
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.comboMultiplier = 1.0;
+    gameState.coinMultiplier = 1;
+    gameState.xpMultiplier = 1;
+    gameState.goldDropRate = 0.01;
+    gameState.obstacleTriggered = false;
+    gameState.typingDisabled = false;
+    gameState.targetScore = getStoryTargetScore(stage);
+    
+    applyPassiveOnStart();
+    resetSkillUI();
+    
+    showScreen('game-screen');
+    document.getElementById('story-target-container').style.display = 'block';
+    document.getElementById('raid-target-container').style.display = 'none';
+    
+    updateStoryTargetUI();
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(() => {
+        gameState.timeLeft--;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        
+        if (!gameState.obstacleTriggered) {
+            const obstacle = getStageObstacle(stage);
+            if (obstacle === 'darkness' && gameState.timeLeft <= 30) {
+                triggerDarkness();
+            } else if (obstacle === 'freeze' && gameState.timeLeft <= 40) {
+                triggerFreeze();
+            }
+        }
+        
+        if (gameState.timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+    
+    if (stage >= 51) {
+        const animEl = document.getElementById('time-reduce-animation');
+        animEl.style.opacity = '1';
+        setTimeout(() => animEl.style.opacity = '0', 1500);
+    }
+}
+
+function updateStoryTargetUI() {
+    if (gameState.mode !== 'story') return;
+    
+    const target = gameState.targetScore;
+    const current = gameState.score;
+    const percent = Math.min(100, (current / target) * 100);
+    const remaining = Math.max(0, target - current);
+    
+    document.getElementById('story-target-info').innerHTML = `
+        🎯 ステージ${gameState.storyStage} 目標スコア
+    `;
+    document.getElementById('story-target-bar-fill').style.width = `${percent}%`;
+    document.getElementById('story-target-text').innerHTML = `
+        ${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})
+    `;
+}
+
+function triggerDarkness() {
+    gameState.obstacleTriggered = true;
+    const overlay = document.getElementById('game-overlay');
+    overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+    overlay.style.transition = 'background-color 1s';
+    setTimeout(() => {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.95)';
+        setTimeout(() => {
+            overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+        }, 2500);
+    }, 10);
+}
+
+function triggerFreeze() {
+    gameState.obstacleTriggered = true;
+    gameState.typingDisabled = true;
+    
+    const overlay = document.getElementById('game-overlay');
+    const message = document.getElementById('game-message');
+    
+    overlay.style.backgroundColor = 'rgba(0,100,255,0.3)';
+    overlay.style.transition = 'background-color 0.5s';
+    message.innerText = '❄️ BrrBrrフローズン！ ❄️';
+    message.style.opacity = '1';
+    
+    setTimeout(() => {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+        message.style.opacity = '0';
+        gameState.typingDisabled = false;
+    }, 5000);
+}
 
 // ==========================================
 // パッシブシステム
 // ==========================================
 function applyPassiveOnStart() {
     if (!userData.equippedPassive || !passiveData[userData.equippedPassive]) return;
+    
     const passive = passiveData[userData.equippedPassive];
-    if (passive.onGameStart) { passive.onGameStart(); }
-    gameState.passiveUsed = false;
-    if (passive.duration) {
-        // コンボノットリセットε 用のタイマーは handleWrongKey で処理
+    if (passive.onGameStart) {
+        passive.onGameStart();
     }
+    gameState.passiveUsed = false;
 }
 
 // ==========================================
 // ゲームロジック
 // ==========================================
 function startGame(mode) {
-    gameState.mode = mode; gameState.storyStage = null; gameState.raidStage = null; gameState.raidObstacle = null;
-    gameState.isPlaying = true; gameState.timeLeft = 60; gameState.initialTime = 60;
-    gameState.score = 0; gameState.combo = 0; gameState.maxCombo = 0; gameState.comboMultiplier = 1.0;
-    gameState.targetScore = 0; gameState.timeExtendActive = false; gameState.passiveUsed = false;
-    gameState.coinBoostActive = false; gameState.xpBoostActive = false; gameState.goldDropRate = 0.01;
-    applyPassiveOnStart(); resetSkillUI();
+    gameState.mode = mode;
+    gameState.storyStage = null;
+    gameState.raidStage = null;
+    gameState.raidObstacle = null;
+    gameState.isPlaying = true;
+    gameState.timeLeft = 60;
+    gameState.initialTime = 60;
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.comboMultiplier = 1.0;
+    gameState.coinMultiplier = 1;
+    gameState.xpMultiplier = 1;
+    gameState.goldDropRate = 0.01;
+    gameState.targetScore = 0;
+    gameState.timeExtendActive = false;
+    gameState.passiveUsed = false;
+    
+    applyPassiveOnStart();
+    resetSkillUI();
+    
     showScreen('game-screen');
     document.getElementById('story-target-container').style.display = 'none';
     document.getElementById('raid-target-container').style.display = 'none';
-    document.getElementById('combo-protect-indicator').style.display = 'none';
-    updateGameUI(); setNextWord();
-    gameState.timer = setInterval(() => { gameState.timeLeft--; document.getElementById('time-display').innerText = gameState.timeLeft; if (gameState.timeLeft <= 0) endGame(); }, 1000);
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(() => {
+        gameState.timeLeft--;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        if (gameState.timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
 }
-function setNextWord() { const randomObj = typingData[Math.floor(Math.random() * typingData.length)]; gameState.currentWordObj = { ...randomObj, typedLength: 0 }; renderWord(); }
+
+function setNextWord() {
+    const randomObj = typingData[Math.floor(Math.random() * typingData.length)];
+    gameState.currentWordObj = { ...randomObj, typedLength: 0 };
+    renderWord();
+}
+
 function renderWord() {
     const obj = gameState.currentWordObj;
     document.getElementById('japanese-text').innerText = obj.ja;
-    document.getElementById('furigana-text').innerText = userData.furiganaOn ? obj.furigana : '';
-    const romajiContainer = document.getElementById('romaji-text'); romajiContainer.innerHTML = '';
-    for (let i = 0; i < obj.romaji.length; i++) { const span = document.createElement('span'); span.innerText = obj.romaji[i]; span.className = i < obj.typedLength ? 'typed' : (gameState.mode === 'hard' ? 'untyped-hidden' : 'untyped'); romajiContainer.appendChild(span); }
+    
+    const romajiContainer = document.getElementById('romaji-text');
+    romajiContainer.innerHTML = '';
+    
+    for (let i = 0; i < obj.romaji.length; i++) {
+        const span = document.createElement('span');
+        span.innerText = obj.romaji[i];
+        if (i < obj.typedLength) {
+            span.className = 'typed';
+        } else {
+            span.className = gameState.mode === 'hard' ? 'untyped-hidden' : 'untyped';
+        }
+        romajiContainer.appendChild(span);
+    }
 }
+
 function handleCorrectKey() {
-    const obj = gameState.currentWordObj; obj.typedLength++;
+    const obj = gameState.currentWordObj;
+    obj.typedLength++;
+    
     gameState.combo += 1 * gameState.comboMultiplier;
     if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+    
     gameState.score += Math.floor(gameState.combo * 5);
-    updateGameUI(); renderWord();
-    if (obj.typedLength >= obj.romaji.length) setNextWord();
+    
+    updateGameUI();
+    renderWord();
+    
+    if (obj.typedLength >= obj.romaji.length) {
+        setNextWord();
+    }
 }
+
 function handleWrongKey() {
     // パッシブ: コンボノットリセットα
     if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_alpha' && gameState.combo > 0) {
         gameState.passiveUsed = true;
-        const effect = document.createElement('div'); effect.className = 'passive-effect'; effect.innerText = '🛡️ コンボ保護！'; document.body.appendChild(effect); setTimeout(() => effect.remove(), 2000);
-        updateGameUI(); return;
+        // エフェクト
+        const effect = document.createElement('div');
+        effect.className = 'passive-effect';
+        effect.innerText = '🛡️ コンボ保護！';
+        document.body.appendChild(effect);
+        setTimeout(() => effect.remove(), 2000);
+        updateGameUI();
+        return;
     }
-    // パッシブ: コンボノットリセットε (3.5秒間保護)
-    if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_epsilon' && gameState.combo > 0) {
-        gameState.passiveUsed = true;
-        const indicator = document.getElementById('combo-protect-indicator');
-        indicator.style.display = 'block';
-        gameState.noResetTimer = setTimeout(() => {
-            if (gameState.isPlaying) handleWrongKey();
-        }, 3500);
-        updateGameUI(); return;
-    }
-    gameState.combo = 0; updateGameUI();
+    
+    gameState.combo = 0;
+    updateGameUI();
 }
+
 function updateGameUI() {
     document.getElementById('score-display').innerText = gameState.score;
     document.getElementById('combo-display').innerText = Math.floor(gameState.combo);
-    if (gameState.mode === 'story') { updateStoryTargetUI(); if (gameState.score >= gameState.targetScore) endGame(true); }
-    else if (gameState.mode === 'raid') { updateRaidTargetUI(); if (gameState.score >= gameState.targetScore) endGame(true); }
+    
+    if (gameState.mode === 'story') {
+        updateStoryTargetUI();
+        if (gameState.score >= gameState.targetScore) {
+            endGame(true);
+        }
+    } else if (gameState.mode === 'raid') {
+        updateRaidTargetUI();
+        if (gameState.score >= gameState.targetScore) {
+            endGame(true);
+        }
+    }
 }
 
 document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && gameState.isPlaying && gameState.isSkillReady && !gameState.timeExtendActive) { e.preventDefault(); activateSkill(); return; }
+    if (e.code === 'Space' && gameState.isPlaying && gameState.isSkillReady && !gameState.timeExtendActive) {
+        e.preventDefault();
+        activateSkill();
+        return;
+    }
+    
     if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive) return;
-    const obj = gameState.currentWordObj; if (!obj) return;
+    
+    const obj = gameState.currentWordObj;
+    if (!obj) return;
+    
     const expectedChar = obj.romaji[obj.typedLength];
-    if (/^[a-zA-Z\-]$/.test(e.key)) { if (e.key.toLowerCase() === expectedChar.toLowerCase()) handleCorrectKey(); else handleWrongKey(); }
+    if (/^[a-zA-Z\-]$/.test(e.key)) {
+        if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
+            handleCorrectKey();
+        } else {
+            handleWrongKey();
+        }
+    }
 });
 
 function endGame(isCleared = false) {
-    gameState.isPlaying = false; clearInterval(gameState.timer);
+    gameState.isPlaying = false;
+    clearInterval(gameState.timer);
     if (gameState.autoTypeInterval) clearInterval(gameState.autoTypeInterval);
     if (gameState.skillCooldownTimer) clearInterval(gameState.skillCooldownTimer);
-    if (gameState.noResetTimer) clearTimeout(gameState.noResetTimer);
+    
     document.getElementById('game-overlay').style.backgroundColor = 'rgba(0,0,0,0)';
     document.getElementById('game-message').style.opacity = '0';
-    document.getElementById('combo-protect-indicator').style.display = 'none';
     
-    let earnedCoin = Math.floor(gameState.score / 10) * getCoinMultiplier();
+    let earnedCoin = Math.floor(gameState.score / 10) * gameState.coinMultiplier;
     if (gameState.mode === 'hard') earnedCoin *= 2;
-    const earnedXp = Math.floor(gameState.score / 100) * getXpMultiplier();
+    const earnedXp = Math.floor(gameState.score / 100) * gameState.xpMultiplier;
+    
     userData.coin = (userData.coin || 0) + earnedCoin;
     userData.xp = (userData.xp || 0) + earnedXp;
     userData.playCount = (userData.playCount || 0) + 1;
-    let earnedGold = 0; if (Math.random() < gameState.goldDropRate) { earnedGold = 1; userData.goldCoin = (userData.goldCoin || 0) + 1; }
-    let storyCleared = false; let raidCleared = false; let earnedRaidPoint = 0; let rewards = [];
+    
+    let earnedGold = 0;
+    if (Math.random() < gameState.goldDropRate) {
+        earnedGold = 1;
+        userData.goldCoin = (userData.goldCoin || 0) + 1;
+    }
+    
+    let storyCleared = false;
+    let raidCleared = false;
+    let earnedRaidPoint = 0;
+    let rewards = [];
     
     if (gameState.mode === 'story' && isCleared) {
-        /* ... 既存のストーリー報酬処理 ... */
+        const stage = gameState.storyStage;
+        if (stage === userData.storyStage) {
+            userData.storyStage = Math.min(100, stage + 1);
+            storyCleared = true;
+            
+            if (stage === 25) {
+                addItemToInventory('coin_boost_alpha', 5);
+                rewards.push({ type: 'item', id: 'coin_boost_alpha', name: 'コインブーストα', count: 5 });
+            } else if (stage === 50) {
+                addItemToInventory('coin_boost_alpha', 3);
+                addItemToInventory('xp_boost_alpha', 2);
+                rewards.push({ type: 'item', id: 'coin_boost_alpha', name: 'コインブーストα', count: 3 });
+                rewards.push({ type: 'item', id: 'xp_boost_alpha', name: 'XPブーストα', count: 2 });
+            } else if (stage === 75) {
+                userData.goldCoin = (userData.goldCoin || 0) + 5;
+                addItemToInventory('gold_luck_boost_alpha', 1);
+                rewards.push({ type: 'gold', count: 5 });
+                rewards.push({ type: 'item', id: 'gold_luck_boost_alpha', name: 'ゴールドコインラックブーストα', count: 1 });
+            } else if (stage === 100) {
+                if (!userData.skills.includes('auto_input_gamma')) {
+                    userData.skills.push('auto_input_gamma');
+                }
+                rewards.push({ type: 'skill', id: 'auto_input_gamma', name: '自動入力γ' });
+            }
+        }
     } else if (gameState.mode === 'raid' && isCleared) {
         const stage = gameState.raidStage;
         if (stage === raidState.currentStage) {
             raidState.stages[stage - 1].cleared = true;
+            
             if (stage === 6) {
                 raidCleared = true;
-                let rpMult = 1;
-                if (userData.equippedPassive === 'raid_point_boost_alpha') rpMult = 1.5;
-                else if (userData.equippedPassive === 'raid_point_boost_beta') rpMult = 2;
-                earnedRaidPoint = Math.floor((5 + Math.floor(Math.random() * 6)) * rpMult);
+                earnedRaidPoint = 5 + Math.floor(Math.random() * 6);
                 userData.raidPoint = (userData.raidPoint || 0) + earnedRaidPoint;
-                const now = new Date(); userData.raidClearedTime = now.getTime();
+                
+                const now = new Date();
+                userData.raidClearedTime = now.getTime();
+                
                 rewards.push({ type: 'raid', count: earnedRaidPoint });
                 raidState = { isOpen: false, currentStage: 1, stages: [] };
-            } else { raidState.currentStage = stage + 1; }
+            } else {
+                raidState.currentStage = stage + 1;
+            }
         }
     }
-    if (gameState.mode === 'normal') { if (gameState.score > (userData.bestScore || 0)) userData.bestScore = gameState.score; if (gameState.maxCombo > (userData.bestCombo || 0)) userData.bestCombo = Math.floor(gameState.maxCombo); submitRanking(); }
-    let leveledUp = false; while ((userData.xp || 0) >= getNextLevelXp(userData.level)) { userData.xp -= getNextLevelXp(userData.level); userData.level++; leveledUp = true; }
+    
+    if (gameState.mode === 'normal') {
+        if (gameState.score > (userData.bestScore || 0)) userData.bestScore = gameState.score;
+        if (gameState.maxCombo > (userData.bestCombo || 0)) userData.bestCombo = Math.floor(gameState.maxCombo);
+        submitRanking();
+    }
+    
+    let leveledUp = false;
+    while ((userData.xp || 0) >= getNextLevelXp(userData.level)) {
+        userData.xp -= getNextLevelXp(userData.level);
+        userData.level++;
+        leveledUp = true;
+    }
+    
     saveUserData();
+    
     document.getElementById('result-title').innerText = isCleared ? (raidCleared ? '🔥 レイド制覇！' : '🎉 ステージクリア！') : 'ゲーム終了！';
     document.getElementById('result-score').innerText = gameState.score;
     document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo);
@@ -747,118 +1992,559 @@ function endGame(isCleared = false) {
     document.getElementById('level-up-msg').style.display = leveledUp ? 'block' : 'none';
     document.getElementById('story-clear-msg').style.display = storyCleared ? 'block' : 'none';
     document.getElementById('raid-clear-msg').style.display = raidCleared ? 'block' : 'none';
-    const goldEl = document.getElementById('gold-coin-result'); if (earnedGold > 0) { goldEl.style.display = 'block'; document.getElementById('result-gold').innerText = earnedGold; } else goldEl.style.display = 'none';
-    const rpEl = document.getElementById('raid-point-result'); if (earnedRaidPoint > 0) { rpEl.style.display = 'block'; document.getElementById('result-raid').innerText = earnedRaidPoint; } else rpEl.style.display = 'none';
+    
+    const goldResultEl = document.getElementById('gold-coin-result');
+    if (earnedGold > 0) {
+        goldResultEl.style.display = 'block';
+        document.getElementById('result-gold').innerText = earnedGold;
+    } else {
+        goldResultEl.style.display = 'none';
+    }
+    
+    const raidResultEl = document.getElementById('raid-point-result');
+    if (earnedRaidPoint > 0) {
+        raidResultEl.style.display = 'block';
+        document.getElementById('result-raid').innerText = earnedRaidPoint;
+    } else {
+        raidResultEl.style.display = 'none';
+    }
+    
     showScreen('result-screen');
-    if (rewards.length > 0) showRewardModal(rewards);
+    
+    if (rewards.length > 0) {
+        showRewardModal(rewards);
+    }
 }
 
-function addItemToInventory(itemId, count) { if (!userData.items) userData.items = {}; userData.items[itemId] = (userData.items[itemId] || 0) + count; }
-function showRewardModal(rewards) { /* ... 既存のまま ... */ }
+function addItemToInventory(itemId, count) {
+    if (!userData.items) userData.items = {};
+    userData.items[itemId] = (userData.items[itemId] || 0) + count;
+}
+
+function showRewardModal(rewards) {
+    const content = document.getElementById('reward-content');
+    content.innerHTML = '';
+    rewards.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'reward-item';
+        if (r.type === 'gold') {
+            div.innerHTML = `<div class="reward-icon">🥇</div><div class="reward-info"><div class="reward-name">ゴールドコイン x${r.count}</div></div>`;
+        } else if (r.type === 'raid') {
+            div.innerHTML = `<div class="reward-icon">🎯</div><div class="reward-info"><div class="reward-name">レイドポイント x${r.count}</div></div>`;
+        } else if (r.type === 'item') {
+            const item = itemData[r.id];
+            div.innerHTML = `<div class="reward-icon">🎁</div><div class="reward-info"><div class="reward-name">${item.name} x${r.count}</div><div class="reward-desc">${item.desc}</div></div>`;
+        } else if (r.type === 'skill') {
+            const skill = skillData[r.id];
+            div.innerHTML = `<div class="reward-icon">⚡</div><div class="reward-info"><div class="reward-name">${skill.name}</div><div class="reward-desc">${skill.desc}</div></div>`;
+        }
+        content.appendChild(div);
+    });
+    document.getElementById('reward-modal').classList.add('active');
+}
 
 // ==========================================
-// スキルシステム (既存のまま)
+// スキルシステム
 // ==========================================
-function resetSkillUI() { const btn = document.getElementById('skill-btn'); const overlay = document.getElementById('skill-cooldown-overlay'); const text = document.getElementById('skill-btn-text'); if (!userData.equippedSkill || !skillData[userData.equippedSkill]) { text.innerText = "スキル\n無し"; btn.disabled = true; overlay.style.height = '0%'; gameState.isSkillReady = false; return; } const skill = skillData[userData.equippedSkill]; text.innerText = skill.name.replace('α', '\nα').replace('β', '\nβ').replace('γ', '\nγ').replace('ε', '\nε'); btn.disabled = false; btn.onclick = activateSkill; overlay.style.height = '0%'; gameState.isSkillReady = true; }
-function activateSkill() { if (!gameState.isPlaying || !gameState.isSkillReady || gameState.timeExtendActive) return; const skill = skillData[userData.equippedSkill]; skill.execute(); gameState.isSkillReady = false; gameState.skillCooldownLeft = skill.cooldown; document.getElementById('skill-btn').disabled = true; const overlay = document.getElementById('skill-cooldown-overlay'); overlay.style.transition = 'none'; overlay.style.height = '100%'; let tick = 100; gameState.skillCooldownTimer = setInterval(() => { if(!gameState.isPlaying) { clearInterval(gameState.skillCooldownTimer); return; } if (gameState.timeExtendActive) return; gameState.skillCooldownLeft -= tick / 1000; const percent = Math.max(0, (gameState.skillCooldownLeft / skill.cooldown) * 100); overlay.style.height = `${percent}%`; if (gameState.skillCooldownLeft <= 0) { clearInterval(gameState.skillCooldownTimer); gameState.isSkillReady = true; document.getElementById('skill-btn').disabled = false; overlay.style.height = '0%'; } }, tick); }
+function resetSkillUI() {
+    const btn = document.getElementById('skill-btn');
+    const overlay = document.getElementById('skill-cooldown-overlay');
+    const text = document.getElementById('skill-btn-text');
+    
+    if (!userData.equippedSkill || !skillData[userData.equippedSkill]) {
+        text.innerText = "スキル\n無し";
+        btn.disabled = true;
+        overlay.style.height = '0%';
+        gameState.isSkillReady = false;
+        return;
+    }
+    
+    const skill = skillData[userData.equippedSkill];
+    text.innerText = skill.name.replace('α', '\nα').replace('γ', '\nγ').replace('ε', '\nε');
+    btn.disabled = false;
+    btn.onclick = activateSkill;
+    overlay.style.height = '0%';
+    gameState.isSkillReady = true;
+}
+
+function activateSkill() {
+    if (!gameState.isPlaying || !gameState.isSkillReady || gameState.timeExtendActive) return;
+    
+    const skill = skillData[userData.equippedSkill];
+    skill.execute();
+    
+    gameState.isSkillReady = false;
+    gameState.skillCooldownLeft = skill.cooldown;
+    document.getElementById('skill-btn').disabled = true;
+    
+    const overlay = document.getElementById('skill-cooldown-overlay');
+    overlay.style.transition = 'none';
+    overlay.style.height = '100%';
+    
+    let tick = 100;
+    gameState.skillCooldownTimer = setInterval(() => {
+        if(!gameState.isPlaying) {
+            clearInterval(gameState.skillCooldownTimer);
+            return;
+        }
+        if (gameState.timeExtendActive) return;
+        
+        gameState.skillCooldownLeft -= tick / 1000;
+        const percent = Math.max(0, (gameState.skillCooldownLeft / skill.cooldown) * 100);
+        overlay.style.height = `${percent}%`;
+        
+        if (gameState.skillCooldownLeft <= 0) {
+            clearInterval(gameState.skillCooldownTimer);
+            gameState.isSkillReady = true;
+            document.getElementById('skill-btn').disabled = false;
+            overlay.style.height = '0%';
+        }
+    }, tick);
+}
 
 // ==========================================
-// ランキング機能 (既存のまま)
+// ランキング機能
 // ==========================================
-async function submitRanking() { /* ... */ }
-async function fetchRanking(type) { /* ... */ }
+async function submitRanking() {
+    if (gameState.mode !== 'normal') return;
+    const dateKey = getRankingDateKey();
+    
+    const rankData = {
+        name: userData.name,
+        score: userData.bestScore || 0,
+        combo: userData.bestCombo || 0,
+        playCount: userData.playCount || 0,
+        timestamp: Date.now()
+    };
+    
+    try {
+        await update(ref(db, `rankings/${dateKey}/${uid}`), rankData);
+    } catch (e) {
+        console.error("Ranking submit error", e);
+    }
+}
+
+async function fetchRanking(type) {
+    const listContainer = document.getElementById('ranking-list');
+    listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">読み込み中...</div>';
+    
+    const dateKey = getRankingDateKey();
+    
+    try {
+        const snapshot = await get(ref(db, `rankings/${dateKey}`));
+        const results = [];
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                results.push({ uid: child.key, ...child.val() });
+            });
+        }
+        
+        results.sort((a, b) => (b[type] || 0) - (a[type] || 0));
+        
+        listContainer.innerHTML = '';
+        if (results.length === 0) {
+            listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">まだデータがありません</div>';
+            return;
+        }
+        
+        results.slice(0, 50).forEach((data, index) => {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            let icon = '';
+            if(index === 0) icon = '🥇 ';
+            else if(index === 1) icon = '🥈 ';
+            else if(index === 2) icon = '🥉 ';
+            
+            div.innerHTML = `
+                <div class="rank-item-info">${icon}${index + 1}位：${escapeHTML(data.name || '名無し')}</div>
+                <div style="font-weight:bold; font-size: 20px;">${Math.floor(data[type] || 0).toLocaleString()}</div>
+            `;
+            listContainer.appendChild(div);
+        });
+    } catch (e) {
+        console.error("Ranking fetch error", e);
+        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: red;">読み込みに失敗しました。再読み込みしてください。</div>';
+    }
+}
 
 // ==========================================
 // UI イベント
 // ==========================================
 const uiControllers = {
-    showScreen, startGame, endResult: () => showScreen('menu-screen'),
-    openEvent: () => { renderEvent(); showScreen('event-screen'); },
-    openStoryMap: () => { renderStoryMap(); showScreen('story-map-screen'); },
-    openRaidMap: () => { if (!isRaidOpen()) { alert("レイドは開催時間外です。"); return; } if (!canPlayRaid()) { alert("この回のレイドはクリア済みです。次の開催時間をお待ちください。"); return; } renderRaidMap(); showScreen('raid-map-screen'); },
-    acceptAgreement: () => { localStorage.setItem('agreementAccepted', 'true'); document.getElementById('agreement-modal').classList.remove('active'); },
-    showAgreement: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('agreement-modal').classList.add('active'); },
-    closeSettings: () => document.getElementById('settings-modal').classList.remove('active'),
-    saveName: () => { const input = document.getElementById('name-input').value.trim(); if (input && input.length <= 20) { userData.name = input; saveUserData(); alert("名前を保存しました！"); } else alert("1文字以上、20文字以内で入力してください。"); },
-    saveFuriganaSetting: () => { userData.furiganaOn = document.getElementById('furigana-toggle').checked; saveUserData(); },
-    saveSettings: () => {
-        userData.homeScale = parseInt(document.getElementById('home-scale-slider').value);
-        userData.furiganaOn = document.getElementById('furigana-toggle').checked;
-        applyHomeScale();
-        saveUserData();
-        alert("設定を保存しました！");
+    showScreen,
+    startGame,
+    endResult: () => showScreen('menu-screen'),
+    
+    openEvent: () => {
+        renderEvent();
+        showScreen('event-screen');
     },
-    resetDataConfirm: () => document.getElementById('reset-confirm-modal').classList.add('active'),
-    resetDataExecute: async () => { userData = { ...defaultUserData }; raidState = { isOpen: false, currentStage: 1, stages: [] }; await saveUserData(); document.getElementById('reset-confirm-modal').classList.remove('active'); document.getElementById('settings-modal').classList.remove('active'); alert("データを初期化しました。"); location.reload(); },
-    openRanking: () => { showScreen('ranking-screen'); uiControllers.switchRankingTab('score'); },
-    switchRankingTab: (type) => { const tabs = document.querySelectorAll('#ranking-screen .tab'); tabs.forEach(t => t.classList.remove('active')); if(type === 'score') tabs[0].classList.add('active'); else if(type === 'combo') tabs[1].classList.add('active'); else tabs[2].classList.add('active'); fetchRanking(type); },
-    switchShopTab: (tab) => { const tabs = document.querySelectorAll('#shop-screen .tab'); tabs.forEach(t => t.classList.remove('active')); if (tab === 'skills') tabs[0].classList.add('active'); else if (tab === 'items') tabs[1].classList.add('active'); else if (tab === 'raid') tabs[2].classList.add('active'); else if (tab === 'passive') tabs[3].classList.add('active'); uiControllers.openShop(); },
+    
+    openStoryMap: () => {
+        renderStoryMap();
+        showScreen('story-map-screen');
+    },
+    
+    openRaidMap: () => {
+        if (!isRaidOpen()) {
+            alert("レイドは開催時間外です。");
+            return;
+        }
+        if (!canPlayRaid()) {
+            alert("この回のレイドはクリア済みです。次の開催時間をお待ちください。");
+            return;
+        }
+        renderRaidMap();
+        showScreen('raid-map-screen');
+    },
+    
+    acceptAgreement: () => {
+        localStorage.setItem('agreementAccepted', 'true');
+        document.getElementById('agreement-modal').classList.remove('active');
+    },
+    showAgreement: () => {
+        document.getElementById('settings-modal').classList.remove('active');
+        document.getElementById('agreement-modal').classList.add('active');
+    },
+    closeSettings: () => document.getElementById('settings-modal').classList.remove('active'),
+    saveName: () => {
+        const input = document.getElementById('name-input').value.trim();
+        if (input && input.length <= 20) {
+            userData.name = input;
+            saveUserData();
+            alert("名前を保存しました！");
+        } else {
+            alert("1文字以上、20文字以内で入力してください。");
+        }
+    },
+    resetDataConfirm: () => {
+        document.getElementById('reset-confirm-modal').classList.add('active');
+    },
+    resetDataExecute: async () => {
+        userData = { ...defaultUserData };
+        raidState = { isOpen: false, currentStage: 1, stages: [] };
+        await saveUserData();
+        document.getElementById('reset-confirm-modal').classList.remove('active');
+        document.getElementById('settings-modal').classList.remove('active');
+        alert("データを初期化しました。");
+        location.reload();
+    },
+
+    openRanking: () => {
+        showScreen('ranking-screen');
+        uiControllers.switchRankingTab('score');
+    },
+    switchRankingTab: (type) => {
+        const tabs = document.querySelectorAll('#ranking-screen .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if(type === 'score') tabs[0].classList.add('active');
+        if(type === 'combo') tabs[1].classList.add('active');
+        if(type === 'playCount') tabs[2].classList.add('active');
+        fetchRanking(type);
+    },
+
+    switchShopTab: (tab) => {
+        const tabs = document.querySelectorAll('#shop-screen .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if (tab === 'skills') tabs[0].classList.add('active');
+        else if (tab === 'items') tabs[1].classList.add('active');
+        else if (tab === 'raid') tabs[2].classList.add('active');
+        else if (tab === 'passive') tabs[3].classList.add('active');
+        uiControllers.openShop();
+    },
+    
     openShop: () => {
-        showScreen('shop-screen'); const list = document.getElementById('shop-list'); const activeTab = document.querySelector('#shop-screen .tab.active'); const tabText = activeTab.innerText; list.innerHTML = '';
+        showScreen('shop-screen');
+        const list = document.getElementById('shop-list');
+        const activeTab = document.querySelector('#shop-screen .tab.active');
+        const tabText = activeTab.innerText;
+        
+        list.innerHTML = '';
+        
         if (tabText.includes('パッシブ')) {
             Object.values(passiveData).forEach(passive => {
-                if (passive.priceType === 'raid') return;
                 const hasPassive = (userData.passives || []).includes(passive.id);
                 const canAfford = (userData.coin || 0) >= passive.price;
-                const div = document.createElement('div'); div.className = 'list-item';
-                div.innerHTML = `<div class="shop-item-info"><h3>${passive.name}</h3><p>${passive.desc}</p><div style="color:#ffd700;margin-top:5px;font-weight:bold;">🪙${passive.price.toLocaleString()}</div></div><button class="action-btn" ${hasPassive || !canAfford ? 'disabled' : ''}>${hasPassive ? '購入済み' : '購入'}</button>`;
+                
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${passive.name}</h3>
+                        <p>${passive.desc}</p>
+                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${passive.price.toLocaleString()}</div>
+                    </div>
+                    <button class="action-btn" ${hasPassive || !canAfford ? 'disabled' : ''}>
+                        ${hasPassive ? '購入済み' : '購入'}
+                    </button>
+                `;
                 list.appendChild(div);
-                if(!hasPassive && canAfford) div.querySelector('button').onclick = () => { if ((userData.coin || 0) >= passive.price) { userData.coin -= passive.price; if (!userData.passives) userData.passives = []; userData.passives.push(passive.id); saveUserData(); alert(`${passive.name}を購入しました！`); uiControllers.openShop(); } };
+                
+                if(!hasPassive && canAfford) {
+                    div.querySelector('button').onclick = () => {
+                        if ((userData.coin || 0) >= passive.price) {
+                            userData.coin -= passive.price;
+                            if (!userData.passives) userData.passives = [];
+                            userData.passives.push(passive.id);
+                            saveUserData();
+                            alert(`${passive.name}を購入しました！`);
+                            uiControllers.openShop();
+                        }
+                    };
+                }
             });
         } else if (tabText.includes('スキル')) {
             Object.values(skillData).forEach(skill => {
                 if (skill.priceType !== 'coin' || skill.price === 0) return;
-                const hasSkill = (userData.skills || []).includes(skill.id); const canAfford = (userData.coin || 0) >= skill.price;
-                const div = document.createElement('div'); div.className = 'list-item';
-                div.innerHTML = `<div class="shop-item-info"><h3>${skill.name}</h3><p>${skill.desc}</p><div style="color:#ffd700;margin-top:5px;font-weight:bold;">🪙${skill.price.toLocaleString()}</div></div><button class="action-btn" ${hasSkill || !canAfford ? 'disabled' : ''}>${hasSkill ? '購入済み' : '購入'}</button>`;
+                const hasSkill = (userData.skills || []).includes(skill.id);
+                const canAfford = (userData.coin || 0) >= skill.price;
+                
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${skill.name}</h3>
+                        <p>${skill.desc}</p>
+                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${skill.price.toLocaleString()}</div>
+                    </div>
+                    <button class="action-btn" ${hasSkill || !canAfford ? 'disabled' : ''}>
+                        ${hasSkill ? '購入済み' : '購入'}
+                    </button>
+                `;
                 list.appendChild(div);
-                if(!hasSkill && canAfford) div.querySelector('button').onclick = () => { if ((userData.coin || 0) >= skill.price) { userData.coin -= skill.price; if (!userData.skills) userData.skills = []; userData.skills.push(skill.id); saveUserData(); alert(`${skill.name}を購入しました！`); uiControllers.openShop(); } };
+                
+                if(!hasSkill && canAfford) {
+                    div.querySelector('button').onclick = () => {
+                        if ((userData.coin || 0) >= skill.price) {
+                            userData.coin -= skill.price;
+                            if (!userData.skills) userData.skills = [];
+                            userData.skills.push(skill.id);
+                            saveUserData();
+                            alert(`${skill.name}を購入しました！`);
+                            uiControllers.openShop();
+                        }
+                    };
+                }
             });
         } else if (tabText.includes('アイテム')) {
-            Object.values(itemData).forEach(item => { if (item.price === 0 || item.priceType === 'raid') return;
-                const div = document.createElement('div'); div.className = 'list-item';
-                div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p><div style="color:#ffd700;margin-top:5px;font-weight:bold;">🪙${item.price.toLocaleString()}</div></div><button class="action-btn" ${(userData.coin || 0) < item.price ? 'disabled' : ''}>購入</button>`;
+            Object.values(itemData).forEach(item => {
+                if (item.price === 0) return;
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${item.name}</h3>
+                        <p>${item.desc}</p>
+                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${item.price.toLocaleString()}</div>
+                    </div>
+                    <button class="action-btn" ${(userData.coin || 0) < item.price ? 'disabled' : ''}>
+                        購入
+                    </button>
+                `;
                 list.appendChild(div);
-                div.querySelector('button').onclick = () => { if ((userData.coin || 0) >= item.price) { userData.coin -= item.price; addItemToInventory(item.id, 1); saveUserData(); alert(`${item.name}を購入しました！`); uiControllers.openShop(); } else alert("コインが足りません。"); };
-            });
-        } else if (tabText.includes('レイド')) {
-            // レイドタブではスキル、パッシブ、アイテムを全て表示
-            const raidItems = [];
-            Object.values(skillData).forEach(s => { if (s.priceType === 'raid') raidItems.push({ ...s, category: 'skill' }); });
-            Object.values(passiveData).forEach(p => { if (p.priceType === 'raid') raidItems.push({ ...p, category: 'passive' }); });
-            Object.values(itemData).forEach(i => { if (i.priceType === 'raid') raidItems.push({ ...i, category: 'item' }); });
-            if (raidItems.length === 0) { list.innerHTML = '<div style="text-align:center;padding:20px;">レイド商品はありません</div>'; return; }
-            raidItems.forEach(item => {
-                let owned = false; let canAfford = false;
-                if (item.category === 'skill') { owned = (userData.skills || []).includes(item.id); canAfford = (userData.raidPoint || 0) >= item.price; }
-                else if (item.category === 'passive') { owned = (userData.passives || []).includes(item.id); canAfford = (userData.raidPoint || 0) >= item.price; }
-                else { owned = false; canAfford = (userData.raidPoint || 0) >= item.price; }
-                const div = document.createElement('div'); div.className = 'list-item';
-                div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p><div style="color:#ff5722;margin-top:5px;font-weight:bold;">🎯${item.price.toLocaleString()}</div></div><button class="action-btn" ${owned || !canAfford ? 'disabled' : ''}>${owned ? '購入済み' : '購入'}</button>`;
-                list.appendChild(div);
-                if(!owned && canAfford) div.querySelector('button').onclick = () => {
-                    if ((userData.raidPoint || 0) >= item.price) {
-                        userData.raidPoint -= item.price;
-                        if (item.category === 'skill') { if (!userData.skills) userData.skills = []; userData.skills.push(item.id); }
-                        else if (item.category === 'passive') { if (!userData.passives) userData.passives = []; userData.passives.push(item.id); }
-                        else { addItemToInventory(item.id, 1); }
-                        saveUserData(); alert(`${item.name}を購入しました！`); uiControllers.openShop();
+                
+                div.querySelector('button').onclick = () => {
+                    if ((userData.coin || 0) >= item.price) {
+                        userData.coin -= item.price;
+                        addItemToInventory(item.id, 1);
+                        saveUserData();
+                        alert(`${item.name}を購入しました！`);
+                        uiControllers.openShop();
+                    } else {
+                        alert("コインが足りません。");
                     }
                 };
             });
+        } else if (tabText.includes('レイド')) {
+            const raidSkills = Object.values(skillData).filter(s => s.priceType === 'raid');
+            if (raidSkills.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding: 20px;">レイド商品はありません</div>';
+                return;
+            }
+            raidSkills.forEach(skill => {
+                const hasSkill = (userData.skills || []).includes(skill.id);
+                const canAfford = (userData.raidPoint || 0) >= skill.price;
+                
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${skill.name}</h3>
+                        <p>${skill.desc}</p>
+                        <div style="color: #ff5722; margin-top: 5px; font-weight: bold;">🎯${skill.price.toLocaleString()}</div>
+                    </div>
+                    <button class="action-btn" ${hasSkill || !canAfford ? 'disabled' : ''}>
+                        ${hasSkill ? '購入済み' : '購入'}
+                    </button>
+                `;
+                list.appendChild(div);
+                
+                if(!hasSkill && canAfford) {
+                    div.querySelector('button').onclick = () => {
+                        if ((userData.raidPoint || 0) >= skill.price) {
+                            userData.raidPoint -= skill.price;
+                            if (!userData.skills) userData.skills = [];
+                            userData.skills.push(skill.id);
+                            saveUserData();
+                            alert(`${skill.name}を購入しました！`);
+                            uiControllers.openShop();
+                        }
+                    };
+                }
+            });
         }
     },
-    switchInventoryTab: (tab) => { const tabs = document.querySelectorAll('#inventory-screen .tab'); tabs.forEach(t => t.classList.remove('active')); if (tab === 'skills') tabs[0].classList.add('active'); else if (tab === 'items') tabs[1].classList.add('active'); else if (tab === 'passive') tabs[2].classList.add('active'); uiControllers.openInventory(); },
-    openInventory: () => { /* ... 既存の持ち物表示 (パッシブ・レイドパッシブも表示) ... */ }
+
+    switchInventoryTab: (tab) => {
+        const tabs = document.querySelectorAll('#inventory-screen .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if (tab === 'skills') tabs[0].classList.add('active');
+        else if (tab === 'items') tabs[1].classList.add('active');
+        else if (tab === 'passive') tabs[2].classList.add('active');
+        uiControllers.openInventory();
+    },
+    
+    openInventory: () => {
+        showScreen('inventory-screen');
+        const list = document.getElementById('inventory-list');
+        const activeTab = document.querySelector('#inventory-screen .tab.active');
+        const tabText = activeTab.innerText;
+        
+        list.innerHTML = '';
+        
+        if (tabText.includes('パッシブ')) {
+            if (!userData.passives || userData.passives.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding: 20px;">パッシブを所持していません</div>';
+                return;
+            }
+
+            userData.passives.forEach(passiveId => {
+                const passive = passiveData[passiveId];
+                if (!passive) return;
+                const isEquipped = userData.equippedPassive === passiveId;
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${passive.name}</h3>
+                        <p>${passive.desc}</p>
+                    </div>
+                    <button class="action-btn ${isEquipped ? 'equipped' : ''}">
+                        ${isEquipped ? '装備中' : '装備する'}
+                    </button>
+                `;
+                list.appendChild(div);
+                
+                div.querySelector('button').onclick = () => {
+                    userData.equippedPassive = isEquipped ? null : passiveId;
+                    saveUserData();
+                    uiControllers.openInventory();
+                };
+            });
+        } else if (tabText.includes('スキル')) {
+            if (!userData.skills || userData.skills.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding: 20px;">スキルを所持していません</div>';
+                return;
+            }
+
+            userData.skills.forEach(skillId => {
+                const skill = skillData[skillId];
+                if (!skill) return;
+                const isEquipped = userData.equippedSkill === skillId;
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${skill.name}</h3>
+                        <p>${skill.desc}</p>
+                    </div>
+                    <button class="action-btn ${isEquipped ? 'equipped' : ''}">
+                        ${isEquipped ? '装備中' : '装備する'}
+                    </button>
+                `;
+                list.appendChild(div);
+                
+                div.querySelector('button').onclick = () => {
+                    userData.equippedSkill = isEquipped ? null : skillId;
+                    saveUserData();
+                    uiControllers.openInventory();
+                };
+            });
+        } else {
+            if (!userData.items || Object.keys(userData.items).length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding: 20px;">アイテムを所持していません</div>';
+                return;
+            }
+            
+            Object.entries(userData.items).forEach(([itemId, count]) => {
+                if (count <= 0) return;
+                const item = itemData[itemId];
+                if (!item) return;
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${item.name}</h3>
+                        <p>${item.desc}</p>
+                        <div style="color: #4caf50; margin-top: 5px;">所持数: ${count}</div>
+                    </div>
+                    <button class="action-btn use-btn">使う</button>
+                `;
+                list.appendChild(div);
+                
+                div.querySelector('button').onclick = () => {
+                    if (gameState.activeBoosts[itemId]) {
+                        alert("すでに効果が発動中です！");
+                        return;
+                    }
+                    userData.items[itemId]--;
+                    gameState.activeBoosts[itemId] = true;
+                    item.effect(true);
+                    
+                    setTimeout(() => {
+                        gameState.activeBoosts[itemId] = false;
+                        item.effect(false);
+                    }, item.duration * 1000);
+                    
+                    saveUserData();
+                    alert(`${item.name}を使用しました！(${item.duration/60}分間)`);
+                    uiControllers.openInventory();
+                };
+            });
+        }
+    }
 };
 
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag] || tag));
+}
+
 window.app = uiControllers;
-document.getElementById('settings-btn').addEventListener('click', () => { document.getElementById('name-input').value = userData.name || ''; document.getElementById('settings-modal').classList.add('active'); });
-document.getElementById('greek-info-btn').addEventListener('click', () => document.getElementById('greek-info-modal').classList.add('active'));
-document.getElementById('like-btn').addEventListener('click', handleLike);
-document.getElementById('super-like-btn').addEventListener('click', handleSuperLike);
-document.getElementById('next-stage-btn').addEventListener('click', handleNextStage);
-setInterval(updateBoostUI, 1000);
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+    document.getElementById('name-input').value = userData.name || '';
+    document.getElementById('settings-modal').classList.add('active');
+});
+
+document.getElementById('greek-info-btn').addEventListener('click', () => {
+    document.getElementById('greek-info-modal').classList.add('active');
+});
+
+document.getElementById('like-btn').addEventListener('click', () => {
+    handleLike();
+});
+
+document.getElementById('super-like-btn').addEventListener('click', () => {
+    handleSuperLike();
+});
+
+document.getElementById('next-stage-btn').addEventListener('click', () => {
+    handleNextStage();
+});
+
 initApp();
 </script>
 </body>
