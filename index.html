@@ -108,8 +108,9 @@
         /* イベント応援画面 */
         #event-screen { justify-content: flex-start; padding-top: 30px; }
         #event-screen h2 { font-size: 40px; margin-bottom: 20px; color: #ff9800; text-shadow: 0 0 15px #ff9800; }
+        #event-stage-info { font-size: 24px; color: #ffd700; margin-bottom: 20px; }
         .event-content { width: 90%; max-width: 800px; display: flex; gap: 30px; }
-        .event-main { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .event-main { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         #like-btn { 
             font-size: 60px; 
             background: none; 
@@ -119,6 +120,34 @@
             position: relative;
         }
         #like-btn:active { transform: scale(1.3); }
+        #like-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #super-like-btn {
+            font-size: 24px;
+            background: linear-gradient(145deg, #ff5722, #bf360c);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 15px #ff5722;
+            transition: all 0.2s;
+        }
+        #super-like-btn:hover { transform: scale(1.05); }
+        #next-stage-btn {
+            font-size: 28px;
+            background: linear-gradient(145deg, #4caf50, #2e7d32);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 20px #4caf50;
+            transition: all 0.2s;
+            display: none;
+        }
+        #next-stage-btn:hover { transform: scale(1.05); }
         #like-count { font-size: 32px; font-weight: bold; margin: 10px 0; color: #ff9800; }
         .event-ranking { flex: 1; background: rgba(20,20,20,0.7); padding: 15px; border-radius: 15px; border: 1px solid #333; max-height: 400px; overflow-y: auto; }
         .event-ranking h3 { color: #ff9800; margin-bottom: 10px; }
@@ -420,9 +449,12 @@
 
         <div id="event-screen" class="screen">
             <h2>🎉 イベント応援</h2>
+            <div id="event-stage-info">第1段階</div>
             <div class="event-content">
                 <div class="event-main">
                     <button id="like-btn">👍</button>
+                    <button id="super-like-btn" style="display:none;">いいね+50</button>
+                    <button id="next-stage-btn" style="display:none;">つぎへ ➡️</button>
                     <div id="like-count">0 いいね</div>
                 </div>
                 <div class="event-ranking">
@@ -906,7 +938,9 @@ let raidState = {
 // イベントデータ
 let eventData = {
     totalLikes: 0,
-    userLikes: 0
+    currentStage: 1,
+    stage1Target: 100000,
+    stage2Target: 500000
 };
 
 // ==========================================
@@ -1045,6 +1079,12 @@ function getRandomRaidObstacle() {
     return obstacles[Math.floor(Math.random() * obstacles.length)];
 }
 
+function getEventTarget() {
+    if (eventData.currentStage === 1) return eventData.stage1Target;
+    if (eventData.currentStage === 2) return eventData.stage2Target;
+    return Infinity;
+}
+
 function startTimeExtendGame() {
     if (!gameState.isPlaying) return;
     
@@ -1144,7 +1184,7 @@ async function initApp() {
         
         const eventSnapshot = await get(eventRef);
         if (eventSnapshot.exists()) {
-            eventData = eventSnapshot.val();
+            eventData = { ...eventData, ...eventSnapshot.val() };
         } else {
             await set(eventRef, eventData);
         }
@@ -1152,7 +1192,7 @@ async function initApp() {
         // イベントデータのリアルタイム監視
         onValue(eventRef, (snap) => {
             if (snap.exists()) {
-                eventData = snap.val();
+                eventData = { ...eventData, ...snap.val() };
                 updateEventUI();
             }
         });
@@ -1208,15 +1248,43 @@ function showScreen(screenId) {
 }
 
 function updateEventUI() {
-    document.getElementById('like-count').innerText = `${eventData.totalLikes || 0} いいね`;
+    const target = getEventTarget();
+    const totalLikes = eventData.totalLikes || 0;
+    const stage = eventData.currentStage || 1;
+    
+    document.getElementById('event-stage-info').innerText = `第${stage}段階`;
+    document.getElementById('like-count').innerText = `${totalLikes.toLocaleString()} いいね`;
+    
     const announcement = document.getElementById('event-announcement');
-    if ((eventData.totalLikes || 0) >= 100000) {
-        announcement.innerText = '✅ いいねが100000（十万）に達しました！アプデの準備をします。';
+    const nextStageBtn = document.getElementById('next-stage-btn');
+    const likeBtn = document.getElementById('like-btn');
+    
+    if (stage === 1 && totalLikes >= eventData.stage1Target) {
+        // 第1段階クリア
+        announcement.innerText = '✅ 第1段階達成！「つぎへ」ボタンを押して第2段階へ！';
         announcement.style.color = '#4caf50';
+        nextStageBtn.style.display = 'block';
+        likeBtn.disabled = true;
+    } else if (stage === 2 && totalLikes >= eventData.stage2Target) {
+        // 第2段階クリア
+        announcement.innerText = '✅ 全ての段階を達成しました！';
+        announcement.style.color = '#4caf50';
+        nextStageBtn.style.display = 'none';
+        likeBtn.disabled = true;
     } else {
-        const remaining = 100000 - (eventData.totalLikes || 0);
-        announcement.innerText = `あと ${remaining.toLocaleString()} いいねでアプデの準備をします。ちなみに全部で十万いいね必要です。`;
+        const remaining = target - totalLikes;
+        announcement.innerText = `あと ${remaining.toLocaleString()} いいねで第${stage}段階クリア！`;
         announcement.style.color = '#ff9800';
+        nextStageBtn.style.display = 'none';
+        likeBtn.disabled = false;
+    }
+    
+    // 特権ユーザー: らもビルダーマン
+    const superLikeBtn = document.getElementById('super-like-btn');
+    if (userData.name === 'らもビルダーマン' && stage >= 1 && !likeBtn.disabled) {
+        superLikeBtn.style.display = 'block';
+    } else {
+        superLikeBtn.style.display = 'none';
     }
 }
 
@@ -1273,6 +1341,9 @@ function renderEvent() {
 }
 
 async function handleLike() {
+    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) return;
+    if (eventData.currentStage === 2 && (eventData.totalLikes || 0) >= eventData.stage2Target) return;
+    
     eventData.totalLikes = (eventData.totalLikes || 0) + 1;
     
     const userLikesRef = ref(db, `eventLikes/${uid}`);
@@ -1296,6 +1367,47 @@ async function handleLike() {
     anim.style.top = '50%';
     document.body.appendChild(anim);
     setTimeout(() => anim.remove(), 1500);
+}
+
+async function handleSuperLike() {
+    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) return;
+    if (eventData.currentStage === 2 && (eventData.totalLikes || 0) >= eventData.stage2Target) return;
+    
+    eventData.totalLikes = (eventData.totalLikes || 0) + 51;
+    
+    const userLikesRef = ref(db, `eventLikes/${uid}`);
+    try {
+        const snap = await get(userLikesRef);
+        const currentLikes = snap.exists() ? (snap.val().likes || 0) : 0;
+        await set(userLikesRef, { name: userData.name, likes: currentLikes + 51 });
+    } catch(e) {
+        console.error("Super like save error", e);
+    }
+    
+    await saveEventData();
+    updateEventUI();
+    fetchEventRanking();
+    
+    // アニメーション
+    const anim = document.createElement('div');
+    anim.className = 'like-animation';
+    anim.innerText = '+51';
+    anim.style.left = '50%';
+    anim.style.top = '50%';
+    anim.style.color = '#ff5722';
+    anim.style.fontSize = '36px';
+    document.body.appendChild(anim);
+    setTimeout(() => anim.remove(), 1500);
+}
+
+async function handleNextStage() {
+    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) {
+        eventData.currentStage = 2;
+        eventData.totalLikes = 0;
+        await saveEventData();
+        updateEventUI();
+        fetchEventRanking();
+    }
 }
 
 async function fetchEventRanking() {
@@ -2423,6 +2535,14 @@ document.getElementById('greek-info-btn').addEventListener('click', () => {
 
 document.getElementById('like-btn').addEventListener('click', () => {
     handleLike();
+});
+
+document.getElementById('super-like-btn').addEventListener('click', () => {
+    handleSuperLike();
+});
+
+document.getElementById('next-stage-btn').addEventListener('click', () => {
+    handleNextStage();
 });
 
 initApp();
