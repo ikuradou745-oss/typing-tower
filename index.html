@@ -118,10 +118,19 @@
             cursor: not-allowed;
             pointer-events: none;
         }
-        .menu-btn.event-mode {
+        /* イベントボタン（ダミー：押せない薄暗いスタイル） */
+        .menu-btn.event-dummy {
             grid-column: span 2;
-            background: linear-gradient(145deg, #ff9800, #e65100);
-            border-color: #ffb74d;
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            border-color: #555;
+            color: #aaaaaa;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.3);
+            opacity: 0.7;
+            text-shadow: none;
+            box-shadow: none;
+            transform: none;
         }
         .raid-timer-info {
             grid-column: span 2;
@@ -130,60 +139,6 @@
             color: #ff9800;
             margin-top: -10px;
             margin-bottom: 10px;
-        }
-
-        /* イベント応援画面 */
-        #event-screen { justify-content: flex-start; padding-top: 30px; }
-        #event-screen h2 { font-size: 40px; margin-bottom: 20px; color: #ff9800; text-shadow: 0 0 15px #ff9800; }
-        #event-stage-info { font-size: 24px; color: #ffd700; margin-bottom: 20px; }
-        .event-content { width: 90%; max-width: 800px; display: flex; gap: 30px; }
-        .event-main { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        #like-btn { 
-            font-size: 60px; 
-            background: none; 
-            border: none; 
-            cursor: pointer; 
-            transition: transform 0.1s ease; 
-            position: relative;
-        }
-        #like-btn:active { transform: scale(1.3); }
-        #like-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        #super-like-btn {
-            font-size: 24px;
-            background: linear-gradient(145deg, #ff5722, #bf360c);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 0 15px #ff5722;
-            transition: all 0.2s;
-        }
-        #super-like-btn:hover { transform: scale(1.05); }
-        #next-stage-btn {
-            font-size: 28px;
-            background: linear-gradient(145deg, #4caf50, #2e7d32);
-            color: white;
-            border: none;
-            padding: 20px 40px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 0 20px #4caf50;
-            transition: all 0.2s;
-            display: none;
-        }
-        #next-stage-btn:hover { transform: scale(1.05); }
-        #like-count { font-size: 32px; font-weight: bold; margin: 10px 0; color: #ff9800; }
-        .event-ranking { flex: 1; background: rgba(20,20,20,0.7); padding: 15px; border-radius: 15px; border: 1px solid #333; max-height: 400px; overflow-y: auto; }
-        .event-ranking h3 { color: #ff9800; margin-bottom: 10px; }
-        .event-ranking-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; }
-        #event-announcement { margin-top: 20px; font-size: 18px; color: #4caf50; font-weight: bold; }
-        .like-animation { position: fixed; pointer-events: none; font-size: 24px; color: #ff9800; font-weight: bold; z-index: 600; animation: likeUp 1.5s ease-out forwards; }
-        @keyframes likeUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
         }
 
         /* プレイ選択画面 */
@@ -519,6 +474,7 @@
     </div>
 
     <div id="main-content">
+        <!-- メニュー画面 -->
         <div id="menu-screen" class="screen active">
             <div id="menu-content-wrapper">
                 <h1>Typing RPG</h1>
@@ -528,31 +484,15 @@
                     <button class="menu-btn" onclick="app.openShop()">ショップ</button>
                     <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
                     <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
-                    <button class="menu-btn event-mode" onclick="app.openEvent()">イベント応援</button>
+                    <!-- イベント応援ボタンをダミー（制作中）に置き換え -->
+                    <button class="menu-btn event-dummy">イベント制作中！</button>
                     <div class="raid-timer-info" id="raid-menu-timer"></div>
                     <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
                 </div>
             </div>
         </div>
 
-        <div id="event-screen" class="screen">
-            <h2>🎉 イベント応援</h2>
-            <div id="event-stage-info">第1段階</div>
-            <div class="event-content">
-                <div class="event-main">
-                    <button id="like-btn">👍</button>
-                    <button id="super-like-btn" style="display:none;">いいね+50</button>
-                    <button id="next-stage-btn" style="display:none;">つぎへ ➡️</button>
-                    <div id="like-count">0 いいね</div>
-                </div>
-                <div class="event-ranking">
-                    <h3>いいねランキング</h3>
-                    <div id="event-ranking-list"></div>
-                </div>
-            </div>
-            <div id="event-announcement"></div>
-            <button class="back-btn" onclick="app.showScreen('menu-screen')">ホームに戻る</button>
-        </div>
+        <!-- イベント画面は完全に削除 (代わりなし) -->
 
         <div id="play-select-screen" class="screen">
             <h2>難易度選択</h2>
@@ -759,7 +699,7 @@
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBXnNXQ5khcR0EvRide4C0PjshJZpSF4oM",
@@ -1094,7 +1034,7 @@ const gameState = {
     skillCooldownTimer: null,
     skillCooldownLeft: 0,
     isSkillReady: false,
-    activeBoosts: {}, // { itemId: { endTime: 1234567, name: "...", type: "mini-coin" } }
+    activeBoosts: {},
     obstacleTriggered: false,
     typingDisabled: false,
     targetScore: 0,
@@ -1109,14 +1049,6 @@ let raidState = {
     isOpen: false,
     currentStage: 1,
     stages: []
-};
-
-// イベントデータ
-let eventData = {
-    totalLikes: 0,
-    currentStage: 1,
-    stage1Target: 100000,
-    stage2Target: 500000
 };
 
 // ==========================================
@@ -1254,12 +1186,6 @@ function getRandomRaidObstacle() {
     return obstacles[Math.floor(Math.random() * obstacles.length)];
 }
 
-function getEventTarget() {
-    if (eventData.currentStage === 1) return eventData.stage1Target;
-    if (eventData.currentStage === 2) return eventData.stage2Target;
-    return Infinity;
-}
-
 function startTimeExtendGame() {
     if (!gameState.isPlaying) return;
     
@@ -1340,13 +1266,11 @@ async function initApp() {
         localStorage.setItem('typingGameUid', uid);
     }
     userRef = ref(db, `users/${uid}`);
-    const eventRef = ref(db, 'eventData');
 
     try {
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
             userData = { ...defaultUserData, ...snapshot.val() };
-            // 足りない設定を補完
             if (!userData.settings) userData.settings = { ...defaultUserData.settings };
             if (userData.settings.homeScale === undefined) userData.settings.homeScale = 50;
             if (userData.settings.showFurigana === undefined) userData.settings.showFurigana = true;
@@ -1362,20 +1286,7 @@ async function initApp() {
             await set(userRef, userData);
         }
         
-        const eventSnapshot = await get(eventRef);
-        if (eventSnapshot.exists()) {
-            eventData = { ...eventData, ...eventSnapshot.val() };
-        } else {
-            await set(eventRef, eventData);
-        }
-        
-        // イベントデータのリアルタイム監視
-        onValue(eventRef, (snap) => {
-            if (snap.exists()) {
-                eventData = { ...eventData, ...snap.val() };
-                updateEventUI();
-            }
-        });
+        // イベント関連の初期化や監視は完全に削除
     } catch (e) {
         console.error("Firebase load error", e);
     }
@@ -1412,20 +1323,10 @@ async function saveUserData() {
     }
 }
 
-async function saveEventData() {
-    try {
-        await set(ref(db, 'eventData'), eventData);
-    } catch (e) {
-        console.error("Event data save error", e);
-    }
-}
-
 function applySettings() {
-    // ふりがなチェックボックスの状態同期
     const toggle = document.getElementById('furigana-toggle');
     if (toggle) toggle.checked = userData.settings.showFurigana;
     
-    // スケールスライダーの状態同期
     const slider = document.getElementById('home-scale-slider');
     const scaleVal = document.getElementById('home-scale-val');
     if (slider && scaleVal) {
@@ -1433,7 +1334,6 @@ function applySettings() {
         scaleVal.innerText = `${userData.settings.homeScale}%`;
     }
 
-    // メニュー画面のスケール適用
     const wrapper = document.getElementById('menu-content-wrapper');
     if (wrapper) {
         const scale = userData.settings.homeScale / 50;
@@ -1441,9 +1341,6 @@ function applySettings() {
     }
 }
 
-// ==========================================
-// UI更新系
-// ==========================================
 function updateHeaderUI() {
     document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin || 0)}`;
     document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin || 0}`;
@@ -1461,228 +1358,7 @@ function showScreen(screenId) {
     document.getElementById(screenId).classList.add('active');
 }
 
-function updateEventUI() {
-    const target = getEventTarget();
-    const totalLikes = eventData.totalLikes || 0;
-    const stage = eventData.currentStage || 1;
-    
-    document.getElementById('event-stage-info').innerText = `第${stage}段階`;
-    document.getElementById('like-count').innerText = `${totalLikes.toLocaleString()} いいね`;
-    
-    const announcement = document.getElementById('event-announcement');
-    const nextStageBtn = document.getElementById('next-stage-btn');
-    const likeBtn = document.getElementById('like-btn');
-    
-    if (stage === 1 && totalLikes >= eventData.stage1Target) {
-        announcement.innerText = '✅ 第1段階達成！「つぎへ」ボタンを押して第2段階へ！';
-        announcement.style.color = '#4caf50';
-        nextStageBtn.style.display = 'block';
-        likeBtn.disabled = true;
-    } else if (stage === 2 && totalLikes >= eventData.stage2Target) {
-        announcement.innerText = '✅ 全ての段階を達成しました！';
-        announcement.style.color = '#4caf50';
-        nextStageBtn.style.display = 'none';
-        likeBtn.disabled = true;
-    } else {
-        const remaining = target - totalLikes;
-        announcement.innerText = `あと ${remaining.toLocaleString()} いいねで第${stage}段階クリア！`;
-        announcement.style.color = '#ff9800';
-        nextStageBtn.style.display = 'none';
-        likeBtn.disabled = false;
-    }
-    
-    const superLikeBtn = document.getElementById('super-like-btn');
-    if (userData.name === 'らもビルダーマン' && stage >= 1 && !likeBtn.disabled) {
-        superLikeBtn.style.display = 'block';
-    } else {
-        superLikeBtn.style.display = 'none';
-    }
-}
-
-function startRankingTimer() {
-    const updateTimer = () => {
-        const resetTime = getNextResetTime();
-        const now = new Date();
-        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-        const diff = resetTime - jstNow;
-        document.getElementById('ranking-timer').innerText = `次のリセットまで: ${formatTimeRemaining(diff)}`;
-    };
-    updateTimer();
-    setInterval(updateTimer, 1000);
-}
-
-function startRaidTimer() {
-    const updateRaidTimer = () => {
-        const now = new Date();
-        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-        const isOpen = isRaidOpen();
-        const canPlay = canPlayRaid();
-        
-        let timerText = '';
-        
-        if (isOpen && canPlay) {
-            const closeTime = getRaidCloseTime();
-            const diff = closeTime - jstNow;
-            timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
-        } else {
-            const nextOpen = getNextRaidOpenTime();
-            const diff = nextOpen - jstNow;
-            timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
-        }
-        
-        document.getElementById('raid-menu-timer').innerText = timerText;
-        const raidBtn = document.getElementById('raid-menu-btn');
-        
-        if (!isOpen || !canPlay) {
-            raidBtn.classList.add('disabled');
-        } else {
-            raidBtn.classList.remove('disabled');
-        }
-    };
-    updateRaidTimer();
-    setInterval(updateRaidTimer, 1000);
-}
-
-function startBoostStatusTimer() {
-    setInterval(() => {
-        const container = document.getElementById('boost-status-container');
-        if (!container) return;
-        
-        let html = '';
-        const now = Date.now();
-        
-        for (const [itemId, boost] of Object.entries(gameState.activeBoosts)) {
-            if (now < boost.endTime) {
-                const diff = Math.ceil((boost.endTime - now) / 1000);
-                const m = Math.floor(diff / 60);
-                const s = diff % 60;
-                let className = 'boost-indicator';
-                if (itemId.includes('mini_coin')) className += ' mini-coin';
-                else if (itemId.includes('gold')) className += ' gold';
-                
-                html += `<div class="${className}">${boost.name}: ${m}分${s}秒</div>`;
-            } else {
-                delete gameState.activeBoosts[itemId];
-                if (itemData[itemId] && itemData[itemId].effect) {
-                    itemData[itemId].effect(false);
-                }
-            }
-        }
-        container.innerHTML = html;
-    }, 1000);
-}
-
-// ==========================================
-// イベント機能
-// ==========================================
-function renderEvent() {
-    updateEventUI();
-    fetchEventRanking();
-}
-
-async function handleLike() {
-    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) return;
-    if (eventData.currentStage === 2 && (eventData.totalLikes || 0) >= eventData.stage2Target) return;
-    
-    eventData.totalLikes = (eventData.totalLikes || 0) + 1;
-    
-    const userLikesRef = ref(db, `eventLikes/${uid}`);
-    try {
-        const snap = await get(userLikesRef);
-        const currentLikes = snap.exists() ? (snap.val().likes || 0) : 0;
-        await set(userLikesRef, { name: userData.name, likes: currentLikes + 1 });
-    } catch(e) {
-        console.error("Like save error", e);
-    }
-    
-    await saveEventData();
-    updateEventUI();
-    fetchEventRanking();
-    
-    const anim = document.createElement('div');
-    anim.className = 'like-animation';
-    anim.innerText = '+1';
-    anim.style.left = '50%';
-    anim.style.top = '50%';
-    document.body.appendChild(anim);
-    setTimeout(() => anim.remove(), 1500);
-}
-
-async function handleSuperLike() {
-    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) return;
-    if (eventData.currentStage === 2 && (eventData.totalLikes || 0) >= eventData.stage2Target) return;
-    
-    eventData.totalLikes = (eventData.totalLikes || 0) + 51;
-    
-    const userLikesRef = ref(db, `eventLikes/${uid}`);
-    try {
-        const snap = await get(userLikesRef);
-        const currentLikes = snap.exists() ? (snap.val().likes || 0) : 0;
-        await set(userLikesRef, { name: userData.name, likes: currentLikes + 51 });
-    } catch(e) {
-        console.error("Super like save error", e);
-    }
-    
-    await saveEventData();
-    updateEventUI();
-    fetchEventRanking();
-    
-    const anim = document.createElement('div');
-    anim.className = 'like-animation';
-    anim.innerText = '+51';
-    anim.style.left = '50%';
-    anim.style.top = '50%';
-    anim.style.color = '#ff5722';
-    anim.style.fontSize = '36px';
-    document.body.appendChild(anim);
-    setTimeout(() => anim.remove(), 1500);
-}
-
-async function handleNextStage() {
-    if (eventData.currentStage === 1 && (eventData.totalLikes || 0) >= eventData.stage1Target) {
-        eventData.currentStage = 2;
-        eventData.totalLikes = 0;
-        await saveEventData();
-        updateEventUI();
-        fetchEventRanking();
-    }
-}
-
-async function fetchEventRanking() {
-    const list = document.getElementById('event-ranking-list');
-    list.innerHTML = '<div style="text-align:center;">読み込み中...</div>';
-    
-    try {
-        const snapshot = await get(ref(db, 'eventLikes'));
-        const results = [];
-        if (snapshot.exists()) {
-            snapshot.forEach(child => {
-                results.push({ uid: child.key, ...child.val() });
-            });
-        }
-        
-        results.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        
-        list.innerHTML = '';
-        if (results.length === 0) {
-            list.innerHTML = '<div style="text-align:center;">まだデータがありません</div>';
-            return;
-        }
-        
-        results.slice(0, 20).forEach((data, index) => {
-            const div = document.createElement('div');
-            div.className = 'event-ranking-item';
-            div.innerHTML = `
-                <span>${index + 1}位：${escapeHTML(data.name || '名無し')}</span>
-                <span>${data.likes || 0} 回</span>
-            `;
-            list.appendChild(div);
-        });
-    } catch(e) {
-        console.error("Event ranking error", e);
-        list.innerHTML = '<div style="color:red;">読み込み失敗</div>';
-    }
-}
+// イベント関連の関数はすべて削除 (openEventも削除)
 
 // ==========================================
 // レイドマップ
@@ -2078,12 +1754,10 @@ function handleCorrectKey() {
 }
 
 function handleWrongKey() {
-    // 既にコンボ保護が発動中で効果時間内の場合はミスを無視
     if (gameState.comboNoResetTime > 0) {
         return;
     }
 
-    // パッシブ: コンボノットリセットε
     if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_epsilon' && gameState.combo > 0) {
         gameState.passiveUsed = true;
         gameState.comboNoResetTime = 3.5;
@@ -2113,7 +1787,6 @@ function handleWrongKey() {
         return;
     }
 
-    // パッシブ: コンボノットリセットα
     if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_alpha' && gameState.combo > 0) {
         gameState.passiveUsed = true;
         const effect = document.createElement('div');
@@ -2235,7 +1908,6 @@ function endGame(isCleared = false) {
                 raidCleared = true;
                 earnedRaidPoint = 5 + Math.floor(Math.random() * 6);
                 
-                // パッシブ: レイドポイントフエール系
                 if (userData.equippedPassive === 'raid_point_increase_beta') {
                     earnedRaidPoint = earnedRaidPoint * 2;
                 } else if (userData.equippedPassive === 'raid_point_increase_alpha') {
@@ -2453,6 +2125,79 @@ async function fetchRanking(type) {
     }
 }
 
+function startRankingTimer() {
+    const updateTimer = () => {
+        const resetTime = getNextResetTime();
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const diff = resetTime - jstNow;
+        document.getElementById('ranking-timer').innerText = `次のリセットまで: ${formatTimeRemaining(diff)}`;
+    };
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+function startRaidTimer() {
+    const updateRaidTimer = () => {
+        const now = new Date();
+        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const isOpen = isRaidOpen();
+        const canPlay = canPlayRaid();
+        
+        let timerText = '';
+        
+        if (isOpen && canPlay) {
+            const closeTime = getRaidCloseTime();
+            const diff = closeTime - jstNow;
+            timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
+        } else {
+            const nextOpen = getNextRaidOpenTime();
+            const diff = nextOpen - jstNow;
+            timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
+        }
+        
+        document.getElementById('raid-menu-timer').innerText = timerText;
+        const raidBtn = document.getElementById('raid-menu-btn');
+        
+        if (!isOpen || !canPlay) {
+            raidBtn.classList.add('disabled');
+        } else {
+            raidBtn.classList.remove('disabled');
+        }
+    };
+    updateRaidTimer();
+    setInterval(updateRaidTimer, 1000);
+}
+
+function startBoostStatusTimer() {
+    setInterval(() => {
+        const container = document.getElementById('boost-status-container');
+        if (!container) return;
+        
+        let html = '';
+        const now = Date.now();
+        
+        for (const [itemId, boost] of Object.entries(gameState.activeBoosts)) {
+            if (now < boost.endTime) {
+                const diff = Math.ceil((boost.endTime - now) / 1000);
+                const m = Math.floor(diff / 60);
+                const s = diff % 60;
+                let className = 'boost-indicator';
+                if (itemId.includes('mini_coin')) className += ' mini-coin';
+                else if (itemId.includes('gold')) className += ' gold';
+                
+                html += `<div class="${className}">${boost.name}: ${m}分${s}秒</div>`;
+            } else {
+                delete gameState.activeBoosts[itemId];
+                if (itemData[itemId] && itemData[itemId].effect) {
+                    itemData[itemId].effect(false);
+                }
+            }
+        }
+        container.innerHTML = html;
+    }, 1000);
+}
+
 // ==========================================
 // UI イベント
 // ==========================================
@@ -2461,10 +2206,7 @@ const uiControllers = {
     startGame,
     endResult: () => showScreen('menu-screen'),
     
-    openEvent: () => {
-        renderEvent();
-        showScreen('event-screen');
-    },
+    // openEvent は削除（呼び出し元なし・ダミーボタンは無効なので問題なし）
     
     openStoryMap: () => {
         renderStoryMap();
@@ -2494,7 +2236,7 @@ const uiControllers = {
     },
     closeSettings: () => {
         document.getElementById('settings-modal').classList.remove('active');
-        saveUserData(); // 閉じるときに設定を保存
+        saveUserData();
     },
     saveName: () => {
         const input = document.getElementById('name-input').value.trim();
@@ -2843,18 +2585,6 @@ document.getElementById('settings-btn').addEventListener('click', () => {
 
 document.getElementById('greek-info-btn').addEventListener('click', () => {
     document.getElementById('greek-info-modal').classList.add('active');
-});
-
-document.getElementById('like-btn').addEventListener('click', () => {
-    handleLike();
-});
-
-document.getElementById('super-like-btn').addEventListener('click', () => {
-    handleSuperLike();
-});
-
-document.getElementById('next-stage-btn').addEventListener('click', () => {
-    handleNextStage();
 });
 
 initApp();
