@@ -459,9 +459,8 @@
         #undoukai-menu-screen { justify-content: center; }
         #undoukai-menu-screen h2 { font-size: 56px; margin-bottom: 30px; color: #ff5722; text-shadow: 0 0 20px #ff5722; }
         .undoukai-btn {
-            background: linear-gradient(145deg, #e65100, #bf360c);
             color: #fff;
-            border: 2px solid #ff9800;
+            border: 2px solid;
             padding: 30px;
             font-size: 24px;
             border-radius: 20px;
@@ -471,7 +470,12 @@
             box-shadow: 0 8px 15px rgba(0,0,0,0.5);
             text-align: center;
         }
+        .undoukai-btn.play { background: linear-gradient(145deg, #1e88e5, #1565c0); border-color: #42a5f5; }
+        .undoukai-btn.shop { background: linear-gradient(145deg, #e53935, #c62828); border-color: #ef5350; }
+        .undoukai-btn.story { background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; }
+        .undoukai-btn.mission { background: linear-gradient(145deg, #ffb300, #ff8f00); border-color: #ffca28; }
         .undoukai-btn:hover { transform: translateY(-5px); filter: brightness(1.2); box-shadow: 0 15px 20px rgba(0,0,0,0.7); }
+        
         .undoukai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 80%; max-width: 600px; margin-bottom: 30px; }
         
         #undoukai-story-screen .boss-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 80%; max-width: 700px; }
@@ -544,10 +548,10 @@
         <div id="undoukai-menu-screen" class="screen">
             <h2>🔥 運動会イベント 🔥</h2>
             <div class="undoukai-grid">
-                <button class="undoukai-btn" onclick="app.showScreen('undoukai-play-select-screen')">プレイ</button>
-                <button class="undoukai-btn" onclick="app.openUndoukaiShop()">ショップ</button>
-                <button class="undoukai-btn" onclick="app.showScreen('undoukai-story-screen')">ストーリーモード</button>
-                <button class="undoukai-btn" onclick="app.openUndoukaiMission()">限定ミッション</button>
+                <button class="undoukai-btn play" onclick="app.showScreen('undoukai-play-select-screen')">プレイ</button>
+                <button class="undoukai-btn shop" onclick="app.openUndoukaiShop()">ショップ</button>
+                <button class="undoukai-btn story" onclick="app.showScreen('undoukai-story-screen')">ストーリーモード</button>
+                <button class="undoukai-btn mission" onclick="app.openUndoukaiMission()">限定ミッション</button>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')">ホームに戻る</button>
         </div>
@@ -2473,9 +2477,9 @@ const uiControllers = {
         list.innerHTML = '';
         
         const missions = [
-            { id: 'm1', title: 'ストーリーモードで4つのボスをクリアする', req: () => userData.undoukaiBossesCleared.length >= 4, progress: () => `${userData.undoukaiBossesCleared.length} / 4`, rewardText: 'パッシブ「コンボノットリセットβ」', claim: () => { if (!userData.passives.includes('combo_no_reset_beta')) userData.passives.push('combo_no_reset_beta'); } },
-            { id: 'm2', title: '運動会ポイント1000に到達する', req: () => userData.totalUndoukaiPoint >= 1000, progress: () => `${Math.min(userData.totalUndoukaiPoint, 1000)} / 1000`, rewardText: 'パッシブ「レイドポイントフエール！しゃくねつ！」', claim: () => { if (!userData.passives.includes('raid_point_increase_syakunetsu')) userData.passives.push('raid_point_increase_syakunetsu'); } },
-            { id: 'm3', title: '運動会のプレイで300回プレイ', req: () => userData.undoukaiPlayCount >= 300, progress: () => `${Math.min(userData.undoukaiPlayCount, 300)} / 300`, rewardText: 'デカキラコインブーストx15、ミニコインブーストγx50', claim: () => { addItemToInventory('deka_kira_coin_boost', 15); addItemToInventory('mini_coin_boost_gamma', 50); } }
+            { id: 'm1', title: 'ストーリーモードで4つのボスをクリアする', req: () => userData.undoukaiBossesCleared.length >= 4, progress: () => `${userData.undoukaiBossesCleared.length} / 4`, rewardText: 'パッシブ「コンボノットリセットβ」<br><span style="font-size:13px;color:#ccc;">(3回分ミスしてもコンボが0になりません)</span>', claim: () => { if (!userData.passives.includes('combo_no_reset_beta')) userData.passives.push('combo_no_reset_beta'); } },
+            { id: 'm2', title: '運動会ポイント1000に到達する', req: () => userData.totalUndoukaiPoint >= 1000, progress: () => `${Math.min(userData.totalUndoukaiPoint, 1000)} / 1000`, rewardText: 'パッシブ「レイドポイントフエール！しゃくねつ！」<br><span style="font-size:13px;color:#ccc;">(もらえるレイドポイントが2.5倍になり、確定で12ptもらえる)</span>', claim: () => { if (!userData.passives.includes('raid_point_increase_syakunetsu')) userData.passives.push('raid_point_increase_syakunetsu'); } },
+            { id: 'm3', title: '運動会のプレイで300回プレイ', req: () => userData.undoukaiPlayCount >= 300, progress: () => `${Math.min(userData.undoukaiPlayCount, 300)} / 300`, rewardText: 'デカキラコインブーストx15、ミニコインブーストγx50<br><span style="font-size:13px;color:#ccc;">(デカキラ: 10分間コイン2.5倍 / ミニγ: 15分間コイン1.5倍)</span>', claim: () => { addItemToInventory('deka_kira_coin_boost', 15); addItemToInventory('mini_coin_boost_gamma', 50); } }
         ];
         
         missions.forEach(m => {
