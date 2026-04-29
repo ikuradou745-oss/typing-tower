@@ -39,6 +39,7 @@
         #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); display: flex; align-items: center; gap: 5px; }
         #gold-coin-display { font-size: 18px; font-weight: bold; color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 15px; }
         #raid-point-display { font-size: 18px; font-weight: bold; color: #ff5722; text-shadow: 0 0 10px rgba(255, 87, 34, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 15px; }
+        #undoukai-point-display { font-size: 18px; font-weight: bold; color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 15px; }
         #header-right { display: flex; align-items: center; gap: 10px; width: 350px; }
         #level-display { font-size: 18px; font-weight: bold; white-space: nowrap; color: #e0e0e0; }
         #xp-bar-container { width: 100%; height: 15px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #444; }
@@ -118,19 +119,10 @@
             cursor: not-allowed;
             pointer-events: none;
         }
-        /* イベントボタン（ダミー：押せない薄暗いスタイル） */
-        .menu-btn.event-dummy {
+        .menu-btn.event-mode {
             grid-column: span 2;
-            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
-            border-color: #555;
-            color: #aaaaaa;
-            cursor: not-allowed;
-            pointer-events: none;
-            filter: grayscale(0.3);
-            opacity: 0.7;
-            text-shadow: none;
-            box-shadow: none;
-            transform: none;
+            background: linear-gradient(145deg, #e65100, #bf360c);
+            border-color: #ff5722;
         }
         .raid-timer-info {
             grid-column: span 2;
@@ -209,7 +201,7 @@
 
         /* ゲーム画面 */
         #game-screen { justify-content: center; position: relative; }
-        #story-target-container, #raid-target-container { 
+        #story-target-container, #raid-target-container, #undoukai-target-container { 
             position: absolute; 
             top: 80px; 
             left: 50%; 
@@ -217,7 +209,7 @@
             width: 400px; 
             text-align: center; 
         }
-        #story-target-info, #raid-target-info { 
+        #story-target-info, #raid-target-info, #undoukai-target-info { 
             font-size: 20px; 
             font-weight: bold; 
             color: #9c27b0; 
@@ -225,7 +217,8 @@
             margin-bottom: 8px; 
         }
         #raid-target-info { color: #ef5350; text-shadow: 0 0 10px #ef5350; }
-        #story-target-bar-container, #raid-target-bar-container {
+        #undoukai-target-info { color: #ff9800; text-shadow: 0 0 10px #ff9800; }
+        #story-target-bar-container, #raid-target-bar-container, #undoukai-target-bar-container {
             width: 100%;
             height: 20px;
             background-color: #2a2a2a;
@@ -234,6 +227,7 @@
             border: 1px solid #9c27b0;
         }
         #raid-target-bar-container { border-color: #ef5350; }
+        #undoukai-target-bar-container { border-color: #ff9800; }
         #story-target-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, #ce93d8, #9c27b0, #7b1fa2);
@@ -248,7 +242,14 @@
             transition: width 0.3s ease;
             box-shadow: 0 0 10px #ff5722;
         }
-        #story-target-text, #raid-target-text {
+        #undoukai-target-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffcc80, #ff9800, #e65100);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px #ff9800;
+        }
+        #story-target-text, #raid-target-text, #undoukai-target-text {
             margin-top: 5px;
             font-size: 16px;
             color: #ccc;
@@ -285,6 +286,14 @@
             display: none;
             pointer-events: none;
         }
+
+        /* ギミックUI */
+        #evade-btn { position: absolute; font-size: 32px; padding: 20px 40px; background: #ff5252; color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; z-index: 550; display: none; transform: translate(-50%, -50%); box-shadow: 0 0 20px #ff5252; }
+        #tsunahiki-ui { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); width: 80px; height: 300px; display: none; flex-direction: column; align-items: center; gap: 15px; }
+        #tsunahiki-bar-bg { width: 40px; height: 200px; background: #222; border: 2px solid #fff; border-radius: 10px; position: relative; overflow: hidden; }
+        #tsunahiki-fill { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(0deg, #ff5252, #ff9800); height: 100%; transition: height 0.1s; }
+        #tsunahiki-charge-btn { padding: 15px; background: #2196f3; color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        #syakunetsu-charge-btn { position: absolute; font-size: 24px; padding: 15px 30px; background: #ff9800; color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; z-index: 550; display: none; transform: translate(-50%, -50%); box-shadow: 0 0 20px #ff9800; }
 
         /* ブースト表示エリア */
         #boost-status-container {
@@ -349,6 +358,13 @@
         @keyframes passiveFade {
             0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
+        
+        /* 炎エフェクト */
+        .fire-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; z-index: 502; opacity: 0; pointer-events: none; animation: fireFade 1s ease-out forwards; }
+        @keyframes fireFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
         }
 
         /* リザルト画面 */
@@ -439,6 +455,40 @@
         .reward-name { font-size: 20px; font-weight: bold; }
         .reward-desc { font-size: 14px; color: #aaa; }
 
+        /* 運動会専用UI */
+        #undoukai-menu-screen { justify-content: center; }
+        #undoukai-menu-screen h2 { font-size: 56px; margin-bottom: 30px; color: #ff5722; text-shadow: 0 0 20px #ff5722; }
+        .undoukai-btn {
+            background: linear-gradient(145deg, #e65100, #bf360c);
+            color: #fff;
+            border: 2px solid #ff9800;
+            padding: 30px;
+            font-size: 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .undoukai-btn:hover { transform: translateY(-5px); filter: brightness(1.2); box-shadow: 0 15px 20px rgba(0,0,0,0.7); }
+        .undoukai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 80%; max-width: 600px; margin-bottom: 30px; }
+        
+        #undoukai-story-screen .boss-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 80%; max-width: 700px; }
+        .undoukai-boss-btn {
+            background: linear-gradient(145deg, #3e2723, #1b0000);
+            border: 2px solid #ff5252;
+            padding: 25px;
+            font-size: 22px;
+            border-radius: 15px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .undoukai-boss-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px #ff5252; }
+        .undoukai-boss-btn.cleared { background: linear-gradient(145deg, #1b5e20, #003300); border-color: #4caf50; }
+
         /* スクロールバー */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #121212; border-radius: 10px; }
@@ -463,6 +513,7 @@
             <div id="coin-display">🪙0</div>
             <div id="gold-coin-display">🥇0</div>
             <div id="raid-point-display">🎯0</div>
+            <div id="undoukai-point-display">⚽️0</div>
         </div>
         <div id="header-right">
             <div id="level-display">Lv.1</div>
@@ -474,7 +525,6 @@
     </div>
 
     <div id="main-content">
-        <!-- メニュー画面 -->
         <div id="menu-screen" class="screen active">
             <div id="menu-content-wrapper">
                 <h1>Typing RPG</h1>
@@ -484,15 +534,63 @@
                     <button class="menu-btn" onclick="app.openShop()">ショップ</button>
                     <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
                     <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
-                    <!-- イベント応援ボタンをダミー（制作中）に置き換え -->
-                    <button class="menu-btn event-dummy">イベント制作中！</button>
+                    <button class="menu-btn event-mode" onclick="app.showScreen('undoukai-menu-screen')">🏃 運動会イベント！</button>
                     <div class="raid-timer-info" id="raid-menu-timer"></div>
                     <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
                 </div>
             </div>
         </div>
 
-        <!-- イベント画面は完全に削除 (代わりなし) -->
+        <div id="undoukai-menu-screen" class="screen">
+            <h2>🔥 運動会イベント 🔥</h2>
+            <div class="undoukai-grid">
+                <button class="undoukai-btn" onclick="app.showScreen('undoukai-play-select-screen')">プレイ</button>
+                <button class="undoukai-btn" onclick="app.openUndoukaiShop()">ショップ</button>
+                <button class="undoukai-btn" onclick="app.showScreen('undoukai-story-screen')">ストーリーモード</button>
+                <button class="undoukai-btn" onclick="app.openUndoukaiMission()">限定ミッション</button>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">ホームに戻る</button>
+        </div>
+
+        <div id="undoukai-play-select-screen" class="screen">
+            <h2 style="font-size: 40px; color: #ff9800; margin-bottom: 40px;">運動会 プレイ</h2>
+            <div class="select-grid" style="grid-template-columns: 1fr 1fr; max-width: 600px;">
+                <button class="mode-btn" style="background: #1565c0;" onclick="app.startGame('undoukai_normal')">ノーマル<br><span style="font-size: 16px;">60秒 / スコア÷1000の⚽️獲得</span></button>
+                <button class="mode-btn hard" onclick="app.startGame('undoukai_hard')">ハード<br><span style="font-size: 16px;">未入力非表示 / ⚽️1.5倍</span></button>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('undoukai-menu-screen')" style="margin-top: 50px;">戻る</button>
+        </div>
+
+        <div id="undoukai-shop-screen" class="screen">
+            <h2 style="font-size: 40px; color: #ff9800;">🏃 運動会ショップ</h2>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="app.switchUndoukaiShopTab('skills')">スキル</div>
+                    <div class="tab" onclick="app.switchUndoukaiShopTab('items')">アイテム</div>
+                    <div class="tab" onclick="app.switchUndoukaiShopTab('passive')">パッシブ</div>
+                </div>
+                <div id="undoukai-shop-list" class="list-container"></div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('undoukai-menu-screen')">戻る</button>
+        </div>
+
+        <div id="undoukai-story-screen" class="screen">
+            <h2 style="font-size: 40px; color: #ff5252; margin-bottom: 30px;">運動会 ストーリーモード</h2>
+            <div class="boss-grid">
+                <button class="undoukai-boss-btn" id="boss-tamaire" onclick="app.startUndoukaiBoss('tamaire')">玉入れボス<br><span style="font-size:14px; font-weight:normal;">目標: 100,000 / 60秒<br>報酬: 玉入れΩ</span></button>
+                <button class="undoukai-boss-btn" id="boss-tsunahiki" onclick="app.startUndoukaiBoss('tsunahiki')">綱引き<br><span style="font-size:14px; font-weight:normal;">目標: 150,000 / 60秒<br>報酬: しゃくねつチャージΩ</span></button>
+                <button class="undoukai-boss-btn" id="boss-ninin" onclick="app.startUndoukaiBoss('ninin')">二人三脚<br><span style="font-size:14px; font-weight:normal;">目標: 100,000 / 20秒<br>報酬: しゃくねつ時間伸ばしΩ</span></button>
+                <button class="undoukai-boss-btn" id="boss-relay" onclick="app.startUndoukaiBoss('relay')">リレー<br><span style="font-size:14px; font-weight:normal;">目標: 1,000,000 / 120秒<br>報酬: デカキラコインブーストx30</span></button>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('undoukai-menu-screen')" style="margin-top: 40px;">戻る</button>
+        </div>
+
+        <div id="undoukai-mission-screen" class="screen">
+            <h2 style="font-size: 40px; color: #ff9800;">🏅 限定ミッション</h2>
+            <div class="list-container" id="undoukai-mission-list" style="width: 80%; max-width: 700px; margin-top: 20px;"></div>
+            <button class="back-btn" onclick="app.showScreen('undoukai-menu-screen')">戻る</button>
+        </div>
+
 
         <div id="play-select-screen" class="screen">
             <h2>難易度選択</h2>
@@ -523,6 +621,14 @@
             <div id="game-overlay"></div>
             <div id="game-message"></div>
             <div id="time-reduce-animation">-10s</div>
+            
+            <button id="evade-btn">避ける！</button>
+            <div id="tsunahiki-ui">
+                <div id="tsunahiki-bar-bg"><div id="tsunahiki-fill"></div></div>
+                <button id="tsunahiki-charge-btn">チャージ</button>
+            </div>
+            <button id="syakunetsu-charge-btn">チャージ</button>
+
             <div id="time-extend-game">
                 <h3>⏱️ 時間伸ばし</h3>
                 <p>スペースキーで止めよう！</p>
@@ -553,6 +659,14 @@
                 </div>
                 <div id="raid-target-text"></div>
             </div>
+            <div id="undoukai-target-container" style="display: none;">
+                <div id="undoukai-target-info"></div>
+                <div id="undoukai-target-bar-container">
+                    <div id="undoukai-target-bar-fill"></div>
+                </div>
+                <div id="undoukai-target-text"></div>
+            </div>
+
             <div id="typing-area">
                 <div id="japanese-text"></div>
                 <div id="furigana-text"></div>
@@ -572,13 +686,17 @@
                 <h2 style="font-size: 36px; margin-bottom: 20px;" id="result-title">ゲーム終了！</h2>
                 <div class="result-item">最終スコア: <span id="result-score">0</span></div>
                 <div class="result-item">最大コンボ: <span id="result-combo">0</span></div>
-                <div class="result-item" style="color: #ffd700;">獲得コイン: 🪙<span id="result-coin">0</span></div>
+                <div class="result-item" style="color: #ffd700;" id="coin-result-container">獲得コイン: 🪙<span id="result-coin">0</span></div>
                 <div class="result-item" style="color: #ffaa00;" id="gold-coin-result" style="display: none;">🥇 ゴールドコイン: <span id="result-gold">0</span></div>
                 <div class="result-item" style="color: #ff5722;" id="raid-point-result" style="display: none;">🎯 レイドポイント: <span id="result-raid">0</span></div>
-                <div class="result-item" style="color: #4caf50;">獲得XP: <span id="result-xp">0</span></div>
+                <div class="result-item" style="color: #ff9800;" id="undoukai-point-result" style="display: none;">⚽️ 運動会ポイント: <span id="result-undoukai">0</span></div>
+                <div class="result-item" style="color: #4caf50;" id="xp-result-container">獲得XP: <span id="result-xp">0</span></div>
+                
                 <div id="level-up-msg" style="color: #ff9800; font-weight: bold; margin-top: 10px; display: none;">レベルアップ！</div>
                 <div id="story-clear-msg" style="color: #4caf50; font-weight: bold; margin-top: 10px; display: none;">✅ ステージクリア！</div>
                 <div id="raid-clear-msg" style="color: #ff5722; font-weight: bold; margin-top: 10px; display: none;">🔥 レイドクリア！</div>
+                <div id="undoukai-boss-clear-msg" style="color: #ff5252; font-weight: bold; margin-top: 10px; display: none;">🎉 ボス討伐成功！</div>
+                
                 <button class="back-btn" onclick="app.endResult()">メニューに戻る</button>
             </div>
         </div>
@@ -757,18 +875,12 @@ const typingData = [
 // ==========================================
 const skillData = {
     "auto_input_alpha": {
-        id: "auto_input_alpha",
-        name: "自動入力α",
-        desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。",
-        price: 10000,
-        priceType: 'coin',
-        cooldown: 25,
-        duration: 3.5,
-        interval: 60,
+        id: "auto_input_alpha", name: "自動入力α", desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。",
+        price: 10000, priceType: 'coin', cooldown: 25, duration: 3.5, interval: 60,
         execute: function() {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
-                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+                if (gameState.isPlaying && !gameState.timeExtendActive && !gameState.typingDisabled) handleCorrectKey();
             }, this.interval);
             setTimeout(() => {
                 gameState.isAutoTyping = false;
@@ -777,18 +889,12 @@ const skillData = {
         }
     },
     "auto_input_beta": {
-        id: "auto_input_beta",
-        name: "自動入力β",
-        desc: "5.5秒間、約0.05秒間隔で自動タイピング。クールダウン25秒。",
-        price: 500000,
-        priceType: 'coin',
-        cooldown: 25,
-        duration: 5.5,
-        interval: 50,
+        id: "auto_input_beta", name: "自動入力β", desc: "4.5秒間、約0.05秒間隔で自動タイピング。クールダウン25秒。",
+        price: 500000, priceType: 'coin', cooldown: 25, duration: 4.5, interval: 50,
         execute: function() {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
-                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+                if (gameState.isPlaying && !gameState.timeExtendActive && !gameState.typingDisabled) handleCorrectKey();
             }, this.interval);
             setTimeout(() => {
                 gameState.isAutoTyping = false;
@@ -797,18 +903,12 @@ const skillData = {
         }
     },
     "auto_input_gamma": {
-        id: "auto_input_gamma",
-        name: "自動入力γ",
-        desc: "6秒間、0.25秒間隔で自動タイピング。クールダウン40秒。",
-        price: 0,
-        priceType: 'coin',
-        cooldown: 40,
-        duration: 6,
-        interval: 250,
+        id: "auto_input_gamma", name: "自動入力γ", desc: "6秒間、0.05秒間隔で自動タイピング。クールダウン40秒。",
+        price: 0, priceType: 'coin', cooldown: 40, duration: 6, interval: 50,
         execute: function() {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
-                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+                if (gameState.isPlaying && !gameState.timeExtendActive && !gameState.typingDisabled) handleCorrectKey();
             }, this.interval);
             setTimeout(() => {
                 gameState.isAutoTyping = false;
@@ -817,18 +917,12 @@ const skillData = {
         }
     },
     "auto_input_epsilon": {
-        id: "auto_input_epsilon",
-        name: "自動入力ε",
-        desc: "2.5秒間自動入力 + コンボが5秒間1.5倍。クールダウン25秒。",
-        price: 50,
-        priceType: 'raid',
-        cooldown: 25,
-        duration: 2.5,
-        interval: 60,
+        id: "auto_input_epsilon", name: "自動入力ε", desc: "2.5秒間自動入力 + コンボが5秒間1.5倍。クールダウン25秒。",
+        price: 50, priceType: 'raid', cooldown: 25, duration: 2.5, interval: 60,
         execute: function() {
             gameState.isAutoTyping = true;
             gameState.autoTypeInterval = setInterval(() => {
-                if (gameState.isPlaying && !gameState.timeExtendActive) handleCorrectKey();
+                if (gameState.isPlaying && !gameState.timeExtendActive && !gameState.typingDisabled) handleCorrectKey();
             }, this.interval);
             setTimeout(() => {
                 gameState.isAutoTyping = false;
@@ -836,50 +930,68 @@ const skillData = {
             }, this.duration * 1000);
             
             gameState.comboMultiplier = 1.5;
-            setTimeout(() => {
-                gameState.comboMultiplier = 1.0;
-            }, 5000);
+            setTimeout(() => { gameState.comboMultiplier = 1.0; }, 5000);
         }
     },
     "time_extend_alpha": {
-        id: "time_extend_alpha",
-        name: "時間伸ばしα",
-        desc: "タイマーを止めてゲージを止めるミニゲーム。クールダウン120秒。",
-        price: 50,
-        priceType: 'raid',
-        cooldown: 120,
-        execute: function() {
-            startTimeExtendGame();
-        }
+        id: "time_extend_alpha", name: "時間伸ばしα", desc: "タイマーを止めてゲージを止めるミニゲーム。クールダウン120秒。",
+        price: 50, priceType: 'raid', cooldown: 120,
+        execute: function() { startTimeExtendGame(); }
     },
     "combo_up_alpha": {
-        id: "combo_up_alpha",
-        name: "コンボアップα",
-        desc: "5秒間、コンボが1.5倍。クールダウン35秒。",
-        price: 10000,
-        priceType: 'coin',
-        cooldown: 35,
-        duration: 5,
+        id: "combo_up_alpha", name: "コンボアップα", desc: "5秒間、コンボが1.5倍。クールダウン35秒。",
+        price: 10000, priceType: 'coin', cooldown: 35, duration: 5,
         execute: function() {
             gameState.comboMultiplier = 1.5;
-            setTimeout(() => {
-                gameState.comboMultiplier = 1.0;
-            }, this.duration * 1000);
+            setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000);
         }
     },
     "combo_up_beta": {
-        id: "combo_up_beta",
-        name: "コンボアップβ",
-        desc: "7.5秒間、コンボが1.85倍。クールダウン35秒。",
-        price: 500000,
-        priceType: 'coin',
-        cooldown: 35,
-        duration: 7.5,
+        id: "combo_up_beta", name: "コンボアップβ", desc: "7.5秒間、コンボが1.85倍。クールダウン35秒。",
+        price: 500000, priceType: 'coin', cooldown: 35, duration: 7.5,
         execute: function() {
             gameState.comboMultiplier = 1.85;
-            setTimeout(() => {
-                gameState.comboMultiplier = 1.0;
-            }, this.duration * 1000);
+            setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000);
+        }
+    },
+    // 運動会スキル
+    "syakunetsu_chikara": {
+        id: "syakunetsu_chikara", name: "シャクネツチカーラ", desc: "2単語分だけ0.01秒間隔でタイピング。終了後エフェクト。",
+        price: 150, priceType: 'undoukai', cooldown: 25, interval: 10,
+        execute: function() { startWordAutoType(2, this.interval); showFireEffect(); }
+    },
+    "syakunetsu_hammer": {
+        id: "syakunetsu_hammer", name: "しゃくねつハンマー", desc: "現在のコンボが1.35倍増える。",
+        price: 150, priceType: 'undoukai', cooldown: 70,
+        execute: function() { gameState.combo *= 1.35; updateGameUI(); showFireEffect(); }
+    },
+    "auto_input_syakunetsu": {
+        id: "auto_input_syakunetsu", name: "自動入力！しゃくねつ！", desc: "3単語分0.01秒間隔で自動入力＋5秒間1文字のコンボ1.5倍。",
+        price: 500, priceType: 'undoukai', cooldown: 35, interval: 10,
+        execute: function() { 
+            startWordAutoType(3, this.interval); 
+            gameState.comboMultiplier = 1.5; 
+            setTimeout(()=> { gameState.comboMultiplier = 1.0; }, 5000);
+            showFireEffect();
+        }
+    },
+    "tamaire_omega": {
+        id: "tamaire_omega", name: "玉入れΩ", desc: "1単語だけ0.005秒間隔でタイピングしてくれます。",
+        price: 0, priceType: 'none', cooldown: 7.5, interval: 5,
+        execute: function() { startWordAutoType(1, this.interval); }
+    },
+    "syakunetsu_time_omega": {
+        id: "syakunetsu_time_omega", name: "しゃくねつ時間伸ばしΩ", desc: "残り時間が少ないほど時間が伸び、コンボ1.5倍時間が長くなる。",
+        price: 0, priceType: 'none', cooldown: 70,
+        execute: function() {
+            let t = gameState.timeLeft;
+            let add = Math.min(12, Math.max(1, 12 - Math.floor(t / 5)));
+            let buff = Math.min(6, Math.max(1, 6 - Math.floor(t / 10)));
+            gameState.timeLeft += add;
+            document.getElementById('time-display').innerText = gameState.timeLeft;
+            gameState.comboMultiplier = 1.5;
+            setTimeout(()=> { gameState.comboMultiplier = 1.0; }, buff * 1000);
+            showFireEffect();
         }
     }
 };
@@ -889,11 +1001,8 @@ const skillData = {
 // ==========================================
 const passiveData = {
     "combo_set_alpha": {
-        id: "combo_set_alpha",
-        name: "コンボセットα",
-        desc: "ゲーム開始時のコンボが30になります。",
-        price: 30000,
-        priceType: 'coin',
+        id: "combo_set_alpha", name: "コンボセットα", desc: "ゲーム開始時のコンボが30になります。",
+        price: 30000, priceType: 'coin',
         onGameStart: function() {
             gameState.combo = 30;
             if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
@@ -901,34 +1010,41 @@ const passiveData = {
         }
     },
     "combo_no_reset_alpha": {
-        id: "combo_no_reset_alpha",
-        name: "コンボノットリセットα",
-        desc: "一度だけミスしてもコンボが0になりません。",
-        price: 30000,
-        priceType: 'coin',
-        usedInGame: false
+        id: "combo_no_reset_alpha", name: "コンボノットリセットα", desc: "一度だけミスしてもコンボが0になりません。",
+        price: 30000, priceType: 'coin', usedInGame: false
     },
     "combo_no_reset_epsilon": {
-        id: "combo_no_reset_epsilon",
-        name: "コンボノットリセットε",
-        desc: "一度だけミスしても、コンボが0にならない状態が3.5秒続きます。",
-        price: 100000,
-        priceType: 'coin',
-        usedInGame: false
+        id: "combo_no_reset_epsilon", name: "コンボノットリセットε", desc: "一度だけミスしても、コンボが0にならない状態が3.5秒続きます。",
+        price: 100000, priceType: 'coin', usedInGame: false
     },
     "raid_point_increase_alpha": {
-        id: "raid_point_increase_alpha",
-        name: "レイドポイントフエールα",
-        desc: "貰えるレイドポイントが1.5倍になります。",
-        price: 5,
-        priceType: 'raid'
+        id: "raid_point_increase_alpha", name: "レイドポイントフエールα", desc: "貰えるレイドポイントが1.5倍になります。",
+        price: 5, priceType: 'raid'
     },
     "raid_point_increase_beta": {
-        id: "raid_point_increase_beta",
-        name: "レイドポイントフエールβ",
-        desc: "貰えるレイドポイントが2倍になります。",
-        price: 25,
-        priceType: 'raid'
+        id: "raid_point_increase_beta", name: "レイドポイントフエールβ", desc: "貰えるレイドポイントが2倍になります。",
+        price: 25, priceType: 'raid'
+    },
+    // 運動会パッシブ
+    "syakunetsu_chikara_gamma": {
+        id: "syakunetsu_chikara_gamma", name: "シャクネツノチカーラγ", desc: "打ち間違えても15%の確率で、コンボが0にならない。",
+        price: 300, priceType: 'undoukai'
+    },
+    "syakunetsu_combo_set_gamma": {
+        id: "syakunetsu_combo_set_gamma", name: "シャクネツコンボセットγ", desc: "最初のコンボが25になり、3秒間コンボ量が1.5倍になる。",
+        price: 300, priceType: 'undoukai'
+    },
+    "syakunetsu_charge_omega": {
+        id: "syakunetsu_charge_omega", name: "しゃくねつチャージΩ", desc: "試合中チャージボタンが出現し、押すとコンボ+40。",
+        price: 0, priceType: 'none'
+    },
+    "combo_no_reset_beta": {
+        id: "combo_no_reset_beta", name: "コンボノットリセットβ", desc: "3回分ミスしてもコンボが0になりません。",
+        price: 0, priceType: 'none'
+    },
+    "raid_point_increase_syakunetsu": {
+        id: "raid_point_increase_syakunetsu", name: "レイドポイントフエール！しゃくねつ！", desc: "もらえるレイドポイントが2.5倍になり、確定で12ptもらえる。",
+        price: 0, priceType: 'none'
     }
 };
 
@@ -937,49 +1053,48 @@ const passiveData = {
 // ==========================================
 const itemData = {
     "coin_boost_alpha": {
-        id: "coin_boost_alpha",
-        name: "コインブーストα",
-        desc: "10分間、獲得コインが2倍になる。",
-        price: 0,
-        priceType: 'coin',
-        duration: 600,
+        id: "coin_boost_alpha", name: "コインブーストα", desc: "10分間、獲得コインが2倍になる。",
+        price: 0, priceType: 'coin', duration: 600,
         effect: (active) => { gameState.coinMultiplier = active ? 2 : 1; }
     },
     "mini_coin_boost_alpha": {
-        id: "mini_coin_boost_alpha",
-        name: "ミニコインブーストα",
-        desc: "5分間、獲得コインが1.5倍になる。",
-        price: 5000,
-        priceType: 'coin',
-        duration: 300,
+        id: "mini_coin_boost_alpha", name: "ミニコインブーストα", desc: "5分間、獲得コインが1.5倍になる。",
+        price: 5000, priceType: 'coin', duration: 300,
         effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; }
     },
     "mini_coin_boost_gamma": {
-        id: "mini_coin_boost_gamma",
-        name: "ミニコインブーストγ",
-        desc: "15分間、獲得コインが1.5倍になる。",
-        price: 15000,
-        priceType: 'coin',
-        duration: 900,
+        id: "mini_coin_boost_gamma", name: "ミニコインブーストγ", desc: "15分間、獲得コインが1.5倍になる。",
+        price: 15000, priceType: 'coin', duration: 900,
         effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; }
     },
     "xp_boost_alpha": {
-        id: "xp_boost_alpha",
-        name: "XPブーストα",
-        desc: "10分間、獲得XPが2倍になる。",
-        price: 0,
-        priceType: 'coin',
-        duration: 600,
+        id: "xp_boost_alpha", name: "XPブーストα", desc: "10分間、獲得XPが2倍になる。",
+        price: 0, priceType: 'coin', duration: 600,
         effect: (active) => { gameState.xpMultiplier = active ? 2 : 1; }
     },
     "gold_luck_boost_alpha": {
-        id: "gold_luck_boost_alpha",
-        name: "ゴールドコインラックブーストα",
-        desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。",
-        price: 0,
-        priceType: 'coin',
-        duration: 600,
+        id: "gold_luck_boost_alpha", name: "ゴールドコインラックブーストα", desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。",
+        price: 0, priceType: 'coin', duration: 600,
         effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; }
+    },
+    // 運動会アイテム
+    "mini_coin_boost_omega": {
+        id: "mini_coin_boost_omega", name: "ミニコインブーストΩ", desc: "30分間、獲得コインが1.5倍になります。",
+        price: 20, priceType: 'undoukai', duration: 1800,
+        effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; }
+    },
+    "syakunetsu_gold_boost_alpha": {
+        id: "syakunetsu_gold_boost_alpha", name: "シャクネツコゴールドコインブーストα", desc: "5分間、ゴールドコイン確率10倍、獲得量1→2個。",
+        price: 20, priceType: 'undoukai', duration: 300,
+        effect: (active) => { 
+            gameState.goldDropRate = active ? 0.1 : 0.01; 
+            gameState.goldEarnAmount = active ? 2 : 1; 
+        }
+    },
+    "deka_kira_coin_boost": {
+        id: "deka_kira_coin_boost", name: "デカキラコインブースト", desc: "10分間、もらえるコインが2.5倍になります。",
+        price: 0, priceType: 'none', duration: 600,
+        effect: (active) => { gameState.coinMultiplier = active ? 2.5 : 1; }
     }
 };
 
@@ -987,26 +1102,13 @@ const itemData = {
 // 状態管理
 // ==========================================
 const defaultUserData = {
-    name: "冒険者",
-    level: 1,
-    xp: 0,
-    coin: 0,
-    goldCoin: 0,
-    raidPoint: 0,
-    skills: [],
-    equippedSkill: null,
-    passives: [],
-    equippedPassive: null,
-    items: {},
-    playCount: 0,
-    bestScore: 0,
-    bestCombo: 0,
-    storyStage: 1,
-    raidClearedTime: 0,
-    settings: {
-        homeScale: 50,
-        showFurigana: true
-    }
+    name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
+    skills: [], equippedSkill: null, passives: [], equippedPassive: null, items: {},
+    playCount: 0, bestScore: 0, bestCombo: 0, storyStage: 1, raidClearedTime: 0,
+    settings: { homeScale: 50, showFurigana: true },
+    // 運動会用
+    undoukaiPoint: 0, totalUndoukaiPoint: 0, undoukaiPlayCount: 0,
+    undoukaiBossesCleared: [], undoukaiMissionsClaimed: []
 };
 
 let userRef = null;
@@ -1014,42 +1116,25 @@ let userData = { ...defaultUserData };
 let uid = localStorage.getItem('typingGameUid');
 
 const gameState = {
-    isPlaying: false,
-    mode: 'normal',
-    storyStage: null,
-    raidStage: null,
-    timeLeft: 60,
-    initialTime: 60,
-    score: 0,
-    combo: 0,
-    maxCombo: 0,
-    currentWordObj: null,
-    timer: null,
-    isAutoTyping: false,
-    autoTypeInterval: null,
-    comboMultiplier: 1.0,
-    coinMultiplier: 1,
-    xpMultiplier: 1,
-    goldDropRate: 0.01,
-    skillCooldownTimer: null,
-    skillCooldownLeft: 0,
-    isSkillReady: false,
-    activeBoosts: {},
-    obstacleTriggered: false,
-    typingDisabled: false,
-    targetScore: 0,
-    timeExtendActive: false,
-    raidObstacle: null,
-    passiveUsed: false,
-    comboNoResetTime: 0
+    isPlaying: false, mode: 'normal', storyStage: null, raidStage: null,
+    timeLeft: 60, initialTime: 60, score: 0, combo: 0, maxCombo: 0,
+    currentWordObj: null, timer: null, isAutoTyping: false, autoTypeInterval: null,
+    comboMultiplier: 1.0, coinMultiplier: 1, xpMultiplier: 1, 
+    goldDropRate: 0.01, goldEarnAmount: 1,
+    skillCooldownTimer: null, skillCooldownLeft: 0, isSkillReady: false,
+    activeBoosts: {}, obstacleTriggered: false, typingDisabled: false,
+    targetScore: 0, timeExtendActive: false, raidObstacle: null,
+    passiveUsed: false, comboNoResetTime: 0,
+    // 運動会用拡張
+    autoTypeWordsLeft: 0,
+    undoukaiBoss: null,
+    comboProtectCharges: 0,
+    syakunetsuChargeCount: 0,
+    syakunetsuChargeTimeout: null,
+    tsunahikiGauge: 100, tsunahikiTimer: null
 };
 
-// レイド状態
-let raidState = {
-    isOpen: false,
-    currentStage: 1,
-    stages: []
-};
+let raidState = { isOpen: false, currentStage: 1, stages: [] };
 
 // ==========================================
 // ユーティリティ
@@ -1060,28 +1145,18 @@ function generateUUID() {
         return v.toString(16);
     });
 }
-
-function getNextLevelXp(level) {
-    return 100 * level;
-}
-
+function getNextLevelXp(level) { return 100 * level; }
 function getRankingDateKey() {
-    const now = new Date();
-    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     jstNow.setHours(jstNow.getHours() - 7);
     return `${jstNow.getFullYear()}-${(jstNow.getMonth()+1).toString().padStart(2, '0')}-${jstNow.getDate().toString().padStart(2, '0')}`;
 }
-
 function getNextResetTime() {
-    const now = new Date();
-    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     jstNow.setHours(7, 0, 0, 0);
-    if (jstNow <= new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000)) {
-        jstNow.setDate(jstNow.getDate() + 1);
-    }
+    if (jstNow <= new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000)) jstNow.setDate(jstNow.getDate() + 1);
     return jstNow;
 }
-
 function formatTimeRemaining(ms) {
     if (ms <= 0) return "まもなく";
     const hours = Math.floor(ms / (1000 * 60 * 60));
@@ -1089,172 +1164,243 @@ function formatTimeRemaining(ms) {
     const seconds = Math.floor((ms % (1000 * 60)) / 1000);
     return `${hours}時間${minutes}分${seconds}秒`;
 }
-
 function getNextRaidOpenTime() {
-    const now = new Date();
-    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-    const currentHour = jstNow.getHours();
-    const currentMinute = jstNow.getMinutes();
-    
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     let nextOpen = new Date(jstNow);
     nextOpen.setMinutes(30, 0, 0);
-    nextOpen.setSeconds(0, 0);
-    
-    if (currentHour < 7 || (currentHour === 7 && currentMinute < 30)) {
-        nextOpen.setHours(7);
-    } else {
+    if (jstNow.getHours() < 7 || (jstNow.getHours() === 7 && jstNow.getMinutes() < 30)) nextOpen.setHours(7);
+    else {
         let found = false;
         for (let h = 7; h <= 23; h++) {
-            const openTime = new Date(jstNow);
-            openTime.setHours(h, 30, 0, 0);
-            if (openTime > jstNow) {
-                nextOpen = openTime;
-                found = true;
-                break;
-            }
+            let o = new Date(jstNow); o.setHours(h, 30, 0, 0);
+            if (o > jstNow) { nextOpen = o; found = true; break; }
         }
-        if (!found) {
-            nextOpen.setDate(nextOpen.getDate() + 1);
-            nextOpen.setHours(7, 30, 0, 0);
-        }
+        if (!found) { nextOpen.setDate(nextOpen.getDate() + 1); nextOpen.setHours(7, 30, 0, 0); }
     }
-    
     return nextOpen;
 }
-
 function isRaidOpen() {
-    const now = new Date();
-    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-    const hour = jstNow.getHours();
-    const minute = jstNow.getMinutes();
-    
-    if (hour < 7) return false;
-    if (minute >= 30 && minute < 45) return true;
-    return false;
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    return jstNow.getHours() >= 7 && jstNow.getMinutes() >= 30 && jstNow.getMinutes() < 45;
 }
-
 function getRaidCloseTime() {
-    const now = new Date();
-    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-    
-    let closeTime = new Date(jstNow);
-    closeTime.setMinutes(45, 0, 0);
-    closeTime.setSeconds(0, 0);
-    
-    if (jstNow.getMinutes() >= 45) {
-        closeTime.setHours(jstNow.getHours() + 1);
-    }
-    
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    let closeTime = new Date(jstNow); closeTime.setMinutes(45, 0, 0);
+    if (jstNow.getMinutes() >= 45) closeTime.setHours(jstNow.getHours() + 1);
     return closeTime;
 }
-
 function canPlayRaid() {
     if (!isRaidOpen()) return false;
-    
-    const now = new Date();
-    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-    const clearedTime = new Date(userData.raidClearedTime || 0);
-    const clearedJst = new Date(clearedTime.getTime() + (clearedTime.getTimezoneOffset() + 540) * 60000);
-    
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     if (userData.raidClearedTime) {
-        const clearedHour = clearedJst.getHours();
-        const currentHour = jstNow.getHours();
-        if (clearedHour === currentHour) return false;
+        const c = new Date(userData.raidClearedTime + (new Date(userData.raidClearedTime).getTimezoneOffset() + 540) * 60000);
+        if (c.getHours() === jstNow.getHours()) return false;
     }
-    
     return true;
 }
-
-function getStoryTargetScore(stage) {
-    return 10000 + (stage - 1) * 1000;
-}
-
-function getRaidTargetScore(stage) {
-    if (stage === 6) return 100000;
-    return 30000 + Math.floor(Math.random() * 10001);
-}
-
+function getStoryTargetScore(stage) { return 10000 + (stage - 1) * 1000; }
+function getRaidTargetScore(stage) { return stage === 6 ? 100000 : 30000 + Math.floor(Math.random() * 10001); }
 function getStageObstacle(stage) {
     if (stage >= 76) return 'freeze';
     if (stage >= 51) return 'time_reduce';
     if (stage >= 26) return 'darkness';
     return null;
 }
+function getRandomRaidObstacle() { return ['darkness', 'time_reduce', 'freeze'][Math.floor(Math.random() * 3)]; }
 
-function getRandomRaidObstacle() {
-    const obstacles = ['darkness', 'time_reduce', 'freeze'];
-    return obstacles[Math.floor(Math.random() * obstacles.length)];
+// ==========================================
+// 運動会用関数
+// ==========================================
+function startWordAutoType(words, interval) {
+    gameState.autoTypeWordsLeft = words;
+    gameState.isAutoTyping = true;
+    gameState.autoTypeInterval = setInterval(() => {
+        if (gameState.isPlaying && !gameState.timeExtendActive && !gameState.typingDisabled) {
+            handleCorrectKey();
+        }
+    }, interval);
 }
 
-function startTimeExtendGame() {
+function showFireEffect() {
+    const el = document.createElement('div');
+    el.className = 'fire-effect';
+    el.innerText = '🔥';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+}
+
+function showPassiveEffect(text) {
+    const el = document.createElement('div');
+    el.className = 'passive-effect';
+    el.innerText = text;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+}
+
+function spawnEvadeButton() {
     if (!gameState.isPlaying) return;
+    const btn = document.getElementById('evade-btn');
+    btn.style.display = 'block';
+    const pos = ['center', 'left', 'right', 'up', 'down'][Math.floor(Math.random() * 5)];
+    if (pos === 'center') { btn.style.top = '50%'; btn.style.left = '50%'; }
+    else if (pos === 'left') { btn.style.top = '50%'; btn.style.left = '30%'; }
+    else if (pos === 'right') { btn.style.top = '50%'; btn.style.left = '70%'; }
+    else if (pos === 'up') { btn.style.top = '30%'; btn.style.left = '50%'; }
+    else if (pos === 'down') { btn.style.top = '70%'; btn.style.left = '50%'; }
     
-    gameState.timeExtendActive = true;
+    let evaded = false;
+    btn.onclick = () => { evaded = true; btn.style.display = 'none'; };
+    
+    setTimeout(() => {
+        if (!evaded && gameState.isPlaying) {
+            btn.style.display = 'none';
+            gameState.typingDisabled = true;
+            gameState.combo = Math.floor(gameState.combo / 2);
+            updateGameUI();
+            
+            const overlay = document.getElementById('game-overlay');
+            overlay.style.backgroundColor = 'rgba(255,0,0,0.5)';
+            const msg = document.getElementById('game-message');
+            msg.innerText = '💥 避け失敗！スタン！';
+            msg.style.opacity = '1';
+            
+            setTimeout(() => {
+                overlay.style.backgroundColor = 'transparent';
+                msg.style.opacity = '0';
+                gameState.typingDisabled = false;
+            }, 5000);
+        }
+    }, 1000);
+}
+
+function updateTsunahikiGauge() {
+    const fill = document.getElementById('tsunahiki-fill');
+    fill.style.height = `${gameState.tsunahikiGauge}%`;
+}
+
+function triggerTsunahikiStun() {
     gameState.typingDisabled = true;
-    clearInterval(gameState.timer);
+    gameState.score = 100;
+    gameState.tsunahikiGauge = 100;
+    updateGameUI();
+    updateTsunahikiGauge();
     
-    const gameEl = document.getElementById('time-extend-game');
-    const bar = document.getElementById('time-extend-bar');
-    gameEl.style.display = 'block';
+    const overlay = document.getElementById('game-overlay');
+    overlay.style.backgroundColor = 'rgba(255,0,0,0.5)';
+    const msg = document.getElementById('game-message');
+    msg.innerText = '💥 綱を引かれた！スタン！';
+    msg.style.opacity = '1';
     
-    let position = 0;
-    let direction = 1;
-    const speed = 5;
-    let animationId;
-    
-    const animate = () => {
-        position += direction * speed;
-        if (position >= 100 || position <= 0) {
-            direction *= -1;
-        }
-        bar.style.left = position + '%';
-        animationId = requestAnimationFrame(animate);
-    };
-    animate();
-    
-    const stopGame = () => {
-        cancelAnimationFrame(animationId);
-        const finalPos = parseFloat(bar.style.left) || 0;
-        let addedTime = 0;
+    setTimeout(() => {
+        overlay.style.backgroundColor = 'transparent';
+        msg.style.opacity = '0';
+        if (gameState.isPlaying) gameState.typingDisabled = false;
+    }, 10000);
+}
+
+function scheduleSyakunetsuCharge() {
+    if (gameState.syakunetsuChargeCount >= 2 || !gameState.isPlaying) return;
+    const delay = 10000 + Math.random() * 10000;
+    gameState.syakunetsuChargeTimeout = setTimeout(() => {
+        if (!gameState.isPlaying) return;
+        gameState.syakunetsuChargeCount++;
         
-        if (finalPos >= 48 && finalPos <= 52) {
-            addedTime = 12;
-            document.getElementById('time-extend-result').innerHTML = '🎯 パーフェクト！ +12秒！';
-        } else if (finalPos >= 40 && finalPos <= 60) {
-            addedTime = 8;
-            document.getElementById('time-extend-result').innerHTML = '🎉 グッド！ +8秒！';
-        } else {
-            addedTime = 5;
-            document.getElementById('time-extend-result').innerHTML = '👍 ナイス！ +5秒！';
-        }
+        const btn = document.getElementById('syakunetsu-charge-btn');
+        btn.style.display = 'block';
+        btn.style.top = Math.random() > 0.5 ? '20%' : '80%';
+        btn.style.left = Math.random() > 0.5 ? '20%' : '80%';
         
-        gameState.timeLeft += addedTime;
+        const hideTimeout = setTimeout(() => {
+            btn.style.display = 'none';
+            btn.onclick = null;
+        }, 2500);
+
+        btn.onclick = () => {
+            clearTimeout(hideTimeout);
+            btn.style.display = 'none';
+            gameState.combo += 40;
+            if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+            updateGameUI();
+            showPassiveEffect('🔥 チャージ完了！コンボ+40');
+        };
+        scheduleSyakunetsuCharge();
+    }, delay);
+}
+
+function startUndoukaiBoss(bossId) {
+    gameState.mode = 'undoukai_boss';
+    gameState.undoukaiBoss = bossId;
+    gameState.isPlaying = true;
+    gameState.passiveUsed = false;
+    gameState.comboNoResetTime = 0;
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.comboMultiplier = 1.0;
+    gameState.typingDisabled = false;
+    
+    if (bossId === 'tamaire') { gameState.timeLeft = 60; gameState.targetScore = 100000; }
+    else if (bossId === 'tsunahiki') { gameState.timeLeft = 60; gameState.targetScore = 150000; }
+    else if (bossId === 'ninin') { gameState.timeLeft = 20; gameState.targetScore = 100000; }
+    else if (bossId === 'relay') { gameState.timeLeft = 120; gameState.targetScore = 1000000; }
+    
+    gameState.initialTime = gameState.timeLeft;
+    
+    applyPassiveOnStart();
+    resetSkillUI();
+    
+    showScreen('game-screen');
+    document.getElementById('story-target-container').style.display = 'none';
+    document.getElementById('raid-target-container').style.display = 'none';
+    document.getElementById('undoukai-target-container').style.display = 'block';
+    
+    if (bossId === 'tsunahiki') {
+        gameState.tsunahikiGauge = 100;
+        document.getElementById('tsunahiki-ui').style.display = 'flex';
+        updateTsunahikiGauge();
+        gameState.tsunahikiTimer = setInterval(() => {
+            if (!gameState.isPlaying || gameState.typingDisabled) return;
+            gameState.tsunahikiGauge -= 1;
+            updateTsunahikiGauge();
+            if (gameState.tsunahikiGauge <= 0) triggerTsunahikiStun();
+        }, 100);
+    } else {
+        document.getElementById('tsunahiki-ui').style.display = 'none';
+    }
+    
+    updateUndoukaiTargetUI();
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(() => {
+        gameState.timeLeft--;
         document.getElementById('time-display').innerText = gameState.timeLeft;
         
-        setTimeout(() => {
-            gameEl.style.display = 'none';
-            gameState.timeExtendActive = false;
-            gameState.typingDisabled = false;
-            
-            gameState.timer = setInterval(() => {
-                gameState.timeLeft--;
-                document.getElementById('time-display').innerText = gameState.timeLeft;
-                if (gameState.timeLeft <= 0) {
-                    endGame();
-                }
-            }, 1000);
-            
-            document.removeEventListener('keydown', spaceHandler);
-        }, 1500);
-    };
-    
-    const spaceHandler = (e) => {
-        if (e.code === 'Space') {
-            e.preventDefault();
-            stopGame();
+        if (bossId === 'tamaire') {
+            let elapsed = gameState.initialTime - gameState.timeLeft;
+            if (elapsed > 0 && elapsed % 15 === 0) spawnEvadeButton();
         }
-    };
-    document.addEventListener('keydown', spaceHandler);
+        
+        if (gameState.timeLeft <= 0) endGame();
+    }, 1000);
+}
+
+function updateUndoukaiTargetUI() {
+    if (gameState.mode !== 'undoukai_boss') return;
+    const target = gameState.targetScore;
+    const current = gameState.score;
+    const percent = Math.min(100, (current / target) * 100);
+    const remaining = Math.max(0, target - current);
+    
+    let title = '';
+    if (gameState.undoukaiBoss === 'tamaire') title = '玉入れボス';
+    else if (gameState.undoukaiBoss === 'tsunahiki') title = '綱引き';
+    else if (gameState.undoukaiBoss === 'ninin') title = '二人三脚';
+    else if (gameState.undoukaiBoss === 'relay') title = 'リレー';
+
+    document.getElementById('undoukai-target-info').innerHTML = `🏃 運動会 ${title}`;
+    document.getElementById('undoukai-target-bar-fill').style.width = `${percent}%`;
+    document.getElementById('undoukai-target-text').innerHTML = `${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})`;
 }
 
 // ==========================================
@@ -1274,7 +1420,6 @@ async function initApp() {
             if (!userData.settings) userData.settings = { ...defaultUserData.settings };
             if (userData.settings.homeScale === undefined) userData.settings.homeScale = 50;
             if (userData.settings.showFurigana === undefined) userData.settings.showFurigana = true;
-
             if (!userData.items) userData.items = {};
             if (!userData.goldCoin) userData.goldCoin = 0;
             if (!userData.raidPoint) userData.raidPoint = 0;
@@ -1282,11 +1427,16 @@ async function initApp() {
             if (!userData.passives) userData.passives = [];
             if (!userData.equippedPassive) userData.equippedPassive = null;
             if (!userData.raidClearedTime) userData.raidClearedTime = 0;
+            
+            // 運動会用データ補完
+            if (!userData.undoukaiPoint) userData.undoukaiPoint = 0;
+            if (!userData.totalUndoukaiPoint) userData.totalUndoukaiPoint = 0;
+            if (!userData.undoukaiPlayCount) userData.undoukaiPlayCount = 0;
+            if (!userData.undoukaiBossesCleared) userData.undoukaiBossesCleared = [];
+            if (!userData.undoukaiMissionsClaimed) userData.undoukaiMissionsClaimed = [];
         } else {
             await set(userRef, userData);
         }
-        
-        // イベント関連の初期化や監視は完全に削除
     } catch (e) {
         console.error("Firebase load error", e);
     }
@@ -1303,7 +1453,6 @@ async function initApp() {
     startBoostStatusTimer();
 }
 
-// 読み込み完了時にローディングを消す
 window.addEventListener('load', () => {
     setTimeout(() => {
         const loader = document.getElementById('loading-screen');
@@ -1345,6 +1494,7 @@ function updateHeaderUI() {
     document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin || 0)}`;
     document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin || 0}`;
     document.getElementById('raid-point-display').innerText = `🎯${userData.raidPoint || 0}`;
+    document.getElementById('undoukai-point-display').innerText = `⚽️${userData.undoukaiPoint || 0}`;
     document.getElementById('level-display').innerText = `Lv.${userData.level || 1}`;
     
     const nextXp = getNextLevelXp(userData.level || 1);
@@ -1356,9 +1506,69 @@ function updateHeaderUI() {
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
+    
+    if (screenId === 'undoukai-story-screen') {
+        ['tamaire', 'tsunahiki', 'ninin', 'relay'].forEach(b => {
+            const btn = document.getElementById(`boss-${b}`);
+            if (userData.undoukaiBossesCleared.includes(b)) {
+                btn.classList.add('cleared');
+                btn.innerHTML = btn.innerHTML.replace(/目標:.*?<br>/, '✅ 討伐済み<br>');
+            }
+        });
+    }
 }
 
-// イベント関連の関数はすべて削除 (openEventも削除)
+function startTimeExtendGame() {
+    if (!gameState.isPlaying) return;
+    gameState.timeExtendActive = true;
+    gameState.typingDisabled = true;
+    clearInterval(gameState.timer);
+    
+    const gameEl = document.getElementById('time-extend-game');
+    const bar = document.getElementById('time-extend-bar');
+    gameEl.style.display = 'block';
+    
+    let position = 0;
+    let direction = 1;
+    const speed = 5;
+    let animationId;
+    
+    const animate = () => {
+        position += direction * speed;
+        if (position >= 100 || position <= 0) direction *= -1;
+        bar.style.left = position + '%';
+        animationId = requestAnimationFrame(animate);
+    };
+    animate();
+    
+    const stopGame = () => {
+        cancelAnimationFrame(animationId);
+        const finalPos = parseFloat(bar.style.left) || 0;
+        let addedTime = 0;
+        
+        if (finalPos >= 48 && finalPos <= 52) { addedTime = 12; document.getElementById('time-extend-result').innerHTML = '🎯 パーフェクト！ +12秒！'; }
+        else if (finalPos >= 40 && finalPos <= 60) { addedTime = 8; document.getElementById('time-extend-result').innerHTML = '🎉 グッド！ +8秒！'; }
+        else { addedTime = 5; document.getElementById('time-extend-result').innerHTML = '👍 ナイス！ +5秒！'; }
+        
+        gameState.timeLeft += addedTime;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        
+        setTimeout(() => {
+            gameEl.style.display = 'none';
+            gameState.timeExtendActive = false;
+            gameState.typingDisabled = false;
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                document.getElementById('time-display').innerText = gameState.timeLeft;
+                if (gameState.timeLeft <= 0) endGame();
+            }, 1000);
+            document.removeEventListener('keydown', spaceHandler);
+        }, 1500);
+    };
+    
+    const spaceHandler = (e) => { if (e.code === 'Space') { e.preventDefault(); stopGame(); } };
+    document.addEventListener('keydown', spaceHandler);
+}
 
 // ==========================================
 // レイドマップ
@@ -1368,51 +1578,27 @@ function renderRaidMap() {
     grid.innerHTML = '';
     const isOpen = isRaidOpen();
     const canPlay = canPlayRaid();
-    
     document.getElementById('raid-point-info').innerText = userData.raidPoint || 0;
     
     if (!isOpen) {
-        const nextOpen = getNextRaidOpenTime();
-        const now = new Date();
-        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-        const diff = nextOpen - jstNow;
-        document.getElementById('raid-status-timer').innerHTML = `
-            ⏳ 次のレイド開始まで: ${formatTimeRemaining(diff)}
-        `;
+        const diff = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        document.getElementById('raid-status-timer').innerHTML = `⏳ 次のレイド開始まで: ${formatTimeRemaining(diff)}`;
         grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">レイドは開催時間外です</div>';
         return;
     }
-    
     if (!canPlay) {
-        const nextOpen = getNextRaidOpenTime();
-        const now = new Date();
-        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-        const diff = nextOpen - jstNow;
-        document.getElementById('raid-status-timer').innerHTML = `
-            ⏳ 次のレイドまで: ${formatTimeRemaining(diff)}
-        `;
+        const diff = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        document.getElementById('raid-status-timer').innerHTML = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
         grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">この回のレイドはクリア済みです。次の開催時間をお待ちください。</div>';
         return;
     }
     
-    const closeTime = getRaidCloseTime();
-    const now = new Date();
-    const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-    const diff = closeTime - jstNow;
-    document.getElementById('raid-status-timer').innerHTML = `
-        🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}
-    `;
+    const diff = getRaidCloseTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    document.getElementById('raid-status-timer').innerHTML = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
     
     if (!raidState.stages.length) {
         raidState.stages = [];
-        for (let i = 1; i <= 6; i++) {
-            raidState.stages.push({
-                stage: i,
-                cleared: false,
-                targetScore: getRaidTargetScore(i),
-                obstacle: i === 6 ? null : getRandomRaidObstacle()
-            });
-        }
+        for (let i = 1; i <= 6; i++) raidState.stages.push({ stage: i, cleared: false, targetScore: getRaidTargetScore(i), obstacle: i === 6 ? null : getRandomRaidObstacle() });
         raidState.currentStage = 1;
     }
     
@@ -1420,27 +1606,15 @@ function renderRaidMap() {
         const stage = raidState.stages[i];
         const btn = document.createElement('button');
         btn.className = 'raid-stage-btn';
-        
-        if (stage.cleared) {
-            btn.classList.add('completed');
-            btn.innerText = `ステージ ${i+1} - クリア済み ✅`;
-        } else if (i + 1 === raidState.currentStage) {
-            btn.classList.add('current');
-            btn.innerText = `ステージ ${i+1} - 目標: ${stage.targetScore.toLocaleString()}`;
-            btn.onclick = () => startRaidStage(i + 1);
-        } else {
-            btn.classList.add('locked');
-            btn.innerText = `ステージ ${i+1} - ロック 🔒`;
-        }
-        
+        if (stage.cleared) { btn.classList.add('completed'); btn.innerText = `ステージ ${i+1} - クリア済み ✅`; }
+        else if (i + 1 === raidState.currentStage) { btn.classList.add('current'); btn.innerText = `ステージ ${i+1} - 目標: ${stage.targetScore.toLocaleString()}`; btn.onclick = () => startRaidStage(i + 1); }
+        else { btn.classList.add('locked'); btn.innerText = `ステージ ${i+1} - ロック 🔒`; }
         grid.appendChild(btn);
     }
 }
 
 function startRaidStage(stage) {
-    if (!isRaidOpen() || !canPlayRaid()) return;
-    if (stage !== raidState.currentStage) return;
-    
+    if (!isRaidOpen() || !canPlayRaid() || stage !== raidState.currentStage) return;
     const stageData = raidState.stages[stage - 1];
     
     gameState.mode = 'raid';
@@ -1450,8 +1624,7 @@ function startRaidStage(stage) {
     gameState.passiveUsed = false;
     gameState.comboNoResetTime = 0;
     
-    let initialTime = 60;
-    if (stageData.obstacle === 'time_reduce') initialTime = 50;
+    let initialTime = stageData.obstacle === 'time_reduce' ? 50 : 60;
     gameState.timeLeft = initialTime;
     gameState.initialTime = initialTime;
     gameState.score = 0;
@@ -1467,7 +1640,9 @@ function startRaidStage(stage) {
     
     showScreen('game-screen');
     document.getElementById('story-target-container').style.display = 'none';
+    document.getElementById('undoukai-target-container').style.display = 'none';
     document.getElementById('raid-target-container').style.display = 'block';
+    document.getElementById('tsunahiki-ui').style.display = 'none';
     
     updateRaidTargetUI();
     updateGameUI();
@@ -1477,15 +1652,10 @@ function startRaidStage(stage) {
         gameState.timeLeft--;
         document.getElementById('time-display').innerText = gameState.timeLeft;
         
-        if (gameState.raidObstacle === 'darkness' && !gameState.obstacleTriggered && gameState.timeLeft <= 30) {
-            triggerDarkness();
-        } else if (gameState.raidObstacle === 'freeze' && !gameState.obstacleTriggered && gameState.timeLeft <= 40) {
-            triggerFreeze();
-        }
+        if (gameState.raidObstacle === 'darkness' && !gameState.obstacleTriggered && gameState.timeLeft <= 30) triggerDarkness();
+        else if (gameState.raidObstacle === 'freeze' && !gameState.obstacleTriggered && gameState.timeLeft <= 40) triggerFreeze();
         
-        if (gameState.timeLeft <= 0) {
-            endGame();
-        }
+        if (gameState.timeLeft <= 0) endGame();
     }, 1000);
     
     if (stageData.obstacle === 'time_reduce') {
@@ -1497,19 +1667,14 @@ function startRaidStage(stage) {
 
 function updateRaidTargetUI() {
     if (gameState.mode !== 'raid') return;
-    
     const target = gameState.targetScore;
     const current = gameState.score;
     const percent = Math.min(100, (current / target) * 100);
     const remaining = Math.max(0, target - current);
     
-    document.getElementById('raid-target-info').innerHTML = `
-        🔥 レイド ステージ${gameState.raidStage}/6 目標スコア
-    `;
+    document.getElementById('raid-target-info').innerHTML = `🔥 レイド ステージ${gameState.raidStage}/6 目標スコア`;
     document.getElementById('raid-target-bar-fill').style.width = `${percent}%`;
-    document.getElementById('raid-target-text').innerHTML = `
-        ${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})
-    `;
+    document.getElementById('raid-target-text').innerHTML = `${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})`;
 }
 
 // ==========================================
@@ -1529,18 +1694,12 @@ function renderStoryMap() {
         else btn.classList.add('locked');
         
         let label = `${i}`;
-        if (i === 25) label += '\n🎁';
-        if (i === 50) label += '\n🎁';
-        if (i === 75) label += '\n🎁';
+        if (i === 25 || i === 50 || i === 75) label += '\n🎁';
         if (i === 100) label += '\n👑';
-        
         btn.innerText = label;
         
-        if (i === currentStage) {
-            btn.onclick = () => startStoryStage(i);
-        } else {
-            btn.style.cursor = 'not-allowed';
-        }
+        if (i === currentStage) btn.onclick = () => startStoryStage(i);
+        else btn.style.cursor = 'not-allowed';
         grid.appendChild(btn);
     }
 }
@@ -1555,8 +1714,7 @@ function startStoryStage(stage) {
     gameState.passiveUsed = false;
     gameState.comboNoResetTime = 0;
     
-    let initialTime = 60;
-    if (stage >= 51) initialTime = 50;
+    let initialTime = stage >= 51 ? 50 : 60;
     gameState.timeLeft = initialTime;
     gameState.initialTime = initialTime;
     gameState.score = 0;
@@ -1571,8 +1729,10 @@ function startStoryStage(stage) {
     resetSkillUI();
     
     showScreen('game-screen');
-    document.getElementById('story-target-container').style.display = 'block';
     document.getElementById('raid-target-container').style.display = 'none';
+    document.getElementById('undoukai-target-container').style.display = 'none';
+    document.getElementById('story-target-container').style.display = 'block';
+    document.getElementById('tsunahiki-ui').style.display = 'none';
     
     updateStoryTargetUI();
     updateGameUI();
@@ -1584,16 +1744,11 @@ function startStoryStage(stage) {
         
         if (!gameState.obstacleTriggered) {
             const obstacle = getStageObstacle(stage);
-            if (obstacle === 'darkness' && gameState.timeLeft <= 30) {
-                triggerDarkness();
-            } else if (obstacle === 'freeze' && gameState.timeLeft <= 40) {
-                triggerFreeze();
-            }
+            if (obstacle === 'darkness' && gameState.timeLeft <= 30) triggerDarkness();
+            else if (obstacle === 'freeze' && gameState.timeLeft <= 40) triggerFreeze();
         }
         
-        if (gameState.timeLeft <= 0) {
-            endGame();
-        }
+        if (gameState.timeLeft <= 0) endGame();
     }, 1000);
     
     if (stage >= 51) {
@@ -1605,19 +1760,14 @@ function startStoryStage(stage) {
 
 function updateStoryTargetUI() {
     if (gameState.mode !== 'story') return;
-    
     const target = gameState.targetScore;
     const current = gameState.score;
     const percent = Math.min(100, (current / target) * 100);
     const remaining = Math.max(0, target - current);
     
-    document.getElementById('story-target-info').innerHTML = `
-        🎯 ステージ${gameState.storyStage} 目標スコア
-    `;
+    document.getElementById('story-target-info').innerHTML = `🎯 ステージ${gameState.storyStage} 目標スコア`;
     document.getElementById('story-target-bar-fill').style.width = `${percent}%`;
-    document.getElementById('story-target-text').innerHTML = `
-        ${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})
-    `;
+    document.getElementById('story-target-text').innerHTML = `${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})`;
 }
 
 function triggerDarkness() {
@@ -1627,19 +1777,15 @@ function triggerDarkness() {
     overlay.style.transition = 'background-color 1s';
     setTimeout(() => {
         overlay.style.backgroundColor = 'rgba(0,0,0,0.95)';
-        setTimeout(() => {
-            overlay.style.backgroundColor = 'rgba(0,0,0,0)';
-        }, 2500);
+        setTimeout(() => { overlay.style.backgroundColor = 'rgba(0,0,0,0)'; }, 2500);
     }, 10);
 }
 
 function triggerFreeze() {
     gameState.obstacleTriggered = true;
     gameState.typingDisabled = true;
-    
     const overlay = document.getElementById('game-overlay');
     const message = document.getElementById('game-message');
-    
     overlay.style.backgroundColor = 'rgba(0,100,255,0.3)';
     overlay.style.transition = 'background-color 0.5s';
     message.innerText = '❄️ BrrBrrフローズン！ ❄️';
@@ -1657,9 +1803,19 @@ function triggerFreeze() {
 // ==========================================
 function applyPassiveOnStart() {
     if (!userData.equippedPassive || !passiveData[userData.equippedPassive]) return;
-    
     const passive = passiveData[userData.equippedPassive];
-    if (passive.onGameStart) {
+    
+    if (userData.equippedPassive === 'combo_no_reset_beta') {
+        gameState.comboProtectCharges = 3;
+    } else if (userData.equippedPassive === 'syakunetsu_combo_set_gamma') {
+        gameState.combo = 25;
+        if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+        gameState.comboMultiplier = 1.5;
+        setTimeout(() => { gameState.comboMultiplier = 1.0; }, 3000);
+    } else if (userData.equippedPassive === 'syakunetsu_charge_omega') {
+        gameState.syakunetsuChargeCount = 0;
+        scheduleSyakunetsuCharge();
+    } else if (passive.onGameStart) {
         passive.onGameStart();
     }
     gameState.passiveUsed = false;
@@ -1684,6 +1840,7 @@ function startGame(mode) {
     gameState.timeExtendActive = false;
     gameState.passiveUsed = false;
     gameState.comboNoResetTime = 0;
+    gameState.typingDisabled = false;
     
     applyPassiveOnStart();
     resetSkillUI();
@@ -1691,15 +1848,16 @@ function startGame(mode) {
     showScreen('game-screen');
     document.getElementById('story-target-container').style.display = 'none';
     document.getElementById('raid-target-container').style.display = 'none';
+    document.getElementById('undoukai-target-container').style.display = 'none';
+    document.getElementById('tsunahiki-ui').style.display = 'none';
+    
     updateGameUI();
     setNextWord();
     
     gameState.timer = setInterval(() => {
         gameState.timeLeft--;
         document.getElementById('time-display').innerText = gameState.timeLeft;
-        if (gameState.timeLeft <= 0) {
-            endGame();
-        }
+        if (gameState.timeLeft <= 0) endGame();
     }, 1000);
 }
 
@@ -1724,14 +1882,12 @@ function renderWord() {
     const romajiContainer = document.getElementById('romaji-text');
     romajiContainer.innerHTML = '';
     
+    const isHard = gameState.mode === 'hard' || gameState.mode === 'undoukai_hard';
     for (let i = 0; i < obj.romaji.length; i++) {
         const span = document.createElement('span');
         span.innerText = obj.romaji[i];
-        if (i < obj.typedLength) {
-            span.className = 'typed';
-        } else {
-            span.className = gameState.mode === 'hard' ? 'untyped-hidden' : 'untyped';
-        }
+        if (i < obj.typedLength) span.className = 'typed';
+        else span.className = isHard ? 'untyped-hidden' : 'untyped';
         romajiContainer.appendChild(span);
     }
 }
@@ -1749,51 +1905,53 @@ function handleCorrectKey() {
     renderWord();
     
     if (obj.typedLength >= obj.romaji.length) {
+        if (gameState.isAutoTyping && gameState.autoTypeWordsLeft > 0) {
+            gameState.autoTypeWordsLeft--;
+            if (gameState.autoTypeWordsLeft <= 0) {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }
+        }
         setNextWord();
     }
 }
 
 function handleWrongKey() {
-    if (gameState.comboNoResetTime > 0) {
+    if (gameState.comboNoResetTime > 0) return;
+
+    if (userData.equippedPassive === 'syakunetsu_chikara_gamma') {
+        if (Math.random() < 0.15) {
+            showPassiveEffect('🔥 シャクネツ回避！');
+            return;
+        }
+    }
+
+    if (userData.equippedPassive === 'combo_no_reset_beta' && gameState.comboProtectCharges > 0) {
+        gameState.comboProtectCharges--;
+        showPassiveEffect(`🛡️ 残り保護: ${gameState.comboProtectCharges}回`);
         return;
     }
 
     if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_epsilon' && gameState.combo > 0) {
         gameState.passiveUsed = true;
         gameState.comboNoResetTime = 3.5;
-        
         const indicator = document.getElementById('combo-protect-indicator');
         indicator.innerText = '🛡️ コンボが0になりません！';
         indicator.style.display = 'block';
         
         let localInterval = setInterval(() => {
-            if (!gameState.isPlaying) {
-                clearInterval(localInterval);
-                return;
-            }
+            if (!gameState.isPlaying) { clearInterval(localInterval); return; }
             gameState.comboNoResetTime -= 0.1;
-            if (gameState.comboNoResetTime <= 0) {
-                clearInterval(localInterval);
-                indicator.style.display = 'none';
-            }
+            if (gameState.comboNoResetTime <= 0) { clearInterval(localInterval); indicator.style.display = 'none'; }
         }, 100);
-
-        const effect = document.createElement('div');
-        effect.className = 'passive-effect';
-        effect.innerText = '🛡️ コンボ保護発動！';
-        document.body.appendChild(effect);
-        setTimeout(() => effect.remove(), 2000);
+        showPassiveEffect('🛡️ コンボ保護発動！');
         updateGameUI();
         return;
     }
 
     if (!gameState.passiveUsed && userData.equippedPassive === 'combo_no_reset_alpha' && gameState.combo > 0) {
         gameState.passiveUsed = true;
-        const effect = document.createElement('div');
-        effect.className = 'passive-effect';
-        effect.innerText = '🛡️ コンボ保護！';
-        document.body.appendChild(effect);
-        setTimeout(() => effect.remove(), 2000);
+        showPassiveEffect('🛡️ コンボ保護！');
         updateGameUI();
         return;
     }
@@ -1808,22 +1966,26 @@ function updateGameUI() {
     
     if (gameState.mode === 'story') {
         updateStoryTargetUI();
-        if (gameState.score >= gameState.targetScore) {
-            endGame(true);
-        }
+        if (gameState.score >= gameState.targetScore) endGame(true);
     } else if (gameState.mode === 'raid') {
         updateRaidTargetUI();
-        if (gameState.score >= gameState.targetScore) {
-            endGame(true);
-        }
+        if (gameState.score >= gameState.targetScore) endGame(true);
+    } else if (gameState.mode === 'undoukai_boss') {
+        updateUndoukaiTargetUI();
+        if (gameState.score >= gameState.targetScore) endGame(true);
     }
 }
 
+document.getElementById('tsunahiki-charge-btn').addEventListener('click', () => {
+    if (gameState.isPlaying && !gameState.typingDisabled && gameState.undoukaiBoss === 'tsunahiki') {
+        gameState.tsunahikiGauge = Math.min(100, gameState.tsunahikiGauge + 10);
+        updateTsunahikiGauge();
+    }
+});
+
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space' && gameState.isPlaying && gameState.isSkillReady && !gameState.timeExtendActive) {
-        e.preventDefault();
-        activateSkill();
-        return;
+        e.preventDefault(); activateSkill(); return;
     }
     
     if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive) return;
@@ -1833,11 +1995,8 @@ document.addEventListener('keydown', (e) => {
     
     const expectedChar = obj.romaji[obj.typedLength];
     if (/^[a-zA-Z\-]$/.test(e.key)) {
-        if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
-            handleCorrectKey();
-        } else {
-            handleWrongKey();
-        }
+        if (e.key.toLowerCase() === expectedChar.toLowerCase()) handleCorrectKey();
+        else handleWrongKey();
     }
 });
 
@@ -1846,91 +2005,111 @@ function endGame(isCleared = false) {
     clearInterval(gameState.timer);
     if (gameState.autoTypeInterval) clearInterval(gameState.autoTypeInterval);
     if (gameState.skillCooldownTimer) clearInterval(gameState.skillCooldownTimer);
+    if (gameState.tsunahikiTimer) clearInterval(gameState.tsunahikiTimer);
+    if (gameState.syakunetsuChargeTimeout) clearTimeout(gameState.syakunetsuChargeTimeout);
     
     document.getElementById('game-overlay').style.backgroundColor = 'rgba(0,0,0,0)';
     document.getElementById('game-message').style.opacity = '0';
     document.getElementById('combo-protect-indicator').style.display = 'none';
+    document.getElementById('evade-btn').style.display = 'none';
+    document.getElementById('syakunetsu-charge-btn').style.display = 'none';
     
-    let currentCoinMultiplier = gameState.coinMultiplier;
-    let currentXpMultiplier = gameState.xpMultiplier;
-
-    let earnedCoin = Math.floor(gameState.score / 10) * currentCoinMultiplier;
-    if (gameState.mode === 'hard') earnedCoin *= 2;
-    const earnedXp = Math.floor(gameState.score / 100) * currentXpMultiplier;
-    
-    userData.coin = (userData.coin || 0) + earnedCoin;
-    userData.xp = (userData.xp || 0) + earnedXp;
-    userData.playCount = (userData.playCount || 0) + 1;
-    
-    let earnedGold = 0;
-    if (Math.random() < gameState.goldDropRate) {
-        earnedGold = 1;
-        userData.goldCoin = (userData.goldCoin || 0) + 1;
-    }
-    
-    let storyCleared = false;
-    let raidCleared = false;
-    let earnedRaidPoint = 0;
+    let earnedCoin = 0, earnedXp = 0, earnedGold = 0, earnedUndoukaiPoint = 0, earnedRaidPoint = 0;
+    let storyCleared = false, raidCleared = false, undoukaiBossCleared = false;
     let rewards = [];
-    
-    if (gameState.mode === 'story' && isCleared) {
+
+    // 運動会通常プレイ
+    if (gameState.mode === 'undoukai_normal') {
+        earnedUndoukaiPoint = Math.floor(gameState.score / 1000);
+        userData.undoukaiPlayCount = (userData.undoukaiPlayCount || 0) + 1;
+        userData.undoukaiPoint += earnedUndoukaiPoint;
+        userData.totalUndoukaiPoint += earnedUndoukaiPoint;
+    } else if (gameState.mode === 'undoukai_hard') {
+        earnedUndoukaiPoint = Math.floor((gameState.score / 1000) * 1.5);
+        userData.undoukaiPlayCount = (userData.undoukaiPlayCount || 0) + 1;
+        userData.undoukaiPoint += earnedUndoukaiPoint;
+        userData.totalUndoukaiPoint += earnedUndoukaiPoint;
+    } 
+    // 運動会ボス
+    else if (gameState.mode === 'undoukai_boss' && isCleared) {
+        const boss = gameState.undoukaiBoss;
+        if (!userData.undoukaiBossesCleared.includes(boss)) {
+            userData.undoukaiBossesCleared.push(boss);
+            undoukaiBossCleared = true;
+            if (boss === 'tamaire') {
+                if (!userData.skills) userData.skills = [];
+                userData.skills.push('tamaire_omega');
+                rewards.push({ type: 'skill', id: 'tamaire_omega' });
+            } else if (boss === 'tsunahiki') {
+                if (!userData.passives) userData.passives = [];
+                userData.passives.push('syakunetsu_charge_omega');
+                rewards.push({ type: 'passive', id: 'syakunetsu_charge_omega' });
+            } else if (boss === 'ninin') {
+                if (!userData.skills) userData.skills = [];
+                userData.skills.push('syakunetsu_time_omega');
+                rewards.push({ type: 'skill', id: 'syakunetsu_time_omega' });
+            } else if (boss === 'relay') {
+                addItemToInventory('deka_kira_coin_boost', 30);
+                rewards.push({ type: 'item', id: 'deka_kira_coin_boost', count: 30 });
+            }
+        }
+    }
+    // 通常・ハード
+    else if (gameState.mode === 'normal' || gameState.mode === 'hard') {
+        earnedCoin = Math.floor(gameState.score / 10) * gameState.coinMultiplier;
+        if (gameState.mode === 'hard') earnedCoin *= 2;
+        earnedXp = Math.floor(gameState.score / 100) * gameState.xpMultiplier;
+        
+        userData.coin = (userData.coin || 0) + earnedCoin;
+        userData.xp = (userData.xp || 0) + earnedXp;
+        userData.playCount = (userData.playCount || 0) + 1;
+        
+        if (Math.random() < gameState.goldDropRate) {
+            earnedGold = gameState.goldEarnAmount;
+            userData.goldCoin = (userData.goldCoin || 0) + earnedGold;
+        }
+        
+        if (gameState.mode === 'normal') {
+            if (gameState.score > (userData.bestScore || 0)) userData.bestScore = gameState.score;
+            if (gameState.maxCombo > (userData.bestCombo || 0)) userData.bestCombo = Math.floor(gameState.maxCombo);
+            submitRanking();
+        }
+    }
+    // ストーリー・レイド
+    else if (gameState.mode === 'story' && isCleared) {
         const stage = gameState.storyStage;
         if (stage === userData.storyStage) {
             userData.storyStage = Math.min(100, stage + 1);
             storyCleared = true;
-            
-            if (stage === 25) {
-                addItemToInventory('coin_boost_alpha', 5);
-                rewards.push({ type: 'item', id: 'coin_boost_alpha', name: 'コインブーストα', count: 5 });
-            } else if (stage === 50) {
-                addItemToInventory('coin_boost_alpha', 3);
-                addItemToInventory('xp_boost_alpha', 2);
-                rewards.push({ type: 'item', id: 'coin_boost_alpha', name: 'コインブーストα', count: 3 });
-                rewards.push({ type: 'item', id: 'xp_boost_alpha', name: 'XPブーストα', count: 2 });
-            } else if (stage === 75) {
-                userData.goldCoin = (userData.goldCoin || 0) + 5;
-                addItemToInventory('gold_luck_boost_alpha', 1);
-                rewards.push({ type: 'gold', count: 5 });
-                rewards.push({ type: 'item', id: 'gold_luck_boost_alpha', name: 'ゴールドコインラックブーストα', count: 1 });
-            } else if (stage === 100) {
-                if (!userData.skills.includes('auto_input_gamma')) {
-                    userData.skills.push('auto_input_gamma');
-                }
-                rewards.push({ type: 'skill', id: 'auto_input_gamma', name: '自動入力γ' });
-            }
+            if (stage === 25) { addItemToInventory('coin_boost_alpha', 5); rewards.push({ type: 'item', id: 'coin_boost_alpha', count: 5 }); }
+            else if (stage === 50) { addItemToInventory('coin_boost_alpha', 3); addItemToInventory('xp_boost_alpha', 2); rewards.push({ type: 'item', id: 'coin_boost_alpha', count: 3 }); rewards.push({ type: 'item', id: 'xp_boost_alpha', count: 2 }); }
+            else if (stage === 75) { userData.goldCoin += 5; earnedGold = 5; addItemToInventory('gold_luck_boost_alpha', 1); rewards.push({ type: 'gold', count: 5 }); rewards.push({ type: 'item', id: 'gold_luck_boost_alpha', count: 1 }); }
+            else if (stage === 100) { if (!userData.skills.includes('auto_input_gamma')) userData.skills.push('auto_input_gamma'); rewards.push({ type: 'skill', id: 'auto_input_gamma' }); }
         }
     } else if (gameState.mode === 'raid' && isCleared) {
         const stage = gameState.raidStage;
         if (stage === raidState.currentStage) {
             raidState.stages[stage - 1].cleared = true;
-            
             if (stage === 6) {
                 raidCleared = true;
                 earnedRaidPoint = 5 + Math.floor(Math.random() * 6);
                 
-                if (userData.equippedPassive === 'raid_point_increase_beta') {
-                    earnedRaidPoint = earnedRaidPoint * 2;
+                if (userData.equippedPassive === 'raid_point_increase_syakunetsu') {
+                    earnedRaidPoint = Math.floor(12 * 2.5);
+                } else if (userData.equippedPassive === 'raid_point_increase_beta') {
+                    earnedRaidPoint *= 2;
                 } else if (userData.equippedPassive === 'raid_point_increase_alpha') {
                     earnedRaidPoint = Math.floor(earnedRaidPoint * 1.5);
                 }
 
                 userData.raidPoint = (userData.raidPoint || 0) + earnedRaidPoint;
-                
-                const now = new Date();
-                userData.raidClearedTime = now.getTime();
-                
+                userData.raidClearedTime = Date.now();
                 rewards.push({ type: 'raid', count: earnedRaidPoint });
                 raidState = { isOpen: false, currentStage: 1, stages: [] };
             } else {
                 raidState.currentStage = stage + 1;
             }
         }
-    }
-    
-    if (gameState.mode === 'normal') {
-        if (gameState.score > (userData.bestScore || 0)) userData.bestScore = gameState.score;
-        if (gameState.maxCombo > (userData.bestCombo || 0)) userData.bestCombo = Math.floor(gameState.maxCombo);
-        submitRanking();
     }
     
     let leveledUp = false;
@@ -1942,36 +2121,35 @@ function endGame(isCleared = false) {
     
     saveUserData();
     
-    document.getElementById('result-title').innerText = isCleared ? (raidCleared ? '🔥 レイド制覇！' : '🎉 ステージクリア！') : 'ゲーム終了！';
+    // リザルトUI表示
+    document.getElementById('result-title').innerText = 
+        undoukaiBossCleared ? '🔥 運動会ボス制覇！' :
+        isCleared ? (raidCleared ? '🔥 レイド制覇！' : '🎉 ステージクリア！') : 'ゲーム終了！';
+    
     document.getElementById('result-score').innerText = gameState.score;
     document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo);
+    
+    document.getElementById('coin-result-container').style.display = gameState.mode.startsWith('undoukai') ? 'none' : 'block';
+    document.getElementById('xp-result-container').style.display = gameState.mode.startsWith('undoukai') ? 'none' : 'block';
     document.getElementById('result-coin').innerText = earnedCoin;
     document.getElementById('result-xp').innerText = earnedXp;
+    
+    const goldResultEl = document.getElementById('gold-coin-result');
+    if (earnedGold > 0) { goldResultEl.style.display = 'block'; document.getElementById('result-gold').innerText = earnedGold; } else { goldResultEl.style.display = 'none'; }
+    
+    const raidResultEl = document.getElementById('raid-point-result');
+    if (earnedRaidPoint > 0) { raidResultEl.style.display = 'block'; document.getElementById('result-raid').innerText = earnedRaidPoint; } else { raidResultEl.style.display = 'none'; }
+
+    const undoukaiResultEl = document.getElementById('undoukai-point-result');
+    if (earnedUndoukaiPoint > 0) { undoukaiResultEl.style.display = 'block'; document.getElementById('result-undoukai').innerText = earnedUndoukaiPoint; } else { undoukaiResultEl.style.display = 'none'; }
+    
     document.getElementById('level-up-msg').style.display = leveledUp ? 'block' : 'none';
     document.getElementById('story-clear-msg').style.display = storyCleared ? 'block' : 'none';
     document.getElementById('raid-clear-msg').style.display = raidCleared ? 'block' : 'none';
-    
-    const goldResultEl = document.getElementById('gold-coin-result');
-    if (earnedGold > 0) {
-        goldResultEl.style.display = 'block';
-        document.getElementById('result-gold').innerText = earnedGold;
-    } else {
-        goldResultEl.style.display = 'none';
-    }
-    
-    const raidResultEl = document.getElementById('raid-point-result');
-    if (earnedRaidPoint > 0) {
-        raidResultEl.style.display = 'block';
-        document.getElementById('result-raid').innerText = earnedRaidPoint;
-    } else {
-        raidResultEl.style.display = 'none';
-    }
+    document.getElementById('undoukai-boss-clear-msg').style.display = undoukaiBossCleared ? 'block' : 'none';
     
     showScreen('result-screen');
-    
-    if (rewards.length > 0) {
-        showRewardModal(rewards);
-    }
+    if (rewards.length > 0) showRewardModal(rewards);
 }
 
 function addItemToInventory(itemId, count) {
@@ -1995,6 +2173,9 @@ function showRewardModal(rewards) {
         } else if (r.type === 'skill') {
             const skill = skillData[r.id];
             div.innerHTML = `<div class="reward-icon">⚡</div><div class="reward-info"><div class="reward-name">${skill.name}</div><div class="reward-desc">${skill.desc}</div></div>`;
+        } else if (r.type === 'passive') {
+            const passive = passiveData[r.id];
+            div.innerHTML = `<div class="reward-icon">🛡️</div><div class="reward-info"><div class="reward-name">${passive.name}</div><div class="reward-desc">${passive.desc}</div></div>`;
         }
         content.appendChild(div);
     });
@@ -2018,7 +2199,7 @@ function resetSkillUI() {
     }
     
     const skill = skillData[userData.equippedSkill];
-    text.innerText = skill.name.replace('α', '\nα').replace('β', '\nβ').replace('γ', '\nγ').replace('ε', '\nε');
+    text.innerText = skill.name.replace('α', '\nα').replace('β', '\nβ').replace('γ', '\nγ').replace('ε', '\nε').replace('Ω', '\nΩ');
     btn.disabled = false;
     btn.onclick = activateSkill;
     overlay.style.height = '0%';
@@ -2041,10 +2222,7 @@ function activateSkill() {
     
     let tick = 100;
     gameState.skillCooldownTimer = setInterval(() => {
-        if(!gameState.isPlaying) {
-            clearInterval(gameState.skillCooldownTimer);
-            return;
-        }
+        if(!gameState.isPlaying) { clearInterval(gameState.skillCooldownTimer); return; }
         if (gameState.timeExtendActive) return;
         
         gameState.skillCooldownLeft -= tick / 1000;
@@ -2066,132 +2244,72 @@ function activateSkill() {
 async function submitRanking() {
     if (gameState.mode !== 'normal') return;
     const dateKey = getRankingDateKey();
-    
-    const rankData = {
-        name: userData.name,
-        score: userData.bestScore || 0,
-        combo: userData.bestCombo || 0,
-        playCount: userData.playCount || 0,
-        timestamp: Date.now()
-    };
-    
-    try {
-        await update(ref(db, `rankings/${dateKey}/${uid}`), rankData);
-    } catch (e) {
-        console.error("Ranking submit error", e);
-    }
+    const rankData = { name: userData.name, score: userData.bestScore || 0, combo: userData.bestCombo || 0, playCount: userData.playCount || 0, timestamp: Date.now() };
+    try { await update(ref(db, `rankings/${dateKey}/${uid}`), rankData); } catch (e) { console.error("Ranking submit error", e); }
 }
 
 async function fetchRanking(type) {
     const listContainer = document.getElementById('ranking-list');
     listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">読み込み中...</div>';
-    
-    const dateKey = getRankingDateKey();
-    
     try {
-        const snapshot = await get(ref(db, `rankings/${dateKey}`));
+        const snapshot = await get(ref(db, `rankings/${getRankingDateKey()}`));
         const results = [];
-        if (snapshot.exists()) {
-            snapshot.forEach(child => {
-                results.push({ uid: child.key, ...child.val() });
-            });
-        }
-        
+        if (snapshot.exists()) snapshot.forEach(child => results.push({ uid: child.key, ...child.val() }));
         results.sort((a, b) => (b[type] || 0) - (a[type] || 0));
         
         listContainer.innerHTML = '';
-        if (results.length === 0) {
-            listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">まだデータがありません</div>';
-            return;
-        }
+        if (results.length === 0) { listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">まだデータがありません</div>'; return; }
         
         results.slice(0, 50).forEach((data, index) => {
             const div = document.createElement('div');
             div.className = 'list-item';
-            let icon = '';
-            if(index === 0) icon = '🥇 ';
-            else if(index === 1) icon = '🥈 ';
-            else if(index === 2) icon = '🥉 ';
-            
-            div.innerHTML = `
-                <div class="rank-item-info">${icon}${index + 1}位：${escapeHTML(data.name || '名無し')}</div>
-                <div style="font-weight:bold; font-size: 20px;">${Math.floor(data[type] || 0).toLocaleString()}</div>
-            `;
+            let icon = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
+            div.innerHTML = `<div class="rank-item-info">${icon}${index + 1}位：${escapeHTML(data.name || '名無し')}</div><div style="font-weight:bold; font-size: 20px;">${Math.floor(data[type] || 0).toLocaleString()}</div>`;
             listContainer.appendChild(div);
         });
-    } catch (e) {
-        console.error("Ranking fetch error", e);
-        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: red;">読み込みに失敗しました。再読み込みしてください。</div>';
-    }
+    } catch (e) { listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: red;">読み込み失敗</div>'; }
 }
 
 function startRankingTimer() {
     const updateTimer = () => {
-        const resetTime = getNextResetTime();
-        const now = new Date();
-        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
-        const diff = resetTime - jstNow;
+        const diff = getNextResetTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
         document.getElementById('ranking-timer').innerText = `次のリセットまで: ${formatTimeRemaining(diff)}`;
     };
-    updateTimer();
-    setInterval(updateTimer, 1000);
+    updateTimer(); setInterval(updateTimer, 1000);
 }
 
 function startRaidTimer() {
     const updateRaidTimer = () => {
-        const now = new Date();
-        const jstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+        const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
         const isOpen = isRaidOpen();
         const canPlay = canPlayRaid();
-        
         let timerText = '';
         
-        if (isOpen && canPlay) {
-            const closeTime = getRaidCloseTime();
-            const diff = closeTime - jstNow;
-            timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(diff)}`;
-        } else {
-            const nextOpen = getNextRaidOpenTime();
-            const diff = nextOpen - jstNow;
-            timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
-        }
+        if (isOpen && canPlay) timerText = `🔥 レイド開催中！ 残り ${formatTimeRemaining(getRaidCloseTime() - jstNow)}`;
+        else timerText = `⏳ 次のレイドまで: ${formatTimeRemaining(getNextRaidOpenTime() - jstNow)}`;
         
         document.getElementById('raid-menu-timer').innerText = timerText;
         const raidBtn = document.getElementById('raid-menu-btn');
-        
-        if (!isOpen || !canPlay) {
-            raidBtn.classList.add('disabled');
-        } else {
-            raidBtn.classList.remove('disabled');
-        }
+        if (!isOpen || !canPlay) raidBtn.classList.add('disabled'); else raidBtn.classList.remove('disabled');
     };
-    updateRaidTimer();
-    setInterval(updateRaidTimer, 1000);
+    updateRaidTimer(); setInterval(updateRaidTimer, 1000);
 }
 
 function startBoostStatusTimer() {
     setInterval(() => {
         const container = document.getElementById('boost-status-container');
         if (!container) return;
-        
-        let html = '';
-        const now = Date.now();
-        
+        let html = ''; const now = Date.now();
         for (const [itemId, boost] of Object.entries(gameState.activeBoosts)) {
             if (now < boost.endTime) {
                 const diff = Math.ceil((boost.endTime - now) / 1000);
-                const m = Math.floor(diff / 60);
-                const s = diff % 60;
                 let className = 'boost-indicator';
                 if (itemId.includes('mini_coin')) className += ' mini-coin';
                 else if (itemId.includes('gold')) className += ' gold';
-                
-                html += `<div class="${className}">${boost.name}: ${m}分${s}秒</div>`;
+                html += `<div class="${className}">${boost.name}: ${Math.floor(diff / 60)}分${diff % 60}秒</div>`;
             } else {
                 delete gameState.activeBoosts[itemId];
-                if (itemData[itemId] && itemData[itemId].effect) {
-                    itemData[itemId].effect(false);
-                }
+                if (itemData[itemId] && itemData[itemId].effect) itemData[itemId].effect(false);
             }
         }
         container.innerHTML = html;
@@ -2204,79 +2322,37 @@ function startBoostStatusTimer() {
 const uiControllers = {
     showScreen,
     startGame,
-    endResult: () => showScreen('menu-screen'),
-    
-    // openEvent は削除（呼び出し元なし・ダミーボタンは無効なので問題なし）
-    
-    openStoryMap: () => {
-        renderStoryMap();
-        showScreen('story-map-screen');
+    startUndoukaiBoss,
+    endResult: () => {
+        if (gameState.mode.startsWith('undoukai')) showScreen('undoukai-menu-screen');
+        else showScreen('menu-screen');
     },
+    
+    openStoryMap: () => { renderStoryMap(); showScreen('story-map-screen'); },
     
     openRaidMap: () => {
-        if (!isRaidOpen()) {
-            alert("レイドは開催時間外です。");
-            return;
-        }
-        if (!canPlayRaid()) {
-            alert("この回のレイドはクリア済みです。次の開催時間をお待ちください。");
-            return;
-        }
-        renderRaidMap();
-        showScreen('raid-map-screen');
+        if (!isRaidOpen()) { alert("レイドは開催時間外です。"); return; }
+        if (!canPlayRaid()) { alert("この回のレイドはクリア済みです。次の開催時間をお待ちください。"); return; }
+        renderRaidMap(); showScreen('raid-map-screen');
     },
     
-    acceptAgreement: () => {
-        localStorage.setItem('agreementAccepted', 'true');
-        document.getElementById('agreement-modal').classList.remove('active');
-    },
-    showAgreement: () => {
-        document.getElementById('settings-modal').classList.remove('active');
-        document.getElementById('agreement-modal').classList.add('active');
-    },
-    closeSettings: () => {
-        document.getElementById('settings-modal').classList.remove('active');
-        saveUserData();
-    },
+    acceptAgreement: () => { localStorage.setItem('agreementAccepted', 'true'); document.getElementById('agreement-modal').classList.remove('active'); },
+    showAgreement: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('agreement-modal').classList.add('active'); },
+    closeSettings: () => { document.getElementById('settings-modal').classList.remove('active'); saveUserData(); },
     saveName: () => {
         const input = document.getElementById('name-input').value.trim();
-        if (input && input.length <= 20) {
-            userData.name = input;
-            saveUserData();
-            alert("名前を保存しました！");
-        } else {
-            alert("1文字以上、20文字以内で入力してください。");
-        }
+        if (input && input.length <= 20) { userData.name = input; saveUserData(); alert("名前を保存しました！"); } else alert("1〜20文字で入力してください。");
     },
-    toggleFurigana: (checked) => {
-        userData.settings.showFurigana = checked;
-        applySettings();
-    },
-    changeHomeScale: (val) => {
-        userData.settings.homeScale = parseInt(val);
-        applySettings();
-    },
-    resetHomeScale: () => {
-        userData.settings.homeScale = 50;
-        applySettings();
-    },
-    resetDataConfirm: () => {
-        document.getElementById('reset-confirm-modal').classList.add('active');
-    },
+    toggleFurigana: (checked) => { userData.settings.showFurigana = checked; applySettings(); },
+    changeHomeScale: (val) => { userData.settings.homeScale = parseInt(val); applySettings(); },
+    resetHomeScale: () => { userData.settings.homeScale = 50; applySettings(); },
+    resetDataConfirm: () => { document.getElementById('reset-confirm-modal').classList.add('active'); },
     resetDataExecute: async () => {
-        userData = { ...defaultUserData };
-        raidState = { isOpen: false, currentStage: 1, stages: [] };
-        await saveUserData();
-        document.getElementById('reset-confirm-modal').classList.remove('active');
-        document.getElementById('settings-modal').classList.remove('active');
-        alert("データを初期化しました。");
-        location.reload();
+        userData = { ...defaultUserData }; raidState = { isOpen: false, currentStage: 1, stages: [] };
+        await saveUserData(); alert("データを初期化しました。"); location.reload();
     },
 
-    openRanking: () => {
-        showScreen('ranking-screen');
-        uiControllers.switchRankingTab('score');
-    },
+    openRanking: () => { showScreen('ranking-screen'); uiControllers.switchRankingTab('score'); },
     switchRankingTab: (type) => {
         const tabs = document.querySelectorAll('#ranking-screen .tab');
         tabs.forEach(t => t.classList.remove('active'));
@@ -2299,154 +2375,135 @@ const uiControllers = {
     openShop: () => {
         showScreen('shop-screen');
         const list = document.getElementById('shop-list');
-        const activeTab = document.querySelector('#shop-screen .tab.active');
-        const tabText = activeTab.innerText;
-        
+        const tabText = document.querySelector('#shop-screen .tab.active').innerText;
         list.innerHTML = '';
         
-        if (tabText.includes('パッシブ')) {
-            Object.values(passiveData).forEach(passive => {
-                if (passive.priceType !== 'coin') return;
-                const hasPassive = (userData.passives || []).includes(passive.id);
-                const canAfford = (userData.coin || 0) >= passive.price;
-                
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <h3>${passive.name}</h3>
-                        <p>${passive.desc}</p>
-                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${passive.price.toLocaleString()}</div>
-                    </div>
-                    <button class="action-btn" ${hasPassive || !canAfford ? 'disabled' : ''}>
-                        ${hasPassive ? '購入済み' : '購入'}
-                    </button>
-                `;
-                list.appendChild(div);
-                
-                if(!hasPassive && canAfford) {
-                    div.querySelector('button').onclick = () => {
-                        if ((userData.coin || 0) >= passive.price) {
-                            userData.coin -= passive.price;
-                            if (!userData.passives) userData.passives = [];
-                            userData.passives.push(passive.id);
-                            saveUserData();
-                            alert(`${passive.name}を購入しました！`);
-                            uiControllers.openShop();
-                        }
-                    };
-                }
-            });
-        } else if (tabText.includes('スキル')) {
-            Object.values(skillData).forEach(skill => {
-                if (skill.priceType !== 'coin' || skill.price === 0) return;
-                const hasSkill = (userData.skills || []).includes(skill.id);
-                const canAfford = (userData.coin || 0) >= skill.price;
-                
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <h3>${skill.name}</h3>
-                        <p>${skill.desc}</p>
-                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${skill.price.toLocaleString()}</div>
-                    </div>
-                    <button class="action-btn" ${hasSkill || !canAfford ? 'disabled' : ''}>
-                        ${hasSkill ? '購入済み' : '購入'}
-                    </button>
-                `;
-                list.appendChild(div);
-                
-                if(!hasSkill && canAfford) {
-                    div.querySelector('button').onclick = () => {
-                        if ((userData.coin || 0) >= skill.price) {
-                            userData.coin -= skill.price;
-                            if (!userData.skills) userData.skills = [];
-                            userData.skills.push(skill.id);
-                            saveUserData();
-                            alert(`${skill.name}を購入しました！`);
-                            uiControllers.openShop();
-                        }
-                    };
-                }
-            });
-        } else if (tabText.includes('アイテム')) {
-            Object.values(itemData).forEach(item => {
-                if (item.price === 0) return;
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <h3>${item.name}</h3>
-                        <p>${item.desc}</p>
-                        <div style="color: #ffd700; margin-top: 5px; font-weight: bold;">🪙${item.price.toLocaleString()}</div>
-                    </div>
-                    <button class="action-btn" ${(userData.coin || 0) < item.price ? 'disabled' : ''}>
-                        購入
-                    </button>
-                `;
-                list.appendChild(div);
-                
-                div.querySelector('button').onclick = () => {
-                    if ((userData.coin || 0) >= item.price) {
-                        userData.coin -= item.price;
-                        addItemToInventory(item.id, 1);
-                        saveUserData();
-                        alert(`${item.name}を購入しました！`);
-                        uiControllers.openShop();
-                    } else {
-                        alert("コインが足りません。");
-                    }
+        let items = [];
+        if (tabText.includes('パッシブ')) items = Object.values(passiveData).filter(p => p.priceType === 'coin');
+        else if (tabText.includes('スキル')) items = Object.values(skillData).filter(s => s.priceType === 'coin' && s.price > 0);
+        else if (tabText.includes('アイテム')) items = Object.values(itemData).filter(i => i.price > 0 && i.priceType === 'coin');
+        else if (tabText.includes('レイド')) items = [...Object.values(skillData), ...Object.values(passiveData)].filter(i => i.priceType === 'raid').map(i => ({...i, _category: skillData[i.id] ? 'skill' : 'passive'}));
+        
+        if (items.length === 0) { list.innerHTML = '<div style="text-align:center; padding: 20px;">商品はありません</div>'; return; }
+        
+        items.forEach(item => {
+            let hasItem = false, canAfford = false, priceLabel = '', btnAction = null;
+            if (tabText.includes('パッシブ') || tabText.includes('スキル')) {
+                hasItem = tabText.includes('パッシブ') ? (userData.passives || []).includes(item.id) : (userData.skills || []).includes(item.id);
+                canAfford = (userData.coin || 0) >= item.price;
+                priceLabel = `🪙${item.price.toLocaleString()}`;
+                btnAction = () => {
+                    userData.coin -= item.price;
+                    tabText.includes('パッシブ') ? userData.passives.push(item.id) : userData.skills.push(item.id);
+                    saveUserData(); alert(`${item.name}を購入しました！`); uiControllers.openShop();
                 };
-            });
-        } else if (tabText.includes('レイド')) {
-            const raidSkills = Object.values(skillData).filter(s => s.priceType === 'raid').map(s => ({...s, _category: 'skill'}));
-            const raidPassives = Object.values(passiveData).filter(p => p.priceType === 'raid').map(p => ({...p, _category: 'passive'}));
-            const raidItems = [...raidSkills, ...raidPassives];
-
-            if (raidItems.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding: 20px;">レイド商品はありません</div>';
-                return;
+            } else if (tabText.includes('アイテム')) {
+                canAfford = (userData.coin || 0) >= item.price;
+                priceLabel = `🪙${item.price.toLocaleString()}`;
+                btnAction = () => { userData.coin -= item.price; addItemToInventory(item.id, 1); saveUserData(); alert(`${item.name}を購入しました！`); uiControllers.openShop(); };
+            } else if (tabText.includes('レイド')) {
+                hasItem = item._category === 'passive' ? (userData.passives || []).includes(item.id) : (userData.skills || []).includes(item.id);
+                canAfford = (userData.raidPoint || 0) >= item.price;
+                priceLabel = `🎯${item.price.toLocaleString()}`;
+                btnAction = () => {
+                    userData.raidPoint -= item.price;
+                    item._category === 'passive' ? userData.passives.push(item.id) : userData.skills.push(item.id);
+                    saveUserData(); alert(`${item.name}を購入しました！`); uiControllers.openShop();
+                };
             }
-            raidItems.forEach(item => {
-                const targetArray = item._category === 'skill' ? (userData.skills || []) : (userData.passives || []);
-                const hasItem = targetArray.includes(item.id);
-                const canAfford = (userData.raidPoint || 0) >= item.price;
-                const typeLabel = item._category === 'passive' ? '<span style="font-size:12px; color:#ff9800;">[パッシブ]</span> ' : '';
-                
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <h3>${typeLabel}${item.name}</h3>
-                        <p>${item.desc}</p>
-                        <div style="color: #ff5722; margin-top: 5px; font-weight: bold;">🎯${item.price.toLocaleString()}</div>
-                    </div>
-                    <button class="action-btn" ${hasItem || !canAfford ? 'disabled' : ''}>
-                        ${hasItem ? '購入済み' : '購入'}
-                    </button>
-                `;
-                list.appendChild(div);
-                
-                if(!hasItem && canAfford) {
-                    div.querySelector('button').onclick = () => {
-                        if ((userData.raidPoint || 0) >= item.price) {
-                            userData.raidPoint -= item.price;
-                            if (item._category === 'skill') {
-                                if (!userData.skills) userData.skills = [];
-                                userData.skills.push(item.id);
-                            } else {
-                                if (!userData.passives) userData.passives = [];
-                                userData.passives.push(item.id);
-                            }
-                            saveUserData();
-                            alert(`${item.name}を購入しました！`);
-                            uiControllers.openShop();
-                        }
-                    };
-                }
-            });
-        }
+            
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `<div class="shop-item-info"><h3>${item._category === 'passive' ? '<span style="font-size:12px; color:#ff9800;">[パッシブ]</span> ' : ''}${item.name}</h3><p>${item.desc}</p><div style="color: ${tabText.includes('レイド') ? '#ff5722' : '#ffd700'}; margin-top: 5px; font-weight: bold;">${priceLabel}</div></div><button class="action-btn" ${hasItem || !canAfford ? 'disabled' : ''}>${hasItem ? '購入済み' : '購入'}</button>`;
+            list.appendChild(div);
+            if (!hasItem && canAfford) div.querySelector('button').onclick = btnAction;
+        });
+    },
+
+    // 運動会ショップ関連
+    switchUndoukaiShopTab: (tab) => {
+        const tabs = document.querySelectorAll('#undoukai-shop-screen .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if (tab === 'skills') tabs[0].classList.add('active');
+        else if (tab === 'items') tabs[1].classList.add('active');
+        else if (tab === 'passive') tabs[2].classList.add('active');
+        uiControllers.openUndoukaiShop();
+    },
+    openUndoukaiShop: () => {
+        showScreen('undoukai-shop-screen');
+        const list = document.getElementById('undoukai-shop-list');
+        const tabText = document.querySelector('#undoukai-shop-screen .tab.active').innerText;
+        list.innerHTML = '';
+        
+        let items = [];
+        if (tabText.includes('パッシブ')) items = Object.values(passiveData).filter(p => p.priceType === 'undoukai');
+        else if (tabText.includes('スキル')) items = Object.values(skillData).filter(s => s.priceType === 'undoukai');
+        else if (tabText.includes('アイテム')) items = Object.values(itemData).filter(i => i.priceType === 'undoukai');
+        
+        if (items.length === 0) { list.innerHTML = '<div style="text-align:center; padding: 20px;">商品はありません</div>'; return; }
+        
+        items.forEach(item => {
+            let hasItem = false, canAfford = false;
+            canAfford = (userData.undoukaiPoint || 0) >= item.price;
+            
+            if (tabText.includes('パッシブ')) hasItem = (userData.passives || []).includes(item.id);
+            else if (tabText.includes('スキル')) hasItem = (userData.skills || []).includes(item.id);
+            
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p><div style="color: #fff; margin-top: 5px; font-weight: bold; text-shadow: 0 0 5px #fff;">⚽️${item.price.toLocaleString()}</div></div><button class="action-btn" ${hasItem || !canAfford ? 'disabled' : ''}>${hasItem ? '購入済み' : '購入'}</button>`;
+            list.appendChild(div);
+            
+            if (!hasItem && canAfford) {
+                div.querySelector('button').onclick = () => {
+                    userData.undoukaiPoint -= item.price;
+                    if (tabText.includes('パッシブ')) userData.passives.push(item.id);
+                    else if (tabText.includes('スキル')) userData.skills.push(item.id);
+                    else addItemToInventory(item.id, 1);
+                    saveUserData(); alert(`${item.name}を購入しました！`); uiControllers.openUndoukaiShop();
+                };
+            }
+        });
+    },
+
+    // 運動会ミッション関連
+    openUndoukaiMission: () => {
+        showScreen('undoukai-mission-screen');
+        const list = document.getElementById('undoukai-mission-list');
+        list.innerHTML = '';
+        
+        const missions = [
+            { id: 'm1', title: 'ストーリーモードで4つのボスをクリアする', req: () => userData.undoukaiBossesCleared.length >= 4, progress: () => `${userData.undoukaiBossesCleared.length} / 4`, rewardText: 'パッシブ「コンボノットリセットβ」', claim: () => { if (!userData.passives.includes('combo_no_reset_beta')) userData.passives.push('combo_no_reset_beta'); } },
+            { id: 'm2', title: '運動会ポイント1000に到達する', req: () => userData.totalUndoukaiPoint >= 1000, progress: () => `${Math.min(userData.totalUndoukaiPoint, 1000)} / 1000`, rewardText: 'パッシブ「レイドポイントフエール！しゃくねつ！」', claim: () => { if (!userData.passives.includes('raid_point_increase_syakunetsu')) userData.passives.push('raid_point_increase_syakunetsu'); } },
+            { id: 'm3', title: '運動会のプレイで300回プレイ', req: () => userData.undoukaiPlayCount >= 300, progress: () => `${Math.min(userData.undoukaiPlayCount, 300)} / 300`, rewardText: 'デカキラコインブーストx15、ミニコインブーストγx50', claim: () => { addItemToInventory('deka_kira_coin_boost', 15); addItemToInventory('mini_coin_boost_gamma', 50); } }
+        ];
+        
+        missions.forEach(m => {
+            const isClaimed = userData.undoukaiMissionsClaimed.includes(m.id);
+            const isCompleted = m.req();
+            
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `
+                <div class="shop-item-info">
+                    <h3>${m.title}</h3>
+                    <p style="color:#ff9800;">進行度: ${m.progress()}</p>
+                    <p style="margin-top:5px; color:#aed581;">報酬: ${m.rewardText}</p>
+                </div>
+                <button class="action-btn" ${isClaimed || !isCompleted ? 'disabled' : ''}>
+                    ${isClaimed ? '受取済み' : (isCompleted ? '受け取る' : '未達成')}
+                </button>
+            `;
+            list.appendChild(div);
+            
+            if (!isClaimed && isCompleted) {
+                div.querySelector('button').onclick = () => {
+                    m.claim();
+                    userData.undoukaiMissionsClaimed.push(m.id);
+                    saveUserData(); alert(`報酬を受け取りました！`); uiControllers.openUndoukaiMission();
+                };
+            }
+        });
     },
 
     switchInventoryTab: (tab) => {
@@ -2461,107 +2518,43 @@ const uiControllers = {
     openInventory: () => {
         showScreen('inventory-screen');
         const list = document.getElementById('inventory-list');
-        const activeTab = document.querySelector('#inventory-screen .tab.active');
-        const tabText = activeTab.innerText;
-        
+        const tabText = document.querySelector('#inventory-screen .tab.active').innerText;
         list.innerHTML = '';
         
         if (tabText.includes('パッシブ')) {
-            if (!userData.passives || userData.passives.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding: 20px;">パッシブを所持していません</div>';
-                return;
-            }
-
-            userData.passives.forEach(passiveId => {
-                const passive = passiveData[passiveId];
-                if (!passive) return;
-                const isEquipped = userData.equippedPassive === passiveId;
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <h3>${passive.name}</h3>
-                        <p>${passive.desc}</p>
-                    </div>
-                    <button class="action-btn ${isEquipped ? 'equipped' : ''}">
-                        ${isEquipped ? '装備中' : '装備する'}
-                    </button>
-                `;
+            if (!userData.passives || userData.passives.length === 0) { list.innerHTML = '<div style="text-align:center; padding: 20px;">所持していません</div>'; return; }
+            userData.passives.forEach(id => {
+                const p = passiveData[id]; if (!p) return;
+                const isEq = userData.equippedPassive === id;
+                const div = document.createElement('div'); div.className = 'list-item';
+                div.innerHTML = `<div class="shop-item-info"><h3>${p.name}</h3><p>${p.desc}</p></div><button class="action-btn ${isEq ? 'equipped' : ''}">${isEq ? '装備中' : '装備する'}</button>`;
                 list.appendChild(div);
-                
-                div.querySelector('button').onclick = () => {
-                    userData.equippedPassive = isEquipped ? null : passiveId;
-                    saveUserData();
-                    uiControllers.openInventory();
-                };
+                div.querySelector('button').onclick = () => { userData.equippedPassive = isEq ? null : id; saveUserData(); uiControllers.openInventory(); };
             });
         } else if (tabText.includes('スキル')) {
-            if (!userData.skills || userData.skills.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding: 20px;">スキルを所持していません</div>';
-                return;
-            }
-
-            userData.skills.forEach(skillId => {
-                const skill = skillData[skillId];
-                if (!skill) return;
-                const isEquipped = userData.equippedSkill === skillId;
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <h3>${skill.name}</h3>
-                        <p>${skill.desc}</p>
-                    </div>
-                    <button class="action-btn ${isEquipped ? 'equipped' : ''}">
-                        ${isEquipped ? '装備中' : '装備する'}
-                    </button>
-                `;
+            if (!userData.skills || userData.skills.length === 0) { list.innerHTML = '<div style="text-align:center; padding: 20px;">所持していません</div>'; return; }
+            userData.skills.forEach(id => {
+                const s = skillData[id]; if (!s) return;
+                const isEq = userData.equippedSkill === id;
+                const div = document.createElement('div'); div.className = 'list-item';
+                div.innerHTML = `<div class="shop-item-info"><h3>${s.name}</h3><p>${s.desc}</p></div><button class="action-btn ${isEq ? 'equipped' : ''}">${isEq ? '装備中' : '装備する'}</button>`;
                 list.appendChild(div);
-                
-                div.querySelector('button').onclick = () => {
-                    userData.equippedSkill = isEquipped ? null : skillId;
-                    saveUserData();
-                    uiControllers.openInventory();
-                };
+                div.querySelector('button').onclick = () => { userData.equippedSkill = isEq ? null : id; saveUserData(); uiControllers.openInventory(); };
             });
         } else {
-            if (!userData.items || Object.keys(userData.items).length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding: 20px;">アイテムを所持していません</div>';
-                return;
-            }
-            
-            Object.entries(userData.items).forEach(([itemId, count]) => {
+            if (!userData.items || Object.keys(userData.items).length === 0) { list.innerHTML = '<div style="text-align:center; padding: 20px;">所持していません</div>'; return; }
+            Object.entries(userData.items).forEach(([id, count]) => {
                 if (count <= 0) return;
-                const item = itemData[itemId];
-                if (!item) return;
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `
-                    <div class="shop-item-info">
-                        <h3>${item.name}</h3>
-                        <p>${item.desc}</p>
-                        <div style="color: #4caf50; margin-top: 5px;">所持数: ${count}</div>
-                    </div>
-                    <button class="action-btn use-btn">使う</button>
-                `;
+                const item = itemData[id]; if (!item) return;
+                const div = document.createElement('div'); div.className = 'list-item';
+                div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p><div style="color: #4caf50; margin-top: 5px;">所持数: ${count}</div></div><button class="action-btn use-btn">使う</button>`;
                 list.appendChild(div);
-                
                 div.querySelector('button').onclick = () => {
-                    if (gameState.activeBoosts[itemId]) {
-                        alert("すでに効果が発動中です！");
-                        return;
-                    }
-                    userData.items[itemId]--;
-                    
-                    gameState.activeBoosts[itemId] = {
-                        endTime: Date.now() + item.duration * 1000,
-                        name: item.name
-                    };
+                    if (gameState.activeBoosts[id]) { alert("すでに発動中です！"); return; }
+                    userData.items[id]--;
+                    gameState.activeBoosts[id] = { endTime: Date.now() + item.duration * 1000, name: item.name };
                     item.effect(true);
-                    
-                    saveUserData();
-                    alert(`${item.name}を使用しました！(${item.duration/60}分間)`);
-                    uiControllers.openInventory();
+                    saveUserData(); alert(`${item.name}を使用しました！`); uiControllers.openInventory();
                 };
             });
         }
@@ -2570,22 +2563,16 @@ const uiControllers = {
 
 function escapeHTML(str) {
     if (!str) return '';
-    return str.replace(/[&<>'"]/g, tag => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-    }[tag] || tag));
+    return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
 }
 
 window.app = uiControllers;
 
 document.getElementById('settings-btn').addEventListener('click', () => {
     document.getElementById('name-input').value = userData.name || '';
-    applySettings();
-    document.getElementById('settings-modal').classList.add('active');
+    applySettings(); document.getElementById('settings-modal').classList.add('active');
 });
-
-document.getElementById('greek-info-btn').addEventListener('click', () => {
-    document.getElementById('greek-info-modal').classList.add('active');
-});
+document.getElementById('greek-info-btn').addEventListener('click', () => { document.getElementById('greek-info-modal').classList.add('active'); });
 
 initApp();
 </script>
