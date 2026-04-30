@@ -512,8 +512,8 @@
 <div id="app-container">
     <div id="header">
         <div id="header-left">
-            <button id="settings-btn">⚙️</button>
-            <button id="greek-info-btn">🔍</button>
+            <button id="settings-btn" onclick="app.openSettings()">⚙️</button>
+            <button id="greek-info-btn" onclick="app.openGreekInfo()">🔍</button>
             <div id="coin-display">🪙0</div>
             <div id="gold-coin-display">🥇0</div>
             <div id="raid-point-display">🎯0</div>
@@ -711,9 +711,9 @@
             <div id="ranking-timer">次のリセットまで: 計算中...</div>
             <div class="tab-container">
                 <div class="tabs">
-                    <div class="tab active" onclick="app.switchRankingTab('score', event)">スコア</div>
-                    <div class="tab" onclick="app.switchRankingTab('combo', event)">コンボ</div>
-                    <div class="tab" onclick="app.switchRankingTab('playCount', event)">プレイ回数</div>
+                    <div class="tab active" onclick="app.switchRankingTab('score')">スコア</div>
+                    <div class="tab" onclick="app.switchRankingTab('combo')">コンボ</div>
+                    <div class="tab" onclick="app.switchRankingTab('playCount')">プレイ回数</div>
                 </div>
                 <div id="ranking-list" class="list-container"></div>
             </div>
@@ -821,7 +821,7 @@
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, update, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBXnNXQ5khcR0EvRide4C0PjshJZpSF4oM",
@@ -838,41 +838,31 @@ const appInstance = initializeApp(firebaseConfig);
 const analytics = getAnalytics(appInstance);
 const db = getDatabase(appInstance);
 
-// クラス定義（コンテキスト維持用）
-class GameDataManager { constructor() { console.log("GameDataManager Ready"); } }
-class BrainrotCollectionService { constructor() { console.log("BrainrotCollectionService Ready"); } }
-class BrainrotCarryService { constructor() { console.log("BrainrotCarryService Ready"); } }
-class MoneyDisplayController { constructor() { console.log("MoneyDisplayController Ready"); } }
-window.gameDataManager = new GameDataManager();
-window.brainrotCollectionService = new BrainrotCollectionService();
-window.brainrotCarryService = new BrainrotCarryService();
-window.moneyDisplayController = new MoneyDisplayController();
-
 // ==========================================
 // 出題データ
 // ==========================================
 const typingData = [
-    { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku", furigana: "はやおきはさんもんのとく" },
-    { ja: "石の上にも三年", romaji: "isinouenimosannnenn", furigana: "いしのうえにもさんねん" },
+    { ja: "早起きは三文の得", romaji: "hayaokihasanmonnotoku", furigana: "はやおきはさんもんのとく" },
+    { ja: "石の上にも三年", romaji: "isinouenimosannen", furigana: "いしのうえにもさんねん" },
     { ja: "塵も積もれば山となる", romaji: "tirimotumorebayamatonaru", furigana: "ちりもつもればやまとなる" },
     { ja: "猿も木から落ちる", romaji: "sarumokikaraotiru", furigana: "さるもきからおちる" },
     { ja: "犬も歩けば棒に当たる", romaji: "inumoarukebabouniataru", furigana: "いぬもあるけばぼうにあたる" },
     { ja: "雨降って地固まる", romaji: "amehuttezikatamaru", furigana: "あめふってじがたまる" },
-    { ja: "花より団子", romaji: "hanayoridanngo", furigana: "はなよりだんご" },
+    { ja: "花より団子", romaji: "hanayoridango", furigana: "はなよりだんご" },
     { ja: "転ばぬ先の杖", romaji: "korobanusakinotue", furigana: "ころばぬさきのつえ" },
-    { ja: "三人寄れば文殊の知恵", romaji: "sannninnyorebamonnzyunotie", furigana: "さんにんよればもんじゅのちえ" },
-    { ja: "百聞は一見に如かず", romaji: "hyakubunnhaikkennnisikazu", furigana: "ひゃくぶんはいっけんにしかず" },
+    { ja: "三人寄れば文殊の知恵", romaji: "sanninyorebamonzyunotie", furigana: "さんにんよればもんじゅのちえ" },
+    { ja: "百聞は一見に如かず", romaji: "hyakubunhaikkennisikazu", furigana: "ひゃくぶんはいっけんにしかず" },
     { ja: "好きこそ物の上手なれ", romaji: "sukikosomononozyouzunare", furigana: "すきこそもののじょうずなれ" },
-    { ja: "案ずるより産むが易し", romaji: "annzuruyoriumugayasusi", furigana: "あんずるよりうむがやすし" },
+    { ja: "案ずるより産むが易し", romaji: "anzuruyoriumugayasusi", furigana: "あんずるよりうむがやすし" },
     { ja: "かわいい子には旅をさせよ", romaji: "kawaiikonihatabiwosaseyo", furigana: "かわいいこにはたびをさせよ" },
     { ja: "親しき中にも礼儀あり", romaji: "sitasikinakanimoreigiari", furigana: "したしきなかにもれいぎあり" },
     { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru", furigana: "わらうかどにはふくきたる" },
-    { ja: "朝ごはんを食べる", romaji: "asagohannwotaberu", furigana: "あさごはんをたべる" },
-    { ja: "学校へ行く", romaji: "gakkoueiku", furigana: "がっこうへいく" },
-    { ja: "図書館で本を読む", romaji: "tosyokanndehonnwoyomu", furigana: "としょかんでほんをよむ" },
-    { ja: "公園で友だちと遊ぶ", romaji: "kouenndetomodatitoasobu", furigana: "こうえんでともだちとあそぶ" },
-    { ja: "電車に乗る", romaji: "dennsyaninoru", furigana: "でんしゃにのる" },
-    { ja: "自転車で走る", romaji: "zitennsyadehasiru", furigana: "じてんしゃではしる" },
+    { ja: "朝ごはんを食べる", romaji: "asagohanwotaberu", furigana: "あさごはんをたべる" },
+    { ja: "学校へ行く", romaji: "gakkouheiku", furigana: "がっこうへいく" },
+    { ja: "図書館で本を読む", romaji: "tosyokandehonwoyomu", furigana: "としょかんでほんをよむ" },
+    { ja: "公園で友だちと遊ぶ", romaji: "kouendetomodatitoasobu", furigana: "こうえんでともだちとあそぶ" },
+    { ja: "電車に乗る", romaji: "densyaninoru", furigana: "でんしゃにのる" },
+    { ja: "自転車で走る", romaji: "zitensyadehasiru", furigana: "じてんしゃではしる" },
     { ja: "海で泳ぐ", romaji: "umideoyogu", furigana: "うみでおよぐ" },
     { ja: "山へ登る", romaji: "yamahenoboru", furigana: "やまえのぼる" },
     { ja: "星を数える", romaji: "hosiwokazoeru", furigana: "ほしをかぞえる" },
@@ -1223,297 +1213,254 @@ function getStageObstacle(stage) {
 function getRandomRaidObstacle() { return ['darkness', 'time_reduce', 'freeze'][Math.floor(Math.random() * 3)]; }
 
 // ==========================================
-// 足りなかった実装 (妨害処理・ゲームロジック・ランキングなど)
+// 運動会用関数
 // ==========================================
-function triggerDarkness() {
-    gameState.obstacleTriggered = true;
-    const overlay = document.getElementById('game-overlay');
-    overlay.style.backgroundColor = 'rgba(0,0,0,0.9)'; // 暗闇エフェクトを濃く修正
-    const msg = document.getElementById('game-message');
-    msg.innerText = '🕶️ 暗闇！';
-    msg.style.opacity = '1';
-    
-    setTimeout(() => {
-        overlay.style.backgroundColor = 'transparent';
-        msg.style.opacity = '0';
-    }, 5000);
+function startWordAutoType(words, interval) {
+    gameState.autoTypeWordsLeft = words;
+    gameState.isAutoTyping = true;
+    gameState.autoTypeInterval = setInterval(() => {
+        if (gameState.isPlaying && !gameState.timeExtendActive && !gameState.typingDisabled) {
+            handleCorrectKey();
+        }
+    }, interval);
 }
 
-function triggerFreeze() {
-    gameState.obstacleTriggered = true;
+function showFireEffect() {
+    const el = document.createElement('div');
+    el.className = 'fire-effect';
+    el.innerText = '🔥';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+}
+
+function showPassiveEffect(text) {
+    const el = document.createElement('div');
+    el.className = 'passive-effect';
+    el.innerText = text;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+}
+
+function spawnEvadeButton() {
+    if (!gameState.isPlaying) return;
+    const btn = document.getElementById('evade-btn');
+    btn.style.display = 'block';
+    const pos = ['center', 'left', 'right', 'up', 'down'][Math.floor(Math.random() * 5)];
+    if (pos === 'center') { btn.style.top = '50%'; btn.style.left = '50%'; }
+    else if (pos === 'left') { btn.style.top = '50%'; btn.style.left = '30%'; }
+    else if (pos === 'right') { btn.style.top = '50%'; btn.style.left = '70%'; }
+    else if (pos === 'up') { btn.style.top = '30%'; btn.style.left = '50%'; }
+    else if (pos === 'down') { btn.style.top = '70%'; btn.style.left = '50%'; }
+    
+    let evaded = false;
+    btn.onclick = () => { evaded = true; btn.style.display = 'none'; };
+    
+    setTimeout(() => {
+        if (!evaded && gameState.isPlaying) {
+            btn.style.display = 'none';
+            gameState.typingDisabled = true;
+            gameState.combo = Math.floor(gameState.combo / 2);
+            updateGameUI();
+            
+            const overlay = document.getElementById('game-overlay');
+            overlay.style.backgroundColor = 'rgba(255,0,0,0.5)';
+            const msg = document.getElementById('game-message');
+            msg.innerText = '💥 避け失敗！スタン！';
+            msg.style.opacity = '1';
+            
+            setTimeout(() => {
+                overlay.style.backgroundColor = 'transparent';
+                msg.style.opacity = '0';
+                gameState.typingDisabled = false;
+            }, 5000);
+        }
+    }, 1000);
+}
+
+function updateTsunahikiGauge() {
+    const fill = document.getElementById('tsunahiki-fill');
+    if(fill) {
+        fill.style.height = `${gameState.tsunahikiGauge}%`;
+    }
+}
+
+function triggerTsunahikiStun() {
     gameState.typingDisabled = true;
+    gameState.score = 100;
+    gameState.tsunahikiGauge = 100;
+    updateGameUI();
+    updateTsunahikiGauge();
+    
     const overlay = document.getElementById('game-overlay');
-    overlay.style.backgroundColor = 'rgba(0,188,212,0.5)';
+    overlay.style.backgroundColor = 'rgba(255,0,0,0.5)';
     const msg = document.getElementById('game-message');
-    msg.innerText = '❄️ 凍結！';
+    msg.innerText = '💥 綱を引かれた！スタン！';
     msg.style.opacity = '1';
     
     setTimeout(() => {
         overlay.style.backgroundColor = 'transparent';
         msg.style.opacity = '0';
-        gameState.typingDisabled = false;
-    }, 3000);
+        if (gameState.isPlaying) gameState.typingDisabled = false;
+    }, 10000);
 }
 
-// キーボード入力処理
-document.addEventListener('keydown', (e) => {
-    if (!gameState.isPlaying || gameState.typingDisabled || gameState.timeExtendActive || gameState.isAutoTyping) return;
-    
-    // スキル発動キー (Space)
-    if (e.code === 'Space' && gameState.isSkillReady && userData.equippedSkill) {
-        e.preventDefault();
-        app.useSkill();
-        return;
-    }
+function scheduleSyakunetsuCharge() {
+    if (gameState.syakunetsuChargeCount >= 2 || !gameState.isPlaying) return;
+    const delay = 10000 + Math.random() * 10000;
+    gameState.syakunetsuChargeTimeout = setTimeout(() => {
+        if (!gameState.isPlaying) return;
+        gameState.syakunetsuChargeCount++;
+        
+        const btn = document.getElementById('syakunetsu-charge-btn');
+        btn.style.display = 'block';
+        btn.style.top = Math.random() > 0.5 ? '20%' : '80%';
+        btn.style.left = Math.random() > 0.5 ? '20%' : '80%';
+        
+        const hideTimeout = setTimeout(() => {
+            btn.style.display = 'none';
+            btn.onclick = null;
+        }, 2500);
 
-    // アルファベットのみ許可
-    if (!/^[a-zA-Z-]$/.test(e.key)) return;
-    const inputKey = e.key.toLowerCase();
-    
-    const targetRomaji = gameState.currentWordObj.romaji;
-    const currentChar = targetRomaji[gameState.typedIndex];
-    
-    if (inputKey === currentChar) {
-        handleCorrectKey();
-    } else {
-        handleMissKey();
-    }
-});
-
-function handleCorrectKey() {
-    gameState.typedIndex++;
-    gameState.combo += 1 * gameState.comboMultiplier;
-    if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
-    
-    gameState.score += Math.floor(10 + gameState.combo * 0.1);
-    updateGameUI();
-    updateWordUI();
-    
-    // スコアゲージの更新
-    if (gameState.mode === 'story') updateStoryTargetUI();
-    if (gameState.mode === 'raid') updateRaidTargetUI();
-    if (gameState.mode === 'undoukai_boss') updateUndoukaiTargetUI();
-
-    if (gameState.typedIndex >= gameState.currentWordObj.romaji.length) {
-        if (gameState.autoTypeWordsLeft > 0) {
-            gameState.autoTypeWordsLeft--;
-            if (gameState.autoTypeWordsLeft <= 0) {
-                gameState.isAutoTyping = false;
-                clearInterval(gameState.autoTypeInterval);
-            }
-        }
-        setNextWord();
-    }
+        btn.onclick = () => {
+            clearTimeout(hideTimeout);
+            btn.style.display = 'none';
+            gameState.combo += 40;
+            if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+            updateGameUI();
+            showPassiveEffect('🔥 チャージ完了！コンボ+40');
+        };
+        scheduleSyakunetsuCharge();
+    }, delay);
 }
 
-function handleMissKey() {
-    // コンボ保護の処理
-    if (userData.equippedPassive === 'syakunetsu_chikara_gamma' && Math.random() < 0.15) {
-        showPassiveEffect('🔥 コンボ保護！');
-        return;
+function updateUndoukaiTargetUI() {
+    if (gameState.mode !== 'undoukai_boss') return;
+    const target = gameState.targetScore;
+    const current = gameState.score;
+    const percent = Math.min(100, (current / target) * 100);
+    const remaining = Math.max(0, target - current);
+    
+    let title = '';
+    if (gameState.undoukaiBoss === 'tamaire') title = '玉入れボス';
+    else if (gameState.undoukaiBoss === 'tsunahiki') title = '綱引き';
+    else if (gameState.undoukaiBoss === 'ninin') title = '二人三脚';
+    else if (gameState.undoukaiBoss === 'relay') title = 'リレー';
+
+    const infoEl = document.getElementById('undoukai-target-info');
+    if(infoEl) {
+        infoEl.innerHTML = `🏃 運動会 ${title}`;
+        document.getElementById('undoukai-target-bar-fill').style.width = `${percent}%`;
+        document.getElementById('undoukai-target-text').innerText = `残り: ${remaining.toLocaleString()} スコア`;
     }
-    
-    if (userData.equippedPassive === 'combo_no_reset_alpha' && !gameState.passiveUsed) {
-        gameState.passiveUsed = true;
-        showPassiveEffect('🛡️ コンボ保護！');
-        return;
-    }
-    
-    if (userData.equippedPassive === 'combo_no_reset_epsilon' && !gameState.passiveUsed) {
-        gameState.passiveUsed = true;
-        gameState.comboNoResetTime = 3.5;
-        showPassiveEffect('🛡️ 3.5秒無敵！');
-        return;
-    }
-
-    if (userData.equippedPassive === 'combo_no_reset_beta' && gameState.comboProtectCharges > 0) {
-        gameState.comboProtectCharges--;
-        showPassiveEffect(`🛡️ 保護残り${gameState.comboProtectCharges}回`);
-        return;
-    }
-
-    if (gameState.comboNoResetTime > 0) return; // 無敵時間中
-
-    gameState.combo = 0;
-    updateGameUI();
-    
-    const overlay = document.getElementById('game-overlay');
-    overlay.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
-    setTimeout(() => { overlay.style.backgroundColor = 'transparent'; }, 100);
-}
-
-function setNextWord() {
-    const randomWord = typingData[Math.floor(Math.random() * typingData.length)];
-    gameState.currentWordObj = { ...randomWord };
-    gameState.typedIndex = 0;
-    updateWordUI();
-}
-
-function updateWordUI() {
-    const romajiText = gameState.currentWordObj.romaji;
-    const typed = romajiText.substring(0, gameState.typedIndex);
-    const untyped = romajiText.substring(gameState.typedIndex);
-    
-    let html = `<span class="typed">${typed}</span>`;
-    if (gameState.mode === 'hard' || gameState.mode === 'undoukai_hard') {
-        html += `<span class="untyped-hidden">${untyped}</span>`;
-    } else {
-        html += `<span class="untyped">${untyped}</span>`;
-    }
-    document.getElementById('romaji-text').innerHTML = html;
-    document.getElementById('japanese-text').innerText = gameState.currentWordObj.ja;
-    document.getElementById('furigana-text').innerText = userData.settings.showFurigana ? gameState.currentWordObj.furigana : '';
-}
-
-function updateGameUI() {
-    document.getElementById('score-display').innerText = Math.floor(gameState.score).toLocaleString();
-    document.getElementById('combo-display').innerText = Math.floor(gameState.combo).toLocaleString();
-}
-
-// ゲーム終了・リザルト処理
-async function endGame() {
-    gameState.isPlaying = false;
-    clearInterval(gameState.timer);
-    if (gameState.autoTypeInterval) clearInterval(gameState.autoTypeInterval);
-    if (gameState.tsunahikiTimer) clearInterval(gameState.tsunahikiTimer);
-    if (gameState.syakunetsuChargeTimeout) clearTimeout(gameState.syakunetsuChargeTimeout);
-
-    document.getElementById('evade-btn').style.display = 'none';
-    document.getElementById('syakunetsu-charge-btn').style.display = 'none';
-
-    // 報酬計算
-    let earnedCoin = Math.floor(gameState.score / 100) * gameState.coinMultiplier;
-    if (gameState.mode === 'hard' || gameState.mode === 'undoukai_hard') earnedCoin *= 2;
-    
-    let earnedXP = Math.floor(gameState.score / 50) * gameState.xpMultiplier;
-    let earnedGold = 0;
-    if (Math.random() < gameState.goldDropRate) earnedGold = gameState.goldEarnAmount;
-    
-    let earnedRaid = 0;
-    let earnedUndoukai = 0;
-    let isClear = false;
-
-    // モード別リザルト処理
-    if (gameState.mode === 'story') {
-        if (gameState.score >= gameState.targetScore) {
-            isClear = true;
-            document.getElementById('story-clear-msg').style.display = 'block';
-            if (gameState.storyStage === userData.storyStage) userData.storyStage++;
-            earnedCoin += 1000;
-        } else {
-            document.getElementById('story-clear-msg').style.display = 'none';
-        }
-    } 
-    else if (gameState.mode === 'raid') {
-        if (gameState.score >= gameState.targetScore) {
-            isClear = true;
-            document.getElementById('raid-clear-msg').style.display = 'block';
-            raidState.stages[gameState.raidStage - 1].cleared = true;
-            raidState.currentStage++;
-            
-            let baseRaidPt = gameState.raidStage * 5;
-            if (userData.equippedPassive === 'raid_point_increase_alpha') baseRaidPt = Math.floor(baseRaidPt * 1.5);
-            else if (userData.equippedPassive === 'raid_point_increase_beta') baseRaidPt = Math.floor(baseRaidPt * 2.0);
-            else if (userData.equippedPassive === 'raid_point_increase_syakunetsu') {
-                baseRaidPt = Math.floor(baseRaidPt * 2.5) + 12;
-            }
-            earnedRaid = baseRaidPt;
-            userData.raidPoint += earnedRaid;
-            
-            if (gameState.raidStage === 6) {
-                userData.raidClearedTime = Date.now();
-                raidState.isOpen = false; // ボス討伐で閉まる
-            }
-        } else {
-            document.getElementById('raid-clear-msg').style.display = 'none';
-        }
-    }
-    else if (gameState.mode === 'undoukai_normal' || gameState.mode === 'undoukai_hard') {
-        earnedUndoukai = Math.floor(gameState.score / 10000);
-        if (gameState.mode === 'undoukai_hard') earnedUndoukai *= 2;
-        userData.undoukaiPoint += earnedUndoukai;
-        userData.totalUndoukaiPoint += earnedUndoukai;
-        userData.undoukaiPlayCount++;
-    }
-    else if (gameState.mode === 'undoukai_boss') {
-        if (gameState.score >= gameState.targetScore) {
-            isClear = true;
-            document.getElementById('undoukai-boss-clear-msg').style.display = 'block';
-            if (!userData.undoukaiBossesCleared.includes(gameState.undoukaiBoss)) {
-                userData.undoukaiBossesCleared.push(gameState.undoukaiBoss);
-                // ボス報酬の付与
-                if (gameState.undoukaiBoss === 'tamaire' && !userData.skills.includes('tamaire_omega')) userData.skills.push('tamaire_omega');
-                if (gameState.undoukaiBoss === 'tsunahiki' && !userData.passives.includes('syakunetsu_charge_omega')) userData.passives.push('syakunetsu_charge_omega');
-                if (gameState.undoukaiBoss === 'ninin' && !userData.skills.includes('syakunetsu_time_omega')) userData.skills.push('syakunetsu_time_omega');
-                if (gameState.undoukaiBoss === 'relay') {
-                    if (!userData.items['deka_kira_coin_boost']) userData.items['deka_kira_coin_boost'] = 0;
-                    userData.items['deka_kira_coin_boost'] += 30;
-                }
-            }
-            earnedUndoukai = 50; // ボスクリアボーナス
-            userData.undoukaiPoint += earnedUndoukai;
-            userData.totalUndoukaiPoint += earnedUndoukai;
-        } else {
-            document.getElementById('undoukai-boss-clear-msg').style.display = 'none';
-        }
-    }
-
-    // データ更新
-    userData.coin += earnedCoin;
-    userData.goldCoin += earnedGold;
-    userData.xp += earnedXP;
-    userData.playCount++;
-    if (gameState.score > userData.bestScore) userData.bestScore = gameState.score;
-    if (gameState.maxCombo > userData.bestCombo) userData.bestCombo = gameState.maxCombo;
-
-    // レベルアップ処理
-    let levelUp = false;
-    let nextXp = getNextLevelXp(userData.level);
-    while (userData.xp >= nextXp) {
-        userData.xp -= nextXp;
-        userData.level++;
-        levelUp = true;
-        nextXp = getNextLevelXp(userData.level);
-    }
-
-    // UI反映
-    document.getElementById('result-score').innerText = Math.floor(gameState.score).toLocaleString();
-    document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo).toLocaleString();
-    document.getElementById('result-coin').innerText = Math.floor(earnedCoin).toLocaleString();
-    document.getElementById('result-xp').innerText = Math.floor(earnedXP).toLocaleString();
-    
-    if (earnedGold > 0) {
-        document.getElementById('gold-coin-result').style.display = 'block';
-        document.getElementById('result-gold').innerText = earnedGold;
-    } else { document.getElementById('gold-coin-result').style.display = 'none'; }
-    
-    if (earnedRaid > 0) {
-        document.getElementById('raid-point-result').style.display = 'block';
-        document.getElementById('result-raid').innerText = earnedRaid;
-    } else { document.getElementById('raid-point-result').style.display = 'none'; }
-    
-    if (earnedUndoukai > 0) {
-        document.getElementById('undoukai-point-result').style.display = 'block';
-        document.getElementById('result-undoukai').innerText = earnedUndoukai;
-    } else { document.getElementById('undoukai-point-result').style.display = 'none'; }
-    
-    document.getElementById('level-up-msg').style.display = levelUp ? 'block' : 'none';
-
-    // ランキングデータ送信
-    const dateKey = getRankingDateKey();
-    await update(ref(db, `rankings/${dateKey}/score/${uid}`), { name: userData.name, value: userData.bestScore });
-    await update(ref(db, `rankings/${dateKey}/combo/${uid}`), { name: userData.name, value: userData.bestCombo });
-    await update(ref(db, `rankings/${dateKey}/playCount/${uid}`), { name: userData.name, value: userData.playCount });
-
-    saveUserData();
-    showScreen('result-screen');
 }
 
 // ==========================================
-// App オブジェクトのエクスポート (グローバル参照用)
+// コアゲームロジック・アプリ全般の制御 (補完・修正部分)
 // ==========================================
-const app = {
-    showScreen,
+
+window.app = {
+    // 画面遷移
+    showScreen: (id) => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const el = document.getElementById(id);
+        if(el) el.classList.add('active');
+    },
+
+    // 設定・モーダル関連
+    openSettings: () => {
+        document.getElementById('name-input').value = userData.name;
+        document.getElementById('home-scale-slider').value = userData.settings.homeScale;
+        document.getElementById('home-scale-val').innerText = userData.settings.homeScale + '%';
+        document.getElementById('furigana-toggle').checked = userData.settings.showFurigana;
+        document.getElementById('settings-modal').classList.add('active');
+    },
+    closeSettings: () => document.getElementById('settings-modal').classList.remove('active'),
+    saveName: async () => {
+        const newName = document.getElementById('name-input').value.trim();
+        if (newName.length > 0 && newName.length <= 20) {
+            userData.name = newName;
+            await window.app.saveData();
+            alert('名前を保存しました！');
+        } else {
+            alert('1〜20文字で入力してください。');
+        }
+    },
+    toggleFurigana: async (checked) => {
+        userData.settings.showFurigana = checked;
+        await window.app.saveData();
+    },
+    changeHomeScale: async (val) => {
+        document.getElementById('home-scale-val').innerText = val + '%';
+        userData.settings.homeScale = parseInt(val);
+        const scale = userData.settings.homeScale / 100;
+        document.getElementById('menu-content-wrapper').style.transform = `scale(${scale})`;
+        await window.app.saveData();
+    },
+    resetHomeScale: async () => {
+        window.app.changeHomeScale(100);
+        document.getElementById('home-scale-slider').value = 100;
+    },
+    openGreekInfo: () => document.getElementById('greek-info-modal').classList.add('active'),
+    showAgreement: () => document.getElementById('agreement-modal').classList.add('active'),
+    acceptAgreement: () => document.getElementById('agreement-modal').classList.remove('active'),
+
+    resetDataConfirm: () => {
+        document.getElementById('settings-modal').classList.remove('active');
+        document.getElementById('reset-confirm-modal').classList.add('active');
+    },
+    resetDataExecute: async () => {
+        userData = { ...defaultUserData };
+        userData.settings.homeScale = 100; // default view
+        await window.app.saveData();
+        location.reload();
+    },
+
+    // ヘッダー情報更新
+    updateHeader: () => {
+        document.getElementById('coin-display').innerText = `🪙${userData.coin}`;
+        document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin}`;
+        document.getElementById('raid-point-display').innerText = `🎯${userData.raidPoint}`;
+        document.getElementById('undoukai-point-display').innerText = `⚽️${userData.undoukaiPoint}`;
+        document.getElementById('level-display').innerText = `Lv.${userData.level}`;
+        
+        const nextXp = getNextLevelXp(userData.level);
+        const prevXp = userData.level > 1 ? getNextLevelXp(userData.level - 1) : 0;
+        const totalReq = nextXp - prevXp;
+        const currentReq = userData.xp - prevXp;
+        const percent = Math.min(100, Math.max(0, (currentReq / totalReq) * 100));
+        
+        document.getElementById('xp-bar-fill').style.width = `${percent}%`;
+        document.getElementById('xp-text').innerText = `${userData.xp} / ${nextXp} XP`;
+    },
+
+    // データセーブ・ロード
+    saveData: async () => {
+        if (!userRef) return;
+        try {
+            await set(userRef, userData);
+        } catch(e) {
+            console.error("Save error:", e);
+        }
+    },
+    loadData: async () => {
+        if (!userRef) return;
+        try {
+            const snap = await get(userRef);
+            if (snap.exists()) {
+                const data = snap.val();
+                userData = { ...defaultUserData, ...data };
+                if(!userData.settings) userData.settings = defaultUserData.settings;
+            } else {
+                await window.app.saveData();
+            }
+            window.app.changeHomeScale(userData.settings.homeScale || 100);
+            window.app.updateHeader();
+        } catch(e) {
+            console.error("Load error:", e);
+        }
+    },
+
+    // ゲーム開始・終了処理
     startGame: (mode) => {
         gameState.mode = mode;
         gameState.isPlaying = true;
@@ -1522,288 +1469,796 @@ const app = {
         gameState.score = 0;
         gameState.combo = 0;
         gameState.maxCombo = 0;
+        gameState.comboMultiplier = 1.0;
         gameState.typingDisabled = false;
-        
-        applyPassiveOnStart();
-        resetSkillUI();
-        
-        showScreen('game-screen');
+        gameState.timeExtendActive = false;
+        gameState.obstacleTriggered = false;
+
         document.getElementById('story-target-container').style.display = 'none';
         document.getElementById('raid-target-container').style.display = 'none';
         document.getElementById('undoukai-target-container').style.display = 'none';
         document.getElementById('tsunahiki-ui').style.display = 'none';
-        
-        updateGameUI();
-        setNextWord();
-        
-        gameState.timer = setInterval(() => {
-            gameState.timeLeft--;
-            document.getElementById('time-display').innerText = gameState.timeLeft;
-            if (gameState.timeLeft <= 0) endGame();
-        }, 1000);
-    },
-    endResult: () => {
-        showScreen('menu-screen');
-        updateHeaderUI();
-    },
-    // ★バグ修正箇所：ランキングを100件まで取得し、正しくリストに追加する！★
-    openRanking: async () => {
-        showScreen('ranking-screen');
-        app.switchRankingTab('score', { target: document.querySelector('#ranking-screen .tab.active') });
-    },
-    switchRankingTab: async (tab, event) => {
-        if(event) {
-            document.querySelectorAll('#ranking-screen .tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-        }
-        
-        const listContainer = document.getElementById('ranking-list');
-        listContainer.innerHTML = '<p style="color:white;text-align:center;">読み込み中...</p>';
-        
-        const dateKey = getRankingDateKey();
-        const rankRef = ref(db, `rankings/${dateKey}/${tab}`);
-        
-        // 修正ポイント: limitToLast(100) で100件まで取得！
-        const q = query(rankRef, orderByChild('value'), limitToLast(100));
-        const snapshot = await get(q);
-        
-        listContainer.innerHTML = ''; // クリア
-        
-        if (snapshot.exists()) {
-            const data = [];
-            snapshot.forEach(child => {
-                data.push({ name: child.val().name, value: child.val().value });
-            });
-            // 値の大きい順（降順）にソート
-            data.sort((a, b) => b.value - a.value);
-            
-            data.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                // 修正ポイント: innerHTML = で上書きせず、appendChild で追加していく！
-                div.innerHTML = `
-                    <div class="rank-item-info">
-                        <span style="font-weight:bold; color:${index===0?'#ffd700':index===1?'#c0c0c0':index===2?'#cd7f32':'#fff'}; margin-right:15px;">${index+1}位</span>
-                        <span>${item.name}</span>
-                    </div>
-                    <div style="font-size:24px; font-weight:bold; color:#00bcd4;">${item.value.toLocaleString()}</div>
-                `;
-                listContainer.appendChild(div);
-            });
-        } else {
-            listContainer.innerHTML = '<p style="color:#aaa;text-align:center;">まだデータがありません</p>';
-        }
-    },
-    // その他ショップやインベントリ処理
-    openShop: () => { showScreen('shop-screen'); app.switchShopTab('skills'); },
-    switchShopTab: (tab) => {
-        document.querySelectorAll('#shop-screen .tab').forEach(t => t.classList.remove('active'));
-        event.target.classList.add('active');
-        const container = document.getElementById('shop-list');
-        container.innerHTML = '';
-        
-        // 簡略化のため、すべてのデータを一覧で表示させるだけのモックとしています（文字数制限対策）
-        let dataSrc = tab === 'skills' || tab === 'raid' ? skillData : tab === 'passive' ? passiveData : itemData;
-        Object.values(dataSrc).forEach(item => {
-            if (tab === 'raid' && item.priceType !== 'raid') return;
-            if (tab === 'skills' && item.priceType === 'raid') return;
-            if (item.priceType === 'undoukai' || item.priceType === 'none') return; // イベント・非売品除外
-            
-            const btn = document.createElement('button');
-            const hasItem = userData[tab] && (Array.isArray(userData[tab]) ? userData[tab].includes(item.id) : userData[tab][item.id]);
-            
-            btn.className = 'action-btn';
-            btn.innerText = hasItem ? '購入済み' : `${item.price}${item.priceType==='coin'?'🪙':'🎯'}`;
-            if (hasItem) btn.disabled = true;
-            else btn.onclick = () => app.buyItem(item, tab);
-            
-            const div = document.createElement('div');
-            div.className = 'list-item';
-            div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div>`;
-            div.appendChild(btn);
-            container.appendChild(div);
-        });
-    },
-    buyItem: (item, category) => {
-        if (item.priceType === 'coin' && userData.coin >= item.price) userData.coin -= item.price;
-        else if (item.priceType === 'raid' && userData.raidPoint >= item.price) userData.raidPoint -= item.price;
-        else return alert('通貨が足りません！');
-        
-        if (Array.isArray(userData[category])) userData[category].push(item.id);
-        else userData[category][item.id] = (userData[category][item.id] || 0) + 1;
-        
-        saveUserData();
-        app.switchShopTab(category);
-    },
-    openInventory: () => { showScreen('inventory-screen'); app.switchInventoryTab('skills'); },
-    switchInventoryTab: (tab) => {
-        document.querySelectorAll('#inventory-screen .tab').forEach(t => t.classList.remove('active'));
-        event.target.classList.add('active');
-        const container = document.getElementById('inventory-list');
-        container.innerHTML = '';
-        
-        const list = Array.isArray(userData[tab]) ? userData[tab] : Object.keys(userData[tab] || {});
-        list.forEach(id => {
-            let data = skillData[id] || passiveData[id] || itemData[id];
-            if(!data) return;
-            const isEquipped = (tab === 'skills' && userData.equippedSkill === id) || (tab === 'passive' && userData.equippedPassive === id);
-            
-            const btn = document.createElement('button');
-            btn.className = `action-btn ${isEquipped ? 'equipped' : ''}`;
-            btn.innerText = isEquipped ? '装備中' : tab === 'items' ? `使用 (${userData.items[id]}個)` : '装備する';
-            
-            btn.onclick = () => {
-                if(tab === 'skills') userData.equippedSkill = id;
-                else if(tab === 'passive') userData.equippedPassive = id;
-                else if(tab === 'items') app.useItem(id);
-                saveUserData();
-                app.switchInventoryTab(tab);
-            };
-            
-            const div = document.createElement('div');
-            div.className = 'list-item';
-            div.innerHTML = `<div class="shop-item-info"><h3>${data.name}</h3><p>${data.desc}</p></div>`;
-            div.appendChild(btn);
-            container.appendChild(div);
-        });
-    },
-    useItem: (id) => {
-        if (!userData.items[id] || userData.items[id] <= 0) return;
-        userData.items[id]--;
-        if (userData.items[id] === 0) delete userData.items[id];
-        
-        const item = itemData[id];
-        if (item && item.effect) {
-            item.effect(true);
-            setTimeout(() => item.effect(false), item.duration * 1000);
-            alert(`${item.name}を使用しました！`);
-        }
-        saveUserData();
-    },
-    useSkill: () => {
-        if (!gameState.isSkillReady || !userData.equippedSkill) return;
-        const skill = skillData[userData.equippedSkill];
-        if (!skill) return;
 
-        skill.execute();
-        gameState.isSkillReady = false;
-        gameState.skillCooldownLeft = skill.cooldown;
-        
-        const btn = document.getElementById('skill-btn');
-        const overlay = document.getElementById('skill-cooldown-overlay');
-        btn.disabled = true;
-        
-        gameState.skillCooldownTimer = setInterval(() => {
-            gameState.skillCooldownLeft--;
-            const percent = (gameState.skillCooldownLeft / skill.cooldown) * 100;
-            overlay.style.height = `${percent}%`;
-            
-            if (gameState.skillCooldownLeft <= 0) {
-                clearInterval(gameState.skillCooldownTimer);
-                gameState.isSkillReady = true;
-                btn.disabled = false;
-                overlay.style.height = '0%';
+        applyPassiveOnStart();
+        resetSkillUI();
+        window.app.showScreen('game-screen');
+        setNextWord();
+        updateGameUI();
+
+        gameState.timer = setInterval(() => {
+            if(!gameState.timeExtendActive) {
+                gameState.timeLeft--;
+                document.getElementById('time-display').innerText = gameState.timeLeft;
+                if (gameState.timeLeft <= 0) endGame();
             }
         }, 1000);
     },
-    openStoryMap: () => { showScreen('story-map-screen'); renderStoryMap(); },
-    openRaidMap: () => { showScreen('raid-map-screen'); renderRaidMap(); },
-    startUndoukaiBoss,
-    // 設定系
-    saveName: () => {
-        const val = document.getElementById('name-input').value;
-        if (val) { userData.name = val; saveUserData(); alert('名前を保存しました'); }
+
+    openStoryMap: () => {
+        window.app.showScreen('story-map-screen');
+        const grid = document.getElementById('stage-grid');
+        grid.innerHTML = '';
+        document.getElementById('current-story-stage').innerText = userData.storyStage;
+        
+        for (let i = 1; i <= 100; i++) {
+            const btn = document.createElement('button');
+            btn.className = `stage-btn ${i < userData.storyStage ? 'completed' : i === userData.storyStage ? 'current' : 'locked'}`;
+            btn.innerText = i;
+            if (i === userData.storyStage) {
+                btn.onclick = () => window.app.startStoryStage(i);
+            }
+            grid.appendChild(btn);
+        }
     },
-    toggleFurigana: (val) => { userData.settings.showFurigana = val; saveUserData(); },
-    changeHomeScale: (val) => {
-        userData.settings.homeScale = val;
-        document.getElementById('home-scale-val').innerText = `${val}%`;
-        const scale = val / 50;
-        document.getElementById('menu-content-wrapper').style.transform = `scale(${scale})`;
+
+    startStoryStage: (stage) => {
+        gameState.mode = 'story';
+        gameState.storyStage = stage;
+        gameState.targetScore = getStoryTargetScore(stage);
+        gameState.isPlaying = true;
+        gameState.timeLeft = 60;
+        gameState.initialTime = 60;
+        gameState.score = 0;
+        gameState.combo = 0;
+        gameState.maxCombo = 0;
+        gameState.comboMultiplier = 1.0;
+
+        document.getElementById('story-target-container').style.display = 'block';
+        document.getElementById('raid-target-container').style.display = 'none';
+        document.getElementById('undoukai-target-container').style.display = 'none';
+        document.getElementById('tsunahiki-ui').style.display = 'none';
+        
+        document.getElementById('story-target-info').innerText = `第${stage}章`;
+
+        applyPassiveOnStart();
+        resetSkillUI();
+        window.app.showScreen('game-screen');
+        setNextWord();
+        updateGameUI();
+
+        gameState.timer = setInterval(() => {
+            if(!gameState.timeExtendActive) {
+                gameState.timeLeft--;
+                document.getElementById('time-display').innerText = gameState.timeLeft;
+
+                const obs = getStageObstacle(stage);
+                if(obs && !gameState.obstacleTriggered && gameState.timeLeft <= 30) {
+                    triggerObstacle(obs);
+                }
+
+                if (gameState.timeLeft <= 0) endGame();
+            }
+        }, 1000);
     },
-    resetHomeScale: () => {
-        document.getElementById('home-scale-slider').value = 50;
-        app.changeHomeScale(50);
-        saveUserData();
+
+    openRaidMap: () => {
+        if (!canPlayRaid()) {
+            alert('レイドは現在開催されていません。またはすでに本日のクリア報酬を受け取っています。');
+            return;
+        }
+        window.app.showScreen('raid-map-screen');
+        document.getElementById('raid-point-info').innerText = userData.raidPoint;
+        const grid = document.getElementById('raid-stages-grid');
+        grid.innerHTML = '';
+        
+        for (let i = 1; i <= 6; i++) {
+            const btn = document.createElement('button');
+            btn.className = `raid-stage-btn ${i < raidState.currentStage ? 'completed' : i === raidState.currentStage ? 'current' : 'locked'}`;
+            btn.innerText = `レイドステージ ${i} (目標: ${i === 6 ? '100,000' : 'ランダム'})`;
+            if (i === raidState.currentStage) {
+                btn.onclick = () => window.app.startRaidStage(i);
+            }
+            grid.appendChild(btn);
+        }
     },
-    showAgreement: () => document.getElementById('agreement-modal').classList.add('active'),
-    acceptAgreement: () => {
-        localStorage.setItem('agreementAccepted', 'true');
-        document.getElementById('agreement-modal').classList.remove('active');
+
+    startRaidStage: (stage) => {
+        gameState.mode = 'raid';
+        gameState.raidStage = stage;
+        gameState.targetScore = getRaidTargetScore(stage);
+        gameState.isPlaying = true;
+        gameState.timeLeft = 60;
+        gameState.initialTime = 60;
+        gameState.score = 0;
+        gameState.combo = 0;
+        gameState.maxCombo = 0;
+        gameState.comboMultiplier = 1.0;
+        gameState.raidObstacle = stage === 6 ? 'all' : getRandomRaidObstacle();
+
+        document.getElementById('story-target-container').style.display = 'none';
+        document.getElementById('raid-target-container').style.display = 'block';
+        document.getElementById('undoukai-target-container').style.display = 'none';
+        document.getElementById('tsunahiki-ui').style.display = 'none';
+        
+        document.getElementById('raid-target-info').innerText = `レイドステージ ${stage}`;
+
+        applyPassiveOnStart();
+        resetSkillUI();
+        window.app.showScreen('game-screen');
+        setNextWord();
+        updateGameUI();
+
+        gameState.timer = setInterval(() => {
+            if(!gameState.timeExtendActive) {
+                gameState.timeLeft--;
+                document.getElementById('time-display').innerText = gameState.timeLeft;
+
+                if(!gameState.obstacleTriggered && gameState.timeLeft <= 45 && gameState.timeLeft % 15 === 0) {
+                    if (gameState.raidObstacle === 'all') triggerObstacle(['darkness', 'time_reduce', 'freeze'][Math.floor(Math.random()*3)]);
+                    else triggerObstacle(gameState.raidObstacle);
+                }
+
+                if (gameState.timeLeft <= 0) endGame();
+            }
+        }, 1000);
     },
-    closeSettings: () => { document.getElementById('settings-modal').classList.remove('active'); },
-    resetDataConfirm: () => document.getElementById('reset-confirm-modal').classList.add('active'),
-    resetDataExecute: () => {
-        userData = { ...defaultUserData, uid: uid };
-        saveUserData();
-        location.reload();
+
+    startUndoukaiBoss: (bossId) => {
+        startUndoukaiBoss(bossId); // 運動会関数を呼び出し
+    },
+
+    endResult: async () => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        window.app.updateHeader();
+        await window.app.saveData();
+        window.app.showScreen('menu-screen');
+    },
+
+    // 各種メニュー操作
+    openShop: () => {
+        window.app.showScreen('shop-screen');
+        window.app.switchShopTab('skills');
+    },
+    switchShopTab: (tab) => {
+        document.querySelectorAll('#shop-screen .tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        const list = document.getElementById('shop-list');
+        list.innerHTML = '';
+
+        let items = [];
+        if(tab === 'skills') items = Object.values(skillData).filter(s => s.priceType === 'coin');
+        if(tab === 'items') items = Object.values(itemData).filter(s => s.priceType === 'coin');
+        if(tab === 'raid') items = [...Object.values(skillData), ...Object.values(passiveData)].filter(s => s.priceType === 'raid');
+        if(tab === 'passive') items = Object.values(passiveData).filter(s => s.priceType === 'coin');
+
+        items.forEach(item => {
+            const hasItem = userData.skills.includes(item.id) || userData.passives.includes(item.id) || (userData.items[item.id] || 0) > 0;
+            const el = document.createElement('div');
+            el.className = 'list-item';
+            
+            const pTypeStr = item.priceType === 'coin' ? '🪙' : '🎯';
+            const priceColor = item.priceType === 'coin' ? '#ffd700' : '#ff5722';
+            
+            el.innerHTML = `
+                <div class="shop-item-info">
+                    <h3>${item.name}</h3>
+                    <p>${item.desc}</p>
+                    <p style="color: ${priceColor}; font-weight: bold; margin-top: 5px;">${pTypeStr}${item.price.toLocaleString()}</p>
+                </div>
+                <button class="action-btn" ${hasItem && tab !== 'items' ? 'disabled' : ''} 
+                    onclick="app.buyItem('${item.id}', '${tab}', ${item.price}, '${item.priceType}')">
+                    ${hasItem && tab !== 'items' ? '所持済' : '購入'}
+                </button>
+            `;
+            list.appendChild(el);
+        });
+    },
+
+    buyItem: async (id, type, price, priceType) => {
+        if (priceType === 'coin' && userData.coin < price) return alert('コインが足りません！');
+        if (priceType === 'raid' && userData.raidPoint < price) return alert('レイドポイントが足りません！');
+        if (priceType === 'undoukai' && userData.undoukaiPoint < price) return alert('運動会ポイントが足りません！');
+
+        if (priceType === 'coin') userData.coin -= price;
+        if (priceType === 'raid') userData.raidPoint -= price;
+        if (priceType === 'undoukai') userData.undoukaiPoint -= price;
+
+        if (type === 'skills' || skillData[id]) userData.skills.push(id);
+        else if (type === 'passive' || passiveData[id]) userData.passives.push(id);
+        else if (type === 'items' || itemData[id]) {
+            userData.items[id] = (userData.items[id] || 0) + 1;
+        }
+
+        await window.app.saveData();
+        window.app.updateHeader();
+        
+        if (document.getElementById('shop-screen').classList.contains('active')) window.app.switchShopTab(type);
+        if (document.getElementById('undoukai-shop-screen').classList.contains('active')) window.app.switchUndoukaiShopTab(type);
+        alert(`${id} を購入しました！`);
+    },
+
+    openInventory: () => {
+        window.app.showScreen('inventory-screen');
+        window.app.switchInventoryTab('skills');
+    },
+    switchInventoryTab: (tab) => {
+        document.querySelectorAll('#inventory-screen .tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        const list = document.getElementById('inventory-list');
+        list.innerHTML = '';
+
+        let items = [];
+        if(tab === 'skills') items = userData.skills.map(id => skillData[id]).filter(Boolean);
+        if(tab === 'items') items = Object.keys(userData.items).map(id => ({...itemData[id], count: userData.items[id]})).filter(Boolean);
+        if(tab === 'passive') items = userData.passives.map(id => passiveData[id]).filter(Boolean);
+
+        if(items.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#888; margin-top:20px;">何も持っていません</p>';
+            return;
+        }
+
+        items.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'list-item';
+            
+            if (tab === 'items') {
+                el.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${item.name} x${item.count}</h3>
+                        <p>${item.desc}</p>
+                    </div>
+                    <button class="action-btn use-btn" onclick="app.useItem('${item.id}')">使用する</button>
+                `;
+            } else {
+                const isEquipped = (tab === 'skills' && userData.equippedSkill === item.id) || 
+                                   (tab === 'passive' && userData.equippedPassive === item.id);
+                el.innerHTML = `
+                    <div class="shop-item-info">
+                        <h3>${item.name}</h3>
+                        <p>${item.desc}</p>
+                    </div>
+                    <button class="action-btn ${isEquipped ? 'equipped' : ''}" 
+                        onclick="app.equip('${item.id}', '${tab}')">
+                        ${isEquipped ? '装備中' : '装備する'}
+                    </button>
+                `;
+            }
+            list.appendChild(el);
+        });
+    },
+
+    equip: async (id, type) => {
+        if (type === 'skills') userData.equippedSkill = id;
+        if (type === 'passive') userData.equippedPassive = id;
+        await window.app.saveData();
+        window.app.switchInventoryTab(type);
+    },
+
+    useItem: async (id) => {
+        if (!userData.items[id] || userData.items[id] <= 0) return;
+        
+        const item = itemData[id];
+        if (gameState.activeBoosts[id]) return alert('すでにこの効果は発動中です！');
+
+        userData.items[id]--;
+        if (userData.items[id] <= 0) delete userData.items[id];
+        
+        await window.app.saveData();
+        window.app.switchInventoryTab('items');
+
+        gameState.activeBoosts[id] = true;
+        item.effect(true);
+        updateBoostUI();
+
+        setTimeout(() => {
+            gameState.activeBoosts[id] = false;
+            item.effect(false);
+            updateBoostUI();
+        }, item.duration * 1000);
+        
+        alert(`${item.name} を使用しました！`);
+    },
+
+    openUndoukaiShop: () => {
+        window.app.showScreen('undoukai-shop-screen');
+        window.app.switchUndoukaiShopTab('skills');
+    },
+    switchUndoukaiShopTab: (tab) => {
+        document.querySelectorAll('#undoukai-shop-screen .tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        const list = document.getElementById('undoukai-shop-list');
+        list.innerHTML = '';
+
+        let items = [];
+        if(tab === 'skills') items = Object.values(skillData).filter(s => s.priceType === 'undoukai');
+        if(tab === 'items') items = Object.values(itemData).filter(s => s.priceType === 'undoukai');
+        if(tab === 'passive') items = Object.values(passiveData).filter(s => s.priceType === 'undoukai');
+
+        items.forEach(item => {
+            const hasItem = userData.skills.includes(item.id) || userData.passives.includes(item.id) || (userData.items[item.id] || 0) > 0;
+            const el = document.createElement('div');
+            el.className = 'list-item';
+            el.innerHTML = `
+                <div class="shop-item-info">
+                    <h3>${item.name}</h3>
+                    <p>${item.desc}</p>
+                    <p style="color: #ff9800; font-weight: bold; margin-top: 5px;">⚽️${item.price.toLocaleString()}</p>
+                </div>
+                <button class="action-btn" ${hasItem && tab !== 'items' ? 'disabled' : ''} 
+                    onclick="app.buyItem('${item.id}', '${tab}', ${item.price}, 'undoukai')">
+                    ${hasItem && tab !== 'items' ? '所持済' : '購入'}
+                </button>
+            `;
+            list.appendChild(el);
+        });
+    },
+    openUndoukaiMission: () => {
+        window.app.showScreen('undoukai-mission-screen');
+        const list = document.getElementById('undoukai-mission-list');
+        list.innerHTML = '<p style="text-align:center; padding: 20px;">現在ミッション機能は準備中です...</p>';
+    },
+
+    // ランキング処理 (100位まで対応)
+    openRanking: () => {
+        window.app.showScreen('ranking-screen');
+        window.app.switchRankingTab('score');
+    },
+    switchRankingTab: async (type) => {
+        document.querySelectorAll('#ranking-screen .tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        const list = document.getElementById('ranking-list');
+        list.innerHTML = '読み込み中...';
+
+        try {
+            const snap = await get(ref(db, 'users'));
+            if (!snap.exists()) {
+                list.innerHTML = 'データがありません。';
+                return;
+            }
+            let usersArr = [];
+            snap.forEach(child => {
+                const u = child.val();
+                // 記録がない場合は0として扱う
+                usersArr.push({
+                    name: u.name || '冒険者',
+                    score: u.bestScore || 0,
+                    combo: u.bestCombo || 0,
+                    playCount: u.playCount || 0
+                });
+            });
+
+            if(type === 'score') usersArr.sort((a,b) => b.score - a.score);
+            if(type === 'combo') usersArr.sort((a,b) => b.combo - a.combo);
+            if(type === 'playCount') usersArr.sort((a,b) => b.playCount - a.playCount);
+
+            // 100位までにする
+            usersArr = usersArr.slice(0, 100);
+
+            list.innerHTML = '';
+            usersArr.forEach((u, idx) => {
+                const el = document.createElement('div');
+                el.className = 'list-item';
+                let rankStr = `${idx + 1}位`;
+                if(idx === 0) rankStr = '🥇1位';
+                if(idx === 1) rankStr = '🥈2位';
+                if(idx === 2) rankStr = '🥉3位';
+
+                let valStr = '';
+                if(type === 'score') valStr = `スコア: ${u.score.toLocaleString()}`;
+                if(type === 'combo') valStr = `コンボ: ${u.combo.toLocaleString()}`;
+                if(type === 'playCount') valStr = `プレイ回数: ${u.playCount.toLocaleString()}`;
+
+                el.innerHTML = `
+                    <div class="rank-item-info" style="color:#ffd700; font-weight:bold; width: 60px;">${rankStr}</div>
+                    <div class="rank-item-info" style="flex:1; text-align:left; padding-left:10px;">${u.name}</div>
+                    <div class="rank-item-info" style="color:#00bcd4;">${valStr}</div>
+                `;
+                list.appendChild(el);
+            });
+        } catch(e) {
+            console.error("Ranking fetch error:", e);
+            list.innerHTML = 'エラーが発生しました。';
+        }
     }
 };
 
-window.app = app;
+// ==========================================
+// 内部ゲーム処理
+// ==========================================
 
-// 初期化時に実行
 function applyPassiveOnStart() {
-    if (!userData.equippedPassive) return;
-    const passive = passiveData[userData.equippedPassive];
-    if (passive && passive.onGameStart) passive.onGameStart();
-    if (userData.equippedPassive === 'combo_no_reset_beta') gameState.comboProtectCharges = 3;
+    if (userData.equippedPassive && passiveData[userData.equippedPassive]) {
+        const p = passiveData[userData.equippedPassive];
+        if (p.onGameStart) p.onGameStart();
+    }
 }
 
 function resetSkillUI() {
     const btn = document.getElementById('skill-btn');
     const overlay = document.getElementById('skill-cooldown-overlay');
-    const text = document.getElementById('skill-btn-text');
     
     if (userData.equippedSkill && skillData[userData.equippedSkill]) {
-        gameState.isSkillReady = true;
+        const skill = skillData[userData.equippedSkill];
+        document.getElementById('skill-btn-text').innerHTML = skill.name.replace('α','<br>α').replace('β','<br>β').replace('γ','<br>γ').replace('Ω','<br>Ω');
         btn.disabled = false;
         overlay.style.height = '0%';
-        text.innerText = skillData[userData.equippedSkill].name.substring(0, 4) + '..';
+        gameState.isSkillReady = true;
+        
+        btn.onclick = () => activateSkill();
     } else {
-        gameState.isSkillReady = false;
+        document.getElementById('skill-btn-text').innerText = 'スキル無し';
         btn.disabled = true;
-        text.innerText = 'スキル無し';
+        overlay.style.height = '0%';
+        gameState.isSkillReady = false;
+        btn.onclick = null;
     }
 }
 
-// 各種タイマーの起動
-function startRankingTimer() {
-    setInterval(() => {
-        const diff = getNextResetTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
-        document.getElementById('ranking-timer').innerText = `次のリセットまで: ${formatTimeRemaining(diff)}`;
-    }, 1000);
-}
-
-function startRaidTimer() {
-    setInterval(() => {
-        const diffOpen = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
-        const btn = document.getElementById('raid-menu-btn');
-        const timerInfo = document.getElementById('raid-menu-timer');
+function activateSkill() {
+    if (!gameState.isPlaying || gameState.typingDisabled || !gameState.isSkillReady) return;
+    
+    const skill = skillData[userData.equippedSkill];
+    if (skill.execute) skill.execute();
+    
+    gameState.isSkillReady = false;
+    document.getElementById('skill-btn').disabled = true;
+    gameState.skillCooldownLeft = skill.cooldown;
+    
+    gameState.skillCooldownTimer = setInterval(() => {
+        gameState.skillCooldownLeft -= 0.1;
+        const percent = (gameState.skillCooldownLeft / skill.cooldown) * 100;
+        document.getElementById('skill-cooldown-overlay').style.height = `${percent}%`;
         
-        if (isRaidOpen() && canPlayRaid()) {
-            btn.classList.remove('disabled');
-            timerInfo.innerText = "🔥 開催中！";
-        } else {
-            btn.classList.add('disabled');
-            timerInfo.innerText = `⏳ 次のレイド: ${formatTimeRemaining(diffOpen)}`;
+        if (gameState.skillCooldownLeft <= 0) {
+            clearInterval(gameState.skillCooldownTimer);
+            gameState.isSkillReady = true;
+            document.getElementById('skill-btn').disabled = false;
+            document.getElementById('skill-cooldown-overlay').style.height = '0%';
         }
-    }, 1000);
+    }, 100);
 }
 
-function startBoostStatusTimer() {
-    // 省略：ブーストアイコンの表示更新ロジックなど
+function setNextWord() {
+    gameState.currentWordObj = typingData[Math.floor(Math.random() * typingData.length)];
+    gameState.currentWordObj.typedIndex = 0;
+    renderWord();
 }
 
-// ヘッダーボタンイベント
-document.getElementById('settings-btn').onclick = () => {
-    document.getElementById('name-input').value = userData.name;
-    document.getElementById('settings-modal').classList.add('active');
-};
-document.getElementById('greek-info-btn').onclick = () => document.getElementById('greek-info-modal').classList.add('active');
+function renderWord() {
+    if (!gameState.currentWordObj) return;
+    const jaEl = document.getElementById('japanese-text');
+    const furiEl = document.getElementById('furigana-text');
+    const romajiEl = document.getElementById('romaji-text');
 
-initApp();
+    jaEl.innerText = gameState.currentWordObj.ja;
+    furiEl.innerText = userData.settings.showFurigana ? gameState.currentWordObj.furigana : '';
+    
+    const romaji = gameState.currentWordObj.romaji;
+    const typed = romaji.substring(0, gameState.currentWordObj.typedIndex);
+    const untyped = romaji.substring(gameState.currentWordObj.typedIndex);
+    
+    if (gameState.mode === 'hard' || gameState.mode === 'undoukai_hard') {
+        romajiEl.innerHTML = `<span class="typed">${typed}</span><span class="untyped-hidden">${untyped}</span>`;
+    } else {
+        romajiEl.innerHTML = `<span class="typed">${typed}</span><span class="untyped">${untyped}</span>`;
+    }
+}
 
+function handleCorrectKey() {
+    const obj = gameState.currentWordObj;
+    obj.typedIndex++;
+    
+    gameState.score += Math.floor(10 * gameState.comboMultiplier);
+    gameState.combo++;
+    if(gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+    
+    updateGameUI();
+    
+    if (obj.typedIndex >= obj.romaji.length) {
+        if (gameState.isAutoTyping && gameState.autoTypeWordsLeft > 0) {
+            gameState.autoTypeWordsLeft--;
+            if (gameState.autoTypeWordsLeft <= 0) {
+                gameState.isAutoTyping = false;
+                clearInterval(gameState.autoTypeInterval);
+            }
+        }
+        setNextWord();
+    } else {
+        renderWord();
+    }
+}
+
+function handleMissKey() {
+    const pId = userData.equippedPassive;
+    let protect = false;
+    
+    if (pId === 'combo_no_reset_alpha' && !gameState.passiveUsed) {
+        protect = true;
+        gameState.passiveUsed = true;
+        showPassiveEffect('🔰 コンボ保護！');
+    } else if (pId === 'combo_no_reset_epsilon' && gameState.comboNoResetTime > 0) {
+        protect = true;
+    } else if (pId === 'combo_no_reset_beta' && gameState.comboProtectCharges > 0) {
+        protect = true;
+        gameState.comboProtectCharges--;
+        showPassiveEffect(`🔰 残り保護: ${gameState.comboProtectCharges}回`);
+    } else if (pId === 'syakunetsu_chikara_gamma' && Math.random() < 0.15) {
+        protect = true;
+        showPassiveEffect('🔥 シャクネツガード！');
+    }
+
+    if (!protect) {
+        gameState.combo = 0;
+        document.getElementById('game-overlay').style.backgroundColor = 'rgba(255,0,0,0.3)';
+        setTimeout(()=> document.getElementById('game-overlay').style.backgroundColor = 'transparent', 150);
+    }
+    updateGameUI();
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!gameState.isPlaying || gameState.typingDisabled || gameState.timeExtendActive) return;
+    
+    if (e.code === 'Space') {
+        e.preventDefault();
+        activateSkill();
+        return;
+    }
+
+    if (!gameState.currentWordObj || gameState.isAutoTyping) return;
+
+    const expected = gameState.currentWordObj.romaji[gameState.currentWordObj.typedIndex];
+    if (e.key.toLowerCase() === expected.toLowerCase()) {
+        handleCorrectKey();
+    } else if (e.key.length === 1 && e.key.match(/[a-zA-Z\-]/)) {
+        handleMissKey();
+    }
+});
+
+function updateGameUI() {
+    document.getElementById('score-display').innerText = gameState.score.toLocaleString();
+    document.getElementById('combo-display').innerText = gameState.combo;
+    
+    if (gameState.mode === 'story') {
+        const percent = Math.min(100, (gameState.score / gameState.targetScore) * 100);
+        document.getElementById('story-target-bar-fill').style.width = `${percent}%`;
+        document.getElementById('story-target-text').innerText = `残り: ${Math.max(0, gameState.targetScore - gameState.score).toLocaleString()} スコア`;
+    } else if (gameState.mode === 'raid') {
+        const percent = Math.min(100, (gameState.score / gameState.targetScore) * 100);
+        document.getElementById('raid-target-bar-fill').style.width = `${percent}%`;
+        document.getElementById('raid-target-text').innerText = `残り: ${Math.max(0, gameState.targetScore - gameState.score).toLocaleString()} スコア`;
+    } else if (gameState.mode === 'undoukai_boss') {
+        updateUndoukaiTargetUI();
+    }
+}
+
+function triggerObstacle(type) {
+    gameState.obstacleTriggered = true;
+    const overlay = document.getElementById('game-overlay');
+    const msg = document.getElementById('game-message');
+    
+    if (type === 'darkness') {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.95)';
+        msg.innerText = '👁️ 暗闇！';
+        msg.style.opacity = '1';
+        setTimeout(() => { overlay.style.backgroundColor = 'transparent'; msg.style.opacity = '0'; }, 5000);
+    } else if (type === 'time_reduce') {
+        gameState.timeLeft = Math.max(1, gameState.timeLeft - 10);
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        const anim = document.getElementById('time-reduce-animation');
+        anim.style.opacity = '1';
+        setTimeout(() => anim.style.opacity = '0', 2000);
+    } else if (type === 'freeze') {
+        gameState.typingDisabled = true;
+        overlay.style.backgroundColor = 'rgba(0,188,212,0.5)';
+        msg.innerText = '❄️ 凍結！';
+        msg.style.opacity = '1';
+        setTimeout(() => {
+            gameState.typingDisabled = false;
+            overlay.style.backgroundColor = 'transparent';
+            msg.style.opacity = '0';
+        }, 3000);
+    }
+}
+
+function updateBoostUI() {
+    const container = document.getElementById('boost-status-container');
+    container.innerHTML = '';
+    if(gameState.activeBoosts['coin_boost_alpha'] || gameState.activeBoosts['deka_kira_coin_boost']) {
+        container.innerHTML += `<div class="boost-indicator">💰 コインUP発動中</div>`;
+    }
+    if(gameState.activeBoosts['mini_coin_boost_alpha'] || gameState.activeBoosts['mini_coin_boost_gamma'] || gameState.activeBoosts['mini_coin_boost_omega']) {
+        container.innerHTML += `<div class="boost-indicator mini-coin">🪙 ミニコインUP発動中</div>`;
+    }
+    if(gameState.activeBoosts['gold_luck_boost_alpha'] || gameState.activeBoosts['syakunetsu_gold_boost_alpha']) {
+        container.innerHTML += `<div class="boost-indicator gold">🥇 ゴールドドロップUP中</div>`;
+    }
+    if(gameState.activeBoosts['xp_boost_alpha']) {
+        container.innerHTML += `<div class="boost-indicator" style="border-left-color: #2196f3;">✨ XP UP発動中</div>`;
+    }
+}
+
+// タイムタイマー類
+function updateRankingTimer() {
+    const now = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    const reset = getNextResetTime();
+    document.getElementById('ranking-timer').innerText = `次のリセットまで: ${formatTimeRemaining(reset - now)}`;
+}
+function updateRaidTimer() {
+    if (isRaidOpen()) {
+        const now = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        const close = getRaidCloseTime();
+        document.getElementById('raid-menu-timer').innerText = `レイド開催中！終了まで: ${formatTimeRemaining(close - now)}`;
+        document.getElementById('raid-menu-btn').classList.remove('disabled');
+        document.getElementById('raid-status-timer').innerText = `終了まで: ${formatTimeRemaining(close - now)}`;
+        raidState.isOpen = true;
+    } else {
+        const now = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        const next = getNextRaidOpenTime();
+        document.getElementById('raid-menu-timer').innerText = `次のレイドまで: ${formatTimeRemaining(next - now)}`;
+        document.getElementById('raid-menu-btn').classList.add('disabled');
+        raidState.isOpen = false;
+    }
+}
+
+// ゲーム終了処理
+function endGame() {
+    clearInterval(gameState.timer);
+    clearInterval(gameState.autoTypeInterval);
+    clearInterval(gameState.skillCooldownTimer);
+    clearInterval(gameState.tsunahikiTimer);
+    clearTimeout(gameState.syakunetsuChargeTimeout);
+    
+    gameState.isPlaying = false;
+    document.getElementById('evade-btn').style.display = 'none';
+    document.getElementById('syakunetsu-charge-btn').style.display = 'none';
+    
+    window.app.showScreen('result-screen');
+    
+    document.getElementById('result-score').innerText = gameState.score.toLocaleString();
+    document.getElementById('result-combo').innerText = gameState.maxCombo.toLocaleString();
+    
+    let earnedCoin = Math.floor(gameState.score / 100);
+    if(gameState.mode.includes('hard')) earnedCoin *= 2;
+    earnedCoin = Math.floor(earnedCoin * gameState.coinMultiplier);
+    
+    let earnedXp = Math.floor(gameState.score / 50) * gameState.xpMultiplier;
+    
+    document.getElementById('result-coin').innerText = earnedCoin.toLocaleString();
+    document.getElementById('result-xp').innerText = earnedXp.toLocaleString();
+    
+    userData.coin += earnedCoin;
+    userData.xp += earnedXp;
+    userData.playCount++;
+    if(gameState.score > userData.bestScore) userData.bestScore = gameState.score;
+    if(gameState.maxCombo > userData.bestCombo) userData.bestCombo = gameState.maxCombo;
+
+    // ゴールドコインドロップ
+    if(Math.random() < gameState.goldDropRate) {
+        document.getElementById('gold-coin-result').style.display = 'block';
+        document.getElementById('result-gold').innerText = gameState.goldEarnAmount;
+        userData.goldCoin += gameState.goldEarnAmount;
+    } else {
+        document.getElementById('gold-coin-result').style.display = 'none';
+    }
+
+    // 各種モードごとの処理
+    document.getElementById('story-clear-msg').style.display = 'none';
+    document.getElementById('raid-clear-msg').style.display = 'none';
+    document.getElementById('undoukai-boss-clear-msg').style.display = 'none';
+    document.getElementById('raid-point-result').style.display = 'none';
+    document.getElementById('undoukai-point-result').style.display = 'none';
+
+    if(gameState.mode === 'story' && gameState.score >= gameState.targetScore) {
+        document.getElementById('story-clear-msg').style.display = 'block';
+        if(gameState.storyStage === userData.storyStage && userData.storyStage < 100) {
+            userData.storyStage++;
+        }
+    }
+    
+    if(gameState.mode === 'raid' && gameState.score >= gameState.targetScore) {
+        document.getElementById('raid-clear-msg').style.display = 'block';
+        let pt = gameState.raidStage === 6 ? 150 : 10;
+        
+        // パッシブ効果
+        if(userData.equippedPassive === 'raid_point_increase_alpha') pt = Math.floor(pt * 1.5);
+        if(userData.equippedPassive === 'raid_point_increase_beta') pt *= 2;
+        if(userData.equippedPassive === 'raid_point_increase_syakunetsu') { pt = Math.floor(pt * 2.5); pt += 12; }
+        
+        document.getElementById('raid-point-result').style.display = 'block';
+        document.getElementById('result-raid').innerText = pt;
+        userData.raidPoint += pt;
+
+        if(gameState.raidStage < 6) {
+            raidState.currentStage++;
+        } else {
+            userData.raidClearedTime = Date.now();
+        }
+    }
+
+    if(gameState.mode.includes('undoukai')) {
+        let uPt = 0;
+        if(gameState.mode === 'undoukai_boss' && gameState.score >= gameState.targetScore) {
+            document.getElementById('undoukai-boss-clear-msg').style.display = 'block';
+            uPt = 100;
+            if(!userData.undoukaiBossesCleared) userData.undoukaiBossesCleared = [];
+            if(!userData.undoukaiBossesCleared.includes(gameState.undoukaiBoss)) {
+                userData.undoukaiBossesCleared.push(gameState.undoukaiBoss);
+                // 報酬付与
+                let rewardMsg = '';
+                if(gameState.undoukaiBoss === 'tamaire') { userData.skills.push('tamaire_omega'); rewardMsg='玉入れΩ'; }
+                if(gameState.undoukaiBoss === 'tsunahiki') { userData.passives.push('syakunetsu_charge_omega'); rewardMsg='しゃくねつチャージΩ'; }
+                if(gameState.undoukaiBoss === 'ninin') { userData.skills.push('syakunetsu_time_omega'); rewardMsg='しゃくねつ時間伸ばしΩ'; }
+                if(gameState.undoukaiBoss === 'relay') { userData.items['deka_kira_coin_boost'] = (userData.items['deka_kira_coin_boost'] || 0) + 30; rewardMsg='デカキラコインブーストx30'; }
+                setTimeout(()=> alert(`ボス初回討伐報酬: ${rewardMsg} を獲得しました！`), 500);
+            }
+        } else if (gameState.mode !== 'undoukai_boss') {
+            uPt = Math.floor(gameState.score / 10000);
+            if(gameState.mode === 'undoukai_hard') uPt *= 2;
+        }
+        
+        if(uPt > 0) {
+            document.getElementById('undoukai-point-result').style.display = 'block';
+            document.getElementById('result-undoukai').innerText = uPt;
+            userData.undoukaiPoint += uPt;
+            userData.totalUndoukaiPoint += uPt;
+        }
+        userData.undoukaiPlayCount++;
+    }
+
+    // レベルアップ判定
+    document.getElementById('level-up-msg').style.display = 'none';
+    let nextXp = getNextLevelXp(userData.level);
+    while (userData.xp >= nextXp) {
+        userData.level++;
+        document.getElementById('level-up-msg').style.display = 'block';
+        nextXp = getNextLevelXp(userData.level);
+    }
+    
+    // UI更新は結果画面を閉じる際に行うが、スコアセーブはしておく
+    window.app.saveData();
+}
+
+// ==========================================
+// 初期化処理
+// ==========================================
+window.addEventListener('load', async () => {
+    try {
+        if (!uid) {
+            uid = generateUUID();
+            localStorage.setItem('typingGameUid', uid);
+        }
+        userRef = ref(db, 'users/' + uid);
+        await window.app.loadData();
+        
+        // 準備中画面の非表示処理（バグ修正箇所）
+        const loader = document.getElementById('loading-screen');
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+            // 初期画面はmenu-screenにすでにactiveがついている
+        }, 500);
+
+        setInterval(() => {
+            window.app.updateHeader();
+            updateRankingTimer();
+            updateRaidTimer();
+        }, 1000);
+        
+    } catch(e) {
+        console.error("Init Error:", e);
+        document.getElementById('loading-screen').innerHTML = 'エラーが発生しました。<br>リロードしてください。';
+    }
+});
 </script>
 </body>
 </html>
