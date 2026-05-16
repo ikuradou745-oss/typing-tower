@@ -28,6 +28,35 @@
             text-shadow: 0 0 20px #00bcd4;
         }
 
+        /* ブースト表示 (左下に固定・デザイン改修) */
+        #boost-status-container { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            z-index: 1000; 
+            pointer-events: none;
+        }
+        .boost-indicator {
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            border: 2px solid #555;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            text-shadow: 1px 1px 2px black;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .boost-indicator.mini-coin { border-color: #ffd700; color: #fff; }
+        .boost-indicator.gold { border-color: #ffaa00; color: #fff; }
+        .boost-indicator.xp { border-color: #4caf50; color: #fff; }
+
         /* 全体レイアウト */
         #app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
@@ -37,11 +66,14 @@
         #settings-btn, #greek-info-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #e0e0e0; transition: transform 0.3s ease; }
         #settings-btn:hover, #greek-info-btn:hover { transform: scale(1.1); color: #ffffff; }
         #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); display: flex; align-items: center; gap: 5px; }
-        #gold-coin-display { font-size: 18px; font-weight: bold; color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 15px; }
-        #raid-point-display { font-size: 18px; font-weight: bold; color: #ff5722; text-shadow: 0 0 10px rgba(255, 87, 34, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 15px; }
-        #header-right { display: flex; align-items: center; gap: 10px; width: 350px; }
+        #gold-coin-display { font-size: 18px; font-weight: bold; color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
+        #raid-point-display { font-size: 18px; font-weight: bold; color: #ff5722; text-shadow: 0 0 10px rgba(255, 87, 34, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
+        #rank-coin-display-header { font-size: 18px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
+        
+        #header-right { display: flex; align-items: center; gap: 15px; width: 450px; justify-content: flex-end; }
+        #header-rank-badge { background: linear-gradient(145deg, #f57f17, #fbc02d); color: #000; padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 0 8px rgba(251, 192, 45, 0.6); }
         #level-display { font-size: 18px; font-weight: bold; white-space: nowrap; color: #e0e0e0; }
-        #xp-bar-container { width: 100%; height: 15px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #444; }
+        #xp-bar-container { width: 150px; height: 15px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #444; }
         #xp-bar-fill { height: 100%; background: linear-gradient(90deg, #6bcf7f, #4caf50); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 8px #4caf50; }
         #xp-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; }
 
@@ -76,7 +108,7 @@
         #menu-screen .menu-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 30px; 
+            gap: 20px; 
             width: 80%; 
             max-width: 700px; 
             margin-top: 0; 
@@ -85,9 +117,9 @@
             background: linear-gradient(145deg, #2c2c2c, #1f1f1f); 
             color: #f0f0f0; 
             border: none; 
-            padding: 35px 20px; 
-            font-size: 26px; 
-            border-radius: 24px; 
+            padding: 25px 15px; 
+            font-size: 24px; 
+            border-radius: 20px; 
             cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
             font-weight: bold; 
@@ -99,19 +131,34 @@
         .menu-btn:hover { 
             background: linear-gradient(145deg, #3a3a3a, #2a2a2a); 
             border-color: #00bcd4; 
-            transform: translateY(-8px); 
+            transform: translateY(-5px); 
             box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0, 188, 212, 0.4);
             color: #ffffff;
         }
         .menu-btn.story-mode {
-            grid-column: span 2;
+            grid-column: span 1;
             background: linear-gradient(145deg, #7b1fa2, #4a148c);
             border-color: #9c27b0;
+            padding: 30px 15px;
         }
         .menu-btn.raid-mode {
-            grid-column: span 2;
+            grid-column: span 1;
             background: linear-gradient(145deg, #c62828, #b71c1c);
             border-color: #ef5350;
+            padding: 30px 15px;
+        }
+        .menu-btn.rank-mode {
+            grid-column: span 2;
+            background: linear-gradient(145deg, #f57f17, #f9a825);
+            border-color: #fbc02d;
+            padding: 35px 20px;
+            font-size: 28px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+        .menu-btn.rank-mode:hover {
+            box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 20px rgba(251, 192, 45, 0.6);
+            border-color: #fff;
         }
         .menu-btn.raid-mode.disabled {
             opacity: 0.5;
@@ -124,7 +171,7 @@
             font-size: 18px;
             color: #ff9800;
             margin-top: -10px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         /* プレイ選択画面 */
@@ -193,6 +240,16 @@
         .raid-stage-btn.current:hover { transform: scale(1.02); filter: brightness(1.1); }
         .raid-timer { font-size: 20px; color: #ff9800; margin: 10px 0; }
 
+        /* ランクマッチ画面 */
+        #rank-match-screen { justify-content: center; }
+        .rank-container { display: flex; gap: 30px; width: 95%; max-width: 1000px; margin-top: 20px; }
+        .rank-panel { flex: 1; background: rgba(30, 30, 30, 0.8); border: 1px solid #555; border-radius: 20px; padding: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center; }
+        .rank-panel h3 { font-size: 28px; margin-bottom: 20px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        #current-rank-display { font-size: 100px; font-weight: 900; color: #ffeb3b; text-shadow: 0 0 30px rgba(255, 235, 59, 0.8), 2px 2px 5px #000; margin-bottom: 10px; line-height: 1; }
+        #rank-xp-bar-container-ui { width: 100%; height: 25px; background: #222; border-radius: 12.5px; border: 2px solid #555; position: relative; overflow: hidden; margin-bottom: 30px; }
+        #rank-xp-bar-fill-ui { height: 100%; background: linear-gradient(90deg, #fbc02d, #f57f17); width: 0%; transition: width 0.3s ease; }
+        #rank-xp-text-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
+        
         /* ゲーム画面 */
         #game-screen { justify-content: center; position: relative; }
         #story-target-container, #raid-target-container { 
@@ -239,8 +296,25 @@
             font-size: 16px;
             color: #ccc;
         }
-        #game-info { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-around; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px black; }
-        #typing-area { text-align: center; margin-top: 20px; }
+        
+        /* NPC情報表示 (ランクマッチ用) */
+        #npc-info-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(20, 20, 20, 0.85);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 2px solid #f44336;
+            box-shadow: 0 0 15px rgba(244, 67, 54, 0.4);
+            display: none;
+            z-index: 100;
+        }
+        #npc-info-name { font-size: 18px; color: #ffeb3b; font-weight: bold; margin-bottom: 5px; }
+        #npc-info-score { font-size: 32px; color: #f44336; font-weight: bold; text-shadow: 1px 1px 3px black; }
+
+        #game-info { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-around; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px black; z-index: 50; pointer-events: none; }
+        #typing-area { text-align: center; margin-top: 20px; z-index: 10; position: relative; }
         #japanese-text { font-size: 56px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
         #furigana-text { font-size: 24px; color: #a0e9ff; margin-bottom: 5px; height: 36px; line-height: 36px; font-weight: bold; }
         #romaji-text { font-size: 44px; letter-spacing: 4px; font-family: 'Courier New', monospace; }
@@ -250,7 +324,7 @@
 
         /* 妨害エフェクト */
         #game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 500; transition: background-color 0.5s ease; }
-        #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; }
+        #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; width: 100%; }
         #time-reduce-animation { position: fixed; top: 30px; right: 30px; font-size: 48px; font-weight: bold; color: #ff5252; text-shadow: 0 0 20px #ff5252; z-index: 501; opacity: 0; pointer-events: none; }
         
         /* コンボ保護エフェクト・テキスト */
@@ -280,7 +354,7 @@
         #time-extend-center { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 20px; height: 40px; background: rgba(255,215,0,0.3); border-radius: 5px; }
         #time-extend-perfect { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 6px; height: 40px; background: #ff5252; border-radius: 3px; }
         
-        #skill-button-container { position: absolute; bottom: 50px; right: 50px; }
+        #skill-button-container { position: absolute; bottom: 50px; right: 50px; z-index: 100; }
         #skill-btn { 
             background: radial-gradient(circle at 30% 30%, #ab47bc, #6a1b9a); 
             color: #fff; 
@@ -308,7 +382,7 @@
         }
 
         /* リザルト画面 */
-        #result-screen { justify-content: center; }
+        #result-screen { justify-content: center; overflow-y: auto; padding: 20px 0; }
         .result-box { 
             background: rgba(30, 30, 30, 0.9); 
             backdrop-filter: blur(5px);
@@ -318,6 +392,8 @@
             border: 1px solid #444; 
             box-shadow: 0 20px 30px rgba(0,0,0,0.7);
             max-width: 500px;
+            width: 90%;
+            margin: auto;
         }
         .result-item { font-size: 28px; margin: 15px 0; }
         .back-btn { 
@@ -345,7 +421,7 @@
         #ranking-timer { font-size: 18px; color: #ff9800; margin: 10px 0; font-weight: bold; }
         
         /* リストUI */
-        .list-container { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
+        .list-container { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 10px; width: 100%; }
         .list-item { 
             background: rgba(40, 40, 40, 0.8); 
             backdrop-filter: blur(2px);
@@ -370,9 +446,10 @@
             font-size: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             transition: 0.2s;
+            white-space: nowrap;
         }
         .action-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
-        .action-btn:disabled { background: #555; cursor: not-allowed; }
+        .action-btn:disabled { background: #555; cursor: not-allowed; color: #aaa; box-shadow: none; }
         .action-btn.equipped { background: linear-gradient(145deg, #ff9800, #b26500); }
         .use-btn { background: linear-gradient(145deg, #2196f3, #1565c0); }
 
@@ -419,8 +496,10 @@
             <div id="coin-display">🪙0</div>
             <div id="gold-coin-display">🥇0</div>
             <div id="raid-point-display">🎯0</div>
+            <div id="rank-coin-display-header">RC 0</div>
         </div>
         <div id="header-right">
+            <div id="header-rank-badge">Rank G</div>
             <div id="level-display">Lv.1</div>
             <div id="xp-bar-container">
                 <div id="xp-bar-fill"></div>
@@ -439,8 +518,9 @@
                     <button class="menu-btn" onclick="app.openShop()">ショップ</button>
                     <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
                     <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
-                    <div class="raid-timer-info" id="raid-menu-timer"></div>
                     <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
+                    <div class="raid-timer-info" id="raid-menu-timer" style="grid-column: span 2;"></div>
+                    <button class="menu-btn rank-mode" onclick="app.openRankMatch()">🏆 ランクマッチ</button>
                 </div>
             </div>
         </div>
@@ -470,10 +550,37 @@
             <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
         </div>
 
+        <div id="rank-match-screen" class="screen">
+            <h2 style="font-size: 48px; color: #ffeb3b; text-shadow: 0 0 20px rgba(255,235,59,0.7); margin-bottom: 0;">🏆 ランクマッチ</h2>
+            <div class="rank-container">
+                <div class="rank-panel">
+                    <h3>現在のランク</h3>
+                    <div id="current-rank-display">G</div>
+                    <div id="rank-xp-bar-container-ui">
+                        <div id="rank-xp-bar-fill-ui"></div>
+                        <div id="rank-xp-text-ui">0 / 1000 RXP</div>
+                    </div>
+                    <button class="menu-btn" style="width: 100%; font-size: 28px; padding: 20px; background: linear-gradient(145deg, #f44336, #c62828); border-color: #ef5350;" onclick="app.startRankMatch()">⚔️ 対戦</button>
+                </div>
+                <div class="rank-panel" style="flex: 1.2;">
+                    <h3 style="color: #00e676; text-shadow: 0 0 10px rgba(0,230,118,0.5);">🛒 ランクショップ</h3>
+                    <div style="margin-bottom: 20px; font-size: 20px;">所持RC: <span id="rank-coin-shop-display" style="color: #ffeb3b; font-weight: bold; font-size: 24px;">0</span> RC</div>
+                    <div id="rank-shop-list" class="list-container" style="max-height: 300px;">
+                        </div>
+                </div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 40px;">戻る</button>
+        </div>
+
         <div id="game-screen" class="screen">
             <div id="game-overlay"></div>
             <div id="game-message"></div>
             <div id="time-reduce-animation">-10s</div>
+            
+            <div id="npc-info-container">
+                <div id="npc-info-name">対戦相手: ？？？</div>
+                <div>スコア: <span id="npc-info-score">0</span></div>
+            </div>
 
             <div id="time-extend-game">
                 <h3>⏱️ 時間伸ばし</h3>
@@ -523,12 +630,24 @@
         <div id="result-screen" class="screen">
             <div class="result-box">
                 <h2 style="font-size: 36px; margin-bottom: 20px;" id="result-title">ゲーム終了！</h2>
+                
+                <div id="rank-match-result" style="display: none; font-size: 40px; font-weight: bold; margin-bottom: 20px;"></div>
+                
                 <div class="result-item">最終スコア: <span id="result-score">0</span></div>
                 <div class="result-item">最大コンボ: <span id="result-combo">0</span></div>
-                <div class="result-item" style="color: #ffd700;" id="coin-result-container">獲得コイン: 🪙<span id="result-coin">0</span></div>
-                <div class="result-item" style="color: #ffaa00;" id="gold-coin-result" style="display: none;">🥇 ゴールドコイン: <span id="result-gold">0</span></div>
-                <div class="result-item" style="color: #ff5722;" id="raid-point-result" style="display: none;">🎯 レイドポイント: <span id="result-raid">0</span></div>
-                <div class="result-item" style="color: #4caf50;" id="xp-result-container">獲得XP: <span id="result-xp">0</span></div>
+                
+                <div id="normal-rewards-container">
+                    <div class="result-item" style="color: #ffd700;" id="coin-result-container">獲得コイン: 🪙<span id="result-coin">0</span></div>
+                    <div class="result-item" style="color: #ffaa00;" id="gold-coin-result" style="display: none;">🥇 ゴールドコイン: <span id="result-gold">0</span></div>
+                    <div class="result-item" style="color: #ff5722;" id="raid-point-result" style="display: none;">🎯 レイドポイント: <span id="result-raid">0</span></div>
+                    <div class="result-item" style="color: #4caf50;" id="xp-result-container">獲得XP: <span id="result-xp">0</span></div>
+                </div>
+
+                <div id="rank-rewards-container" style="display: none;">
+                    <div class="result-item" style="color: #ffeb3b;">獲得RC: <span id="result-rc">0</span> RC</div>
+                    <div class="result-item" style="color: #00e676;">獲得RXP: <span id="result-rxp">0</span> RXP</div>
+                    <div id="rank-up-msg" style="color: #f57f17; font-weight: bold; font-size: 32px; margin-top: 15px; display: none; text-shadow: 0 0 10px rgba(245, 127, 23, 0.8);">🎊 ランクアップ！！ 🎊</div>
+                </div>
                 
                 <div id="level-up-msg" style="color: #ff9800; font-weight: bold; margin-top: 10px; display: none;">レベルアップ！</div>
                 <div id="story-clear-msg" style="color: #4caf50; font-weight: bold; margin-top: 10px; display: none;">✅ ステージクリア！</div>
@@ -650,6 +769,52 @@
 </div>
 
 <script type="module">
+/*
+=============================================================================
+【このメモたちは、ゲームシステムです。このコメントはアップデートするたびにできる限り書こう！】
+
+▼ ゲームの全体構成
+・HTML/CSS/JSを1つのファイルにまとめたタイピングRPGです。
+・Firebase(Realtime Database)を使用して、ユーザーデータをクラウドに保存・管理しています。
+
+▼ スコア・コンボシステム
+・1文字正解するごとに「コンボ」が+1されます。
+・1文字正解時の獲得スコアは「現在のコンボ数 × 5」です。
+・コンボを繋げば繋ぐほど、スコアが指数関数的に伸びるシステムです。
+・ミスをするとコンボは0にリセットされます（パッシブやスキルでの保護・無敵状態を除く）。
+
+▼ モード一覧
+1. ノーマルモード: 60秒間タイピングし、スコアを稼ぐ基本モード。
+2. ハードモード: 未入力文字が非表示になり、獲得コインが2倍になります。
+3. ストーリーモード: 全100ステージ。目標スコアが設定されており、到達した瞬間に「クリア判定」となりゲーム終了となります。未到達のまま時間切れになった場合は失敗です。ステージが進むとお邪魔要素（暗闇、時間減少、凍結）が発生します。
+4. レイドモード: 決まった時間帯に開催。目標スコアに到達した瞬間にクリア。全プレイヤー共通のボスに挑むような演出。時間切れで失敗。
+5. ランクマッチ(新機能): NPCと1対1でスコアを競うモード。勝利するとランクXP(RXP)とランクコイン(RC)を獲得し、RXPが1000貯まるとランクアップします(G〜S, Z〜)。NPCは上のランクになるほど強力になり、Bランク以上では妨害（凍結・コンボ半減）を使ってきます。
+
+▼ 通貨・成長システム
+・XP: レベルアップに必要な経験値。
+・コイン(🪙): スキルやアイテム、パッシブを購入するための基本通貨。
+・ゴールドコイン(🥇): ストーリー報酬や低確率ドロップで入手するレア通貨。
+・レイドポイント(🎯): レイドモードクリアで獲得でき、専用のスキルやアイテムと交換できます。
+・ランクコイン(RC): ランクマッチで勝利した際に獲得。ランクショップで特別なアイテムと交換できます。
+・ランク(R) / ランクXP(RXP): ランクマッチでの強さの指標。RXPが1000貯まるごとに次のランクへ上がります。
+・レベル: XPが一定値(100×現在のレベル)に達するとレベルアップします。
+
+▼ スキル・パッシブ・アイテム
+・スキル: スペースキーで発動。自動入力、コンボ倍率アップ、時間伸ばしミニゲームなど、一時的に有利な効果を得られます。クールダウンあり。
+・パッシブ: 常に発動する効果。初期コンボ追加、ミス時のコンボリセット防止、レイドポイント増加など。
+・アイテム(ブースト): インベントリから使用することで、一定時間獲得コインやXPの倍率が上がります。画面左下に残り時間が表示されます。
+
+▼ ショップシステム
+・コイン、レイドポイント、ランクコインを消費してスキルやアイテムを購入します。
+・装備は「持ち物」画面から行います。
+
+▼ イベント終了時（ゲーム終了時）の処理
+・残り時間が0になるか、ストーリー/レイドで目標スコアに到達すると endGame() が呼ばれます。
+・目標スコアがあるモードで時間切れになった場合は「失敗」として処理されクリアになりません。
+・スコアに基づいて基礎コイン/XPが算出され、倍率が適用された上でユーザーデータに加算されFirebaseへ保存されます。
+=============================================================================
+*/
+
 // ==========================================
 // Firebase 設定と初期化
 // ==========================================
@@ -707,6 +872,8 @@ const typingData = [
     { ja: "おいしいラーメンを食べる", romaji: "oisiira-mennwotaberu", furigana: "おいしいらーめんをたべる" },
     { ja: "大きな船が海をわたる", romaji: "ookinahunegaumiwowataru", furigana: "おおきなふねがうみをわたる" }
 ];
+
+const npcNames = ["たろう", "ロサウド", "進撃の７１０", "１９４５年", "冒険者"];
 
 // ==========================================
 // スキルデータ
@@ -857,6 +1024,11 @@ const itemData = {
         id: "gold_luck_boost_alpha", name: "ゴールドコインラックブーストα", desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。",
         price: 0, priceType: 'coin', duration: 600,
         effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; }
+    },
+    "rank_xp_boost_alpha": {
+        id: "rank_xp_boost_alpha", name: "XPブーストα(ランク)", desc: "5分間、獲得XPが1.5倍になる。",
+        price: 1000, priceType: 'rankCoin', duration: 300,
+        effect: (active) => { gameState.xpMultiplier = active ? 1.5 : 1; }
     }
 };
 
@@ -865,6 +1037,7 @@ const itemData = {
 // ==========================================
 const defaultUserData = {
     name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
+    rankIndex: 0, rankXp: 0, rankCoin: 0,
     skills: [], equippedSkill: null, passives: [], equippedPassive: null, items: {},
     playCount: 0, bestScore: 0, bestCombo: 0, storyStage: 1, raidClearedTime: 0,
     settings: { homeScale: 50, showFurigana: true },
@@ -886,7 +1059,10 @@ const gameState = {
     activeBoosts: {}, obstacleTriggered: false, typingDisabled: false,
     targetScore: 0, timeExtendActive: false, raidObstacle: null,
     passiveUsed: false, comboNoResetTime: 0,
-    comboProtectCharges: 0
+    comboProtectCharges: 0,
+    
+    // ランクマッチ用
+    npcTargetScore: 0, npcCurrentScore: 0, npcScoreIncrement: 0, rankObstacleTriggered: false
 };
 
 let raidState = { isOpen: false, currentStage: 1, stages: [] };
@@ -919,6 +1095,14 @@ function formatTimeRemaining(ms) {
     const seconds = Math.floor((ms % (1000 * 60)) / 1000);
     return `${hours}時間${minutes}分${seconds}秒`;
 }
+
+// ランク名の取得
+function getRankName(index) {
+    const ranks = ['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S', 'S+', 'S++', 'Z'];
+    if (index < ranks.length) return ranks[index];
+    return 'Z' + (index - ranks.length + 1);
+}
+
 function getNextRaidOpenTime() {
     const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     let nextOpen = new Date(jstNow);
@@ -969,6 +1153,19 @@ function showPassiveEffect(text) {
     el.innerText = text;
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 2000);
+}
+
+// ==========================================
+// ランクマッチ NPCスコア計算
+// ==========================================
+function getNpcTargetScore(rankIdx) {
+    if (rankIdx === 0) return 5000 + Math.floor(Math.random() * 3501); // G: 5000-8500
+    if (rankIdx >= 1 && rankIdx <= 4) return (rankIdx * 5000 + 5000) + Math.floor(Math.random() * 3501); // F:10000-, E:15000-, D:20000-, C:25000-
+    if (rankIdx >= 5) { // B:100000-, A:200000-...
+        const base = 100000 + (rankIdx - 5) * 100000;
+        return base + Math.floor(Math.random() * 30001);
+    }
+    return 5000;
 }
 
 // ==========================================
@@ -1025,6 +1222,9 @@ async function initApp() {
             if (!userData.items) userData.items = {};
             if (!userData.goldCoin) userData.goldCoin = 0;
             if (!userData.raidPoint) userData.raidPoint = 0;
+            if (userData.rankIndex === undefined) userData.rankIndex = 0;
+            if (userData.rankXp === undefined) userData.rankXp = 0;
+            if (userData.rankCoin === undefined) userData.rankCoin = 0;
             if (!userData.storyStage) userData.storyStage = 1;
             if (!userData.passives) userData.passives = [];
             if (!userData.equippedPassive) userData.equippedPassive = null;
@@ -1091,7 +1291,11 @@ function updateHeaderUI() {
     document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin || 0)}`;
     document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin || 0}`;
     document.getElementById('raid-point-display').innerText = `🎯${userData.raidPoint || 0}`;
+    document.getElementById('rank-coin-display-header').innerText = `RC ${userData.rankCoin || 0}`;
     document.getElementById('level-display').innerText = `Lv.${userData.level || 1}`;
+    
+    const rankName = getRankName(userData.rankIndex || 0);
+    document.getElementById('header-rank-badge').innerText = `Rank ${rankName}`;
     
     const nextXp = getNextLevelXp(userData.level || 1);
     const xpPercent = Math.min(100, ((userData.xp || 0) / nextXp) * 100);
@@ -1143,11 +1347,7 @@ function startTimeExtendGame() {
             gameEl.style.display = 'none';
             gameState.timeExtendActive = false;
             gameState.typingDisabled = false;
-            gameState.timer = setInterval(() => {
-                gameState.timeLeft--;
-                document.getElementById('time-display').innerText = gameState.timeLeft;
-                if (gameState.timeLeft <= 0) endGame();
-            }, 1000);
+            gameState.timer = setInterval(gameTimerTick, 1000);
             document.removeEventListener('keydown', spaceHandler);
         }, 1500);
     };
@@ -1260,6 +1460,7 @@ function startGame(mode, stage = null) {
     gameState.comboProtectCharges = 0;
     gameState.timeLeft = 60;
     gameState.initialTime = gameState.timeLeft;
+    gameState.rankObstacleTriggered = false;
     
     applyPassiveOnStart();
     resetSkillUI();
@@ -1268,6 +1469,7 @@ function startGame(mode, stage = null) {
     
     document.getElementById('story-target-container').style.display = 'none';
     document.getElementById('raid-target-container').style.display = 'none';
+    document.getElementById('npc-info-container').style.display = 'none';
     
     if (mode === 'story') {
         gameState.storyStage = stage;
@@ -1280,21 +1482,36 @@ function startGame(mode, stage = null) {
         gameState.raidObstacle = getRandomRaidObstacle();
         document.getElementById('raid-target-container').style.display = 'block';
         updateRaidTargetUI();
+    } else if (mode === 'rank') {
+        document.getElementById('npc-info-container').style.display = 'block';
+        document.getElementById('npc-info-name').innerText = `対戦相手: ${npcNames[Math.floor(Math.random() * npcNames.length)]}`;
+        
+        gameState.npcTargetScore = getNpcTargetScore(userData.rankIndex || 0);
+        gameState.npcCurrentScore = 0;
+        gameState.npcScoreIncrement = gameState.npcTargetScore / 60;
+        document.getElementById('npc-info-score').innerText = "0";
     }
 
     updateGameUI();
     setNextWord();
     
-    gameState.timer = setInterval(() => {
-        if (!gameState.timeExtendActive) {
-            gameState.timeLeft--;
-            document.getElementById('time-display').innerText = gameState.timeLeft;
-            
-            triggerObstacles();
-            
-            if (gameState.timeLeft <= 0) endGame();
-        }
-    }, 1000);
+    gameState.timer = setInterval(gameTimerTick, 1000);
+}
+
+function gameTimerTick() {
+    if (gameState.timeExtendActive) return;
+    
+    gameState.timeLeft--;
+    document.getElementById('time-display').innerText = gameState.timeLeft;
+    
+    if (gameState.mode === 'rank') {
+        gameState.npcCurrentScore += Math.floor(gameState.npcScoreIncrement * (0.8 + Math.random() * 0.4));
+        document.getElementById('npc-info-score').innerText = gameState.npcCurrentScore.toLocaleString();
+    }
+    
+    triggerObstacles();
+    
+    if (gameState.timeLeft <= 0) endGame();
 }
 
 function applyPassiveOnStart() {
@@ -1332,6 +1549,12 @@ function triggerObstacles() {
         if (elapsed % 20 === 0 && elapsed > 0) {
             executeObstacle(gameState.raidObstacle);
         }
+    } else if (gameState.mode === 'rank') {
+        if ((userData.rankIndex || 0) >= 5 && gameState.timeLeft === 30 && !gameState.rankObstacleTriggered) {
+            gameState.rankObstacleTriggered = true;
+            const obs = Math.random() < 0.5 ? 'freeze' : 'combo_half';
+            executeObstacle(obs);
+        }
     }
 }
 
@@ -1357,13 +1580,19 @@ function executeObstacle(type) {
     } else if (type === 'freeze') {
         gameState.typingDisabled = true;
         overlay.style.backgroundColor = 'rgba(0, 255, 255, 0.3)';
-        msg.innerText = '凍結！';
+        msg.innerText = '凍結！！';
         msg.style.opacity = '1';
         setTimeout(() => {
             gameState.typingDisabled = false;
             overlay.style.backgroundColor = 'transparent';
             msg.style.opacity = '0';
-        }, 3000);
+        }, 5000);
+    } else if (type === 'combo_half') {
+        gameState.combo = Math.floor(gameState.combo / 2);
+        updateGameUI();
+        msg.innerText = 'コンボ半減！！';
+        msg.style.opacity = '1';
+        setTimeout(() => { msg.style.opacity = '0'; }, 3000);
     }
 }
 
@@ -1372,7 +1601,6 @@ function resetSkillUI() {
     const overlay = document.getElementById('skill-cooldown-overlay');
     if (userData.equippedSkill && skillData[userData.equippedSkill]) {
         const skill = skillData[userData.equippedSkill];
-        // 自動入力γはストーリー100クリアしていないと使えない
         if (skill.id === 'auto_input_gamma' && userData.storyStage < 100 && !(userData.storyRewardsClaimed && userData.storyRewardsClaimed.includes('100'))) {
             document.getElementById('skill-btn-text').innerText = 'スキル無し';
             btn.disabled = true;
@@ -1395,7 +1623,6 @@ function useSkill() {
     if (!gameState.isPlaying || !gameState.isSkillReady || !userData.equippedSkill || gameState.typingDisabled) return;
     const skill = skillData[userData.equippedSkill];
     
-    // 自動入力γはストーリー100クリアしていないと使えない
     if (skill.id === 'auto_input_gamma' && userData.storyStage < 100 && !(userData.storyRewardsClaimed && userData.storyRewardsClaimed.includes('100'))) {
         return;
     }
@@ -1449,12 +1676,17 @@ function updateTypingDisplay() {
 
 function handleCorrectKey() {
     gameState.currentRomajiIndex++;
-    // スコア = コンボ * 5
     gameState.score += gameState.combo * 5;
     gameState.combo++;
     if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
     
     updateGameUI();
+    
+    // ★ 即時クリア判定 ★
+    if ((gameState.mode === 'story' || gameState.mode === 'raid') && gameState.score >= gameState.targetScore) {
+        endGame();
+        return;
+    }
     
     if (gameState.currentRomajiIndex >= gameState.currentWordObj.romaji.length) {
         setNextWord();
@@ -1551,6 +1783,15 @@ function endGame() {
     clearInterval(gameState.skillCooldownTimer);
     clearInterval(gameState.autoTypeInterval);
     
+    // UI初期化
+    document.getElementById('rank-match-result').style.display = 'none';
+    document.getElementById('normal-rewards-container').style.display = 'block';
+    document.getElementById('rank-rewards-container').style.display = 'none';
+    document.getElementById('rank-up-msg').style.display = 'none';
+    document.getElementById('story-clear-msg').style.display = 'none';
+    document.getElementById('story-reward-msg').style.display = 'none';
+    document.getElementById('raid-clear-msg').style.display = 'none';
+    
     let baseCoin = Math.floor(gameState.score / 100);
     let baseGoldDrop = gameState.goldDropRate;
     
@@ -1559,22 +1800,64 @@ function endGame() {
     let earnedCoin = Math.floor(baseCoin * gameState.coinMultiplier);
     let earnedXp = Math.floor(baseCoin * gameState.xpMultiplier);
     
+    // ランクマッチ専用処理
+    let earnedRxp = 0;
+    let earnedRc = 0;
+    if (gameState.mode === 'rank') {
+        gameState.npcCurrentScore = gameState.npcTargetScore; // 終了時に確実に対象スコアにする
+        document.getElementById('npc-info-score').innerText = gameState.npcCurrentScore.toLocaleString();
+        
+        document.getElementById('normal-rewards-container').style.display = 'none';
+        document.getElementById('rank-rewards-container').style.display = 'block';
+        document.getElementById('rank-match-result').style.display = 'block';
+        
+        if (gameState.score > gameState.npcCurrentScore) {
+            document.getElementById('rank-match-result').innerText = '🎊 勝利！ 🎊';
+            document.getElementById('rank-match-result').style.color = '#ffeb3b';
+            
+            const diff = gameState.score - gameState.npcCurrentScore;
+            if (diff > 15000) earnedRxp = 100;
+            else if (diff > 5000) earnedRxp = 80;
+            else earnedRxp = 50;
+            
+            earnedRc = Math.floor(gameState.score / 100);
+            
+            userData.rankXp += earnedRxp;
+            userData.rankCoin += earnedRc;
+            
+            let rankUpOccurred = false;
+            while (userData.rankXp >= 1000) {
+                userData.rankXp -= 1000;
+                userData.rankIndex++;
+                rankUpOccurred = true;
+            }
+            if (rankUpOccurred) document.getElementById('rank-up-msg').style.display = 'block';
+            
+        } else {
+            document.getElementById('rank-match-result').innerText = '💀 敗北...';
+            document.getElementById('rank-match-result').style.color = '#9e9e9e';
+        }
+        document.getElementById('result-rc').innerText = earnedRc.toLocaleString();
+        document.getElementById('result-rxp').innerText = earnedRxp.toLocaleString();
+        
+        // ランクマッチでは通常のコインやXPは得られない設定にする（仕様の通りRCとRXPを獲得）
+        earnedCoin = 0;
+        earnedXp = 0;
+    }
+    
     userData.coin += earnedCoin;
     userData.xp += earnedXp;
     
     let earnedGold = 0;
-    if (Math.random() < baseGoldDrop) {
+    if (gameState.mode !== 'rank' && Math.random() < baseGoldDrop) {
         earnedGold = gameState.goldEarnAmount;
         userData.goldCoin += earnedGold;
     }
 
     let earnedRaid = 0;
-    let raidCleared = false;
     if (gameState.mode === 'raid') {
         if (gameState.score >= gameState.targetScore) {
-            raidCleared = true;
             earnedRaid = gameState.raidStage === 6 ? 10 : 2;
-            
             if (userData.equippedPassive) {
                 if (userData.equippedPassive === 'raid_point_increase_alpha') earnedRaid = Math.floor(earnedRaid * 1.5);
                 else if (userData.equippedPassive === 'raid_point_increase_beta') earnedRaid *= 2;
@@ -1590,41 +1873,29 @@ function endGame() {
             }
             document.getElementById('raid-clear-msg').style.display = 'block';
         } else {
-            document.getElementById('raid-clear-msg').innerText = '❌ レイド失敗...';
+            document.getElementById('raid-clear-msg').innerText = '❌ レイド失敗... (スコア未達)';
             document.getElementById('raid-clear-msg').style.display = 'block';
         }
-    } else {
-        document.getElementById('raid-clear-msg').style.display = 'none';
     }
 
-    let storyCleared = false;
-    let storyRewardsList = [];
     if (gameState.mode === 'story') {
         if (gameState.score >= gameState.targetScore) {
-            storyCleared = true;
             if (gameState.storyStage === userData.storyStage && userData.storyStage < 100) {
                 userData.storyStage++;
             }
             document.getElementById('story-clear-msg').innerText = '✅ ステージクリア！';
             document.getElementById('story-clear-msg').style.display = 'block';
             
-            // 報酬チェック
-            storyRewardsList = checkStoryRewards(userData.storyStage);
+            const storyRewardsList = checkStoryRewards(userData.storyStage);
             if (storyRewardsList.length > 0) {
                 const rewDiv = document.getElementById('story-reward-msg');
                 rewDiv.innerHTML = '🎁 報酬獲得！<br>' + storyRewardsList.join('<br>');
                 rewDiv.style.display = 'block';
-            } else {
-                document.getElementById('story-reward-msg').style.display = 'none';
             }
         } else {
             document.getElementById('story-clear-msg').innerText = '❌ スコアが足りませんでした...';
             document.getElementById('story-clear-msg').style.display = 'block';
-            document.getElementById('story-reward-msg').style.display = 'none';
         }
-    } else {
-        document.getElementById('story-clear-msg').style.display = 'none';
-        document.getElementById('story-reward-msg').style.display = 'none';
     }
 
     if (gameState.mode === 'normal' || gameState.mode === 'hard') {
@@ -1763,12 +2034,9 @@ function renderShopList(tab) {
     
     for (const key in dataObj) {
         const item = dataObj[key];
-        // ショップに表示しないアイテム
         if (item.priceType === 'none') continue;
-        // スキルタブで自動入力γは表示しない
         if (tab === 'skills' && key === 'auto_input_gamma') continue;
-        // アイテムタブでコインブーストα、XPブーストα、ゴールドコインラックブーストαは表示しない
-        if (tab === 'items' && (key === 'coin_boost_alpha' || key === 'xp_boost_alpha' || key === 'gold_luck_boost_alpha')) continue;
+        if (tab === 'items' && (key === 'coin_boost_alpha' || key === 'xp_boost_alpha' || key === 'gold_luck_boost_alpha' || key === 'rank_xp_boost_alpha')) continue;
         
         if (tab === 'raid' && item.priceType !== 'raid') continue;
         if (tab !== 'raid' && item.priceType === 'raid') continue;
@@ -1782,6 +2050,24 @@ function renderShopList(tab) {
         div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
         list.appendChild(div);
     }
+}
+
+function renderRankShopList() {
+    const list = document.getElementById('rank-shop-list');
+    list.innerHTML = '';
+    
+    // ランクショップ専用アイテム
+    const keys = ['rank_xp_boost_alpha'];
+    keys.forEach(key => {
+        const item = itemData[key];
+        let btnHtml = `<button class="action-btn" style="background: linear-gradient(145deg, #fbc02d, #f57f17); color: black;" onclick="app.buyItem('items', '${key}')">${item.price} RC</button>`;
+        
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.style.border = '1px solid #f57f17';
+        div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+        list.appendChild(div);
+    });
 }
 
 function renderInventoryList(tab) {
@@ -1843,8 +2129,19 @@ function startBoostStatusTimer() {
                 const m = Math.floor(diff / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
                 const el = document.createElement('div');
-                el.className = `boost-indicator ${key.includes('mini') ? 'mini-coin' : (key.includes('gold') ? 'gold' : '')}`;
-                el.innerText = `${item.name}: ${m}分${s}秒`;
+                
+                let icon = '🎁';
+                if (key.includes('coin')) icon = '🪙';
+                if (key.includes('gold')) icon = '🥇';
+                if (key.includes('xp')) icon = '✨';
+                
+                let extraClass = '';
+                if (key.includes('mini')) extraClass = 'mini-coin';
+                if (key.includes('gold')) extraClass = 'gold';
+                if (key.includes('xp')) extraClass = 'xp';
+                
+                el.className = `boost-indicator ${extraClass}`;
+                el.innerHTML = `${icon} 効果名: ${item.name} | 残り時間: ${m}分${s}秒`;
                 container.appendChild(el);
             } else {
                 if (itemData[key].effect) itemData[key].effect(false);
@@ -1863,6 +2160,21 @@ window.app = {
     startGame,
     openStoryMap: () => { renderStoryMap(); showScreen('story-map-screen'); },
     openRaidMap: () => { renderRaidMap(); showScreen('raid-map-screen'); },
+    
+    openRankMatch: () => {
+        showScreen('rank-match-screen');
+        const rName = getRankName(userData.rankIndex || 0);
+        document.getElementById('current-rank-display').innerText = rName;
+        
+        const rxp = userData.rankXp || 0;
+        const percent = Math.min(100, (rxp / 1000) * 100);
+        document.getElementById('rank-xp-bar-fill-ui').style.width = `${percent}%`;
+        document.getElementById('rank-xp-text-ui').innerText = `${rxp} / 1000 RXP`;
+        
+        document.getElementById('rank-coin-shop-display').innerText = userData.rankCoin || 0;
+        renderRankShopList();
+    },
+    startRankMatch: () => { startGame('rank'); },
     
     openRanking: () => {
         showScreen('ranking-screen');
@@ -1907,8 +2219,15 @@ window.app = {
             saveUserData();
             renderShopList(type);
             if (type === 'raid') renderShopList('raid');
+        } else if (item.priceType === 'rankCoin' && userData.rankCoin >= item.price) {
+            userData.rankCoin -= item.price;
+            if (type === 'items') userData.items[key] = (userData.items[key] || 0) + 1;
+            saveUserData();
+            renderRankShopList();
+            document.getElementById('rank-coin-shop-display').innerText = userData.rankCoin || 0;
+            alert('購入しました！「持ち物」から装備・使用してください。');
         } else {
-            alert('ポイントが足りません');
+            alert('ポイント・コインが足りません');
         }
     },
     
