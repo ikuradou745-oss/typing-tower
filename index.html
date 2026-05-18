@@ -560,6 +560,20 @@
     </div>
 </div>
 
+<div id="notice-modal" class="modal-overlay" style="z-index: 3000;">
+    <div class="modal-content">
+        <h2 style="color: #ff9800; font-size: 28px;">確認しておきたいこと</h2>
+        <p style="font-size: 16px; line-height: 1.8; color: #ddd;">
+            この作品はAIやコードの参考（ボタンのデザイン。難しいところはAI）などを駆使しています。<br>
+            完全に管理者一人で作り上げた、とは言いたく無いです。そこんところ理解して欲しいです。<br>
+            変な意味じゃ無いです。読んでくれてありがとうございました。<br>
+            あと名前を変な名前にするのはやめてください()
+        </p>
+        <button class="modal-btn" onclick="app.closeNoticeModal(false)">閉じる</button>
+        <button class="modal-btn danger" style="background: #555;" onclick="app.closeNoticeModal(true)">12時間表示しなくする</button>
+    </div>
+</div>
+
 <div id="users-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
         <h2 style="color: #00bcd4; margin-bottom: 10px;">👥 ユーザーリスト</h2>
@@ -653,42 +667,31 @@
 ・1文字正解時の獲得スコアは「現在のコンボ数 × 5」です。
 ・コンボを繋げば繋ぐほど、スコアが指数関数的に伸びるシステムです。
 ・ミスをするとコンボは0にリセットされます（パッシブやスキルでの保護・無敵状態を除く）。
-・【新要素】タイピング速度計測：一単語うち終わった時、1文字あたりの速さ(秒)を算出し、(5 / 速さ) の分だけコンボが一気に増加します！アニメーションも表示されます。
+・【速度計測】: 一単語うち終わった時、1文字あたりの速さ(秒)を算出し、(5 / 速さ) の分だけコンボが一気に増加します。
 
 ▼ モード一覧
 1. ノーマルモード: 60秒間タイピングし、スコアを稼ぐ基本モード。
-2. ハードモード: 未入力文字が非表示になり、獲得コインが2倍になります。
-3. ストーリーモード: 全100ステージ。目標スコアが設定されており、到達した瞬間に「クリア判定」となりゲーム終了となります。未到達のまま時間切れになった場合は失敗です。ステージが進むとお邪魔要素（暗闇、時間減少、凍結）が発生します。
-4. レイドモード: 決まった時間帯(7:30~7:45など)に開催。目標スコアに到達した瞬間にクリア。全プレイヤー共通のボスに挑むような演出。時間切れで失敗。
+2. ハードモード: 未入力文字が非表示になり、獲得コインが2倍。
+3. ストーリーモード: 全100ステージ。目標スコアが設定されており、到達した瞬間に「クリア判定」。時間切れは失敗。
+4. レイドモード: 決まった時間帯に開催。目標スコア到達でクリア。
 5. ランクマッチ: NPCと1対1でスコアを競うモード。
-   ・ランクは G〜S, Z, Z1, Z2, Z3… と上がっていきます。RXPが1000貯まるとランクアップ。
-   ・勝利判定は「終了時にNPCスコアより高いか」。
+   ・NPCスコア: Gは1万〜2万。F〜Cまではそこから5,000ずつ増加。Bは50万〜52万5千。以降ランクが上がるごとに10万増加。
    ・勝利時のRXP：差が 0~5000なら+50、5000~15000なら+100、15000~50000なら+150、50000~75000(〜10万未満)なら+300、100000~300000なら+500、それ以上なら+600。
-   ・負け時は -100RXP。0未満になる場合は可能ならランクダウンします（Gでは0止まり）。
-   ・ランクコイン(RC)を勝利スコア/100 獲得し、ランクショップで専用アイテムと交換できます。
+   ・負け時は -10RXP。0未満になる場合はランクダウン（Gでは0止まり）。
+   ・ランクコイン(RC)を勝利スコア/100 獲得。
+   ・Bランク以上のNPCは、残り時間30秒でデバフ(凍結5秒 or コンボ半減)を使用してきます。
 
 ▼ 通貨・成長システム
 ・XP: レベルアップに必要な経験値。
-・コイン(🪙): スキルやアイテム、パッシブを購入するための基本通貨。
-・ゴールドコイン(🥇): ストーリー報酬や低確率ドロップで入手するレア通貨。
-・レイドポイント(🎯): レイドモードクリアで獲得でき、専用のスキルやアイテムと交換。
-・ランクコイン(RC): ランクマッチで勝利した際に獲得。ランクショップで使用。
-・ランク(R) / ランクXP(RXP): ランクマッチでの強さの指標。
+・コイン(🪙) / ゴールドコイン(🥇) / レイドポイント(🎯) / ランクコイン(RC)
 ・レベル: XPが一定値(100×現在のレベル)に達するとレベルアップ。
 
-▼ スキル・パッシブ・アイテム
-・スキル: スペースキーで発動。自動入力、コンボ倍率アップなど。クールダウンあり。
-  (自動入力Ω：ランクZ到達報酬。30秒クールダウン、7.5秒間0.045秒間隔で高速自動入力)
-・パッシブ: 常に発動する効果。初期コンボ追加、ミス時のコンボリセット防止など。
-  (コンボセットγ：ランクB到達報酬。初期コンボが65になる)
-・アイテム(ブースト): インベントリから使用することで、一定時間獲得倍率が上がります。
-  (コインブーストΩ＋：ランクA到達報酬。30分間コインが3倍)
-
-▼ 新規追加要素
-・【ログインユーザー表示】: 左上の👥アイコンから、現在オンラインのユーザーと、今日ログインしたユーザーの一覧を確認できます。
-・【ランク報酬】: ランクマッチ画面の「ランク報酬」ボタンから、到達したランクに応じた特別な報酬(C到達でコイン＆RC大量など)を1度だけ受け取れます。
-・【背景装備】: ランクZ3到達で「ランクの証」を獲得でき、持ち物の「背景」タブで装備するとゲーム画面中央に星が浮かび、各種ランキングやユーザーリストで名前に「⭐️」が付きます。
-・【ランクランキング】: 現在のランクが一番高いユーザー順（1〜100位）を表示します。
+▼ 新規追加要素・UI
+・【ログインユーザー表示】: 左上の👥アイコンから、現在オンラインのユーザーと、今日ログインしたユーザーの一覧を確認。
+・【警告UI表示】: ゲーム開始時にAI使用についての確認モーダルを表示（12時間非表示設定可能）。
+・【ランク報酬】: 到達したランクに応じた特別な報酬(C到達でコイン＆RC大量など)を1度だけ受け取れます。
+・【背景装備】: ランクZ3到達で「ランクの証」を獲得でき、装備すると背景中央に星が浮かび、名前に「⭐️」が付きます。
+・【ランキング全体表示】: スコアやランクのランキングで、テスト環境等で上書きされないよう適切に全プレイユーザーを表示します。
 =============================================================================
 */
 
@@ -922,14 +925,20 @@ function getStageObstacle(stage) {
 }
 function getRandomRaidObstacle() { return ['darkness', 'time_reduce', 'freeze'][Math.floor(Math.random() * 3)]; }
 
+// ==========================================
+// ランクマッチ NPCスコア計算 (修正版)
+// ==========================================
 function getNpcTargetScore(rankIdx) {
-    if (rankIdx === 0) return 5000 + Math.floor(Math.random() * 3501); 
-    if (rankIdx >= 1 && rankIdx <= 4) return (rankIdx * 5000 + 5000) + Math.floor(Math.random() * 3501); 
-    if (rankIdx >= 5) {
-        const base = 100000 + (rankIdx - 5) * 100000;
-        return base + Math.floor(Math.random() * 30001);
+    if (rankIdx === 0) return 10000 + Math.floor(Math.random() * 10001); // G: 10000-20000
+    if (rankIdx >= 1 && rankIdx <= 4) { // F〜C
+        const base = 10000 + (rankIdx * 5000);
+        return base + Math.floor(Math.random() * 10001);
     }
-    return 5000;
+    if (rankIdx >= 5) { // B以降
+        const base = 500000 + ((rankIdx - 5) * 100000);
+        return base + Math.floor(Math.random() * 25001); // B: 500000~525000, A: 600000~625000...
+    }
+    return 10000;
 }
 
 function showPassiveEffect(text) {
@@ -1015,6 +1024,13 @@ async function initApp() {
     
     if (!localStorage.getItem('agreementAccepted')) {
         document.getElementById('agreement-modal').classList.add('active');
+    }
+    
+    // 警告UI（確認しておきたいこと）の表示チェック
+    const hideNoticeUntil = localStorage.getItem('hideNoticeUntil');
+    const now = Date.now();
+    if (!hideNoticeUntil || now > parseInt(hideNoticeUntil)) {
+        document.getElementById('notice-modal').classList.add('active');
     }
     
     startRankingTimer();
@@ -1268,6 +1284,7 @@ function triggerObstacles() {
             executeObstacle(gameState.raidObstacle);
         }
     } else if (gameState.mode === 'rank') {
+        // Bランク(5)以上はデバフをかけてくる
         if ((userData.rankIndex || 0) >= 5 && gameState.timeLeft === 30 && !gameState.rankObstacleTriggered) {
             gameState.rankObstacleTriggered = true;
             const obs = Math.random() < 0.5 ? 'freeze' : 'combo_half';
@@ -1552,7 +1569,7 @@ function endGame() {
         } else {
             document.getElementById('rank-match-result').innerText = '💀 敗北...';
             document.getElementById('rank-match-result').style.color = '#9e9e9e';
-            earnedRxp = -100;
+            earnedRxp = -10; // 負けたら -10 RXP に修正
         }
         
         userData.rankXp += earnedRxp;
@@ -1696,11 +1713,18 @@ async function fetchAndDisplayRanking(type) {
     try {
         const snap = await get(ref(db, `rankings/${type}/${dateKey}`));
         if (!snap.exists()) { listContainer.innerHTML = '<div style="text-align:center; padding:20px;">まだデータがありません</div>'; return; }
-        let data = []; snap.forEach(child => data.push(child.val()));
+        
+        let data = []; 
+        snap.forEach(child => {
+            if (child.val()) data.push(child.val());
+        });
+        
+        // 複数人表示のバグ修正：必ず配列にPushし、値でソートする
         data.sort((a, b) => b.value - a.value);
         
         listContainer.innerHTML = '';
-        for (let i = 0; i < Math.min(data.length, 100); i++) {
+        const displayLimit = Math.min(data.length, 100);
+        for (let i = 0; i < displayLimit; i++) {
             const item = data[i];
             const div = document.createElement('div'); div.className = 'list-item';
             let rankStr = i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i+1}位`;
@@ -1717,7 +1741,10 @@ async function fetchAndDisplayRankRanking() {
     try {
         const snap = await get(ref(db, `rankings/rankOverall`));
         if (!snap.exists()) { list.innerHTML = '<div style="text-align:center; padding:20px;">まだデータがありません</div>'; return; }
-        let data = []; snap.forEach(c => data.push(c.val()));
+        let data = []; 
+        snap.forEach(c => {
+            if (c.val()) data.push(c.val());
+        });
         
         data.sort((a, b) => {
             if (b.rankIndex !== a.rankIndex) return b.rankIndex - a.rankIndex;
@@ -1725,7 +1752,8 @@ async function fetchAndDisplayRankRanking() {
         });
         
         list.innerHTML = '';
-        for (let i = 0; i < Math.min(data.length, 100); i++) {
+        const displayLimit = Math.min(data.length, 100);
+        for (let i = 0; i < displayLimit; i++) {
             const item = data[i];
             const div = document.createElement('div'); div.className = 'list-item';
             let rankStr = i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i+1}位`;
@@ -1959,6 +1987,16 @@ window.app = {
     endResult: () => { showScreen('menu-screen'); },
     acceptAgreement: () => { localStorage.setItem('agreementAccepted', 'true'); document.getElementById('agreement-modal').classList.remove('active'); },
     showAgreement: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('agreement-modal').classList.add('active'); },
+    
+    // 警告UIを閉じる処理
+    closeNoticeModal: (hideFor12h) => {
+        if (hideFor12h) {
+            const expireTime = Date.now() + (12 * 60 * 60 * 1000); // 12時間後
+            localStorage.setItem('hideNoticeUntil', expireTime.toString());
+        }
+        document.getElementById('notice-modal').classList.remove('active');
+    },
+
     saveName: () => { const input = document.getElementById('name-input'); if (input.value.trim() !== '') { userData.name = input.value.trim().substring(0, 20); saveUserData(); updateOnlinePresence(); alert('名前を保存しました！'); } },
     toggleFurigana: (val) => { userData.settings.showFurigana = val; saveUserData(); },
     changeHomeScale: (val) => { userData.settings.homeScale = parseInt(val); document.getElementById('home-scale-val').innerText = `${val}%`; document.getElementById('menu-content-wrapper').style.transform = `scale(${val / 50})`; saveUserData(); },
@@ -1973,8 +2011,3 @@ document.getElementById('greek-info-btn').addEventListener('click', () => { docu
 </script>
 </body>
 </html>
-
-
-
-
-
