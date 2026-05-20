@@ -66,8 +66,8 @@
         /* 上側：ヘッダー */
         #header { display: flex; align-items: center; justify-content: space-between; height: 60px; background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%); padding: 0 20px; border-bottom: 1px solid #2a2a2a; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         #header-left { display: flex; align-items: center; gap: 15px; }
-        #settings-btn, #greek-info-btn, #users-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #e0e0e0; transition: transform 0.3s ease; }
-        #settings-btn:hover, #greek-info-btn:hover, #users-btn:hover { transform: scale(1.1); color: #ffffff; }
+        #settings-btn, #greek-info-btn, #users-btn, #survey-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #e0e0e0; transition: transform 0.3s ease; }
+        #settings-btn:hover, #greek-info-btn:hover, #users-btn:hover, #survey-btn:hover { transform: scale(1.1); color: #ffffff; }
         #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); display: flex; align-items: center; gap: 5px; }
         #gold-coin-display { font-size: 18px; font-weight: bold; color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
         #raid-point-display { font-size: 18px; font-weight: bold; color: #ff5722; text-shadow: 0 0 10px rgba(255, 87, 34, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
@@ -87,83 +87,15 @@
 
         /* メニュー画面 */
         #menu-screen { justify-content: center; overflow: hidden; }
-        #menu-content-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transform-origin: center center;
-            transition: transform 0.3s ease;
-            width: 100%;
-        }
-        #menu-screen h1 { 
-            font-size: 64px; 
-            margin-bottom: 40px; 
-            text-shadow: 0 0 20px #00bcd4, 0 0 40px #00bcd4; 
-            color: #ffffff;
-            letter-spacing: 4px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #a0e9ff, #00bcd4, #007bff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-top: 0;
-        }
-        #menu-screen .menu-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr 1fr; 
-            gap: 20px; 
-            width: 90%; 
-            max-width: 800px; 
-            margin-top: 0; 
-        }
-        .menu-btn { 
-            background: linear-gradient(145deg, #2c2c2c, #1f1f1f); 
-            color: #f0f0f0; 
-            border: none; 
-            padding: 20px 10px; 
-            font-size: 20px; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
-            font-weight: bold; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(255,255,255,0.05) inset;
-            border: 1px solid #3a3a3a;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px black;
-            grid-column: span 1;
-        }
-        .menu-btn:hover { 
-            background: linear-gradient(145deg, #3a3a3a, #2a2a2a); 
-            border-color: #00bcd4; 
-            transform: translateY(-5px); 
-            box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0, 188, 212, 0.4);
-            color: #ffffff;
-        }
-        .menu-btn.story-mode {
-            grid-column: span 2;
-            background: linear-gradient(145deg, #7b1fa2, #4a148c);
-            border-color: #9c27b0;
-            padding: 25px 15px;
-        }
-        .menu-btn.raid-mode {
-            grid-column: span 2;
-            background: linear-gradient(145deg, #c62828, #b71c1c);
-            border-color: #ef5350;
-            padding: 25px 15px;
-        }
-        .menu-btn.rank-mode {
-            grid-column: span 4;
-            background: linear-gradient(145deg, #f57f17, #f9a825);
-            border-color: #fbc02d;
-            padding: 30px 20px;
-            font-size: 28px;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(0,0,0,0.8);
-        }
-        .menu-btn.rank-mode:hover {
-            box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 20px rgba(251, 192, 45, 0.6);
-            border-color: #fff;
-        }
+        #menu-content-wrapper { display: flex; flex-direction: column; align-items: center; transform-origin: center center; transition: transform 0.3s ease; width: 100%; }
+        #menu-screen h1 { font-size: 64px; margin-bottom: 40px; text-shadow: 0 0 20px #00bcd4, 0 0 40px #00bcd4; color: #ffffff; letter-spacing: 4px; font-weight: 700; background: linear-gradient(135deg, #a0e9ff, #00bcd4, #007bff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-top: 0; }
+        #menu-screen .menu-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; width: 90%; max-width: 800px; margin-top: 0; }
+        .menu-btn { background: linear-gradient(145deg, #2c2c2c, #1f1f1f); color: #f0f0f0; border: none; padding: 20px 10px; font-size: 20px; border-radius: 20px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); font-weight: bold; box-shadow: 0 8px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(255,255,255,0.05) inset; border: 1px solid #3a3a3a; letter-spacing: 1px; text-shadow: 1px 1px 2px black; grid-column: span 1; }
+        .menu-btn:hover { background: linear-gradient(145deg, #3a3a3a, #2a2a2a); border-color: #00bcd4; transform: translateY(-5px); box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0, 188, 212, 0.4); color: #ffffff; }
+        .menu-btn.story-mode { grid-column: span 2; background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; padding: 25px 15px; }
+        .menu-btn.raid-mode { grid-column: span 2; background: linear-gradient(145deg, #c62828, #b71c1c); border-color: #ef5350; padding: 25px 15px; }
+        .menu-btn.rank-mode { grid-column: span 4; background: linear-gradient(145deg, #f57f17, #f9a825); border-color: #fbc02d; padding: 30px 20px; font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .menu-btn.rank-mode:hover { box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 20px rgba(251, 192, 45, 0.6); border-color: #fff; }
         .menu-btn.raid-mode.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .raid-timer-info { grid-column: span 4; text-align: center; font-size: 18px; color: #ff9800; margin-top: -10px; margin-bottom: 5px; }
 
@@ -171,19 +103,7 @@
         #play-select-screen { justify-content: center; }
         #play-select-screen h2 { font-size: 48px; margin-bottom: 50px; text-shadow: 0 0 15px #2196f3; }
         #play-select-screen .select-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; width: 90%; max-width: 900px; }
-        .mode-btn { 
-            background: linear-gradient(145deg, #1e88e5, #1565c0); 
-            color: #fff; 
-            border: none; 
-            padding: 35px; 
-            font-size: 28px; 
-            border-radius: 24px; 
-            cursor: pointer; 
-            transition: all 0.3s ease; 
-            font-weight: bold; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5), 0 2px 4px rgba(255,255,255,0.2) inset;
-            border: 1px solid #42a5f5;
-        }
+        .mode-btn { background: linear-gradient(145deg, #1e88e5, #1565c0); color: #fff; border: none; padding: 35px; font-size: 28px; border-radius: 24px; cursor: pointer; transition: all 0.3s ease; font-weight: bold; box-shadow: 0 8px 16px rgba(0,0,0,0.5), 0 2px 4px rgba(255,255,255,0.2) inset; border: 1px solid #42a5f5; }
         .mode-btn.hard { background: linear-gradient(145deg, #e53935, #c62828); border-color: #ef5350; }
         .mode-btn.story { background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; }
         .mode-btn:hover { filter: brightness(1.15); transform: translateY(-8px); box-shadow: 0 15px 25px rgba(0,0,0,0.6); }
@@ -245,26 +165,10 @@
         .untyped-hidden { color: transparent; }
 
         /* スピードボーナスアニメーション */
-        .speed-anim {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            font-weight: bold;
-            color: #00e676;
-            text-shadow: 0 0 15px #00e676, 2px 2px 5px #000;
-            animation: floatUpSpeed 1.5s ease-out forwards;
-            pointer-events: none;
-            z-index: 200;
-        }
+        .speed-anim { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-weight: bold; color: #00e676; text-shadow: 0 0 15px #00e676, 2px 2px 5px #000; animation: floatUpSpeed 1.5s ease-out forwards; pointer-events: none; z-index: 200; }
         .speed-anim-time { font-size: 24px; margin-bottom: 5px; color: #a0e9ff; text-shadow: 0 0 10px #a0e9ff; }
         .speed-anim-combo { font-size: 40px; }
-        @keyframes floatUpSpeed {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
-            20% { transform: translate(-50%, -60%) scale(1.1); }
-            100% { opacity: 0; transform: translate(-50%, -120px) scale(1); }
-        }
+        @keyframes floatUpSpeed { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 20% { transform: translate(-50%, -60%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -120px) scale(1); } }
 
         /* 妨害エフェクト */
         #game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 500; transition: background-color 0.5s ease; }
@@ -339,12 +243,18 @@
 <div id="boost-status-container"></div>
 <div id="combo-protect-indicator"></div>
 
+<div id="survey-notification" style="display: none; background: linear-gradient(90deg, #ff9800, #ff5722); color: #fff; padding: 12px; text-align: center; font-weight: bold; font-size: 16px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 50;">
+    アンケートが追加されています！見に行きましょう
+    <span onclick="app.closeSurveyNotification()" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 24px; text-shadow: 1px 1px 2px black;">✖</span>
+</div>
+
 <div id="app-container">
     <div id="header">
         <div id="header-left">
             <button id="settings-btn">⚙️</button>
             <button id="greek-info-btn">🔍</button>
             <button id="users-btn" onclick="app.openUsersModal()">👥</button>
+            <button id="survey-btn" onclick="app.openSurveyModal()">📝</button>
             <div id="coin-display">🪙0</div>
             <div id="gold-coin-display">🥇0</div>
             <div id="raid-point-display">🎯0</div>
@@ -569,8 +479,9 @@
             変な意味じゃ無いです。読んでくれてありがとうございました。<br>
             あと名前を変な名前にするのはやめてください()
         </p>
-        <button class="modal-btn" onclick="app.closeNoticeModal(false)">閉じる</button>
-        <button class="modal-btn danger" style="background: #555;" onclick="app.closeNoticeModal(true)">12時間表示しなくする</button>
+        <button class="modal-btn" onclick="app.closeNoticeModal('close')">閉じる</button>
+        <button class="modal-btn danger" style="background: #555; margin-top: 10px;" onclick="app.closeNoticeModal('12h')">12時間表示しなくする</button>
+        <button class="modal-btn danger" style="background: #333; margin-top: 10px;" onclick="app.closeNoticeModal('3d')">3日間表示しなくする</button>
     </div>
 </div>
 
@@ -583,6 +494,29 @@
         </div>
         <div id="users-list" class="list-container" style="max-height: 400px; padding: 10px 0;">読み込み中...</div>
         <button class="modal-btn" onclick="document.getElementById('users-modal').classList.remove('active')">閉じる</button>
+    </div>
+</div>
+
+<div id="survey-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #4caf50;">📝 アンケート</h2>
+        <p>アップデートで作って欲しい内容を教えてください！<br>（1日2回まで送信可能）</p>
+        <textarea id="survey-input" class="modal-input" style="height: 100px; resize: none; font-size: 16px;" placeholder="ここに内容を入力..."></textarea>
+        <button class="modal-btn" style="background: linear-gradient(145deg, #4caf50, #2e7d32);" onclick="app.submitSurvey()">送信する</button>
+        
+        <hr style="border-color: #444; margin: 20px 0;">
+        <button class="modal-btn" style="background: linear-gradient(145deg, #7b1fa2, #4a148c);" onclick="app.viewSurveyResults()">アンケート内容を見る</button>
+        <div id="survey-admin-msg" style="color: #ff5252; margin-top: 10px; text-align: center; display: none; font-weight: bold;">あなたは管理者では無いです。</div>
+        
+        <button class="back-btn" onclick="document.getElementById('survey-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="survey-results-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 800px; width: 95%;">
+        <h2 style="color: #9c27b0;">👑 アンケート結果（管理者専用）</h2>
+        <div id="survey-results-list" class="list-container" style="max-height: 60vh;">読み込み中...</div>
+        <button class="back-btn" onclick="document.getElementById('survey-results-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
     </div>
 </div>
 
@@ -688,7 +622,9 @@
 
 ▼ 新規追加要素・UI
 ・【ログインユーザー表示】: 左上の👥アイコンから、現在オンラインのユーザーと、今日ログインしたユーザーの一覧を確認。
-・【警告UI表示】: ゲーム開始時にAI使用についての確認モーダルを表示（12時間非表示設定可能）。
+・【警告UI表示】: ゲーム開始時にAI使用についての確認モーダルを表示（12時間、または3日間非表示設定可能）。
+・【名前の重複禁止】：「冒険者」以外の名前は全プレイヤーで被らないように制御。
+・【アンケート機能】: 左上の📝アイコンから。1日2回まで要望を送信可能。(バナー通知は2026/05/22まで)
 ・【ランク報酬】: 到達したランクに応じた特別な報酬(C到達でコイン＆RC大量など)を1度だけ受け取れます。
 ・【背景装備】: ランクZ3到達で「ランクの証」を獲得でき、装備すると背景中央に星が浮かび、名前に「⭐️」が付きます。
 ・【ランキング全体表示】: スコアやランクのランキングで、テスト環境等で上書きされないよう適切に全プレイユーザーを表示します。
@@ -700,7 +636,7 @@
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, update, onDisconnect } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, onDisconnect, push } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBXnNXQ5khcR0EvRide4C0PjshJZpSF4oM",
@@ -1031,6 +967,13 @@ async function initApp() {
     const now = Date.now();
     if (!hideNoticeUntil || now > parseInt(hideNoticeUntil)) {
         document.getElementById('notice-modal').classList.add('active');
+    }
+
+    // アンケート通知バナーの表示チェック (2026/05/22 00:00:00 JST まで)
+    const notifClosed = localStorage.getItem('surveyNotifClosed');
+    const expireDate = new Date('2026-05-22T00:00:00+09:00').getTime();
+    if (!notifClosed && Date.now() < expireDate) {
+        document.getElementById('survey-notification').style.display = 'block';
     }
     
     startRankingTimer();
@@ -1719,7 +1662,6 @@ async function fetchAndDisplayRanking(type) {
             if (child.val()) data.push(child.val());
         });
         
-        // 複数人表示のバグ修正：必ず配列にPushし、値でソートする
         data.sort((a, b) => b.value - a.value);
         
         listContainer.innerHTML = '';
@@ -1989,21 +1931,157 @@ window.app = {
     showAgreement: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('agreement-modal').classList.add('active'); },
     
     // 警告UIを閉じる処理
-    closeNoticeModal: (hideFor12h) => {
-        if (hideFor12h) {
-            const expireTime = Date.now() + (12 * 60 * 60 * 1000); // 12時間後
+    closeNoticeModal: (hideType) => {
+        let expireTime = 0;
+        if (hideType === '12h') {
+            expireTime = Date.now() + (12 * 60 * 60 * 1000); // 12時間後
+        } else if (hideType === '3d') {
+            expireTime = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3日後
+        }
+        if (expireTime > 0) {
             localStorage.setItem('hideNoticeUntil', expireTime.toString());
         }
         document.getElementById('notice-modal').classList.remove('active');
     },
 
-    saveName: () => { const input = document.getElementById('name-input'); if (input.value.trim() !== '') { userData.name = input.value.trim().substring(0, 20); saveUserData(); updateOnlinePresence(); alert('名前を保存しました！'); } },
+    // データベース重複確認付きの名前保存
+    saveName: async () => { 
+        const input = document.getElementById('name-input'); 
+        const newName = input.value.trim().substring(0, 20);
+        if (newName === '') return;
+        if (newName === userData.name) {
+            alert('名前を保存しました！');
+            return;
+        }
+
+        if (newName !== '冒険者') {
+            try {
+                const nameRef = ref(db, `usedNames/${newName}`);
+                const snap = await get(nameRef);
+                if (snap.exists() && snap.val() !== uid) {
+                    alert('この名前は既に他のプレイヤーに使われています。別の名前にしてください。');
+                    return;
+                }
+                // 前の名前が冒険者以外なら解放
+                if (userData.name !== '冒険者') {
+                    await set(ref(db, `usedNames/${userData.name}`), null);
+                }
+                // 新しい名前を登録
+                await set(ref(db, `usedNames/${newName}`), uid);
+            } catch (e) {
+                console.error(e);
+                alert('名前の確認中にエラーが発生しました。');
+                return;
+            }
+        } else {
+            // 新しい名前が冒険者の場合、元の名前を解放
+            if (userData.name !== '冒険者') {
+                await set(ref(db, `usedNames/${userData.name}`), null);
+            }
+        }
+
+        userData.name = newName; 
+        saveUserData(); 
+        updateOnlinePresence(); 
+        alert('名前を保存しました！'); 
+    },
+    
     toggleFurigana: (val) => { userData.settings.showFurigana = val; saveUserData(); },
     changeHomeScale: (val) => { userData.settings.homeScale = parseInt(val); document.getElementById('home-scale-val').innerText = `${val}%`; document.getElementById('menu-content-wrapper').style.transform = `scale(${val / 50})`; saveUserData(); },
     resetHomeScale: () => { document.getElementById('home-scale-slider').value = 50; app.changeHomeScale(50); },
     closeSettings: () => { document.getElementById('settings-modal').classList.remove('active'); },
     resetDataConfirm: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('reset-confirm-modal').classList.add('active'); },
-    resetDataExecute: () => { userData = { ...defaultUserData, settings: { homeScale: 50, showFurigana: true } }; saveUserData(); location.reload(); }
+    resetDataExecute: () => { userData = { ...defaultUserData, settings: { homeScale: 50, showFurigana: true } }; saveUserData(); location.reload(); },
+
+    // アンケート関連
+    closeSurveyNotification: () => {
+        document.getElementById('survey-notification').style.display = 'none';
+        localStorage.setItem('surveyNotifClosed', 'true');
+    },
+    openSurveyModal: () => {
+        document.getElementById('survey-modal').classList.add('active');
+    },
+    submitSurvey: async () => {
+        const input = document.getElementById('survey-input').value.trim();
+        if (input === '') return alert('内容を入力してください。');
+        
+        const dateKey = getRankingDateKey(); // 日付管理用
+        let surveyData = JSON.parse(localStorage.getItem('surveyCount') || '{}');
+        if (surveyData.date !== dateKey) {
+            surveyData = { date: dateKey, count: 0 };
+        }
+        
+        if (surveyData.count >= 2) {
+            return alert('1日の送信上限（2回）に達しました。また明日お願いします！');
+        }
+        
+        try {
+            // surveysノードへ追加
+            const surveyRef = ref(db, `surveys/${Date.now()}_${uid}`);
+            await set(surveyRef, {
+                uid: uid,
+                name: userData.name,
+                content: input,
+                timestamp: Date.now()
+            });
+            
+            surveyData.count++;
+            localStorage.setItem('surveyCount', JSON.stringify(surveyData));
+            document.getElementById('survey-input').value = '';
+            alert('アンケートを送信しました！ありがとうございます！');
+        } catch (e) {
+            console.error(e);
+            alert('送信に失敗しました。');
+        }
+    },
+    viewSurveyResults: async () => {
+        if (userData.name !== '（👑ビルダー）らもビルダーマン！！') {
+            document.getElementById('survey-admin-msg').style.display = 'block';
+            setTimeout(() => { document.getElementById('survey-admin-msg').style.display = 'none'; }, 3000);
+            return;
+        }
+        
+        document.getElementById('survey-modal').classList.remove('active');
+        document.getElementById('survey-results-modal').classList.add('active');
+        const list = document.getElementById('survey-results-list');
+        list.innerHTML = '読み込み中...';
+        
+        try {
+            const snap = await get(ref(db, 'surveys'));
+            if (!snap.exists()) {
+                list.innerHTML = '<div style="text-align:center;">まだアンケートがありません。</div>';
+                return;
+            }
+            
+            let surveys = [];
+            snap.forEach(c => { surveys.push(c.val()); });
+            
+            // 新しいものが上
+            surveys.sort((a, b) => b.timestamp - a.timestamp);
+            
+            list.innerHTML = '';
+            surveys.forEach(s => {
+                const d = new Date(s.timestamp + (new Date().getTimezoneOffset() + 540) * 60000);
+                const dateStr = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+                
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.style.flexDirection = 'column';
+                div.style.alignItems = 'flex-start';
+                div.style.gap = '5px';
+                div.innerHTML = `
+                    <div style="font-size: 12px; color: #aaa;">${dateStr}</div>
+                    <div style="font-size: 18px; font-weight: bold; color: #ffeb3b;">${s.name}</div>
+                    <div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${s.content}</div>
+                `;
+                list.appendChild(div);
+            });
+            
+        } catch (e) {
+            console.error(e);
+            list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>';
+        }
+    }
 };
 
 document.getElementById('settings-btn').addEventListener('click', () => { document.getElementById('name-input').value = userData.name; document.getElementById('settings-modal').classList.add('active'); });
