@@ -944,9 +944,12 @@ function showPassiveEffect(text) {
 // ユーザー名のフォーマット表示
 function formatUserName(name, userId, isAdmin, hasBadge) {
     let html = '';
-    if (name === '（👑ビルダー）らもビルダーマン！！') {
+    const n = name || "";
+    
+    // 全角半角ブレ吸収
+    if (n.includes('ビルダーマン')) {
         html += `<img src="ビルダー.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[ビルダー]">`;
-    } else if (isAdmin || name === '（👑管理者）らも') {
+    } else if (isAdmin || n.includes('管理者）らも') || n.includes('管理者)らも')) {
         html += `<img src="管理者.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[管理]">`;
     }
     
@@ -967,8 +970,9 @@ function formatUserName(name, userId, isAdmin, hasBadge) {
 function updateOnlinePresence() {
     if (!uid) return;
     const hasBadge = userData.equippedBackground === 'rank_badge';
-    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
-    const info = { name: userData.name, userId: userData.userId, isAdmin: isAdmin, rankIndex: userData.rankIndex, hasBadge: hasBadge, timestamp: Date.now() };
+    const n = userData.name || "";
+    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+    const info = { name: userData.name, userId: userData.userId, isAdmin: isAdm, rankIndex: userData.rankIndex, hasBadge: hasBadge, timestamp: Date.now() };
     
     // Online status
     const onlineRef = ref(db, `onlineUsers/${uid}`);
@@ -986,11 +990,12 @@ function updateOnlinePresence() {
 
 function updateRankRankingData() {
     if (!uid) return;
-    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
+    const n = userData.name || "";
+    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
     set(ref(db, `rankings/rankOverall/${uid}`), {
         name: userData.name,
         userId: userData.userId,
-        isAdmin: isAdmin,
+        isAdmin: isAdm,
         rankIndex: userData.rankIndex,
         rankXp: userData.rankXp,
         hasBadge: userData.equippedBackground === 'rank_badge'
@@ -1015,7 +1020,9 @@ function listenForPunishmentAndAdmin() {
 
     const adminRef = ref(db, `users/${uid}/isAdmin`);
     onValue(adminRef, (snap) => {
-        userData.isAdmin = snap.val() || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
+        const n = userData.name || "";
+        const isAdm = n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+        userData.isAdmin = snap.val() || isAdm;
         if (userData.isAdmin) {
             document.getElementById('debug-btn').style.display = 'block';
         } else {
@@ -1108,7 +1115,8 @@ async function initApp() {
         console.error("Firebase load error", e);
     }
 
-    if (userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも') {
+    const n = userData.name || "";
+    if (n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも')) {
         userData.isAdmin = true;
     }
 
@@ -1784,14 +1792,15 @@ function updateRankingData(score, combo) {
     if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
     const dateKey = getRankingDateKey();
     const badge = userData.equippedBackground === 'rank_badge';
-    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
+    const n = userData.name || "";
+    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
     get(ref(db, `rankings/score/${dateKey}/${uid}`)).then(snap => {
         const currentBest = snap.exists() ? snap.val().value : 0;
-        if (score > currentBest) set(ref(db, `rankings/score/${dateKey}/${uid}`), { name: userData.name, value: score, userId: userData.userId, isAdmin: isAdmin, hasBadge: badge });
+        if (score > currentBest) set(ref(db, `rankings/score/${dateKey}/${uid}`), { name: userData.name, value: score, userId: userData.userId, isAdmin: isAdm, hasBadge: badge });
     });
     get(ref(db, `rankings/combo/${dateKey}/${uid}`)).then(snap => {
         const currentBest = snap.exists() ? snap.val().value : 0;
-        if (combo > currentBest) set(ref(db, `rankings/combo/${dateKey}/${uid}`), { name: userData.name, value: combo, userId: userData.userId, isAdmin: isAdmin, hasBadge: badge });
+        if (combo > currentBest) set(ref(db, `rankings/combo/${dateKey}/${uid}`), { name: userData.name, value: combo, userId: userData.userId, isAdmin: isAdm, hasBadge: badge });
     });
 }
 
@@ -1799,10 +1808,11 @@ function incrementPlayCountRanking() {
     if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
     const dateKey = getRankingDateKey();
     const badge = userData.equippedBackground === 'rank_badge';
-    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
+    const n = userData.name || "";
+    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
     get(ref(db, `rankings/playCount/${dateKey}/${uid}`)).then(snap => {
         const currentCount = snap.exists() ? snap.val().value : 0;
-        set(ref(db, `rankings/playCount/${dateKey}/${uid}`), { name: userData.name, value: currentCount + 1, userId: userData.userId, isAdmin: isAdmin, hasBadge: badge });
+        set(ref(db, `rankings/playCount/${dateKey}/${uid}`), { name: userData.name, value: currentCount + 1, userId: userData.userId, isAdmin: isAdm, hasBadge: badge });
     });
 }
 
@@ -2146,7 +2156,7 @@ window.app = {
 
         userData.name = newName; 
         
-        if (userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも') {
+        if (userData.name && (userData.name.includes('ビルダーマン') || userData.name.includes('管理者）らも') || userData.name.includes('管理者)らも'))) {
             userData.isAdmin = true;
         } else {
             userData.isAdmin = false;
@@ -2206,7 +2216,9 @@ window.app = {
         }
     },
     viewSurveyResults: async () => {
-        if (!userData.isAdmin && userData.name !== '（👑ビルダー）らもビルダーマン！！' && userData.name !== '（👑管理者）らも') {
+        const n = userData.name || "";
+        const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+        if (!isAdm) {
             document.getElementById('survey-admin-msg').style.display = 'block';
             setTimeout(() => { document.getElementById('survey-admin-msg').style.display = 'none'; }, 3000);
             return;
@@ -2240,9 +2252,11 @@ window.app = {
                 div.style.flexDirection = 'column';
                 div.style.alignItems = 'flex-start';
                 div.style.gap = '5px';
+                
+                let dName = formatUserName(s.name, null, false, false);
                 div.innerHTML = `
                     <div style="font-size: 12px; color: #aaa;">${dateStr}</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #ffeb3b;">${s.name}</div>
+                    <div style="font-size: 18px; font-weight: bold; color: #ffeb3b;">${dName}</div>
                     <div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${s.content}</div>
                 `;
                 list.appendChild(div);
@@ -2256,7 +2270,9 @@ window.app = {
     
     // デバッグ・BAN関連機能
     openDebugModal: () => {
-        if (!userData.isAdmin && userData.name !== '（👑ビルダー）らもビルダーマン！！' && userData.name !== '（👑管理者）らも') return;
+        const n = userData.name || "";
+        const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+        if (!isAdm) return;
         document.getElementById('debug-modal').classList.add('active');
     },
     executeBan: async () => {
