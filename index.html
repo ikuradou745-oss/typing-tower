@@ -503,7 +503,8 @@
             完全に管理者一人で作り上げた、とは言いたく無いです。そこんところ理解して欲しいです。<br>
             変な意味じゃ無いです。読んでくれてありがとうございました。<br>
             あと名前を変な名前にするのはやめてください()<br><br>
-            またガイドラインもあり、変な名前、名前でチャット、煽りをやめましょう。
+            またガイドラインもあり、変な名前、名前でチャット、煽りをやめましょう。<br>
+            また人を不快にさせる煽りや名前を変にする、名前でチャットをする、などの行為をやめてください。やってしまったならば謝罪をしてください。
         </p>
         <button class="modal-btn" onclick="app.closeNoticeModal('close')">閉じる</button>
         <button class="modal-btn danger" style="background: #555; margin-top: 10px;" onclick="app.closeNoticeModal('12h')">12時間表示しなくする</button>
@@ -752,9 +753,9 @@ const npcNames = ["たろう", "ロサウド", "進撃の７１０", "１９４�
 const skillData = {
     "auto_input_alpha": { id: "auto_input_alpha", name: "自動入力α", desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。", price: 10000, priceType: 'coin', cooldown: 25, duration: 3.5, interval: 60, execute: function() { startAutoType(this.duration, this.interval); } },
     "auto_input_beta": { id: "auto_input_beta", name: "自動入力β", desc: "4.5秒間、約0.05秒間隔で自動タイピング。クールダウン25秒。", price: 500000, priceType: 'coin', cooldown: 25, duration: 4.5, interval: 50, execute: function() { startAutoType(this.duration, this.interval); } },
-    "auto_input_gamma": { id: "auto_input_gamma", name: "自動入力γ", desc: "6秒間、0.05秒間隔で自動タイピング。クールダウン40秒。", price: 0, priceType: 'coin', cooldown: 40, duration: 6, interval: 50, execute: function() { startAutoType(this.duration, this.interval); } },
+    "auto_input_gamma": { id: "auto_input_gamma", name: "自動入力γ", desc: "5.5秒間、0.05秒間隔で自動タイピング。クールダウン40秒。", price: 0, priceType: 'coin', cooldown: 40, duration: 5.5, interval: 50, execute: function() { startAutoType(this.duration, this.interval); } },
     "auto_input_epsilon": { id: "auto_input_epsilon", name: "自動入力ε", desc: "2.5秒間自動入力 + コンボが5秒間1.5倍。クールダウン25秒。", price: 50, priceType: 'raid', cooldown: 25, duration: 2.5, interval: 60, execute: function() { startAutoType(this.duration, this.interval); gameState.comboMultiplier = 1.5; setTimeout(() => { gameState.comboMultiplier = 1.0; }, 5000); } },
-    "auto_input_omega": { id: "auto_input_omega", name: "自動入力Ω", desc: "7.5秒間、0.045秒間隔で自動入力。クールダウン30秒。", price: 0, priceType: 'none', cooldown: 30, duration: 7.5, interval: 45, execute: function() { startAutoType(this.duration, this.interval); } },
+    "auto_input_omega": { id: "auto_input_omega", name: "自動入力Ω", desc: "5.5秒間、0.045秒間隔で自動入力。クールダウン35秒。", price: 0, priceType: 'none', cooldown: 35, duration: 5.5, interval: 45, execute: function() { startAutoType(this.duration, this.interval); } },
     "time_extend_alpha": { id: "time_extend_alpha", name: "時間伸ばしα", desc: "タイマーを止めてゲージを止めるミニゲーム。クールダウン120秒。", price: 50, priceType: 'raid', cooldown: 120, execute: function() { startTimeExtendGame(); } },
     "combo_up_alpha": { id: "combo_up_alpha", name: "コンボアップα", desc: "5秒間、コンボが1.5倍。クールダウン35秒。", price: 10000, priceType: 'coin', cooldown: 35, duration: 5, execute: function() { gameState.comboMultiplier = 1.5; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } },
     "combo_up_beta": { id: "combo_up_beta", name: "コンボアップβ", desc: "7.5秒間、コンボが1.85倍。クールダウン35秒。", price: 500000, priceType: 'coin', cooldown: 35, duration: 7.5, execute: function() { gameState.comboMultiplier = 1.85; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } }
@@ -1550,6 +1551,7 @@ function handleCorrectKey(isAuto = false) {
     
     // 即時クリア判定 (非同期にして処理スタックを安全に抜ける)
     if ((gameState.mode === 'story' || gameState.mode === 'raid') && gameState.score >= gameState.targetScore) {
+        gameState.isPlaying = false; // エラー防止のために即座に停止
         setTimeout(() => endGame(), 0);
         return;
     }
@@ -1601,6 +1603,8 @@ document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') { e.preventDefault(); useSkill(); return; }
     const key = e.key.toLowerCase();
     if (key.length !== 1 || !/[a-z\-]/.test(key)) return;
+    
+    if (!gameState.currentWordObj || gameState.currentRomajiIndex >= gameState.currentWordObj.romaji.length) return; // 念のための安全策
 
     if (key === gameState.currentWordObj.romaji[gameState.currentRomajiIndex].toLowerCase()) handleCorrectKey();
     else handleMissKey();
@@ -1746,9 +1750,10 @@ function endGame(forced = false) {
 
     if (gameState.mode === 'story') {
         if (gameState.score >= gameState.targetScore) {
-            if (gameState.storyStage === userData.storyStage && userData.storyStage < 100) userData.storyStage++;
+            const playedStage = gameState.storyStage;
+            if (playedStage === userData.storyStage && userData.storyStage < 100) userData.storyStage++;
             document.getElementById('story-clear-msg').innerText = '✅ ステージクリア！'; document.getElementById('story-clear-msg').style.display = 'block';
-            const storyRewardsList = checkStoryRewards(userData.storyStage - 1); // クリアしたステージでチェック
+            const storyRewardsList = checkStoryRewards(playedStage); // クリアしたステージでチェック
             if (storyRewardsList.length > 0) {
                 const rewDiv = document.getElementById('story-reward-msg');
                 rewDiv.innerHTML = '🎁 報酬獲得！<br>' + storyRewardsList.join('<br>'); rewDiv.style.display = 'block';
@@ -2331,3 +2336,4 @@ document.getElementById('greek-info-btn').addEventListener('click', () => { docu
 </script>
 </body>
 </html>
+}
