@@ -232,11 +232,34 @@
         ::-webkit-scrollbar-track { background: #121212; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; border: 2px solid #121212; }
         ::-webkit-scrollbar-thumb:hover { background: #666; }
+        
+        /* BANと警告の専用画面 */
+        #ban-screen { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#111; color:white; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
+        #warning-screen { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(200,0,0,0.9); color:white; z-index:9999; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
     </style>
 </head>
 <body>
 
 <div id="bg-star">⭐️</div>
+
+<div id="ban-screen">
+    <h1 style="color:#f44336; font-size:64px; margin-bottom:20px;">あなたはBANされました</h1>
+    <p style="font-size:24px; line-height:1.5; margin-bottom:30px;">
+        あなたは注意事項のどれかを破りました。<br>ガイドライン違反です。<br>人を不快にさせた行動、このゲームを荒らした行動、などが挙げられます。
+    </p>
+    <div style="font-size:32px; font-weight:bold; color:#ff9800;">
+        解除まで: <span id="ban-time-left">計算中...</span>
+    </div>
+</div>
+
+<div id="warning-screen">
+    <h1 style="font-size:80px; margin-bottom:20px; text-shadow:0 0 20px black;">⚠️ 警告 ⚠️</h1>
+    <p style="font-size:32px; line-height:1.5; font-weight:bold; text-shadow:0 0 10px black; max-width:80%;">
+        あなたは変な名前、名前でチャット、煽り、バグを使用、チートを使用、のどれかのガイドラインを破っています。<br><br>
+        BANされるかもしれません。巻き込んだ人に謝罪やすみやかに行動に移してください。
+    </p>
+    <button class="modal-btn" style="margin-top:50px; font-size:24px; padding:20px 50px; background:#222; border:2px solid white;" onclick="app.closeWarning()">閉じる</button>
+</div>
 
 <div id="loading-screen">⏳ 準備中だよ...</div>
 
@@ -283,6 +306,7 @@
                     <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
                     <div class="raid-timer-info" id="raid-menu-timer" style="grid-column: span 4;"></div>
                     <button class="menu-btn rank-mode" onclick="app.openRankMatch()">🏆 ランクマッチ</button>
+                    <button class="menu-btn" id="debug-btn" onclick="app.openDebugModal()" style="display:none; grid-column: span 4; background: linear-gradient(145deg, #d32f2f, #b71c1c); border-color: #f44336; margin-top: 10px;">🛠️ デバッグ</button>
                 </div>
             </div>
         </div>
@@ -477,7 +501,8 @@
             この作品はAIやコードの参考（ボタンのデザイン。難しいところはAI）などを駆使しています。<br>
             完全に管理者一人で作り上げた、とは言いたく無いです。そこんところ理解して欲しいです。<br>
             変な意味じゃ無いです。読んでくれてありがとうございました。<br>
-            あと名前を変な名前にするのはやめてください()
+            あと名前を変な名前にするのはやめてください()<br><br>
+            またガイドラインもあり、変な名前、名前でチャット、煽りをやめましょう。
         </p>
         <button class="modal-btn" onclick="app.closeNoticeModal('close')">閉じる</button>
         <button class="modal-btn danger" style="background: #555; margin-top: 10px;" onclick="app.closeNoticeModal('12h')">12時間表示しなくする</button>
@@ -517,6 +542,34 @@
         <h2 style="color: #9c27b0;">👑 アンケート結果（管理者専用）</h2>
         <div id="survey-results-list" class="list-container" style="max-height: 60vh;">読み込み中...</div>
         <button class="back-btn" onclick="document.getElementById('survey-results-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="debug-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #f44336;">🛠️ デバッグモード</h2>
+        <div style="margin-bottom: 20px;">
+            <label>対象ユーザーID:</label>
+            <input type="number" id="debug-target-id" class="modal-input" placeholder="ユーザーIDを入力">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <h3>権限管理</h3>
+            <button class="modal-btn" onclick="app.setAdmin(true)">管理者にする</button>
+            <button class="modal-btn danger" onclick="app.setAdmin(false)">管理者権限を外す</button>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <h3>BAN・警告管理</h3>
+            <select id="debug-ban-type" class="modal-input" style="background:#222; color:white;">
+                <option value="warning">警告</option>
+                <option value="ban_10m">10分間BAN</option>
+                <option value="ban_1h">1時間BAN</option>
+                <option value="ban_1d">1日BAN</option>
+                <option value="ban_perm">永久BAN</option>
+                <option value="unban">BAN解除</option>
+            </select>
+            <button class="modal-btn danger" onclick="app.executeBan()">実行</button>
+        </div>
+        <button class="back-btn" onclick="document.getElementById('debug-modal').classList.remove('active')" style="width: 100%;">閉じる</button>
     </div>
 </div>
 
@@ -622,12 +675,13 @@
 
 ▼ 新規追加要素・UI
 ・【ログインユーザー表示】: 左上の👥アイコンから、現在オンラインのユーザーと、今日ログインしたユーザーの一覧を確認。
-・【警告UI表示】: ゲーム開始時にAI使用についての確認モーダルを表示（12時間、または3日間非表示設定可能）。
-・【名前の重複禁止】：「冒険者」以外の名前は全プレイヤーで被らないように制御。
-・【アンケート機能】: 左上の📝アイコンから。1日2回まで要望を送信可能。(バナー通知は2026/05/22まで)
+・【ユーザーID】: 全てのプレイヤーに固有の「No.XX」が付与され、ランキングなどで名前とともに表示されます。
+・【警告・BAN】: 不正や規約違反を行ったプレイヤーに対し、管理者がID指定で画面をロックする警告やBANを課すことができます。
+・【デバッグモード】: 管理者限定機能。ユーザーIDを指定して管理者権限の付与/剥奪、BANや警告の実行が可能。
+・【アンケート機能】: 左上の📝アイコンから。1日2回まで要望を送信可能。(管理者は内容を閲覧可能)
 ・【ランク報酬】: 到達したランクに応じた特別な報酬(C到達でコイン＆RC大量など)を1度だけ受け取れます。
 ・【背景装備】: ランクZ3到達で「ランクの証」を獲得でき、装備すると背景中央に星が浮かび、名前に「⭐️」が付きます。
-・【ランキング全体表示】: スコアやランクのランキングで、テスト環境等で上書きされないよう適切に全プレイユーザーを表示します。
+・【バグ修正】: 目標スコア到達で確実に画面が遷移し、フリーズしないよう修正。
 =============================================================================
 */
 
@@ -636,7 +690,7 @@
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, update, onDisconnect, push } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, onDisconnect, push, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBXnNXQ5khcR0EvRide4C0PjshJZpSF4oM",
@@ -754,6 +808,7 @@ const rankRewardsData = [
 // 状態管理
 // ==========================================
 const defaultUserData = {
+    userId: null, isAdmin: false,
     name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
     rankIndex: 0, rankXp: 0, rankCoin: 0,
     skills: [], equippedSkill: null, passives: [], equippedPassive: null, items: {}, backgrounds: [], equippedBackground: null,
@@ -862,7 +917,7 @@ function getStageObstacle(stage) {
 function getRandomRaidObstacle() { return ['darkness', 'time_reduce', 'freeze'][Math.floor(Math.random() * 3)]; }
 
 // ==========================================
-// ランクマッチ NPCスコア計算 (修正版)
+// ランクマッチ NPCスコア計算
 // ==========================================
 function getNpcTargetScore(rankIdx) {
     if (rankIdx === 0) return 10000 + Math.floor(Math.random() * 10001); // G: 10000-20000
@@ -885,13 +940,30 @@ function showPassiveEffect(text) {
     setTimeout(() => el.remove(), 2000);
 }
 
+// ユーザー名のフォーマット表示
+function formatUserName(name, userId, isAdmin, hasBadge) {
+    let html = '';
+    if (isAdmin) {
+        html += `<img src="管理者.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[管理]">`;
+    }
+    html += `<span>${name}</span>`;
+    if (hasBadge) {
+        html += ` <span style="font-size:0.8em;">⭐️</span>`;
+    }
+    if (userId) {
+        html += ` <span style="font-size:0.7em; color:#aaa;">No.${userId}</span>`;
+    }
+    return html;
+}
+
 // ==========================================
-// オンライン/ランキングデータ送信
+// オンライン/ランキングデータ送信・監視
 // ==========================================
 function updateOnlinePresence() {
     if (!uid) return;
     const hasBadge = userData.equippedBackground === 'rank_badge';
-    const info = { name: userData.name, rankIndex: userData.rankIndex, hasBadge: hasBadge, timestamp: Date.now() };
+    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！';
+    const info = { name: userData.name, userId: userData.userId, isAdmin: isAdmin, rankIndex: userData.rankIndex, hasBadge: hasBadge, timestamp: Date.now() };
     
     // Online status
     const onlineRef = ref(db, `onlineUsers/${uid}`);
@@ -909,12 +981,84 @@ function updateOnlinePresence() {
 
 function updateRankRankingData() {
     if (!uid) return;
+    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！';
     set(ref(db, `rankings/rankOverall/${uid}`), {
         name: userData.name,
+        userId: userData.userId,
+        isAdmin: isAdmin,
         rankIndex: userData.rankIndex,
         rankXp: userData.rankXp,
         hasBadge: userData.equippedBackground === 'rank_badge'
     });
+}
+
+function listenForPunishmentAndAdmin() {
+    const pRef = ref(db, `users/${uid}/punishment`);
+    onValue(pRef, (snap) => {
+        const p = snap.val();
+        if (p) {
+            if (p.type === 'warning' && !p.read) {
+                document.getElementById('warning-screen').style.display = 'flex';
+            } else if (p.type === 'ban') {
+                document.getElementById('ban-screen').style.display = 'flex';
+                if (gameState.isPlaying) endGame(true); // 強制終了
+            }
+        } else {
+            document.getElementById('ban-screen').style.display = 'none';
+        }
+    });
+
+    const adminRef = ref(db, `users/${uid}/isAdmin`);
+    onValue(adminRef, (snap) => {
+        userData.isAdmin = snap.val() || userData.name === '（👑ビルダー）らもビルダーマン！！';
+        if (userData.isAdmin) {
+            document.getElementById('debug-btn').style.display = 'block';
+        } else {
+            document.getElementById('debug-btn').style.display = 'none';
+        }
+    });
+}
+
+// BAN時間の更新ループ
+setInterval(() => {
+    const banText = document.getElementById('ban-time-left');
+    if (document.getElementById('ban-screen').style.display === 'flex') {
+        get(ref(db, `users/${uid}/punishment`)).then(snap => {
+            const p = snap.val();
+            if (p && p.type === 'ban') {
+                if (p.until === -1) {
+                    banText.innerText = '永久';
+                } else {
+                    const diff = p.until - Date.now();
+                    if (diff <= 0) {
+                        set(ref(db, `users/${uid}/punishment`), null);
+                        document.getElementById('ban-screen').style.display = 'none';
+                    } else {
+                        banText.innerText = formatTimeRemaining(diff);
+                    }
+                }
+            } else {
+                document.getElementById('ban-screen').style.display = 'none';
+            }
+        });
+    }
+}, 1000);
+
+// ID採番
+async function assignNewUserId(uid) {
+    const counterRef = ref(db, 'global/nextUserId');
+    let newId = 1;
+    try {
+        const result = await runTransaction(counterRef, (currentData) => {
+            if (currentData === null) return 1;
+            return currentData + 1;
+        });
+        if (result.committed) {
+            newId = result.snapshot.val();
+            await set(ref(db, `idMapping/${newId}`), uid);
+        }
+    } catch(e) { console.error(e); }
+    return newId;
 }
 
 // ==========================================
@@ -931,6 +1075,10 @@ async function initApp() {
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
             userData = { ...defaultUserData, ...snapshot.val() };
+            if (!userData.userId) {
+                userData.userId = await assignNewUserId(uid);
+                await set(userRef, userData);
+            }
             if (!userData.settings) userData.settings = { ...defaultUserData.settings };
             if (userData.settings.homeScale === undefined) userData.settings.homeScale = 50;
             if (userData.settings.showFurigana === undefined) userData.settings.showFurigana = true;
@@ -948,28 +1096,30 @@ async function initApp() {
             if (!userData.storyRewardsClaimed) userData.storyRewardsClaimed = [];
             if (!userData.rankRewardsClaimed) userData.rankRewardsClaimed = [];
         } else {
+            userData.userId = await assignNewUserId(uid);
             await set(userRef, userData);
         }
     } catch (e) {
         console.error("Firebase load error", e);
     }
 
+    if (userData.name === '（👑ビルダー）らもビルダーマン！！') userData.isAdmin = true;
+
     updateHeaderUI();
     applySettings();
     updateOnlinePresence();
+    listenForPunishmentAndAdmin();
     
     if (!localStorage.getItem('agreementAccepted')) {
         document.getElementById('agreement-modal').classList.add('active');
     }
     
-    // 警告UI（確認しておきたいこと）の表示チェック
     const hideNoticeUntil = localStorage.getItem('hideNoticeUntil');
     const now = Date.now();
     if (!hideNoticeUntil || now > parseInt(hideNoticeUntil)) {
         document.getElementById('notice-modal').classList.add('active');
     }
 
-    // アンケート通知バナーの表示チェック (2026/05/22 00:00:00 JST まで)
     const notifClosed = localStorage.getItem('surveyNotifClosed');
     const expireDate = new Date('2026-05-22T00:00:00+09:00').getTime();
     if (!notifClosed && Date.now() < expireDate) {
@@ -1177,7 +1327,7 @@ function startGame(mode, stage = null) {
 }
 
 function gameTimerTick() {
-    if (gameState.timeExtendActive) return;
+    if (gameState.timeExtendActive || !gameState.isPlaying) return;
     
     gameState.timeLeft--;
     document.getElementById('time-display').innerText = gameState.timeLeft;
@@ -1381,9 +1531,9 @@ function handleCorrectKey(isAuto = false) {
     
     updateGameUI();
     
-    // 即時クリア判定
+    // 即時クリア判定 (非同期にして処理スタックを安全に抜ける)
     if ((gameState.mode === 'story' || gameState.mode === 'raid') && gameState.score >= gameState.targetScore) {
-        endGame();
+        setTimeout(() => endGame(), 0);
         return;
     }
     
@@ -1464,7 +1614,8 @@ function updateRaidTargetUI() {
     document.getElementById('raid-target-text').innerHTML = `${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})`;
 }
 
-function endGame() {
+function endGame(forced = false) {
+    if (!gameState.isPlaying && !forced) return;
     gameState.isPlaying = false;
     clearInterval(gameState.timer); clearInterval(gameState.skillCooldownTimer); clearInterval(gameState.autoTypeInterval);
     
@@ -1478,6 +1629,8 @@ function endGame() {
     document.getElementById('story-reward-msg').style.display = 'none';
     document.getElementById('raid-clear-msg').style.display = 'none';
     
+    if (forced) { showScreen('menu-screen'); return; } // BANなどで強制終了の場合はリザルトを出さない
+
     let baseCoin = Math.floor(gameState.score / 100);
     let baseGoldDrop = gameState.goldDropRate;
     if (gameState.mode === 'hard') baseCoin *= 2;
@@ -1512,7 +1665,7 @@ function endGame() {
         } else {
             document.getElementById('rank-match-result').innerText = '💀 敗北...';
             document.getElementById('rank-match-result').style.color = '#9e9e9e';
-            earnedRxp = -10; // 負けたら -10 RXP に修正
+            earnedRxp = -10; // 負けたら -10 RXP
         }
         
         userData.rankXp += earnedRxp;
@@ -1578,7 +1731,7 @@ function endGame() {
         if (gameState.score >= gameState.targetScore) {
             if (gameState.storyStage === userData.storyStage && userData.storyStage < 100) userData.storyStage++;
             document.getElementById('story-clear-msg').innerText = '✅ ステージクリア！'; document.getElementById('story-clear-msg').style.display = 'block';
-            const storyRewardsList = checkStoryRewards(userData.storyStage);
+            const storyRewardsList = checkStoryRewards(userData.storyStage - 1); // クリアしたステージでチェック
             if (storyRewardsList.length > 0) {
                 const rewDiv = document.getElementById('story-reward-msg');
                 rewDiv.innerHTML = '🎁 報酬獲得！<br>' + storyRewardsList.join('<br>'); rewDiv.style.display = 'block';
@@ -1622,13 +1775,14 @@ function updateRankingData(score, combo) {
     if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
     const dateKey = getRankingDateKey();
     const badge = userData.equippedBackground === 'rank_badge';
+    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！';
     get(ref(db, `rankings/score/${dateKey}/${uid}`)).then(snap => {
         const currentBest = snap.exists() ? snap.val().value : 0;
-        if (score > currentBest) set(ref(db, `rankings/score/${dateKey}/${uid}`), { name: userData.name, value: score, hasBadge: badge });
+        if (score > currentBest) set(ref(db, `rankings/score/${dateKey}/${uid}`), { name: userData.name, value: score, userId: userData.userId, isAdmin: isAdmin, hasBadge: badge });
     });
     get(ref(db, `rankings/combo/${dateKey}/${uid}`)).then(snap => {
         const currentBest = snap.exists() ? snap.val().value : 0;
-        if (combo > currentBest) set(ref(db, `rankings/combo/${dateKey}/${uid}`), { name: userData.name, value: combo, hasBadge: badge });
+        if (combo > currentBest) set(ref(db, `rankings/combo/${dateKey}/${uid}`), { name: userData.name, value: combo, userId: userData.userId, isAdmin: isAdmin, hasBadge: badge });
     });
 }
 
@@ -1636,9 +1790,10 @@ function incrementPlayCountRanking() {
     if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
     const dateKey = getRankingDateKey();
     const badge = userData.equippedBackground === 'rank_badge';
+    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！';
     get(ref(db, `rankings/playCount/${dateKey}/${uid}`)).then(snap => {
         const currentCount = snap.exists() ? snap.val().value : 0;
-        set(ref(db, `rankings/playCount/${dateKey}/${uid}`), { name: userData.name, value: currentCount + 1, hasBadge: badge });
+        set(ref(db, `rankings/playCount/${dateKey}/${uid}`), { name: userData.name, value: currentCount + 1, userId: userData.userId, isAdmin: isAdmin, hasBadge: badge });
     });
 }
 
@@ -1670,7 +1825,7 @@ async function fetchAndDisplayRanking(type) {
             const item = data[i];
             const div = document.createElement('div'); div.className = 'list-item';
             let rankStr = i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i+1}位`;
-            let dName = item.name + (item.hasBadge ? ' ⭐️' : '');
+            let dName = formatUserName(item.name, item.userId, item.isAdmin, item.hasBadge);
             div.innerHTML = `<div class="rank-item-info"><span style="font-weight:bold; color:#00bcd4; display:inline-block; width:60px;">${rankStr}</span><span style="color:white;">${dName}</span></div><div style="font-size:24px; font-weight:bold; color:#ff9800;">${item.value.toLocaleString()}</div>`;
             listContainer.appendChild(div);
         }
@@ -1699,7 +1854,7 @@ async function fetchAndDisplayRankRanking() {
             const item = data[i];
             const div = document.createElement('div'); div.className = 'list-item';
             let rankStr = i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i+1}位`;
-            let dName = item.name + (item.hasBadge ? ' ⭐️' : '');
+            let dName = formatUserName(item.name, item.userId, item.isAdmin, item.hasBadge);
             let rName = getRankName(item.rankIndex);
             div.innerHTML = `<div class="rank-item-info"><span style="font-weight:bold; color:#fbc02d; display:inline-block; width:60px;">${rankStr}</span><span style="color:white;">${dName}</span></div><div style="font-size:20px; font-weight:bold; color:#fff;">Rank <span style="color:#fbc02d">${rName}</span> <span style="font-size:14px; color:#aaa;">(${item.rankXp} RXP)</span></div>`;
             list.appendChild(div);
@@ -1882,7 +2037,7 @@ window.app = {
             list.innerHTML = '';
             users.forEach(u => {
                 const div = document.createElement('div'); div.className = 'list-item';
-                let dName = u.name + (u.hasBadge ? ' ⭐️' : '');
+                let dName = formatUserName(u.name, u.userId, u.isAdmin, u.hasBadge);
                 let rName = getRankName(u.rankIndex || 0);
                 div.innerHTML = `<div style="font-size:20px; color:white;">${dName} <span style="font-size:14px; color:#fbc02d;">[Rank ${rName}]</span></div>`;
                 list.appendChild(div);
@@ -2035,7 +2190,7 @@ window.app = {
         }
     },
     viewSurveyResults: async () => {
-        if (userData.name !== '（👑ビルダー）らもビルダーマン！！') {
+        if (!userData.isAdmin && userData.name !== '（👑ビルダー）らもビルダーマン！！') {
             document.getElementById('survey-admin-msg').style.display = 'block';
             setTimeout(() => { document.getElementById('survey-admin-msg').style.display = 'none'; }, 3000);
             return;
@@ -2081,6 +2236,61 @@ window.app = {
             console.error(e);
             list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>';
         }
+    },
+    
+    // デバッグ・BAN関連機能
+    openDebugModal: () => {
+        if (!userData.isAdmin && userData.name !== '（👑ビルダー）らもビルダーマン！！') return;
+        document.getElementById('debug-modal').classList.add('active');
+    },
+    executeBan: async () => {
+        const targetId = document.getElementById('debug-target-id').value;
+        const type = document.getElementById('debug-ban-type').value;
+        if (!targetId) return alert('IDを入力してください');
+        
+        try {
+            const mappingSnap = await get(ref(db, `idMapping/${targetId}`));
+            if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
+            const targetUid = mappingSnap.val();
+            
+            let pData = null;
+            const now = Date.now();
+            if (type === 'warning') {
+                pData = { type: 'warning', timestamp: now, read: false };
+            } else if (type === 'ban_10m') {
+                pData = { type: 'ban', until: now + 10 * 60 * 1000 };
+            } else if (type === 'ban_1h') {
+                pData = { type: 'ban', until: now + 60 * 60 * 1000 };
+            } else if (type === 'ban_1d') {
+                pData = { type: 'ban', until: now + 24 * 60 * 60 * 1000 };
+            } else if (type === 'ban_perm') {
+                pData = { type: 'ban', until: -1 };
+            } else if (type === 'unban') {
+                pData = null;
+            }
+            
+            await set(ref(db, `users/${targetUid}/punishment`), pData);
+            alert('処理が完了しました。');
+        } catch(e) {
+            alert('エラーが発生しました');
+        }
+    },
+    setAdmin: async (flag) => {
+        const targetId = document.getElementById('debug-target-id').value;
+        if (!targetId) return alert('IDを入力してください');
+        try {
+            const mappingSnap = await get(ref(db, `idMapping/${targetId}`));
+            if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
+            const targetUid = mappingSnap.val();
+            await set(ref(db, `users/${targetUid}/isAdmin`), flag);
+            alert(`管理者権限を${flag ? '付与' : '剥奪'}しました。`);
+        } catch(e) {
+            alert('エラーが発生しました。');
+        }
+    },
+    closeWarning: async () => {
+        await update(ref(db, `users/${uid}/punishment`), { read: true });
+        document.getElementById('warning-screen').style.display = 'none';
     }
 };
 
