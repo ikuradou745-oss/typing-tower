@@ -10,7 +10,8 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f0f0f; color: #ffffff; overflow: hidden; position: relative; }
         
         /* ランクの証（背景）エフェクト */
-        #bg-star { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 70vh; color: rgba(255, 235, 59, 0.05); z-index: -1; pointer-events: none; text-shadow: 0 0 50px rgba(255,235,59,0.1); }
+        #bg-star { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; pointer-events: none; }
+        #bg-star img { height: 85vh; opacity: 0.15; filter: drop-shadow(0 0 50px rgba(255,235,59,0.3)); }
 
         /* 準備中ローディング画面 */
         #loading-screen {
@@ -240,7 +241,7 @@
 </head>
 <body>
 
-<div id="bg-star">⭐️</div>
+<div id="bg-star"><img src="ランクZ3.png" alt="Z3"></div>
 
 <div id="ban-screen">
     <h1 style="color:#f44336; font-size:64px; margin-bottom:20px;">あなたはBANされました</h1>
@@ -680,7 +681,7 @@
 ・【デバッグモード】: 管理者限定機能。ユーザーIDを指定して管理者権限の付与/剥奪、BANや警告の実行が可能。
 ・【アンケート機能】: 左上の📝アイコンから。1日2回まで要望を送信可能。(管理者は内容を閲覧可能)
 ・【ランク報酬】: 到達したランクに応じた特別な報酬(C到達でコイン＆RC大量など)を1度だけ受け取れます。
-・【背景装備】: ランクZ3到達で「ランクの証」を獲得でき、装備すると背景中央に星が浮かび、名前に「⭐️」が付きます。
+・【背景装備】: ランクZ3到達で「ランクの証」を獲得でき、装備すると背景中央に専用画像が浮かび、名前にも画像が付きます。
 ・【バグ修正】: 目標スコア到達で確実に画面が遷移し、フリーズしないよう修正。
 =============================================================================
 */
@@ -943,12 +944,16 @@ function showPassiveEffect(text) {
 // ユーザー名のフォーマット表示
 function formatUserName(name, userId, isAdmin, hasBadge) {
     let html = '';
-    if (isAdmin) {
+    if (name === '（👑ビルダー）らもビルダーマン！！') {
+        html += `<img src="ビルダー.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[ビルダー]">`;
+    } else if (isAdmin || name === '（👑管理者）らも') {
         html += `<img src="管理者.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[管理]">`;
     }
+    
     html += `<span>${name}</span>`;
+    
     if (hasBadge) {
-        html += ` <span style="font-size:0.8em;">⭐️</span>`;
+        html += `<img src="ランクZ3.png" style="height: 1.5em; vertical-align: middle; margin-left: 5px;" alt="[Z3]">`;
     }
     if (userId) {
         html += ` <span style="font-size:0.7em; color:#aaa;">No.${userId}</span>`;
@@ -962,7 +967,7 @@ function formatUserName(name, userId, isAdmin, hasBadge) {
 function updateOnlinePresence() {
     if (!uid) return;
     const hasBadge = userData.equippedBackground === 'rank_badge';
-    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！';
+    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
     const info = { name: userData.name, userId: userData.userId, isAdmin: isAdmin, rankIndex: userData.rankIndex, hasBadge: hasBadge, timestamp: Date.now() };
     
     // Online status
@@ -981,7 +986,7 @@ function updateOnlinePresence() {
 
 function updateRankRankingData() {
     if (!uid) return;
-    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！';
+    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
     set(ref(db, `rankings/rankOverall/${uid}`), {
         name: userData.name,
         userId: userData.userId,
@@ -1010,7 +1015,7 @@ function listenForPunishmentAndAdmin() {
 
     const adminRef = ref(db, `users/${uid}/isAdmin`);
     onValue(adminRef, (snap) => {
-        userData.isAdmin = snap.val() || userData.name === '（👑ビルダー）らもビルダーマン！！';
+        userData.isAdmin = snap.val() || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
         if (userData.isAdmin) {
             document.getElementById('debug-btn').style.display = 'block';
         } else {
@@ -1103,7 +1108,9 @@ async function initApp() {
         console.error("Firebase load error", e);
     }
 
-    if (userData.name === '（👑ビルダー）らもビルダーマン！！') userData.isAdmin = true;
+    if (userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも') {
+        userData.isAdmin = true;
+    }
 
     updateHeaderUI();
     applySettings();
@@ -1114,12 +1121,14 @@ async function initApp() {
         document.getElementById('agreement-modal').classList.add('active');
     }
     
+    // 警告UI（確認しておきたいこと）の表示チェック
     const hideNoticeUntil = localStorage.getItem('hideNoticeUntil');
     const now = Date.now();
     if (!hideNoticeUntil || now > parseInt(hideNoticeUntil)) {
         document.getElementById('notice-modal').classList.add('active');
     }
 
+    // アンケート通知バナーの表示チェック (2026/05/22 00:00:00 JST まで)
     const notifClosed = localStorage.getItem('surveyNotifClosed');
     const expireDate = new Date('2026-05-22T00:00:00+09:00').getTime();
     if (!notifClosed && Date.now() < expireDate) {
@@ -1665,7 +1674,7 @@ function endGame(forced = false) {
         } else {
             document.getElementById('rank-match-result').innerText = '💀 敗北...';
             document.getElementById('rank-match-result').style.color = '#9e9e9e';
-            earnedRxp = -10; // 負けたら -10 RXP
+            earnedRxp = -10; // 負けたら -10 RXP に修正
         }
         
         userData.rankXp += earnedRxp;
@@ -1775,7 +1784,7 @@ function updateRankingData(score, combo) {
     if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
     const dateKey = getRankingDateKey();
     const badge = userData.equippedBackground === 'rank_badge';
-    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！';
+    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
     get(ref(db, `rankings/score/${dateKey}/${uid}`)).then(snap => {
         const currentBest = snap.exists() ? snap.val().value : 0;
         if (score > currentBest) set(ref(db, `rankings/score/${dateKey}/${uid}`), { name: userData.name, value: score, userId: userData.userId, isAdmin: isAdmin, hasBadge: badge });
@@ -1790,7 +1799,7 @@ function incrementPlayCountRanking() {
     if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
     const dateKey = getRankingDateKey();
     const badge = userData.equippedBackground === 'rank_badge';
-    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！';
+    const isAdmin = userData.isAdmin || userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも';
     get(ref(db, `rankings/playCount/${dateKey}/${uid}`)).then(snap => {
         const currentCount = snap.exists() ? snap.val().value : 0;
         set(ref(db, `rankings/playCount/${dateKey}/${uid}`), { name: userData.name, value: currentCount + 1, userId: userData.userId, isAdmin: isAdmin, hasBadge: badge });
@@ -1953,7 +1962,7 @@ function renderInventoryList(tab) {
             const isEquipped = userData.equippedBackground === key;
             const btnHtml = isEquipped ? `<button class="action-btn equipped" onclick="app.equipBackground('${key}')">装備中</button>` : `<button class="action-btn" onclick="app.equipBackground('${key}')">装備</button>`;
             const div = document.createElement('div'); div.className = 'list-item';
-            div.innerHTML = `<div class="shop-item-info"><h3>ランクの証</h3><p>背景中央に輝く星と、名前に⭐️を表示。</p></div><div>${btnHtml}</div>`;
+            div.innerHTML = `<div class="shop-item-info"><h3>ランクの証</h3><p>背景中央にランクZ3の証を表示し、名前にも専用マークが付きます。</p></div><div>${btnHtml}</div>`;
             list.appendChild(div);
         });
     }
@@ -2136,6 +2145,13 @@ window.app = {
         }
 
         userData.name = newName; 
+        
+        if (userData.name === '（👑ビルダー）らもビルダーマン！！' || userData.name === '（👑管理者）らも') {
+            userData.isAdmin = true;
+        } else {
+            userData.isAdmin = false;
+        }
+
         saveUserData(); 
         updateOnlinePresence(); 
         alert('名前を保存しました！'); 
@@ -2190,7 +2206,7 @@ window.app = {
         }
     },
     viewSurveyResults: async () => {
-        if (!userData.isAdmin && userData.name !== '（👑ビルダー）らもビルダーマン！！') {
+        if (!userData.isAdmin && userData.name !== '（👑ビルダー）らもビルダーマン！！' && userData.name !== '（👑管理者）らも') {
             document.getElementById('survey-admin-msg').style.display = 'block';
             setTimeout(() => { document.getElementById('survey-admin-msg').style.display = 'none'; }, 3000);
             return;
@@ -2240,7 +2256,7 @@ window.app = {
     
     // デバッグ・BAN関連機能
     openDebugModal: () => {
-        if (!userData.isAdmin && userData.name !== '（👑ビルダー）らもビルダーマン！！') return;
+        if (!userData.isAdmin && userData.name !== '（👑ビルダー）らもビルダーマン！！' && userData.name !== '（👑管理者）らも') return;
         document.getElementById('debug-modal').classList.add('active');
     },
     executeBan: async () => {
