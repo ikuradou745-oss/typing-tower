@@ -571,6 +571,11 @@
             </select>
             <button class="modal-btn danger" onclick="app.executeBan()">実行</button>
         </div>
+        <div style="margin-bottom: 20px;">
+            <h3>アンケート機能</h3>
+            <button class="modal-btn" onclick="app.setSurveyStatus(false)">許可する (ON)</button>
+            <button class="modal-btn danger" onclick="app.setSurveyStatus(true)">停止する (OFF)</button>
+        </div>
         <button class="back-btn" onclick="document.getElementById('debug-modal').classList.remove('active')" style="width: 100%;">閉じる</button>
     </div>
 </div>
@@ -657,11 +662,12 @@
 ・コンボを繋げば繋ぐほど、スコアが指数関数的に伸びるシステムです。
 ・ミスをするとコンボは0にリセットされます（パッシブやスキルでの保護・無敵状態を除く）。
 ・【速度計測】: 一単語うち終わった時、1文字あたりの速さ(秒)を算出し、(5 / 速さ) の分だけコンボが一気に増加します。
+  ※ 自動入力スキル中は、追加コンボは最大35に制限されます。
 
 ▼ モード一覧
 1. ノーマルモード: 60秒間タイピングし、スコアを稼ぐ基本モード。
 2. ハードモード: 未入力文字が非表示になり、獲得コインが2倍。
-3. ストーリーモード: 全100ステージ。目標スコアが設定されており、到達した瞬間に「クリア判定」。時間切れは失敗。
+3. ストーリーモード: 全100ステージ。目標スコアが設定されており、到達した瞬間に確実に「クリア判定」となります。
 4. レイドモード: 決まった時間帯に開催。目標スコア到達でクリア。
 5. ランクマッチ: NPCと1対1でスコアを競うモード。
    ・NPCスコア: Gは1万〜2万。F〜Cまではそこから5,000ずつ増加。Bは50万〜52万5千。以降ランクが上がるごとに10万増加。
@@ -675,15 +681,12 @@
 ・コイン(🪙) / ゴールドコイン(🥇) / レイドポイント(🎯) / ランクコイン(RC)
 ・レベル: XPが一定値(100×現在のレベル)に達するとレベルアップ。
 
-▼ 新規追加要素・UI
-・【ログインユーザー表示】: 左上の👥アイコンから、現在オンラインのユーザーと、今日ログインしたユーザーの一覧を確認。
-・【ユーザーID】: 全てのプレイヤーに固有の「No.XX」が付与され、ランキングなどで名前とともに表示されます。
-・【警告・BAN】: 不正や規約違反を行ったプレイヤーに対し、管理者がID指定で画面をロックする警告やBANを課すことができます。
-・【デバッグモード】: 管理者限定機能。ユーザーIDを指定して管理者権限の付与/剥奪、BANや警告の実行が可能。
-・【アンケート機能】: 左上の📝アイコンから。1日2回まで要望を送信可能。(管理者は内容を閲覧可能)
+▼ UI・管理機能
+・【ユーザーID】: 全プレイヤーに固有の「No.XX」が付与。
+・【警告・BAN】: 管理者がID指定で画面ロック等の処分が可能。
+・【アンケート機能】: 1日2回まで要望を送信可能。管理者はID指定で特定のユーザーのアンケート機能を停止させることができます。
 ・【ランク報酬】: 到達したランクに応じた特別な報酬(C到達でコイン＆RC大量など)を1度だけ受け取れます。
-・【背景装備】: ランクZ3到達で「ランクの証」を獲得でき、装備すると背景中央に専用画像が浮かび、名前にも画像が付きます。
-・【バグ修正】: 目標スコア到達で確実に画面が遷移し、フリーズしないよう修正。
+・【背景装備】: ランクZ3到達で装備すると背景中央に専用画像が浮かび、名前にも画像が付きます。
 =============================================================================
 */
 
@@ -810,7 +813,7 @@ const rankRewardsData = [
 // 状態管理
 // ==========================================
 const defaultUserData = {
-    userId: null, isAdmin: false,
+    userId: null, isAdmin: false, surveyDisabled: false,
     name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
     rankIndex: 0, rankXp: 0, rankCoin: 0,
     skills: [], equippedSkill: null, passives: [], equippedPassive: null, items: {}, backgrounds: [], equippedBackground: null,
@@ -824,7 +827,7 @@ let userData = { ...defaultUserData };
 let uid = localStorage.getItem('typingGameUid');
 
 const gameState = {
-    isPlaying: false, mode: 'normal', storyStage: null, raidStage: null,
+    isPlaying: false, isEnding: false, mode: 'normal', storyStage: null, raidStage: null,
     timeLeft: 60, initialTime: 60, score: 0, combo: 0, maxCombo: 0,
     currentWordObj: null, currentRomajiIndex: 0, currentWordStartTime: 0,
     timer: null, isAutoTyping: false, autoTypeInterval: null,
@@ -1019,6 +1022,12 @@ function listenForPunishmentAndAdmin() {
         }
     });
 
+    // surveyDisabledの監視
+    const sRef = ref(db, `users/${uid}/surveyDisabled`);
+    onValue(sRef, (snap) => {
+        userData.surveyDisabled = snap.val() || false;
+    });
+
     const adminRef = ref(db, `users/${uid}/isAdmin`);
     onValue(adminRef, (snap) => {
         const n = userData.name || "";
@@ -1092,6 +1101,7 @@ async function initApp() {
                 userData.userId = await assignNewUserId(uid);
                 await set(userRef, userData);
             }
+            if (userData.surveyDisabled === undefined) userData.surveyDisabled = false;
             if (!userData.settings) userData.settings = { ...defaultUserData.settings };
             if (userData.settings.homeScale === undefined) userData.settings.homeScale = 50;
             if (userData.settings.showFurigana === undefined) userData.settings.showFurigana = true;
@@ -1108,6 +1118,8 @@ async function initApp() {
             if (!userData.raidClearedTime) userData.raidClearedTime = 0;
             if (!userData.storyRewardsClaimed) userData.storyRewardsClaimed = [];
             if (!userData.rankRewardsClaimed) userData.rankRewardsClaimed = [];
+            // XPの型キャストを保証
+            userData.xp = Number(userData.xp) || 0;
         } else {
             userData.userId = await assignNewUserId(uid);
             await set(userRef, userData);
@@ -1227,7 +1239,7 @@ function renderStoryMap() {
         const btn = document.createElement('button');
         btn.className = `stage-btn ${i === userData.storyStage ? 'current' : (i < userData.storyStage ? 'completed' : 'locked')}`;
         btn.innerText = i;
-        if (i === userData.storyStage) btn.onclick = () => startGame('story', i);
+        if (i === userData.storyStage) btn.onclick = () => app.startGame('story', i);
         grid.appendChild(btn);
     }
 }
@@ -1261,7 +1273,7 @@ function renderRaidMap() {
         let label = i === 6 ? 'レイドボス' : `ステージ ${i}`;
         let target = getRaidTargetScore(i);
         btn.innerHTML = `${label}<br><span style="font-size:14px; font-weight:normal;">目標: ${target.toLocaleString()} / 60秒</span>`;
-        if (i === raidState.currentStage) btn.onclick = () => startGame('raid', i);
+        if (i === raidState.currentStage) btn.onclick = () => app.startGame('raid', i);
         grid.appendChild(btn);
     }
 }
@@ -1295,6 +1307,7 @@ function startRaidTimer() {
 function startGame(mode, stage = null) {
     gameState.mode = mode;
     gameState.isPlaying = true;
+    gameState.isEnding = false; // クリア済みフラグの初期化
     gameState.score = 0;
     gameState.combo = 0;
     gameState.maxCombo = 0;
@@ -1345,7 +1358,7 @@ function startGame(mode, stage = null) {
 }
 
 function gameTimerTick() {
-    if (gameState.timeExtendActive || !gameState.isPlaying) return;
+    if (gameState.timeExtendActive || !gameState.isPlaying || gameState.isEnding) return;
     
     gameState.timeLeft--;
     document.getElementById('time-display').innerText = gameState.timeLeft;
@@ -1542,6 +1555,8 @@ function showSpeedBonusAnim(speed, bonus) {
 }
 
 function handleCorrectKey(isAuto = false) {
+    if (gameState.isEnding || !gameState.isPlaying) return; // 二重実行防止
+
     gameState.currentRomajiIndex++;
     gameState.score += gameState.combo * 5;
     gameState.combo++;
@@ -1549,10 +1564,11 @@ function handleCorrectKey(isAuto = false) {
     
     updateGameUI();
     
-    // 即時クリア判定 (非同期にして処理スタックを安全に抜ける)
+    // 目標スコア到達で確実に終了させる（複数回呼ばれるのを防ぐ）
     if ((gameState.mode === 'story' || gameState.mode === 'raid') && gameState.score >= gameState.targetScore) {
-        gameState.isPlaying = false; // エラー防止のために即座に停止
-        setTimeout(() => endGame(), 0);
+        if (!gameState.isEnding) {
+            endGame(); 
+        }
         return;
     }
     
@@ -1561,7 +1577,12 @@ function handleCorrectKey(isAuto = false) {
         const sec = Math.max(0.01, (Date.now() - gameState.currentWordStartTime) / 1000);
         const chars = gameState.currentWordObj.romaji.length;
         const speedPerChar = sec / chars;
-        const comboBonus = Math.floor(5 / speedPerChar);
+        let comboBonus = Math.floor(5 / speedPerChar);
+        
+        // 自動入力中はボーナスを最大35に制限
+        if (gameState.isAutoTyping && comboBonus > 35) {
+            comboBonus = 35;
+        }
         
         gameState.combo += comboBonus;
         if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
@@ -1599,12 +1620,12 @@ function handleMissKey() {
 }
 
 document.addEventListener('keydown', (e) => {
-    if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive) return;
+    if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive || gameState.isEnding) return;
     if (e.code === 'Space') { e.preventDefault(); useSkill(); return; }
     const key = e.key.toLowerCase();
     if (key.length !== 1 || !/[a-z\-]/.test(key)) return;
     
-    if (!gameState.currentWordObj || gameState.currentRomajiIndex >= gameState.currentWordObj.romaji.length) return; // 念のための安全策
+    if (!gameState.currentWordObj || gameState.currentRomajiIndex >= gameState.currentWordObj.romaji.length) return;
 
     if (key === gameState.currentWordObj.romaji[gameState.currentRomajiIndex].toLowerCase()) handleCorrectKey();
     else handleMissKey();
@@ -1636,9 +1657,13 @@ function updateRaidTargetUI() {
 }
 
 function endGame(forced = false) {
-    if (!gameState.isPlaying && !forced) return;
+    if (gameState.isEnding && !forced) return; // 既に処理中ならスキップ
+    gameState.isEnding = true;
     gameState.isPlaying = false;
-    clearInterval(gameState.timer); clearInterval(gameState.skillCooldownTimer); clearInterval(gameState.autoTypeInterval);
+    
+    clearInterval(gameState.timer); 
+    clearInterval(gameState.skillCooldownTimer); 
+    clearInterval(gameState.autoTypeInterval);
     
     // UI初期化
     document.getElementById('rank-match-result').style.display = 'none';
@@ -1649,6 +1674,7 @@ function endGame(forced = false) {
     document.getElementById('story-clear-msg').style.display = 'none';
     document.getElementById('story-reward-msg').style.display = 'none';
     document.getElementById('raid-clear-msg').style.display = 'none';
+    document.getElementById('level-up-msg').style.display = 'none';
     
     if (forced) { showScreen('menu-screen'); return; } // BANなどで強制終了の場合はリザルトを出さない
 
@@ -1722,7 +1748,8 @@ function endGame(forced = false) {
     }
     
     userData.coin += earnedCoin;
-    userData.xp += earnedXp;
+    // XPは数値として足し算を保証する
+    userData.xp = Number(userData.xp) + earnedXp;
     
     let earnedGold = 0;
     if (gameState.mode !== 'rank' && Math.random() < baseGoldDrop) {
@@ -1771,9 +1798,19 @@ function endGame(forced = false) {
         incrementPlayCountRanking();
     }
 
-    let leveledUp = false; let nextXp = getNextLevelXp(userData.level);
-    while (userData.xp >= nextXp) { userData.xp -= nextXp; userData.level++; leveledUp = true; nextXp = getNextLevelXp(userData.level); }
-    document.getElementById('level-up-msg').style.display = leveledUp ? 'block' : 'none';
+    // レベルアップのチェック
+    let leveledUp = false; 
+    let nextXp = getNextLevelXp(userData.level);
+    while (userData.xp >= nextXp) { 
+        userData.xp -= nextXp; 
+        userData.level++; 
+        leveledUp = true; 
+        nextXp = getNextLevelXp(userData.level); 
+    }
+    // 本当にレベルアップした時だけ表示
+    if (leveledUp) {
+        document.getElementById('level-up-msg').style.display = 'block';
+    }
 
     document.getElementById('result-score').innerText = gameState.score.toLocaleString();
     document.getElementById('result-combo').innerText = gameState.maxCombo.toLocaleString();
@@ -2008,7 +2045,8 @@ function startBoostStatusTimer() {
 // グローバルAPI (window.app)
 // ==========================================
 window.app = {
-    showScreen, startGame,
+    showScreen, 
+    startGame: (mode, stage = null) => startGame(mode, stage),
     openStoryMap: () => { renderStoryMap(); showScreen('story-map-screen'); },
     openRaidMap: () => { renderRaidMap(); showScreen('raid-map-screen'); },
     
@@ -2185,6 +2223,10 @@ window.app = {
         localStorage.setItem('surveyNotifClosed', 'true');
     },
     openSurveyModal: () => {
+        if (userData.surveyDisabled) {
+            alert('あなたは管理者からアンケート機能を停止させられました');
+            return;
+        }
         document.getElementById('survey-modal').classList.add('active');
     },
     submitSurvey: async () => {
@@ -2325,6 +2367,19 @@ window.app = {
             alert('エラーが発生しました。');
         }
     },
+    setSurveyStatus: async (isDisabled) => {
+        const targetId = document.getElementById('debug-target-id').value;
+        if (!targetId) return alert('IDを入力してください');
+        try {
+            const mappingSnap = await get(ref(db, `idMapping/${targetId}`));
+            if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
+            const targetUid = mappingSnap.val();
+            await set(ref(db, `users/${targetUid}/surveyDisabled`), isDisabled);
+            alert(`アンケート機能を${isDisabled ? '停止' : '許可'}しました。`);
+        } catch(e) {
+            alert('エラーが発生しました。');
+        }
+    },
     closeWarning: async () => {
         await update(ref(db, `users/${uid}/punishment`), { read: true });
         document.getElementById('warning-screen').style.display = 'none';
@@ -2336,5 +2391,3 @@ document.getElementById('greek-info-btn').addEventListener('click', () => { docu
 </script>
 </body>
 </html>
-}
-また修正して欲しいことがあります。まずプレイボタンを押し、ノーマル、ハード、のモードでタイピングをプレイして結果に行き、メニューに戻るボタンを押すと固まります。原因がわからないので修正してください。そしてまた追加機能です。まずデバッグモードで機能を追加。設定で「アンケート機能」を設定できるようにしてください（ON、OFF切り替え可能（これはサーバー全体ではなく、個人のユーザーのみです。なので「ユーザーID」を入力するところを追加してください。何も入力してなかったらON、OFFの機能は使えません。そして初期はONになってる。あとON、OFFのシステムは、まずONなら通常通りアンケートを遅れますが、OFFだと「あなたは管理者からアンケート機能を停止させられました」というテキストが表示されます。そしてこれはアンケートのボタンを押した時に出てきます。出たらアンケート機能の何もできないようにしてください。（アンケートを入力するところもアンケート結果も見れないようにする）あとアンケート内容を見るボタンは「（👑管理者）らも」の人も押せるようにしてください（ビルダーマンの人も）そしてバグ修正です。ランクマッチの、対戦開始、のボタンですが、押しても反応しません。ゲームも始まりません。直してください。原因もよくわかりません。あと、バグで、プレイした後にレベルアップ！と出るんですが、これは自分がどのレベルになっても出ます。本当は、自分がレベルアップした時だけレベルアップ！、と出るようにしてください。ではお願いします。コードは貼っておきました
