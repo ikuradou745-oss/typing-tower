@@ -1,26 +1,10 @@
-ご提示いただいた要望および不具合の報告に基づき、コードを全面的に確認・修正いたしました。
+<!-- バグが起きてしまい申し訳ありません。「準備中...」のまま固まってしまう問題は、裏側の通信初期化時（特に認証やID生成周り）のエラーでストップしてしまっていたことが原因でした。エラーが起きても確実にゲーム画面へ進めるようにセーフティ処理を追加し、安定性を大幅に向上させました。
 
-### 🛠️ 今回の主な修正・変更点
+また、ご要望の機能（ゆちんさんアンケート、バグ発見体機能、「発見隊.png」への変更、バグ報告・アンケートの完全分離など）をすべて反映しています。
 
-1. **レッドアンドブルーの修行モードの調整**
-* デバフの発生間隔を正確に10秒に1回（10000ms）に修正しました。
-* 修行モードの目標スコアを2,000,000（200万点）に設定しました。
+今回も**一切の省略・手抜きなし**です。以下のコードをコピーして、`index.html` にそのまま上書き保存してください。
 
-
-2. **ストーリーモードクリア時のフリーズバグ修正**
-* 敵のHPが0になった瞬間にタイマー（`gameInterval`やデバフタイマー等）が多重に走り続けたり、未定義の関数を呼び出そうとして画面がロックしてしまう問題を根本から解決しました。
-* クリア時にすべてのループ処理を確実に安全に停止（`clearInterval`）させ、正常にストーリー専用のクリアリザルト画面、およびメインメニューへとフリーズなしでスムーズに遷移・リセットできるように処理を一新しました。
-
-
-3. **ゆちんさんのアンケート機能の完全復活・修正**
-* 前回の管理機能（ON/OFF切り替えや特定ユーザーIDの機能制限）の追加に伴い、一般画面側から消失してしまっていた「アンケート機能」のボタン、送信フォーム、および送信されたアンケートを一覧で取得・エスケープ表示するロジック（`loadSurveys`）をHTML/CSS/JSのすべてのレイヤーで完全に復元させました。
-* 初期値はONとして動作し、管理者からID単位で停止（`surveyDisabled`）された場合は、指定通り「あなたは管理者からアンケート機能を停止させられました」と警告が出るシステムも完全に統合されています。
-
-
-
-「変更する時は全体コードで提供する」「絶対に省略・簡略化をしない」「コードの行数をしっかり増やす」という指示を厳格に守り、以下に動作可能な全てのソースコードを一文字も略さずに記述しました。このまま1つのファイルとして保存して差し替えてご使用ください。
-
-```html
+```html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -29,35 +13,12 @@
     <title>Typing Game RPG</title>
     <style>
         /* CSSリセットと基本設定 */
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            user-select: none; 
-        }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #0f0f0f; 
-            color: #ffffff; 
-            overflow: hidden; 
-            position: relative; 
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f0f0f; color: #ffffff; overflow: hidden; position: relative; }
         
         /* ランクの証（背景）エフェクト */
-        #bg-star { 
-            display: none; 
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            z-index: -1; 
-            pointer-events: none; 
-        }
-        #bg-star img { 
-            height: 85vh; 
-            opacity: 0.15; 
-            filter: drop-shadow(0 0 50px rgba(255, 235, 59, 0.3)); 
-        }
+        #bg-star { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; pointer-events: none; }
+        #bg-star img { height: 85vh; opacity: 0.15; filter: drop-shadow(0 0 50px rgba(255,235,59,0.3)); }
 
         /* 準備中ローディング画面 */
         #loading-screen {
@@ -78,7 +39,7 @@
             text-shadow: 0 0 20px #00bcd4;
         }
 
-        /* ブースト表示 (左下に固定・デザイン改修) */
+        /* ブースト表示 (左下に固定) */
         #boost-status-container { 
             position: fixed; 
             bottom: 20px; 
@@ -86,1278 +47,2387 @@
             display: flex; 
             flex-direction: column; 
             gap: 10px; 
-            z-index: 100; 
-        }
-        .boost-badge { 
-            background: rgba(0, 0, 0, 0.85); 
-            border: 2px solid #00bcd4; 
-            padding: 12px 20px; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            color: #fff; 
-            box-shadow: 0 0 15px rgba(0, 188, 212, 0.4); 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-        }
-        .boost-badge.exp { 
-            border-color: #4caf50; 
-            box-shadow: 0 0 15px rgba(76, 175, 80, 0.4); 
-        }
-
-        /* 全体レイアウト */
-        #app-container { 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            width: 100vw; 
-        }
-        
-        /* 上側：ヘッダー */
-        #header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #1a1a1a; 
-            padding: 10px 30px; 
-            border-bottom: 3px solid #333; 
-            height: 70px; 
-        }
-        .user-info-bar { 
-            display: flex; 
-            align-items: center; 
-            gap: 20px; 
-        }
-        .info-item { 
-            font-size: 18px; 
-            font-weight: bold; 
-        }
-        .info-item span { 
-            color: #00bcd4; 
-        }
-        .header-buttons { 
-            display: flex; 
-            gap: 15px; 
-        }
-        .icon-btn { 
-            background: #333; 
-            border: none; 
-            color: #fff; 
-            padding: 8px 16px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.2s; 
-        }
-        .icon-btn:hover { 
-            background: #444; 
-            transform: translateY(-2px); 
-        }
-
-        /* 下側：メインコンテンツエリア */
-        #main-content { 
-            flex: 1; 
-            position: relative; 
-            background: #121212; 
-        }
-        .screen { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 40px; 
-        }
-        .screen.active { 
-            display: flex; 
-        }
-
-        /* メインメニュー画面 */
-        #menu-content-wrapper { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 30px; 
-            transition: transform 0.2s ease; 
-        }
-        .game-title { 
-            font-size: 56px; 
-            font-weight: bold; 
-            text-shadow: 0 0 20px rgba(255,255,255,0.2); 
-            color: #fff; 
-            margin-bottom: 10px; 
-        }
-        .menu-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 240px); 
-            gap: 20px; 
-        }
-        .menu-btn { 
-            background: linear-gradient(135deg, #1e1e1e, #2a2a2a); 
-            border: 2px solid #444; 
-            color: #fff; 
-            padding: 20px; 
-            font-size: 20px; 
-            font-weight: bold; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            transition: all 0.3s ease; 
-            text-align: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-        }
-        .menu-btn:hover { 
-            border-color: #00bcd4; 
-            transform: translateY(-4px); 
-            box-shadow: 0 8px 20px rgba(0, 188, 212, 0.3); 
-        }
-        .menu-btn.primary { 
-            background: linear-gradient(135deg, #008b9b, #00bcd4); 
-            border: none; 
-        }
-        .menu-btn.primary:hover { 
-            background: linear-gradient(135deg, #00bcd4, #00e5ff); 
-            box-shadow: 0 8px 25px rgba(0, 188, 212, 0.5); 
-        }
-
-        /* モード選択モーダル・共通モーダル */
-        .modal { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            background: rgba(0,0,0,0.85); 
-            display: none; 
-            justify-content: center; 
-            align-items: center; 
             z-index: 1000; 
+            pointer-events: none;
         }
-        .modal.active { 
-            display: flex; 
-        }
-        .modal-content { 
-            background: #1e1e1e; 
-            border: 2px solid #333; 
-            border-radius: 16px; 
-            padding: 40px; 
-            width: 500px; 
-            max-width: 90%; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            position: relative; 
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-        .modal-title { 
-            font-size: 28px; 
-            font-weight: bold; 
-            margin-bottom: 25px; 
-            color: #00bcd4; 
-            text-align: center; 
-        }
-        .modal-buttons { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-        }
-        .close-modal-btn { 
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            background: none; 
-            border: none; 
-            color: #aaa; 
-            font-size: 24px; 
-            cursor: pointer; 
-        }
-        .close-modal-btn:hover { 
-            color: #fff; 
-        }
-
-        /* タイピングゲーム画面 */
-        #game-screen { 
-            background: #0a0a0a; 
-        }
-        .game-status-header { 
-            display: flex; 
-            justify-content: space-between; 
-            width: 800px; 
-            max-width: 90%; 
-            margin-bottom: 40px; 
-            font-size: 22px; 
-            font-weight: bold; 
-            border-bottom: 2px solid #222; 
-            padding-bottom: 10px; 
-        }
-        .typing-container { 
-            background: #151515; 
-            border: 2px solid #2a2a2a; 
-            border-radius: 16px; 
-            width: 800px; 
-            max-width: 90%; 
-            padding: 50px 40px; 
-            text-align: center; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); 
-            position: relative;
-        }
-        .japanese-word { 
-            font-size: 40px; 
-            font-weight: bold; 
-            margin-bottom: 10px; 
-            letter-spacing: 2px; 
-        }
-        .furigana-word { 
-            font-size: 20px; 
-            color: #888; 
-            margin-bottom: 25px; 
-            min-height: 24px; 
-            letter-spacing: 1px; 
-        }
-        .roman-word { 
-            font-size: 32px; 
-            font-family: 'Courier New', Courier, monospace; 
-            letter-spacing: 2px; 
-            word-break: break-all; 
-        }
-        .roman-typed { 
-            color: #00bcd4; 
-            text-shadow: 0 0 10px rgba(0,188,212,0.5); 
-        }
-        .roman-untyped { 
-            color: #555; 
-        }
-
-        /* デバフ警告オーバーレイ表示 */
-        #debuff-overlay-notice {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(244, 67, 54, 0.9);
+        .boost-indicator {
+            background: rgba(0, 0, 0, 0.85);
             color: #fff;
-            padding: 6px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
-            display: none;
-            animation: pulse-alert 1s infinite alternate;
-        }
-        @keyframes pulse-alert {
-            from { opacity: 0.8; } to { opacity: 1; }
-        }
-
-        /* エフェクト演出用 */
-        .combo-pop { 
-            position: absolute; 
-            font-size: 48px; 
-            font-weight: bold; 
-            color: #ffeb3b; 
-            pointer-events: none; 
-            animation: pop-up-fade 0.6s ease-out forwards; 
-            text-shadow: 0 0 15px rgba(255,235,59,0.6); 
-        }
-        @keyframes pop-up-fade { 
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 
-            20% { transform: translate(-50%, -100%) scale(1.2); opacity: 1; } 
-            100% { transform: translate(-50%, -150%) scale(1); opacity: 0; } 
-        }
-
-        /* リザルト画面 */
-        .result-container { 
-            background: #1a1a1a; 
-            border: 2px solid #333; 
-            border-radius: 16px; 
-            padding: 50px; 
-            width: 600px; 
-            max-width: 90%; 
-            text-align: center; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-        }
-        .result-title { 
-            font-size: 38px; 
-            font-weight: bold; 
-            color: #4caf50; 
-            margin-bottom: 30px; 
-        }
-        .result-stats { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            margin-bottom: 40px; 
-            text-align: left; 
-            padding: 0 40px; 
-        }
-        .stat-row { 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 20px; 
-            font-weight: bold; 
-            border-bottom: 1px solid #2a2a2a; 
-            padding-bottom: 8px; 
-        }
-        .stat-row span { 
-            color: #ffeb3b; 
-        }
-
-        /* ストーリー用エネミーUI */
-        #story-enemy-container {
-            width: 800px;
-            max-width: 90%;
-            background: #1f1f1f;
-            border: 2px solid #f44336;
+            padding: 12px 18px;
             border-radius: 12px;
-            padding: 15px 25px;
-            margin-bottom: 20px;
-            display: none;
-            flex-direction: column;
+            font-size: 15px;
+            font-weight: bold;
+            border: 2px solid #555;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            text-shadow: 1px 1px 2px black;
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
-        .enemy-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 18px;
-            font-weight: bold;
-            color: #f44336;
-        }
-        .hp-bar-bg {
-            background: #333;
-            height: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            width: 100%;
-            border: 1px solid #555;
-        }
-        .hp-bar-fill {
-            background: linear-gradient(90deg, #d32f2f, #f44336);
-            height: 100%;
-            width: 100%;
-            transition: width 0.2s ease;
-        }
+        .boost-indicator.mini-coin { border-color: #ffd700; color: #fff; }
+        .boost-indicator.gold { border-color: #ffaa00; color: #fff; }
+        .boost-indicator.xp { border-color: #4caf50; color: #fff; }
 
-        /* 汎用リスト表示スタイル */
-        .data-list { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-            max-height: 400px; 
-            overflow-y: auto; 
-            margin-top: 15px; 
-            padding-right: 5px; 
-        }
-        .list-item { 
-            background: #252525; 
-            padding: 12px 20px; 
-            border-radius: 8px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            font-weight: bold; 
-            border-left: 4px solid #555; 
-        }
-        .list-item.rank-1 { border-left-color: #ffeb3b; background: rgba(255,235,59,0.05); }
-        .list-item.rank-2 { border-left-color: #e0e0e0; background: rgba(224,224,224,0.05); }
-        .list-item.rank-3 { border-left-color: #ff9800; background: rgba(255,152,0,0.05); }
-
-        /* 設定画面インプット類 */
-        .setting-group { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px; 
-            margin-bottom: 20px; 
-        }
-        .setting-group label { 
-            font-size: 16px; 
-            font-weight: bold; 
-            color: #ccc; 
-        }
-        .text-input { 
-            background: #2b2b2b; 
-            border: 2px solid #444; 
-            color: #fff; 
-            padding: 12px; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            outline: none; 
-        }
-        .text-input:focus { 
-            border-color: #00bcd4; 
-        }
-        .slider-wrapper { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-        }
-        .slider-input { 
-            flex: 1; 
-            accent-color: #00bcd4; 
-            cursor: pointer; 
-        }
+        /* 全体レイアウト */
+        #app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
-        /* 警告画面オーバーレイ */
-        #warning-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-            text-align: center;
-        }
-        .warning-container {
-            background: #1e1e1e;
-            border: 3px solid #f44336;
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 600px;
-            width: 90%;
-            box-shadow: 0 0 30px rgba(244,67,54,0.4);
-        }
+        /* 上側：ヘッダー */
+        #header { display: flex; align-items: center; justify-content: space-between; height: 60px; background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%); padding: 0 20px; border-bottom: 1px solid #2a2a2a; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        #header-left { display: flex; align-items: center; gap: 15px; }
+        #settings-btn, #greek-info-btn, #users-btn, #survey-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #e0e0e0; transition: transform 0.3s ease; }
+        #settings-btn:hover, #greek-info-btn:hover, #users-btn:hover, #survey-btn:hover { transform: scale(1.1); color: #ffffff; }
+        #coin-display { font-size: 18px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); display: flex; align-items: center; gap: 5px; }
+        #gold-coin-display { font-size: 18px; font-weight: bold; color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
+        #raid-point-display { font-size: 18px; font-weight: bold; color: #ff5722; text-shadow: 0 0 10px rgba(255, 87, 34, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
+        #rank-coin-display-header { font-size: 18px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
+        
+        #header-right { display: flex; align-items: center; gap: 15px; width: 450px; justify-content: flex-end; }
+        #header-rank-badge { background: linear-gradient(145deg, #f57f17, #fbc02d); color: #000; padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 0 8px rgba(251, 192, 45, 0.6); }
+        #level-display { font-size: 18px; font-weight: bold; white-space: nowrap; color: #e0e0e0; }
+        #xp-bar-container { width: 150px; height: 15px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #444; }
+        #xp-bar-fill { height: 100%; background: linear-gradient(90deg, #6bcf7f, #4caf50); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 8px #4caf50; }
+        #xp-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; }
+
+        /* 下側：メインコンテンツ */
+        #main-content { flex: 1; position: relative; background: radial-gradient(circle at 20% 30%, #1e1e1e, #121212); overflow-y: auto; padding: 20px; }
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; }
+        .screen.active { display: flex; }
+
+        /* メニュー画面 */
+        #menu-screen { justify-content: flex-start; padding-top: 20px; }
+        #menu-content-wrapper { display: flex; flex-direction: column; align-items: center; transform-origin: top center; transition: transform 0.3s ease; width: 100%; }
+        #menu-screen h1 { font-size: 64px; margin-bottom: 40px; text-shadow: 0 0 20px #00bcd4, 0 0 40px #00bcd4; color: #ffffff; letter-spacing: 4px; font-weight: 700; background: linear-gradient(135deg, #a0e9ff, #00bcd4, #007bff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-top: 0; }
+        #menu-screen .menu-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; width: 90%; max-width: 800px; margin-top: 0; }
+        .menu-btn { background: linear-gradient(145deg, #2c2c2c, #1f1f1f); color: #f0f0f0; border: none; padding: 20px 10px; font-size: 20px; border-radius: 20px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); font-weight: bold; box-shadow: 0 8px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(255,255,255,0.05) inset; border: 1px solid #3a3a3a; letter-spacing: 1px; text-shadow: 1px 1px 2px black; grid-column: span 1; }
+        .menu-btn:hover { background: linear-gradient(145deg, #3a3a3a, #2a2a2a); border-color: #00bcd4; transform: translateY(-5px); box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0, 188, 212, 0.4); color: #ffffff; }
+        .menu-btn.story-mode { grid-column: span 2; background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; padding: 25px 15px; }
+        .menu-btn.raid-mode { grid-column: span 2; background: linear-gradient(145deg, #c62828, #b71c1c); border-color: #ef5350; padding: 25px 15px; }
+        .menu-btn.rank-mode { grid-column: span 4; background: linear-gradient(145deg, #f57f17, #f9a825); border-color: #fbc02d; padding: 30px 20px; font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .menu-btn.rank-mode:hover { box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 20px rgba(251, 192, 45, 0.6); border-color: #fff; }
+        .menu-btn.raid-mode.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+        .raid-timer-info { grid-column: span 4; text-align: center; font-size: 18px; color: #ff9800; margin-top: -10px; margin-bottom: 5px; }
+
+        /* バグ発見体エリア */
+        #bughunter-area { display: none; width: 90%; max-width: 800px; margin-top: 30px; margin-bottom: 30px; background: rgba(20,20,20,0.9); border: 2px solid #00bcd4; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); text-align: center; }
+        #bughunter-area h3 { color: #00bcd4; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 24px; }
+        .bh-input-group { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+
+        /* プレイ選択画面 */
+        #play-select-screen { justify-content: center; }
+        #play-select-screen h2 { font-size: 48px; margin-bottom: 50px; text-shadow: 0 0 15px #2196f3; }
+        #play-select-screen .select-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; width: 90%; max-width: 900px; }
+        .mode-btn { background: linear-gradient(145deg, #1e88e5, #1565c0); color: #fff; border: none; padding: 35px; font-size: 28px; border-radius: 24px; cursor: pointer; transition: all 0.3s ease; font-weight: bold; box-shadow: 0 8px 16px rgba(0,0,0,0.5), 0 2px 4px rgba(255,255,255,0.2) inset; border: 1px solid #42a5f5; }
+        .mode-btn.hard { background: linear-gradient(145deg, #e53935, #c62828); border-color: #ef5350; }
+        .mode-btn.story { background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; }
+        .mode-btn:hover { filter: brightness(1.15); transform: translateY(-8px); box-shadow: 0 15px 25px rgba(0,0,0,0.6); }
+
+        /* ストーリー/レイドマップ画面 */
+        #story-map-screen { justify-content: center; }
+        #story-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #9c27b0; text-shadow: 0 0 15px #9c27b0; }
+        .stage-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; width: 90%; max-width: 1000px; margin: 20px 0; max-height: 500px; overflow-y: auto; padding: 10px; }
+        .stage-btn { background: linear-gradient(145deg, #333, #222); color: #fff; border: 2px solid #555; padding: 15px 5px; font-size: 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; font-weight: bold; text-align: center; }
+        .stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; cursor: not-allowed; opacity: 0.8; }
+        .stage-btn.current { background: linear-gradient(145deg, #2196f3, #1565c0); border-color: #64b5f6; box-shadow: 0 0 15px #2196f3; }
+        .stage-btn.locked { background: linear-gradient(145deg, #1a1a1a, #111); border-color: #444; color: #666; cursor: not-allowed; }
+        .stage-btn.current:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .stage-info { font-size: 18px; margin: 15px 0; color: #ccc; }
+
+        #raid-map-screen { justify-content: center; }
+        #raid-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #ef5350; text-shadow: 0 0 15px #ef5350; }
+        .raid-stages-grid { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 600px; margin: 20px 0; }
+        .raid-stage-btn { background: linear-gradient(145deg, #333, #222); color: #fff; border: 2px solid #ef5350; padding: 20px; font-size: 20px; border-radius: 15px; cursor: pointer; transition: all 0.2s; font-weight: bold; text-align: center; }
+        .raid-stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; cursor: not-allowed; opacity: 0.8; }
+        .raid-stage-btn.current { background: linear-gradient(145deg, #ff5722, #d84315); border-color: #ff8a65; box-shadow: 0 0 15px #ff5722; }
+        .raid-stage-btn.locked { background: linear-gradient(145deg, #1a1a1a, #111); border-color: #444; color: #666; cursor: not-allowed; }
+        .raid-timer { font-size: 20px; color: #ff9800; margin: 10px 0; }
+
+        /* ランクマッチ画面 */
+        #rank-match-screen { justify-content: center; }
+        .rank-container { display: flex; gap: 30px; width: 95%; max-width: 1000px; margin-top: 20px; }
+        .rank-panel { flex: 1; background: rgba(30, 30, 30, 0.8); border: 1px solid #555; border-radius: 20px; padding: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .rank-panel h3 { font-size: 28px; margin-bottom: 20px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        #current-rank-display { font-size: 100px; font-weight: 900; color: #ffeb3b; text-shadow: 0 0 30px rgba(255, 235, 59, 0.8), 2px 2px 5px #000; margin-bottom: 10px; line-height: 1; text-align: center; }
+        #rank-xp-bar-container-ui { width: 100%; height: 25px; background: #222; border-radius: 12.5px; border: 2px solid #555; position: relative; overflow: hidden; margin-bottom: 30px; }
+        #rank-xp-bar-fill-ui { height: 100%; background: linear-gradient(90deg, #fbc02d, #f57f17); width: 0%; transition: width 0.3s ease; }
+        #rank-xp-text-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
+        .rank-action-btns { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+        
+        /* ゲーム画面 */
+        #game-screen { justify-content: center; position: relative; }
+        #story-target-container, #raid-target-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 400px; text-align: center; }
+        #story-target-info, #raid-target-info { font-size: 20px; font-weight: bold; color: #9c27b0; text-shadow: 0 0 10px #9c27b0; margin-bottom: 8px; }
+        #raid-target-info { color: #ef5350; text-shadow: 0 0 10px #ef5350; }
+        #story-target-bar-container, #raid-target-bar-container { width: 100%; height: 20px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; border: 1px solid #9c27b0; }
+        #raid-target-bar-container { border-color: #ef5350; }
+        #story-target-bar-fill { height: 100%; background: linear-gradient(90deg, #ce93d8, #9c27b0, #7b1fa2); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #9c27b0; }
+        #raid-target-bar-fill { height: 100%; background: linear-gradient(90deg, #ffab91, #ff5722, #d84315); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #ff5722; }
+        #story-target-text, #raid-target-text { margin-top: 5px; font-size: 16px; color: #ccc; }
+        
+        /* NPC情報表示 (ランクマッチ用) */
+        #npc-info-container { position: absolute; top: 20px; left: 20px; background: rgba(20, 20, 20, 0.85); padding: 15px 25px; border-radius: 15px; border: 2px solid #f44336; box-shadow: 0 0 15px rgba(244, 67, 54, 0.4); display: none; z-index: 100; }
+        #npc-info-name { font-size: 18px; color: #ffeb3b; font-weight: bold; margin-bottom: 5px; }
+        #npc-info-score { font-size: 32px; color: #f44336; font-weight: bold; text-shadow: 1px 1px 3px black; }
+
+        #game-info { position: absolute; top: 30px; width: 100%; display: flex; justify-content: space-around; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px black; z-index: 50; pointer-events: none; }
+        #typing-area { text-align: center; margin-top: 20px; z-index: 10; position: relative; }
+        #japanese-text { font-size: 56px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
+        #furigana-text { font-size: 24px; color: #a0e9ff; margin-bottom: 5px; height: 36px; line-height: 36px; font-weight: bold; }
+        #romaji-text { font-size: 44px; letter-spacing: 4px; font-family: 'Courier New', monospace; }
+        .typed { color: #76ff03; text-shadow: 0 0 15px #76ff03; }
+        .untyped { color: #b0bec5; }
+        .untyped-hidden { color: transparent; }
+
+        /* スピードボーナスアニメーション */
+        .speed-anim { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-weight: bold; color: #00e676; text-shadow: 0 0 15px #00e676, 2px 2px 5px #000; animation: floatUpSpeed 1.5s ease-out forwards; pointer-events: none; z-index: 200; }
+        .speed-anim-time { font-size: 24px; margin-bottom: 5px; color: #a0e9ff; text-shadow: 0 0 10px #a0e9ff; }
+        .speed-anim-combo { font-size: 40px; }
+        @keyframes floatUpSpeed { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 20% { transform: translate(-50%, -60%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -120px) scale(1); } }
+
+        /* 妨害エフェクト */
+        #game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 500; transition: background-color 0.5s ease; }
+        #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; width: 100%; }
+        #time-reduce-animation { position: fixed; top: 30px; right: 30px; font-size: 48px; font-weight: bold; color: #ff5252; text-shadow: 0 0 20px #ff5252; z-index: 501; opacity: 0; pointer-events: none; }
+        
+        #combo-protect-indicator { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); font-size: 24px; font-weight: bold; color: #00e676; text-shadow: 0 0 15px #00e676; background: rgba(0,0,0,0.7); padding: 15px 20px; border-radius: 15px; border: 2px solid #00e676; z-index: 600; display: none; pointer-events: none; }
+        #time-extend-game { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: rgba(0,0,0,0.9); border-radius: 20px; padding: 30px; text-align: center; z-index: 600; border: 2px solid #4caf50; display: none; }
+        #time-extend-bar-container { width: 100%; height: 30px; background: #333; border-radius: 15px; margin: 20px 0; position: relative; overflow: hidden; }
+        #time-extend-bar { height: 100%; width: 5px; background: #4caf50; position: absolute; }
+        #time-extend-marker { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 10px; height: 40px; background: #ffd700; border-radius: 5px; z-index: 1; }
+        #time-extend-center { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 20px; height: 40px; background: rgba(255,215,0,0.3); border-radius: 5px; }
+        #time-extend-perfect { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 6px; height: 40px; background: #ff5252; border-radius: 3px; }
+        
+        #skill-button-container { position: absolute; bottom: 50px; right: 50px; z-index: 100; }
+        #skill-btn { background: radial-gradient(circle at 30% 30%, #ab47bc, #6a1b9a); color: #fff; border: none; padding: 20px; font-size: 20px; border-radius: 50%; width: 110px; height: 110px; cursor: pointer; font-weight: bold; box-shadow: 0 0 25px #ce93d8, 0 4px 8px black; position: relative; overflow: hidden; border: 2px solid #e1bee7; }
+        #skill-btn:disabled { background: #424242; box-shadow: none; cursor: not-allowed; color: #9e9e9e; border-color: #616161; }
+        #skill-cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0,0,0,0.6); height: 0%; transition: height 0.1s linear; }
+
+        .passive-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; font-weight: bold; color: #ff9800; text-shadow: 0 0 30px #ff9800; z-index: 502; opacity: 0; pointer-events: none; animation: passiveFade 2s ease-out forwards; }
+        @keyframes passiveFade { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
+
+        /* リザルト画面 */
+        #result-screen { justify-content: center; overflow-y: auto; padding: 20px 0; }
+        .result-box { background: rgba(30, 30, 30, 0.9); backdrop-filter: blur(5px); padding: 40px; border-radius: 30px; text-align: center; border: 1px solid #444; box-shadow: 0 20px 30px rgba(0,0,0,0.7); max-width: 500px; width: 90%; margin: auto; }
+        .result-item { font-size: 28px; margin: 15px 0; }
+        .back-btn { margin-top: 30px; background: linear-gradient(145deg, #424242, #212121); color: white; border: none; padding: 15px 35px; font-size: 20px; border-radius: 50px; cursor: pointer; font-weight: bold; border: 1px solid #555; transition: all 0.2s; }
+        .back-btn:hover { background: #555; transform: scale(1.02); box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
+
+        /* 共通タブUI・リストUI */
+        .tab-container { width: 90%; max-width: 800px; margin-top: 30px; background: rgba(20,20,20,0.7); padding: 20px; border-radius: 30px; backdrop-filter: blur(4px); border: 1px solid #3a3a3a; }
+        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 12px 24px; cursor: pointer; font-size: 20px; border-bottom: 3px solid transparent; transition: 0.2s; }
+        .tab.active { border-bottom-color: #00bcd4; color: #00bcd4; font-weight: bold; text-shadow: 0 0 8px #00bcd4; }
+        #ranking-timer { font-size: 18px; color: #ff9800; margin: 10px 0; font-weight: bold; }
+        .list-container { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 10px; width: 100%; }
+        .list-item { background: rgba(40, 40, 40, 0.8); backdrop-filter: blur(2px); padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #4a4a4a; }
+        .rank-item-info { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        .shop-item-info h3 { color: #fff; margin-bottom: 5px; font-size: 22px; }
+        .shop-item-info p { color: #ccc; font-size: 15px; }
+        .action-btn { background: linear-gradient(145deg, #4caf50, #2e7d32); color: white; border: none; padding: 12px 24px; border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: 0.2s; white-space: nowrap; }
+        .action-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
+        .action-btn:disabled { background: #555; cursor: not-allowed; color: #aaa; box-shadow: none; }
+        .action-btn.equipped { background: linear-gradient(145deg, #ff9800, #b26500); }
+        .use-btn { background: linear-gradient(145deg, #2196f3, #1565c0); }
+
+        /* モーダル群 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: linear-gradient(145deg, #202020, #151515); padding: 35px; border-radius: 30px; width: 80%; max-width: 600px; text-align: left; border: 1px solid #555; box-shadow: 0 20px 30px black; max-height: 80vh; overflow-y: auto; }
+        .modal-content h2 { margin-bottom: 20px; color: #ff5252; text-align: center; }
+        .modal-content p { font-size: 16px; line-height: 1.8; margin-bottom: 20px; color: #ddd; }
+        .modal-btn { background: linear-gradient(145deg, #2196f3, #0d47a1); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 50px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.2s; }
+        .modal-btn.danger { background: linear-gradient(145deg, #f44336, #b71c1c); }
+        .modal-input { width: 100%; padding: 12px; font-size: 18px; margin-bottom: 20px; border-radius: 30px; border: 1px solid #666; background-color: #0a0a0a; color: white; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 18px; color: white; cursor: pointer; margin-bottom: 20px; }
+        .checkbox-label input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+
+        /* スクロールバー */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #121212; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; border: 2px solid #121212; }
+        ::-webkit-scrollbar-thumb:hover { background: #666; }
+        
+        /* BANと警告の専用画面 */
+        #ban-screen { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#111; color:white; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
+        #warning-screen { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(200,0,0,0.9); color:white; z-index:9999; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
     </style>
 </head>
 <body>
 
-<div id="bg-star"><img src="https://ikuradou745-oss.github.io/asa/public/star.png" alt="Star"></div>
+<div id="bg-star"><img src="ランクZ3.png" alt="Z3"></div>
 
-<div id="loading-screen">準備中...</div>
+<div id="ban-screen">
+    <h1 style="color:#f44336; font-size:64px; margin-bottom:20px;">あなたはBANされました</h1>
+    <p style="font-size:24px; line-height:1.5; margin-bottom:30px;">
+        あなたは注意事項のどれかを破りました。<br>ガイドライン違反です。<br>人を不快にさせた行動、このゲームを荒らした行動、などが挙げられます。
+    </p>
+    <div style="font-size:32px; font-weight:bold; color:#ff9800;">
+        解除まで: <span id="ban-time-left">計算中...</span>
+    </div>
+</div>
 
 <div id="warning-screen">
-    <div class="warning-container">
-        <h2 id="warning-title" style="font-size: 32px; color: #f44336; margin-bottom: 20px; font-weight: bold;">【警告】</h2>
-        <p id="warning-text" style="font-size: 18px; line-height: 1.6; margin-bottom: 30px; font-weight: bold; white-space: pre-wrap;"></p>
-        <button class="icon-btn" onclick="app.closeWarning()" style="background: #f44336; font-size: 18px; padding: 10px 30px;">確認しました</button>
-    </div>
+    <h1 style="font-size:80px; margin-bottom:20px; text-shadow:0 0 20px black;">⚠️ 警告 ⚠️</h1>
+    <p style="font-size:32px; line-height:1.5; font-weight:bold; text-shadow:0 0 10px black; max-width:80%;">
+        あなたは変な名前、名前でチャット、煽り、バグを使用、チートを使用、のどれかのガイドラインを破っています。<br><br>
+        BANされるかもしれません。巻き込んだ人に謝罪やすみやかに行動に移してください。
+    </p>
+    <button class="modal-btn" style="margin-top:50px; font-size:24px; padding:20px 50px; background:#222; border:2px solid white;" onclick="app.closeWarning()">閉じる</button>
+</div>
+
+<div id="loading-screen">⏳ 準備中だよ...</div>
+
+<div id="boost-status-container"></div>
+<div id="combo-protect-indicator"></div>
+
+<div id="survey-notification" style="display: none; background: linear-gradient(90deg, #ff9800, #ff5722); color: #fff; padding: 12px; text-align: center; font-weight: bold; font-size: 16px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 50;">
+    <span id="survey-notification-text">新しいアンケートがあります。</span>
+    <span onclick="app.closeSurveyNotification()" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 24px; text-shadow: 1px 1px 2px black;">✖</span>
 </div>
 
 <div id="app-container">
     <div id="header">
-        <div class="user-info-bar">
-            <div class="info-item">ユーザー名: <span id="header-name">---</span></div>
-            <div class="info-item">ID: <span id="header-id">---</span></div>
-            <div class="info-item">レベル: <span id="header-level">---</span></div>
-            <div class="info-item">コイン: <span id="header-coins">---</span></div>
+        <div id="header-left">
+            <button id="settings-btn">⚙️</button>
+            <button id="greek-info-btn">🔍</button>
+            <button id="users-btn" onclick="app.openUsersModal()">👥</button>
+            <button id="survey-btn" onclick="app.openSurveyModal()">📝</button>
+            <div id="coin-display">🪙0</div>
+            <div id="gold-coin-display">🥇0</div>
+            <div id="raid-point-display">🎯0</div>
+            <div id="rank-coin-display-header">RC 0</div>
         </div>
-        <div class="header-buttons">
-            <button class="icon-btn" id="greek-info-btn">ギリシャ神話の役職一覧</button>
-            <button class="icon-btn" id="settings-btn">設定</button>
-            <button class="icon-btn" id="debug-btn" style="display: none; background: #e91e63;">デバッグモード</button>
+        <div id="header-right">
+            <div id="header-rank-badge">Rank G</div>
+            <div id="level-display">Lv.1</div>
+            <div id="xp-bar-container">
+                <div id="xp-bar-fill"></div>
+                <div id="xp-text">0 / 100 XP</div>
+            </div>
         </div>
     </div>
 
     <div id="main-content">
-        <div id="main-menu" class="screen active">
+        <div id="menu-screen" class="screen active">
             <div id="menu-content-wrapper">
-                <h1 class="game-title">Typing Game RPG</h1>
+                <h1>Typing RPG</h1>
                 <div class="menu-grid">
-                    <button class="menu-btn primary" id="menu-play-btn">プレイ</button>
-                    <button class="menu-btn" id="menu-shop-btn">ショップ</button>
-                    <button class="menu-btn" id="menu-ranking-btn">ランキング</button>
-                    <button class="menu-btn" id="survey-btn">アンケート機能</button>
+                    <button class="menu-btn" onclick="app.showScreen('play-select-screen')">プレイ</button>
+                    <button class="menu-btn" onclick="app.openRanking()">ランキング</button>
+                    <button class="menu-btn" onclick="app.openShop()">ショップ</button>
+                    <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
+                    <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
+                    <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
+                    <div class="raid-timer-info" id="raid-menu-timer" style="grid-column: span 4;"></div>
+                    <button class="menu-btn rank-mode" onclick="app.openRankMatch()">🏆 ランクマッチ</button>
+                    <button class="menu-btn" id="debug-btn" onclick="app.openDebugModal()" style="display:none; grid-column: span 4; background: linear-gradient(145deg, #d32f2f, #b71c1c); border-color: #f44336; margin-top: 10px;">🛠️ デバッグ</button>
+                </div>
+                
+                <div id="bughunter-debug-area" style="display:none; width: 90%; max-width: 800px; background: #2a1a1a; border: 2px solid #00bcd4; border-radius: 15px; padding: 20px; margin-top: 20px; margin-bottom: 30px;">
+                    <h3 style="color: #00bcd4; margin-bottom: 15px;">🐛 バグ発見体 デバッグ</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="number" id="bh-warn-target" class="modal-input" style="margin: 0; flex: 1;" placeholder="対象ID (警告)">
+                        <button class="action-btn" style="background: #ff9800;" onclick="app.bhSendWarning()">警告を出す</button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <textarea id="bh-report-text" class="modal-input" style="height: 80px; resize: none; margin: 0;" placeholder="バグ報告内容を入力..."></textarea>
+                        <button class="action-btn" onclick="app.bhSubmitReport()">バグを報告する</button>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <div id="play-select-screen" class="screen">
+            <h2>難易度選択</h2>
+            <div class="select-grid">
+                <button class="mode-btn" onclick="app.startGame('normal')">ノーマル<br><span style="font-size: 16px;">通常ルール</span></button>
+                <button class="mode-btn hard" onclick="app.startGame('hard')">ハード<br><span style="font-size: 16px;">未入力非表示 / コイン2倍</span></button>
+                <button class="mode-btn story" onclick="app.openStoryMap()">ストーリー<br><span style="font-size: 16px;">全100ステージ</span></button>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 50px;">戻る</button>
+        </div>
+
+        <div id="story-map-screen" class="screen">
+            <h2>📖 ストーリーモード</h2>
+            <div class="stage-info">現在のステージ: <span id="current-story-stage">1</span> / 100</div>
+            <div class="stage-grid" id="stage-grid"></div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="raid-map-screen" class="screen">
+            <h2>🔥 レイドモード</h2>
+            <div class="raid-timer" id="raid-status-timer"></div>
+            <div class="stage-info">レイドポイント: 🎯<span id="raid-point-info">0</span></div>
+            <div class="raid-stages-grid" id="raid-stages-grid"></div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="rank-match-screen" class="screen">
+            <h2 style="font-size: 48px; color: #ffeb3b; text-shadow: 0 0 20px rgba(255,235,59,0.7); margin-bottom: 0;">🏆 ランクマッチ</h2>
+            <div class="rank-container">
+                <div class="rank-panel">
+                    <h3>現在のランク</h3>
+                    <div id="current-rank-display">G</div>
+                    <div id="rank-xp-bar-container-ui">
+                        <div id="rank-xp-bar-fill-ui"></div>
+                        <div id="rank-xp-text-ui">0 / 1000 RXP</div>
+                    </div>
+                    <button class="menu-btn" style="width: 100%; font-size: 28px; padding: 20px; background: linear-gradient(145deg, #f44336, #c62828); border-color: #ef5350;" onclick="app.startRankMatch()">⚔️ 対戦開始</button>
+                </div>
+                <div class="rank-panel" style="flex: 1;">
+                    <div class="rank-action-btns">
+                        <button class="menu-btn" style="background: linear-gradient(145deg, #00e676, #00c853); border-color: #69f0ae; color: black; font-size: 22px;" onclick="app.openRankShopModal()">🛒 ランクショップ</button>
+                        <button class="menu-btn" style="background: linear-gradient(145deg, #ff9800, #f57c00); border-color: #ffb74d; color: black; font-size: 22px;" onclick="app.openRankRewardsModal()">🎁 ランク報酬</button>
+                        <button class="menu-btn" style="background: linear-gradient(145deg, #2196f3, #1565c0); border-color: #64b5f6; font-size: 22px;" onclick="app.openRankRanking()">🏅 ランクランキング</button>
+                    </div>
+                </div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 40px;">戻る</button>
+        </div>
+
         <div id="game-screen" class="screen">
-            <div id="story-enemy-container">
-                <div class="enemy-header">
-                    <span id="story-enemy-name">敵のなまえ</span>
-                    <span id="story-enemy-hp-txt">HP: 100 / 100</span>
-                </div>
-                <div class="hp-bar-bg">
-                    <div id="story-enemy-hp-fill" class="hp-bar-fill"></div>
-                </div>
+            <div id="game-overlay"></div>
+            <div id="game-message"></div>
+            <div id="time-reduce-animation">-10s</div>
+            
+            <div id="npc-info-container">
+                <div id="npc-info-name">対戦相手: ？？？</div>
+                <div>スコア: <span id="npc-info-score">0</span></div>
             </div>
 
-            <div class="game-status-header">
-                <div>残り時間: <span id="game-timer" style="color: #f44336;">60</span>秒</div>
-                <div>現在のスコア: <span id="game-score" style="color: #ffeb3b;">0</span></div>
-            </div>
-            <div class="typing-container" id="typing-box">
-                <div id="debuff-overlay-notice">⚠️ デバフ発生中！スコア獲得量半減！</div>
-                <div class="japanese-word" id="word-ja">タイピング</div>
-                <div class="furigana-word" id="word-furi">たいぴんぐ</div>
-                <div class="roman-word">
-                    <span class="roman-typed" id="word-rom-typed"></span><span class="roman-untyped" id="word-rom-untyped">typing</span>
+            <div id="time-extend-game">
+                <h3>⏱️ 時間伸ばし</h3>
+                <p>スペースキーで止めよう！</p>
+                <div id="time-extend-bar-container">
+                    <div id="time-extend-bar"></div>
+                    <div id="time-extend-marker"></div>
+                    <div id="time-extend-center"></div>
+                    <div id="time-extend-perfect"></div>
                 </div>
+                <p id="time-extend-result"></p>
+            </div>
+            <div id="game-info">
+                <div>残り時間: <span id="time-display">60</span>秒</div>
+                <div>スコア: <span id="score-display">0</span></div>
+                <div>コンボ: <span id="combo-display">0</span></div>
+            </div>
+            <div id="story-target-container">
+                <div id="story-target-info"></div>
+                <div id="story-target-bar-container"><div id="story-target-bar-fill"></div></div>
+                <div id="story-target-text"></div>
+            </div>
+            <div id="raid-target-container" style="display: none;">
+                <div id="raid-target-info"></div>
+                <div id="raid-target-bar-container"><div id="raid-target-bar-fill"></div></div>
+                <div id="raid-target-text"></div>
+            </div>
+
+            <div id="typing-area">
+                <div id="japanese-text"></div>
+                <div id="furigana-text"></div>
+                <div id="romaji-text"></div>
+            </div>
+            <div id="skill-button-container">
+                <button id="skill-btn" disabled>
+                    <span id="skill-btn-text">スキル無し</span>
+                    <div id="skill-cooldown-overlay"></div>
+                </button>
+                <div style="text-align: center; font-size: 12px; margin-top: 5px;">Spaceキー</div>
             </div>
         </div>
 
         <div id="result-screen" class="screen">
-            <div class="result-container">
-                <h2 class="result-title">ゲーム終了！</h2>
-                <div class="result-stats">
-                    <div class="stat-row">獲得スコア: <span id="res-score">0</span></div>
-                    <div class="stat-row">獲得コイン: <span id="res-coins">0</span></div>
-                    <div class="stat-row">獲得経験値: <span id="res-exp">0</span></div>
+            <div class="result-box">
+                <h2 style="font-size: 36px; margin-bottom: 20px;" id="result-title">ゲーム終了！</h2>
+                <div id="rank-match-result" style="display: none; font-size: 40px; font-weight: bold; margin-bottom: 20px;"></div>
+                
+                <div class="result-item">最終スコア: <span id="result-score">0</span></div>
+                <div class="result-item">最大コンボ: <span id="result-combo">0</span></div>
+                
+                <div id="normal-rewards-container">
+                    <div class="result-item" style="color: #ffd700;" id="coin-result-container">獲得コイン: 🪙<span id="result-coin">0</span></div>
+                    <div class="result-item" style="color: #ffaa00;" id="gold-coin-result" style="display: none;">🥇 ゴールドコイン: <span id="result-gold">0</span></div>
+                    <div class="result-item" style="color: #ff5722;" id="raid-point-result" style="display: none;">🎯 レイドポイント: <span id="result-raid">0</span></div>
+                    <div class="result-item" style="color: #4caf50;" id="xp-result-container">獲得XP: <span id="result-xp">0</span></div>
                 </div>
-                <button class="menu-btn primary" id="res-back-btn" style="width: 100%;">メニューに戻る</button>
-            </div>
-        </div>
 
-        <div id="story-result-screen" class="screen">
-            <div class="result-container" style="border-color: #4caf50;">
-                <h2 class="result-title" style="color: #4caf50; text-shadow: 0 0 15px rgba(76,175,80,0.4);">🎉 ステージクリア！</h2>
-                <div class="result-stats">
-                    <div class="stat-row">討伐モンスター: <span id="story-res-enemy" style="color: #f44336;">---</span></div>
-                    <div class="stat-row">獲得コイン bonus: <span id="story-res-coins">0</span></div>
-                    <div class="stat-row">獲得経験値 bonus: <span id="story-res-exp">0</span></div>
+                <div id="rank-rewards-container" style="display: none;">
+                    <div class="result-item" style="color: #ffeb3b;">獲得RC: <span id="result-rc">0</span> RC</div>
+                    <div class="result-item" style="color: #00e676;">変動RXP: <span id="result-rxp">0</span> RXP</div>
+                    <div id="rank-up-msg" style="color: #f57f17; font-weight: bold; font-size: 32px; margin-top: 15px; display: none; text-shadow: 0 0 10px rgba(245, 127, 23, 0.8);">🎊 ランクアップ！！ 🎊</div>
+                    <div id="rank-down-msg" style="color: #f44336; font-weight: bold; font-size: 28px; margin-top: 15px; display: none;">📉 ランクダウン...</div>
                 </div>
-                <p style="color: #aaa; margin-bottom: 25px; font-weight: bold; font-size: 16px;">おめでとうございます！見事に敵を撃破しました！</p>
-                <button class="menu-btn primary" id="story-res-back-btn" style="width: 100%; background: linear-gradient(135deg, #2e7d32, #4caf50);">メニューに戻る</button>
+                
+                <div id="level-up-msg" style="color: #ff9800; font-weight: bold; margin-top: 10px; display: none;">レベルアップ！</div>
+                <div id="story-clear-msg" style="color: #4caf50; font-weight: bold; margin-top: 10px; display: none;">✅ ステージクリア！</div>
+                <div id="story-reward-msg" style="color: #ffd700; font-weight: bold; margin-top: 10px; display: none;"></div>
+                <div id="raid-clear-msg" style="color: #ff5722; font-weight: bold; margin-top: 10px; display: none;">🔥 レイドクリア！</div>
+                
+                <button class="back-btn" onclick="app.endResult()">メニューに戻る</button>
             </div>
         </div>
 
+        <div id="ranking-screen" class="screen">
+            <h2 style="font-size: 32px;">🏆 ランキング</h2>
+            <p style="color: #ff9800; margin-bottom: 5px; font-size: 14px;">毎日朝7時にリセット（通常プレイのみ反映）</p>
+            <div id="ranking-timer">次のリセットまで: 計算中...</div>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="app.switchRankingTab('score')">スコア</div>
+                    <div class="tab" onclick="app.switchRankingTab('combo')">コンボ</div>
+                    <div class="tab" onclick="app.switchRankingTab('playCount')">プレイ回数</div>
+                </div>
+                <div id="ranking-list" class="list-container"></div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="rank-ranking-screen" class="screen">
+            <h2 style="font-size: 36px; color: #ffeb3b; text-shadow: 0 0 15px rgba(255,235,59,0.5);">🏅 ランクランキング</h2>
+            <div class="tab-container">
+                <div id="rank-ranking-list" class="list-container" style="max-height: 50vh;"></div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('rank-match-screen')">戻る</button>
+        </div>
+
+        <div id="shop-screen" class="screen">
+            <h2 style="font-size: 32px;">🛒 ショップ</h2>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="app.switchShopTab('skills')">スキル</div>
+                    <div class="tab" onclick="app.switchShopTab('items')">アイテム</div>
+                    <div class="tab" onclick="app.switchShopTab('raid')">レイド</div>
+                    <div class="tab" onclick="app.switchShopTab('passive')">パッシブ</div>
+                </div>
+                <div id="shop-list" class="list-container"></div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
+
+        <div id="inventory-screen" class="screen">
+            <h2 style="font-size: 32px;">🎒 持ち物</h2>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="app.switchInventoryTab('skills')">スキル</div>
+                    <div class="tab" onclick="app.switchInventoryTab('items')">アイテム</div>
+                    <div class="tab" onclick="app.switchInventoryTab('passive')">パッシブ</div>
+                    <div class="tab" onclick="app.switchInventoryTab('backgrounds')">背景</div>
+                </div>
+                <div id="inventory-list" class="list-container"></div>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
+        </div>
     </div>
 </div>
 
-<div id="boost-status-container">
-    <div class="boost-badge" id="boost-coin-badge" style="display: none;">💰 コイン2倍ブースト発動中！</div>
-    <div class="boost-badge exp" id="boost-exp-badge" style="display: none;">✨ 経験値2倍ブースト発動中！</div>
-</div>
-
-<div class="modal" id="mode-modal">
+<div id="notice-modal" class="modal-overlay" style="z-index: 3000;">
     <div class="modal-content">
-        <button class="close-modal-btn" onclick="app.closeModal('mode-modal')">×</button>
-        <div class="modal-title">モード選択</div>
-        <div class="modal-buttons">
-            <button class="menu-btn" onclick="app.startSetup('normal')">ノーマルモード</button>
-            <button class="menu-btn" onclick="app.startSetup('hard')">ハードモード</button>
-            <button class="menu-btn" onclick="app.startSetup('training')" style="border-color: #ff5722; color: #ff5722;">レッドアンドブルーの修行</button>
-            <button class="menu-btn" onclick="app.startSetup('story')" style="border-color: #e91e63; color: #e91e63;">ストーリーモード</button>
-        </div>
+        <h2 style="color: #ff9800; font-size: 28px;">確認しておきたいこと</h2>
+        <p style="font-size: 16px; line-height: 1.8; color: #ddd;">
+            この作品はAIやコードの参考（ボタンのデザイン。難しいところはAI）などを駆使しています。<br>
+            完全に管理者一人で作り上げた、とは言いたく無いです。そこんところ理解して欲しいです。<br>
+            変な意味じゃ無いです。読んでくれてありがとうございました。<br>
+            あと名前を変な名前にするのはやめてください()<br><br>
+            またガイドラインもあり、変な名前、名前でチャット、煽りをやめましょう。<br>
+            また人を不快にさせる煽りや名前を変にする、名前でチャットをする、などの行為をやめてください。やってしまったならば謝罪をしてください。
+        </p>
+        <button class="modal-btn" onclick="app.closeNoticeModal('close')">閉じる</button>
+        <button class="modal-btn danger" style="background: #555; margin-top: 10px;" onclick="app.closeNoticeModal('12h')">12時間表示しなくする</button>
+        <button class="modal-btn danger" style="background: #333; margin-top: 10px;" onclick="app.closeNoticeModal('3d')">3日間表示しなくする</button>
     </div>
 </div>
 
-<div class="modal" id="shop-modal">
+<div id="users-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;">
+        <h2 style="color: #00bcd4; margin-bottom: 10px;">👥 ユーザーリスト</h2>
+        <div class="tabs" style="justify-content: center;">
+            <div class="tab active" onclick="app.switchUsersTab('online')" id="tab-online">現在ログイン中</div>
+            <div class="tab" onclick="app.switchUsersTab('daily')" id="tab-daily">今日ログインした人</div>
+        </div>
+        <div id="users-list" class="list-container" style="max-height: 400px; padding: 10px 0;">読み込み中...</div>
+        <button class="modal-btn" onclick="document.getElementById('users-modal').classList.remove('active')">閉じる</button>
+    </div>
+</div>
+
+<div id="survey-modal" class="modal-overlay">
     <div class="modal-content">
-        <button class="close-modal-btn" onclick="app.closeModal('shop-modal')">×</button>
-        <div class="modal-title">ショップ</div>
-        <div class="modal-buttons">
-            <button class="menu-btn" onclick="app.buyItem('coin_boost')" style="font-size:16px;">コイン2倍ブースト(5分) <br><span style="color:#ffeb3b;">価格: 50コイン</span></button>
-            <button class="menu-btn" onclick="app.buyItem('exp_boost')" style="font-size:16px;">経験値2倍ブースト(5分) <br><span style="color:#ffeb3b;">価格: 50コイン</span></button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="ranking-modal">
-    <div class="modal-content" style="width: 600px;">
-        <button class="close-modal-btn" onclick="app.closeModal('ranking-modal')">×</button>
-        <div class="modal-title">トップ100ランキング</div>
-        <div class="data-list" id="ranking-list">
+        <h2 style="color: #4caf50;">📝 アンケート</h2>
+        <p>アップデートで作って欲しい内容を教えてください！<br>（1日2回まで送信可能）</p>
+        <textarea id="survey-input" class="modal-input" style="height: 100px; resize: none; font-size: 16px;" placeholder="ここに内容を入力..."></textarea>
+        <button class="modal-btn" style="background: linear-gradient(145deg, #4caf50, #2e7d32);" onclick="app.submitSurvey()">送信する</button>
+        
+        <div id="yuchin-survey-section" style="margin-top: 30px; border-top: 1px solid #444; padding-top: 20px;">
+            <h3 style="color: #ffeb3b;">📊 ゆちんさんを許すかどうか</h3>
+            <div id="yuchin-options-container" style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="modal-btn" style="margin:0; background:#4caf50;" onclick="app.voteYuchin('許す')">許す</button>
+                <button class="modal-btn" style="margin:0; background:#8bc34a;" onclick="app.voteYuchin('謝罪してくれたら許す')">謝罪してくれたら許す</button>
+                <button class="modal-btn" style="margin:0; background:#9e9e9e;" onclick="app.voteYuchin('どうでもいい')">どうでもいい</button>
+                <button class="modal-btn" style="margin:0; background:#ff9800;" onclick="app.voteYuchin('ちょっと許せない')">ちょっと許せない</button>
+                <button class="modal-btn" style="margin:0; background:#f44336;" onclick="app.voteYuchin('許せない')">許せない</button>
             </div>
+            <div id="yuchin-voted-msg" style="display: none; color: #ffeb3b; font-weight: bold; margin-bottom: 10px; text-align: center;">投票済みです。ありがとうございます。</div>
+            <div id="yuchin-results-container" style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+
+        <hr style="border-color: #444; margin: 20px 0;">
+        <button class="modal-btn" style="background: linear-gradient(145deg, #7b1fa2, #4a148c);" onclick="app.viewSurveyResults()">アンケート内容を見る</button>
+        <div id="survey-admin-msg" style="color: #ff5252; margin-top: 10px; text-align: center; display: none; font-weight: bold;">あなたは管理者では無いです。</div>
+        
+        <button class="back-btn" onclick="document.getElementById('survey-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
     </div>
 </div>
 
-<div class="modal" id="settings-modal">
+<div id="survey-results-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 800px; width: 95%;">
+        <h2 style="color: #9c27b0;">👑 アンケート結果（管理者専用）</h2>
+        <div id="survey-results-list" class="list-container" style="max-height: 60vh;">読み込み中...</div>
+        <button class="back-btn" onclick="document.getElementById('survey-results-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="debug-modal" class="modal-overlay">
     <div class="modal-content">
-        <button class="close-modal-btn" onclick="app.closeModal('settings-modal')">×</button>
-        <div class="modal-title">設定</div>
-        <div class="setting-group">
-            <label>ユーザー名変更 (最大20文字)</label>
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="name-input" class="text-input" style="flex:1;">
-                <button class="icon-btn" onclick="app.saveName()" style="background:#00bcd4;">保存</button>
-            </div>
+        <h2 style="color: #f44336;">🛠️ デバッグモード</h2>
+        <div style="margin-bottom: 20px;">
+            <label>対象ユーザーID:</label>
+            <input type="number" id="debug-target-id" class="modal-input" placeholder="ユーザーIDを入力">
         </div>
-        <div class="setting-group">
-            <label>ふりがな表示</label>
-            <div style="display:flex; gap:20px; font-weight:bold; margin-top:5px;">
-                <label><input type="radio" name="furi-toggle" value="true" checked onclick="app.toggleFurigana(true)"> ON</label>
-                <label><input type="radio" name="furi-toggle" value="false" onclick="app.toggleFurigana(false)"> OFF</label>
-            </div>
+        <div style="margin-bottom: 20px;">
+            <h3>権限管理</h3>
+            <button class="modal-btn" onclick="app.setAdmin(true)">管理者にする</button>
+            <button class="modal-btn danger" onclick="app.setAdmin(false)">管理者権限を外す</button>
         </div>
-        <div class="setting-group">
-            <label>ホーム画面のスケール: <span id="home-scale-val">50%</span></label>
-            <div class="slider-wrapper">
-                <input type="range" id="home-scale-slider" min="25" max="100" value="50" class="slider-input" oninput="app.changeHomeScale(this.value)">
-                <button class="icon-btn" onclick="app.resetHomeScale()">リセット</button>
-            </div>
-        </div>
-        <button class="menu-btn" onclick="app.resetDataConfirm()" style="background:#f44336; border:none; margin-top:20px; width:100%; font-size:16px;">データを完全に初期化する</button>
-    </div>
-</div>
-
-<div class="modal" id="reset-confirm-modal">
-    <div class="modal-content" style="text-align:center;">
-        <div class="modal-title" style="color:#f44336;">本当に初期化しますか？</div>
-        <p style="font-weight:bold; margin-bottom:30px; line-height:1.6;">この操作は取り消せません。<br>すべてのレベル、コイン、Firebaseデータが削除されます。</p>
-        <div style="display:flex; gap:20px; justify-content:center;">
-            <button class="icon-btn" onclick="app.resetDataExecute()" style="background:#f44336; padding:10px 30px; font-size:16px;">初期化する</button>
-            <button class="icon-btn" onclick="app.closeModal('reset-confirm-modal')" style="background:#555; padding:10px 30px; font-size:16px;">キャンセル</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="greek-info-modal">
-    <div class="modal-content" style="width: 550px;">
-        <button class="close-modal-btn" onclick="app.closeModal('greek-info-modal')">×</button>
-        <div class="modal-title" style="color:#ffeb3b;">ギリシャ神話の役職階級</div>
-        <div class="data-list" style="max-height: 450px;">
-            <div class="list-item" style="border-left-color:#ffeb3b;"><span>Lv.1 - 10</span><span style="color:#ffeb3b;">一般市民</span></div>
-            <div class="list-item" style="border-left-color:#ffeb3b;"><span>Lv.11 - 20</span><span style="color:#ffeb3b;">英雄 (ヘラクレス等)</span></div>
-            <div class="list-item" style="border-left-color:#ffeb3b;"><span>Lv.21 - 35</span><span style="color:#ffeb3b;">パンドラ / メドゥーサ</span></div>
-            <div class="list-item" style="border-left-color:#ffeb3b;"><span>Lv.36 - 50</span><span style="color:#ffeb3b;">冥界の王 ハデス</span></div>
-            <div class="list-item" style="border-left-color:#ffeb3b;"><span>Lv.51 - 70</span><span style="color:#ffeb3b;">海の神 ポセイドン</span></div>
-            <div class="list-item" style="border-left-color:#ffeb3b;"><span>Lv.71 - 99</span><span style="color:#ffeb3b;">全知全能の神 ゼウス</span></div>
-            <div class="list-item" style="border-left-color:#e91e63; background:rgba(233,30,99,0.1);"><span style="color:#e91e63;">Lv.100 (極限)</span><span style="color:#e91e63;">創造神 カオス</span></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="survey-modal">
-    <div class="modal-content" style="width: 550px;">
-        <button class="close-modal-btn" onclick="app.closeModal('survey-modal')">×</button>
-        <div class="modal-title">ゆちんさんのアンケート</div>
-        <div class="setting-group">
-            <label>アンケート内容を入力してください</label>
-            <textarea id="survey-text-content" class="text-input" style="width:100%; height:80px; resize:none; font-family:inherit;" placeholder="ここに意見やメッセージを記入..."></placeholder>
-        </div>
-        <button class="menu-btn primary" onclick="app.submitSurvey()" style="width:100%; padding:12px; font-size:16px; margin-bottom:15px;">アンケートを送信する</button>
-        <div style="font-size:14px; font-weight:bold; color:#aaa; border-top:1px solid #333; padding-top:10px;">みんなのアンケート履歴</div>
-        <div class="data-list" id="survey-history-list">
-            </div>
-    </div>
-</div>
-
-<div class="modal" id="debug-modal">
-    <div class="modal-content">
-        <button class="close-modal-btn" onclick="app.closeModal('debug-modal')">×</button>
-        <div class="modal-title" style="color:#e91e63;">管理者用デバッグメニュー</div>
-        <div class="setting-group">
-            <label>対象のユーザー数値IDを入力</label>
-            <input type="number" id="debug-target-id" class="text-input" placeholder="例: 100001">
-        </div>
-        <div class="setting-group">
-            <label>処罰タイプ</label>
-            <select id="debug-punish-type" class="text-input">
-                <option value="warning">警告メッセージ</option>
-                <option value="ban_temp">期限付きBAN (1日)</option>
+        <div style="margin-bottom: 20px;">
+            <h3>BAN・警告管理</h3>
+            <select id="debug-ban-type" class="modal-input" style="background:#222; color:white;">
+                <option value="warning">警告</option>
+                <option value="ban_10m">10分間BAN</option>
+                <option value="ban_1h">1時間BAN</option>
+                <option value="ban_1d">1日BAN</option>
                 <option value="ban_perm">永久BAN</option>
-                <option value="unban">処罰解除 (無罪)</option>
+                <option value="unban">BAN解除</option>
             </select>
+            <button class="modal-btn danger" onclick="app.executeBan()">実行</button>
         </div>
-        <div class="setting-group" id="debug-warn-msg-area">
-            <label>警告メッセージ内容 (警告の時のみ)</label>
-            <input type="text" id="debug-warn-message" class="text-input" placeholder="不適切な名前を確認しました、など">
+        <div style="margin-bottom: 20px;">
+            <h3>アンケート機能</h3>
+            <button class="modal-btn" onclick="app.setSurveyStatus(false)">許可する (ON)</button>
+            <button class="modal-btn danger" onclick="app.setSurveyStatus(true)">停止する (OFF)</button>
         </div>
-        <button class="menu-btn" onclick="app.executePunishment()" style="background:#e91e63; border:none; width:100%; font-size:16px; margin-bottom:15px;">処罰を実行する</button>
-        
-        <div style="border-top:2px dashed #444; margin:15px 0; padding-top:15px;"></div>
-        
-        <div style="display:flex; gap:10px; margin-bottom:10px;">
-            <button class="icon-btn" onclick="app.setAdmin(true)" style="background:#4caf50; flex:1;">管理者権限 付与</button>
-            <button class="icon-btn" onclick="app.setAdmin(false)" style="background:#555; flex:1;">管理者権限 剥奪</button>
+        <div style="margin-bottom: 20px;">
+            <h3>バグ発見体管理</h3>
+            <button class="modal-btn" style="background: #ff5722;" onclick="app.setBugHunter(true)">バグ発見体にする</button>
+            <button class="modal-btn danger" onclick="app.setBugHunter(false)">バグ発見体を外す</button>
         </div>
-        <div style="display:flex; gap:10px;">
-            <button class="icon-btn" onclick="app.setSurveyStatus(true)" style="background:#f44336; flex:1;">アンケート機能 停止</button>
-            <button class="icon-btn" onclick="app.setSurveyStatus(false)" style="background:#2196f3; flex:1;">アンケート機能 許可</button>
-        </div>
+        <button class="modal-btn" style="background: #9c27b0;" onclick="app.viewBugReports()">バグ報告内容を見る</button>
+        <button class="back-btn" onclick="document.getElementById('debug-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
     </div>
 </div>
 
+<div id="bugreports-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 800px; width: 95%;">
+        <h2 style="color: #9c27b0;">🐛 バグ報告一覧</h2>
+        <div id="bugreports-list" class="list-container" style="max-height: 60vh;">読み込み中...</div>
+        <button class="back-btn" onclick="document.getElementById('bugreports-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="rank-shop-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #00e676;">🛒 ランクショップ</h2>
+        <div style="font-size: 20px; text-align: center; margin-bottom: 15px;">所持RC: <span id="rank-shop-rc-display" style="color: #ffeb3b; font-weight: bold;">0</span> RC</div>
+        <div id="rank-shop-list-modal" class="list-container" style="max-height: 40vh;"></div>
+        <button class="modal-btn" onclick="document.getElementById('rank-shop-modal').classList.remove('active')" style="margin-top: 15px;">閉じる</button>
+    </div>
+</div>
+
+<div id="rank-rewards-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #ff9800;">🎁 ランク到達報酬</h2>
+        <p style="text-align: center; font-size: 14px;">到達したランクの報酬を1度だけ受け取れます。</p>
+        <div id="rank-rewards-list-modal" class="list-container" style="max-height: 50vh;"></div>
+        <button class="modal-btn" onclick="document.getElementById('rank-rewards-modal').classList.remove('active')" style="margin-top: 15px;">閉じる</button>
+    </div>
+</div>
+
+<div id="agreement-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>⚠️ 注意事項</h2>
+        <p>このゲームはバグ、チートを使った場合はBANとなります。<br>そちらが不利にしているので言い訳はしないでください。</p>
+        <button class="modal-btn" onclick="app.acceptAgreement()">読み終わった</button>
+    </div>
+</div>
+
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: white;">設定</h2>
+        <div style="text-align: left; margin-bottom: 10px;">名前変更 (20文字以内)</div>
+        <input type="text" id="name-input" class="modal-input" maxlength="20">
+        <button class="modal-btn" onclick="app.saveName()">名前を保存</button>
+        <hr style="border-color: #444; margin: 20px 0;">
+        <label class="checkbox-label"><input type="checkbox" id="furigana-toggle" onchange="app.toggleFurigana(this.checked)"> ふりがな表示</label>
+        <div style="text-align: left; margin-bottom: 10px;">ホーム画面サイズ: <span id="home-scale-val">50%</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+            <input type="range" id="home-scale-slider" min="0" max="100" step="5" value="50" style="flex: 1;" oninput="app.changeHomeScale(this.value)">
+            <button class="modal-btn" style="width: auto; padding: 10px 20px; font-size: 14px; margin: 0;" onclick="app.resetHomeScale()">リセット</button>
+        </div>
+        <hr style="border-color: #444; margin: 20px 0;">
+        <button class="modal-btn" onclick="app.showAgreement()">注意事項をもう一度見る</button>
+        <button class="modal-btn danger" onclick="app.resetDataConfirm()" style="margin-top: 20px;">データの初期化</button>
+        <button class="back-btn" onclick="app.closeSettings()" style="width: 100%; margin-top: 10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="greek-info-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="color: #00bcd4;">🔍 ギリシャ文字について</h2>
+        <p><strong style="color: #ffd700;">α (アルファ)</strong> ... 初期のスキル。弱いことが多い。</p>
+        <p><strong style="color: #4caf50;">β, γ, Δ, Ω</strong> ... 強化版。右に行くにつれて強くなる。</p>
+        <p><strong style="color: #ff5722;">ε, ζ</strong> ... レイドなどで獲得が可能。</p>
+        <p><strong style="color: #2196f3;">Σ, π, Ο</strong> ... 強化部分が違う時に使われる。<br>例：α→βは効果時間が長い。Σは効果が強くなる。</p>
+        <p><strong style="color: #9c27b0;">その他</strong> ... 説明に載っていないことが多い。載っていなかったら強化版の種類に入れよう。</p>
+        <button class="modal-btn" onclick="document.getElementById('greek-info-modal').classList.remove('active')">閉じる</button>
+    </div>
+</div>
+
+<div id="reset-confirm-modal" class="modal-overlay" style="z-index: 2001;">
+    <div class="modal-content">
+        <h2>⚠️ 警告</h2>
+        <p>本当に初期化しますか？<br>この操作は取り消せません。</p>
+        <button class="modal-btn danger" onclick="app.resetDataExecute()">はい、初期化します</button>
+        <button class="modal-btn" onclick="document.getElementById('reset-confirm-modal').classList.remove('active')">キャンセル</button>
+    </div>
+</div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, set, get, onValue, update, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+/*
+=============================================================================
+【このメモたちは、ゲームシステムです。このコメントはアップデートするたびにできる限り書こう！】
 
-// Firebase 設定
+▼ ゲームの全体構成
+・HTML/CSS/JSを1つのファイルにまとめたタイピングRPGです。
+・Firebase(Realtime Database)を使用して、ユーザーデータをクラウドに保存・管理しています。
+
+▼ スコア・コンボシステム
+・1文字正解するごとに「コンボ」が+1されます。
+・1文字正解時の獲得スコアは「現在のコンボ数 × 5」です。
+・コンボを繋げば繋ぐほど、スコアが指数関数的に伸びるシステムです。
+・ミスをするとコンボは0にリセットされます（パッシブやスキルでの保護・無敵状態を除く）。
+・【速度計測】: 一単語うち終わった時、1文字あたりの速さ(秒)を算出し、(5 / 速さ) の分だけコンボが一気に増加します。
+  ※ 自動入力スキル中は、追加コンボは最大35に制限されます。
+
+▼ モード一覧
+1. ノーマルモード: 60秒間タイピングし、スコアを稼ぐ基本モード。
+2. ハードモード: 未入力文字が非表示になり、獲得コインが2倍。
+3. ストーリーモード: 全100ステージ。目標スコアが設定されており、到達した瞬間に確実に「クリア判定」となります。
+4. レイドモード: 決まった時間帯に開催。目標スコア到達でクリア。
+5. ランクマッチ: NPCと1対1でスコアを競うモード。
+   ・NPCスコア: Gは1万〜2万。F〜Cまではそこから5,000ずつ増加。Bは50万〜52万5千。以降ランクが上がるごとに10万増加。
+   ・勝利時のRXP：差が 0~5000なら+50、5000~15000なら+100、15000~50000なら+150、50000~75000(〜10万未満)なら+300、100000~300000なら+500、それ以上なら+600。
+   ・負け時は -10RXP。0未満になる場合はランクダウン（Gでは0止まり）。
+   ・ランクコイン(RC)を勝利スコア/100 獲得。
+   ・Bランク以上のNPCは、残り時間30秒でデバフ(凍結5秒 or コンボ半減)を使用してきます。
+
+▼ 通貨・成長システム
+・XP: レベルアップに必要な経験値。
+・コイン(🪙) / ゴールドコイン(🥇) / レイドポイント(🎯) / ランクコイン(RC)
+・レベル: XPが一定値(100×現在のレベル)に達するとレベルアップ。
+
+▼ UI・管理機能
+・【ログインユーザー表示】: 左上の👥アイコンから、現在オンラインのユーザーと、今日ログインしたユーザーの一覧を確認。
+・【ユーザーID】: 全プレイヤーに固有の「No.XX」が付与。
+・【警告・BAN】: 管理者がID指定で画面ロック等の処分が可能。
+・【アンケート機能】: 1日2回まで要望を送信可能。管理者はID指定で特定のユーザーのアンケート機能を停止させることができます。
+・【ランク報酬】: 到達したランクに応じた特別な報酬(C到達でコイン＆RC大量など)を1度だけ受け取れます。
+・【背景装備】: ランクZ3到達で装備すると背景中央に専用画像が浮かび、名前にも画像が付きます。
+=============================================================================
+*/
+
+// ==========================================
+// Firebase 設定と初期化
+// ==========================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+import { getDatabase, ref, set, get, update, onDisconnect, push, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+
 const firebaseConfig = {
-    databaseURL: "https://rpg-typing-default-rtdb.firebaseio.com/"
+    apiKey: "AIzaSyBXnNXQ5khcR0EvRide4C0PjshJZpSF4oM",
+    authDomain: "typing-game-28ed0.firebaseapp.com",
+    databaseURL: "https://typing-game-28ed0-default-rtdb.firebaseio.com",
+    projectId: "typing-game-28ed0",
+    storageBucket: "typing-game-28ed0.firebasestorage.app",
+    messagingSenderId: "963797267101",
+    appId: "1:963797267101:web:0d5d700458fb1991021a74",
+    measurementId: "G-CL4B6ZK0SC"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getDatabase(firebaseApp);
+const appInstance = initializeApp(firebaseConfig);
+const analytics = getAnalytics(appInstance);
+const db = getDatabase(appInstance);
 
-// ローカル基本データスケルトン
-const defaultUserData = {
-    name: "名無しの勇者",
-    id: 0,
-    level: 1,
-    exp: 0,
-    coins: 100,
-    rankTitle: "一般市民",
-    boosts: {
-        coinUntil: 0,
-        expUntil: 0
-    },
-    settings: {
-        homeScale: 50,
-        showFurigana: true
-    }
-};
-
-let userData = { ...defaultUserData };
-let uid = localStorage.getItem('typing_rpg_uid');
-if (!uid) {
-    uid = 'usr_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    localStorage.setItem('typing_rpg_uid', uid);
-}
-
-// ワードデータ集義 (「ん」は nn、「らーめん」は ra-menn。伸ばし棒以外は u。タイピングゲーム最適化ルール)
-const wordDatabase = [
-    { ja: "太陽", furi: "たいよう", rom: "taiyou" },
-    { ja: "新幹線", furi: "しんかんせん", rom: "sinnkannsenn" },
-    { ja: "学校に行く", furi: "がっこうにいく", rom: "gakkouniiku" },
-    { ja: "美味しいラーメン", furi: "おいしいらーめん", rom: "oisira-menn" },
-    { ja: "プログラミング", furi: "ぷろぐらみんぐ", rom: "puroguraminngu" },
-    { ja: "伝説の剣", furi: "でんせつのつるぎ", rom: "dennsetunoturugi" },
-    { ja: "創造神カオス", furi: "そうぞうしんかおす", rom: "souzousinnkaosu" },
-    { ja: "全知全能", furi: "ぜんちぜんのう", rom: "zenntizennnou" },
-    { ja: "冥界の王ハデス", furi: "めいかいのおうはです", rom: "meikainouhadesu" },
-    { ja: "水分補給", furi: "すいぶんほきゅう", rom: "suibunnhokyuu" }
+// ==========================================
+// 出題データ
+// ==========================================
+const typingData = [
+    { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku", furigana: "はやおきはさんもんのとく" },
+    { ja: "石の上にも三年", romaji: "isinouenimosannnenn", furigana: "いしのうえにもさんねん" },
+    { ja: "塵も積もれば山となる", romaji: "tirimotumorebayamatonaru", furigana: "ちりもつもればやまとなる" },
+    { ja: "猿も木から落ちる", romaji: "sarumokikaraotiru", furigana: "さるもきからおちる" },
+    { ja: "犬も歩けば棒に当たる", romaji: "inumoarukebabouniataru", furigana: "いぬもあるけばぼうにあたる" },
+    { ja: "雨降って地固まる", romaji: "amehuttezikatamaru", furigana: "あめふってじがたまる" },
+    { ja: "花より団子", romaji: "hanayoridanngo", furigana: "はなよりだんご" },
+    { ja: "転ばぬ先の杖", romaji: "korobanusakinotue", furigana: "ころばぬさきのつえ" },
+    { ja: "三人寄れば文殊の知恵", romaji: "sannninnyorebamonnzyunotie", furigana: "さんにんよればもんじゅのちえ" },
+    { ja: "百聞は一見に如かず", romaji: "hyakubunnhaikkennnisikazu", furigana: "ひゃくぶんはいっけんにしかず" },
+    { ja: "好きこそ物の上手なれ", romaji: "sukikosomononozyouzunare", furigana: "すきこそもののじょうずなれ" },
+    { ja: "案ずるより産むが易し", romaji: "annzuruyoriumugayasusi", furigana: "あんずるよりうむがやすし" },
+    { ja: "かわいい子には旅をさせよ", romaji: "kawaiikonihatabiwosaseyo", furigana: "かわいいこにはたびをさせよ" },
+    { ja: "親しき中にも礼儀あり", romaji: "sitasikinakanimoreigiari", furigana: "したしきなかにもれいぎあり" },
+    { ja: "笑う門には福来る", romaji: "waraukadonihahukukitaru", furigana: "わらうかどにはふくきたる" },
+    { ja: "朝ごはんを食べる", romaji: "asagohannwotaberu", furigana: "あさごはんをたべる" },
+    { ja: "学校へ行く", romaji: "gakkouheiku", furigana: "がっこうへいく" },
+    { ja: "図書館で本を読む", romaji: "tosyokanndehonnwoyomu", furigana: "としょかんでほんをよむ" },
+    { ja: "公園で友だちと遊ぶ", romaji: "kouenndetomodatitoasobu", furigana: "こうえんでともだちとあそぶ" },
+    { ja: "電車に乗る", romaji: "dennsyaninoru", furigana: "でんしゃにのる" },
+    { ja: "自転車で走る", romaji: "zitennsyadehasiru", furigana: "じてんしゃではしる" },
+    { ja: "海で泳ぐ", romaji: "umideoyogu", furigana: "うみでおよぐ" },
+    { ja: "山へ登る", romaji: "yamahenoboru", furigana: "やまえのぼる" },
+    { ja: "星を数える", romaji: "hosiwokazoeru", furigana: "ほしをかぞえる" },
+    { ja: "春に花がさく", romaji: "harunihanagasaku", furigana: "はるにはながさく" },
+    { ja: "夏はとてもあつい", romaji: "natuhatotemoatui", furigana: "なつはとてもあつい" },
+    { ja: "秋に葉っぱが色づく", romaji: "akinihappagairoduku", furigana: "あきにはっぱがいろづく" },
+    { ja: "冬に雪がふる", romaji: "huyuniyukigahuru", furigana: "ふゆにゆきがふる" },
+    { ja: "おいしいラーメンを食べる", romaji: "oisiira-mennwotaberu", furigana: "おいしいらーめんをたべる" },
+    { ja: "大きな船が海をわたる", romaji: "ookinahunegaumiwowataru", furigana: "おおきなふねがうみをわたる" }
 ];
 
-const storyEnemies = [
-    { name: "スライム", hp: 150, rewardCoins: 30, rewardExp: 40 },
-    { name: "ゴブリンリーダー", hp: 400, rewardCoins: 80, rewardExp: 100 },
-    { name: "サイクロプス", hp: 1200, rewardCoins: 250, rewardExp: 300 },
-    { name: "冥王の影", hp: 3500, rewardCoins: 800, rewardExp: 1000 },
-    { name: "創造神の試練", hp: 8000, rewardCoins: 2500, rewardExp: 3000 }
-];
+const npcNames = ["たろう", "ロサウド", "進撃の７１０", "１９４５年", "冒険者"];
 
-// ゲーム進行管理用変数
-let gameMode = 'normal'; // 'normal', 'hard', 'training', 'story'
-let gameTimerValue = 60;
-let gameScoreValue = 0;
-let gameInterval = null;
-let debuffInterval = null; // 修行用
-let isDebuffActive = false; // 修行デバフ状態フラグ
-let isGameActive = false;
-
-let currentWordObj = null;
-let typedRomLength = 0;
-
-let selectedStoryEnemyIndex = 0;
-let currentEnemyCurrentHp = 0;
-
-// ギリシャ神話役職計算
-function calculateRankTitle(level) {
-    if (level >= 100) return "創造神 カオス";
-    if (level >= 71) return "全知全能の神 ゼウス";
-    if (level >= 51) return "海の神 ポセイドン";
-    if (level >= 36) return "冥界の王 ハデス";
-    if (level >= 21) return "パンドラ / メドゥーサ";
-    if (level >= 11) return "英雄";
-    return "一般市民";
-}
-
-// エスケープ処理
 function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    if(!str) return "";
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-// ユーザーデータ読み書き同期
-async function syncWithFirebase() {
-    try {
-        const userRef = ref(db, `users/${uid}`);
-        const snapshot = await get(userRef);
-        
-        if (snapshot.exists()) {
-            const serverData = snapshot.val();
-            userData = { ...defaultUserData, ...serverData };
-            // settingsのネスト補完
-            if (!userData.settings) userData.settings = { homeScale: 50, showFurigana: true };
-        } else {
-            // 新規登録なら連番Noを発行
-            const counterRef = ref(db, 'userCounter');
-            const cSnap = await get(counterRef);
-            let nextId = 100001;
-            if (cSnap.exists()) {
-                nextId = cSnap.val() + 1;
-            }
-            await set(counterRef, nextId);
-            
-            userData.id = nextId;
-            userData.name = `勇者No.${nextId}`;
-            await set(userRef, userData);
-            await set(ref(db, `idMapping/${nextId}`), uid);
+// ==========================================
+// スキルデータ
+// ==========================================
+const skillData = {
+    "auto_input_alpha": { id: "auto_input_alpha", name: "自動入力α", desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。", price: 10000, priceType: 'coin', cooldown: 25, duration: 3.5, interval: 60, execute: function() { startAutoType(this.duration, this.interval); } },
+    "auto_input_beta": { id: "auto_input_beta", name: "自動入力β", desc: "4.5秒間、約0.05秒間隔で自動タイピング。クールダウン25秒。", price: 500000, priceType: 'coin', cooldown: 25, duration: 4.5, interval: 50, execute: function() { startAutoType(this.duration, this.interval); } },
+    "auto_input_gamma": { id: "auto_input_gamma", name: "自動入力γ", desc: "5.5秒間、0.05秒間隔で自動タイピング。クールダウン40秒。", price: 0, priceType: 'coin', cooldown: 40, duration: 5.5, interval: 50, execute: function() { startAutoType(this.duration, this.interval); } },
+    "auto_input_epsilon": { id: "auto_input_epsilon", name: "自動入力ε", desc: "2.5秒間自動入力 + コンボが5秒間1.5倍。クールダウン25秒。", price: 50, priceType: 'raid', cooldown: 25, duration: 2.5, interval: 60, execute: function() { startAutoType(this.duration, this.interval); gameState.comboMultiplier = 1.5; setTimeout(() => { gameState.comboMultiplier = 1.0; }, 5000); } },
+    "auto_input_omega": { id: "auto_input_omega", name: "自動入力Ω", desc: "5.5秒間、0.045秒間隔で自動入力。クールダウン35秒。", price: 0, priceType: 'none', cooldown: 35, duration: 5.5, interval: 45, execute: function() { startAutoType(this.duration, this.interval); } },
+    "time_extend_alpha": { id: "time_extend_alpha", name: "時間伸ばしα", desc: "タイマーを止めてゲージを止めるミニゲーム。クールダウン120秒。", price: 50, priceType: 'raid', cooldown: 120, execute: function() { startTimeExtendGame(); } },
+    "combo_up_alpha": { id: "combo_up_alpha", name: "コンボアップα", desc: "5秒間、コンボが1.5倍。クールダウン35秒。", price: 10000, priceType: 'coin', cooldown: 35, duration: 5, execute: function() { gameState.comboMultiplier = 1.5; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } },
+    "combo_up_beta": { id: "combo_up_beta", name: "コンボアップβ", desc: "7.5秒間、コンボが1.85倍。クールダウン35秒。", price: 500000, priceType: 'coin', cooldown: 35, duration: 7.5, execute: function() { gameState.comboMultiplier = 1.85; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } }
+};
+
+function startAutoType(duration, interval) {
+    gameState.isAutoTyping = true;
+    gameState.autoTypeInterval = setInterval(() => {
+        if (gameState.isPlaying && !gameState.timeExtendActive && !gameState.typingDisabled && !gameState.isEnding) handleCorrectKey(true);
+    }, interval);
+    setTimeout(() => { gameState.isAutoTyping = false; clearInterval(gameState.autoTypeInterval); }, duration * 1000);
+}
+
+// ==========================================
+// パッシブスキルデータ
+// ==========================================
+const passiveData = {
+    "combo_set_alpha": { id: "combo_set_alpha", name: "コンボセットα", desc: "ゲーム開始時のコンボが30になります。", price: 30000, priceType: 'coin', onGameStart: function() { gameState.combo = 30; } },
+    "combo_set_gamma": { id: "combo_set_gamma", name: "コンボセットγ", desc: "ゲーム開始時のコンボが65になります。", price: 0, priceType: 'none', onGameStart: function() { gameState.combo = 65; } },
+    "combo_no_reset_alpha": { id: "combo_no_reset_alpha", name: "コンボノットリセットα", desc: "一度だけミスしてもコンボが0になりません。", price: 30000, priceType: 'coin', usedInGame: false },
+    "combo_no_reset_epsilon": { id: "combo_no_reset_epsilon", name: "コンボノットリセットε", desc: "一度だけミスしても、コンボが0にならない状態が3.5秒続きます。", price: 100000, priceType: 'coin', usedInGame: false },
+    "raid_point_increase_alpha": { id: "raid_point_increase_alpha", name: "レイドポイントフエールα", desc: "貰えるレイドポイントが1.5倍になります。", price: 25, priceType: 'raid' },
+    "raid_point_increase_beta": { id: "raid_point_increase_beta", name: "レイドポイントフエールβ", desc: "貰えるレイドポイントが2倍になります。", price: 25, priceType: 'raid' },
+    "combo_no_reset_beta": { id: "combo_no_reset_beta", name: "コンボノットリセットβ", desc: "3回分ミスしてもコンボが0になりません。", price: 0, priceType: 'none', usedInGame: false }
+};
+
+// ==========================================
+// アイテムデータ
+// ==========================================
+const itemData = {
+    "coin_boost_alpha": { id: "coin_boost_alpha", name: "コインブーストα", desc: "10分間、獲得コインが2倍になる。", price: 0, priceType: 'coin', duration: 600, effect: (active) => { gameState.coinMultiplier = active ? 2 : 1; } },
+    "mini_coin_boost_alpha": { id: "mini_coin_boost_alpha", name: "ミニコインブーストα", desc: "5分間、獲得コインが1.5倍になる。", price: 5000, priceType: 'coin', duration: 300, effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; } },
+    "mini_coin_boost_gamma": { id: "mini_coin_boost_gamma", name: "ミニコインブーストγ", desc: "15分間、獲得コインが1.5倍になる。", price: 15000, priceType: 'coin', duration: 900, effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; } },
+    "xp_boost_alpha": { id: "xp_boost_alpha", name: "XPブーストα", desc: "10分間、獲得XPが2倍になる。", price: 0, priceType: 'coin', duration: 600, effect: (active) => { gameState.xpMultiplier = active ? 2 : 1; } },
+    "gold_luck_boost_alpha": { id: "gold_luck_boost_alpha", name: "ゴールドコインラックブーストα", desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。", price: 0, priceType: 'coin', duration: 600, effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; } },
+    "rank_xp_boost_alpha": { id: "rank_xp_boost_alpha", name: "XPブーストα(ランク)", desc: "5分間、獲得XPが1.5倍になる。", price: 1000, priceType: 'rankCoin', duration: 300, effect: (active) => { gameState.xpMultiplier = active ? 1.5 : 1; } },
+    "coin_boost_omega_plus": { id: "coin_boost_omega_plus", name: "コインブーストΩ＋", desc: "30分間、獲得コインが3倍になる。", price: 0, priceType: 'none', duration: 1800, effect: (active) => { gameState.coinMultiplier = active ? 3 : 1; } }
+};
+
+// ==========================================
+// ランク報酬データ
+// ==========================================
+const rankRewardsData = [
+    { id: 'C', reqIdx: 4, name: 'コイン50万 & RC10万', desc: 'ランクC到達の証。', claim: () => { userData.coin += 500000; userData.rankCoin += 100000; } },
+    { id: 'B', reqIdx: 5, name: 'パッシブ「コンボセットγ」', desc: '初期コンボが65になる強力なパッシブ。', claim: () => { userData.passives.push('combo_set_gamma'); } },
+    { id: 'A', reqIdx: 6, name: 'アイテム「コインブーストΩ＋」x20', desc: '30分間コイン3倍になるアイテム20個。', claim: () => { userData.items['coin_boost_omega_plus'] = (userData.items['coin_boost_omega_plus'] || 0) + 20; } },
+    { id: 'Z', reqIdx: 10, name: 'スキル「自動入力Ω」', desc: '超高速でタイピングを行う強力スキル。', claim: () => { userData.skills.push('auto_input_omega'); } },
+    { id: 'Z3', reqIdx: 13, name: '背景「ランクの証」', desc: '装備すると背景と名前に輝く星が付く！', claim: () => { userData.backgrounds.push('rank_badge'); } }
+];
+
+// ==========================================
+// 状態管理
+// ==========================================
+const defaultUserData = {
+    userId: null, isAdmin: false, surveyDisabled: false, isBugHunter: false,
+    name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
+    rankIndex: 0, rankXp: 0, rankCoin: 0,
+    skills: [], equippedSkill: null, passives: [], equippedPassive: null, items: {}, backgrounds: [], equippedBackground: null,
+    playCount: 0, bestScore: 0, bestCombo: 0, storyStage: 1, raidClearedTime: 0,
+    settings: { homeScale: 50, showFurigana: true },
+    storyRewardsClaimed: [], rankRewardsClaimed: []
+};
+
+let userRef = null;
+let userData = { ...defaultUserData };
+let uid = localStorage.getItem('typingGameUid');
+
+const gameState = {
+    isPlaying: false, isEnding: false, mode: 'normal', storyStage: null, raidStage: null,
+    timeLeft: 60, initialTime: 60, score: 0, combo: 0, maxCombo: 0,
+    currentWordObj: null, currentRomajiIndex: 0, currentWordStartTime: 0,
+    timer: null, isAutoTyping: false, autoTypeInterval: null,
+    comboMultiplier: 1.0, coinMultiplier: 1, xpMultiplier: 1, 
+    goldDropRate: 0.01, goldEarnAmount: 1,
+    skillCooldownTimer: null, skillCooldownLeft: 0, isSkillReady: false,
+    activeBoosts: {}, obstacleTriggered: false, typingDisabled: false,
+    targetScore: 0, timeExtendActive: false, raidObstacle: null,
+    passiveUsed: false, comboNoResetTime: 0, comboProtectCharges: 0,
+    npcTargetScore: 0, npcCurrentScore: 0, npcScoreIncrement: 0, rankObstacleTriggered: false
+};
+
+let raidState = { isOpen: false, currentStage: 1, stages: [] };
+
+// ==========================================
+// ユーティリティ
+// ==========================================
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+function getNextLevelXp(level) { return 100 * level; }
+function getRankingDateKey() {
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    jstNow.setHours(jstNow.getHours() - 7);
+    return `${jstNow.getFullYear()}-${(jstNow.getMonth()+1).toString().padStart(2, '0')}-${jstNow.getDate().toString().padStart(2, '0')}`;
+}
+function getNextResetTime() {
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    jstNow.setHours(7, 0, 0, 0);
+    if (jstNow <= new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000)) jstNow.setDate(jstNow.getDate() + 1);
+    return jstNow;
+}
+function formatTimeRemaining(ms) {
+    if (ms <= 0) return "まもなく";
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${hours}時間${minutes}分${seconds}秒`;
+}
+
+function getRankName(index) {
+    const ranks = ['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S', 'S+', 'S++', 'Z'];
+    if (index < ranks.length) return ranks[index];
+    return 'Z' + (index - ranks.length + 1);
+}
+
+function getNextRaidOpenTime() {
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    let nextOpen = new Date(jstNow);
+    nextOpen.setMinutes(30, 0, 0);
+    if (jstNow.getHours() < 7 || (jstNow.getHours() === 7 && jstNow.getMinutes() < 30)) nextOpen.setHours(7);
+    else {
+        let found = false;
+        for (let h = 7; h <= 23; h++) {
+            let o = new Date(jstNow); o.setHours(h, 30, 0, 0);
+            if (o > jstNow) { nextOpen = o; found = true; break; }
         }
-        
-        // 処罰監視
-        onValue(ref(db, `users/${uid}/punishment`), (snap) => {
-            const p = snap.val();
-            if (p) {
-                if (p.type === 'ban') {
-                    if (p.until === -1) {
-                        document.body.innerHTML = `<div style="color:#f44336; font-size:36px; font-weight:bold; text-align:center; margin-top:20vh; line-height:1.8;">あなたは不適切な行為により永久BANされました。<br>異議申し立ては受け付けておりません。</div>`;
-                    } else if (p.until > Date.now()) {
-                        const dateText = new Date(p.until).toLocaleString();
-                        document.body.innerHTML = `<div style="color:#ff9800; font-size:32px; font-weight:bold; text-align:center; margin-top:20vh; line-height:1.8;">あなたは一時的にBAN処分を受けています。<br>解除予定時刻: ${dateText}</div>`;
-                    }
-                } else if (p.type === 'warning' && !p.read) {
-                    document.getElementById('warning-text').innerText = p.message || '管理者からの警告があります。行動を改めてください。';
+        if (!found) { nextOpen.setDate(nextOpen.getDate() + 1); nextOpen.setHours(7, 30, 0, 0); }
+    }
+    return nextOpen;
+}
+function isRaidOpen() {
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    return jstNow.getHours() >= 7 && jstNow.getMinutes() >= 30 && jstNow.getMinutes() < 45;
+}
+function getRaidCloseTime() {
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    let closeTime = new Date(jstNow); closeTime.setMinutes(45, 0, 0);
+    if (jstNow.getMinutes() >= 45) closeTime.setHours(jstNow.getHours() + 1);
+    return closeTime;
+}
+function canPlayRaid() {
+    if (!isRaidOpen()) return false;
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    if (userData.raidClearedTime) {
+        const c = new Date(userData.raidClearedTime + (new Date(userData.raidClearedTime).getTimezoneOffset() + 540) * 60000);
+        if (c.getHours() === jstNow.getHours()) return false;
+    }
+    return true;
+}
+function getStoryTargetScore(stage) { return 10000 + (stage - 1) * 1000; }
+function getRaidTargetScore(stage) { return stage === 6 ? 100000 : 30000 + Math.floor(Math.random() * 10001); }
+function getStageObstacle(stage) {
+    if (stage >= 76) return 'freeze';
+    if (stage >= 51) return 'time_reduce';
+    if (stage >= 26) return 'darkness';
+    return null;
+}
+function getRandomRaidObstacle() { return ['darkness', 'time_reduce', 'freeze'][Math.floor(Math.random() * 3)]; }
+
+// ==========================================
+// ランクマッチ NPCスコア計算
+// ==========================================
+function getNpcTargetScore(rankIdx) {
+    if (rankIdx === 0) return 10000 + Math.floor(Math.random() * 10001); // G: 10000-20000
+    if (rankIdx >= 1 && rankIdx <= 4) { // F〜C
+        const base = 10000 + (rankIdx * 5000);
+        return base + Math.floor(Math.random() * 10001);
+    }
+    if (rankIdx >= 5) { // B以降
+        const base = 500000 + ((rankIdx - 5) * 100000);
+        return base + Math.floor(Math.random() * 25001); // B: 500000~525000, A: 600000~625000...
+    }
+    return 10000;
+}
+
+function showPassiveEffect(text) {
+    const el = document.createElement('div');
+    el.className = 'passive-effect';
+    el.innerText = text;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+}
+
+// ユーザー名のフォーマット表示
+function formatUserName(name, userId, isAdmin, hasBadge, isBugHunter) {
+    let html = '';
+    const n = name || "";
+    
+    // 全角半角ブレ吸収
+    if (n.includes('ビルダーマン')) {
+        html += `<img src="ビルダー.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[ビルダー]">`;
+    } else if (isAdmin || n.includes('管理者）らも') || n.includes('管理者)らも')) {
+        html += `<img src="管理者.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[管理]">`;
+    }
+    
+    html += `<span>${escapeHtml(name)}</span>`;
+    
+    if (hasBadge) {
+        html += `<img src="ランクZ3.png" style="height: 1.5em; vertical-align: middle; margin-left: 5px;" alt="[Z3]">`;
+    }
+    if (isBugHunter) {
+        html += `<img src="発見隊.png" style="height: 1.2em; vertical-align: middle; margin-left: 5px;" alt="[発見隊]">`;
+    }
+    if (userId) {
+        html += ` <span style="font-size:0.7em; color:#aaa;">No.${userId}</span>`;
+    }
+    return html;
+}
+
+// ==========================================
+// オンライン/ランキングデータ送信・監視
+// ==========================================
+function updateOnlinePresence() {
+    if (!uid) return;
+    const hasBadge = userData.equippedBackground === 'rank_badge';
+    const n = userData.name || "";
+    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+    const info = { 
+        name: userData.name, 
+        userId: userData.userId, 
+        isAdmin: isAdm, 
+        isBugHunter: userData.isBugHunter, 
+        rankIndex: userData.rankIndex, 
+        hasBadge: hasBadge, 
+        timestamp: Date.now() 
+    };
+    
+    // Online status
+    const onlineRef = ref(db, `onlineUsers/${uid}`);
+    onDisconnect(onlineRef).remove();
+    set(onlineRef, info);
+
+    // Daily log
+    const dateKey = getRankingDateKey();
+    const dailyRef = ref(db, `dailyUsers/${dateKey}/${uid}`);
+    set(dailyRef, info);
+    
+    // Rank Ranking update
+    updateRankRankingData();
+}
+
+function updateRankRankingData() {
+    if (!uid) return;
+    const n = userData.name || "";
+    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+    set(ref(db, `rankings/rankOverall/${uid}`), {
+        name: userData.name,
+        userId: userData.userId,
+        isAdmin: isAdm,
+        isBugHunter: userData.isBugHunter,
+        rankIndex: userData.rankIndex,
+        rankXp: userData.rankXp,
+        hasBadge: userData.equippedBackground === 'rank_badge'
+    });
+}
+
+function listenForPunishmentAndAdmin() {
+    const pRef = ref(db, `users/${uid}/punishment`);
+    onValue(pRef, (snap) => {
+        const p = snap.val();
+        if (p) {
+            if (p.type === 'warning' || p.type === 'warn') {
+                if (!p.read) {
                     document.getElementById('warning-screen').style.display = 'flex';
                 }
+            } else if (p.type === 'ban') {
+                document.getElementById('ban-screen').style.display = 'flex';
+                if (gameState.isPlaying) endGame(true); // 強制終了
             }
-        });
+        } else {
+            document.getElementById('ban-screen').style.display = 'none';
+        }
+    });
 
-        // 管理者ボタン表示可否
+    // surveyDisabledの監視
+    const sRef = ref(db, `users/${uid}/surveyDisabled`);
+    onValue(sRef, (snap) => {
+        userData.surveyDisabled = snap.val() || false;
+    });
+
+    const adminRef = ref(db, `users/${uid}/isAdmin`);
+    onValue(adminRef, (snap) => {
+        const n = userData.name || "";
+        const isAdm = n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+        userData.isAdmin = snap.val() || isAdm;
         if (userData.isAdmin) {
             document.getElementById('debug-btn').style.display = 'block';
         } else {
             document.getElementById('debug-btn').style.display = 'none';
         }
+    });
 
-        updateUI();
-        applySettingsToDOM();
-        
-        // ローディング非表示
-        const ls = document.getElementById('loading-screen');
-        if (ls) ls.style.opacity = '0';
-        setTimeout(() => { if(ls) ls.style.display = 'none'; }, 500);
-        
+    const bhRef = ref(db, `users/${uid}/isBugHunter`);
+    onValue(bhRef, (snap) => {
+        userData.isBugHunter = snap.val() || false;
+        if (userData.isBugHunter) {
+            document.getElementById('bughunter-debug-area').style.display = 'block';
+        } else {
+            document.getElementById('bughunter-debug-area').style.display = 'none';
+        }
+        // 反映のため送信
+        if (uid) updateOnlinePresence(); 
+    });
+}
+
+// BAN時間の更新ループ
+setInterval(() => {
+    const banText = document.getElementById('ban-time-left');
+    if (document.getElementById('ban-screen').style.display === 'flex') {
+        get(ref(db, `users/${uid}/punishment`)).then(snap => {
+            const p = snap.val();
+            if (p && p.type === 'ban') {
+                if (p.until === -1) {
+                    banText.innerText = '永久';
+                } else {
+                    const diff = p.until - Date.now();
+                    if (diff <= 0) {
+                        set(ref(db, `users/${uid}/punishment`), null);
+                        document.getElementById('ban-screen').style.display = 'none';
+                    } else {
+                        banText.innerText = formatTimeRemaining(diff);
+                    }
+                }
+            } else {
+                document.getElementById('ban-screen').style.display = 'none';
+            }
+        });
+    }
+}, 1000);
+
+// ID採番
+async function assignNewUserId(uid) {
+    const counterRef = ref(db, 'global/nextUserId');
+    let newId = 1;
+    try {
+        const result = await runTransaction(counterRef, (currentData) => {
+            if (currentData === null) return 1;
+            return currentData + 1;
+        });
+        if (result.committed) {
+            newId = result.snapshot.val();
+            await set(ref(db, `idMapping/${newId}`), uid);
+        }
+    } catch(e) { console.error(e); }
+    return newId;
+}
+
+// ==========================================
+// 初期化・データロード
+// ==========================================
+async function initApp() {
+    if (!uid) {
+        uid = generateUUID();
+        localStorage.setItem('typingGameUid', uid);
+    }
+    userRef = ref(db, `users/${uid}`);
+
+    try {
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+            userData = { ...defaultUserData, ...snapshot.val() };
+            if (!userData.userId) {
+                userData.userId = await assignNewUserId(uid);
+                await set(userRef, userData);
+            }
+            if (userData.surveyDisabled === undefined) userData.surveyDisabled = false;
+            if (userData.isBugHunter === undefined) userData.isBugHunter = false;
+            if (!userData.settings) userData.settings = { ...defaultUserData.settings };
+            if (userData.settings.homeScale === undefined) userData.settings.homeScale = 50;
+            if (userData.settings.showFurigana === undefined) userData.settings.showFurigana = true;
+            if (!userData.items) userData.items = {};
+            if (!userData.backgrounds) userData.backgrounds = [];
+            if (!userData.goldCoin) userData.goldCoin = 0;
+            if (!userData.raidPoint) userData.raidPoint = 0;
+            if (userData.rankIndex === undefined) userData.rankIndex = 0;
+            if (userData.rankXp === undefined) userData.rankXp = 0;
+            if (userData.rankCoin === undefined) userData.rankCoin = 0;
+            if (!userData.storyStage) userData.storyStage = 1;
+            if (!userData.passives) userData.passives = [];
+            if (!userData.equippedPassive) userData.equippedPassive = null;
+            if (!userData.raidClearedTime) userData.raidClearedTime = 0;
+            if (!userData.storyRewardsClaimed) userData.storyRewardsClaimed = [];
+            if (!userData.rankRewardsClaimed) userData.rankRewardsClaimed = [];
+            // XPの型キャストを保証
+            userData.xp = Number(userData.xp) || 0;
+        } else {
+            userData.userId = await assignNewUserId(uid);
+            await set(userRef, userData);
+        }
     } catch (e) {
-        console.error("Sync Error: ", e);
+        console.error("Firebase load error", e);
+    }
+
+    const n = userData.name || "";
+    if (n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも')) {
+        userData.isAdmin = true;
+    }
+
+    updateHeaderUI();
+    applySettings();
+    updateOnlinePresence();
+    listenForPunishmentAndAdmin();
+    
+    if (!localStorage.getItem('agreementAccepted')) {
+        document.getElementById('agreement-modal').classList.add('active');
+    }
+    
+    // 警告UI（確認しておきたいこと）の表示チェック
+    const hideNoticeUntil = localStorage.getItem('hideNoticeUntil');
+    const now = Date.now();
+    if (!hideNoticeUntil || now > parseInt(hideNoticeUntil)) {
+        document.getElementById('notice-modal').classList.add('active');
+    }
+
+    // アンケート通知バナーの表示チェック (2026/05/23 00:00:00 JST まで)
+    const notifClosed = localStorage.getItem('surveyNotifClosed_yuchin');
+    const expireDate = new Date('2026-05-23T00:00:00+09:00').getTime();
+    if (!notifClosed && Date.now() < expireDate) {
+        document.getElementById('survey-notification').style.display = 'block';
+    } else {
+        document.getElementById('survey-notification').style.display = 'none';
+        document.getElementById('yuchin-survey-section').style.display = 'none';
+    }
+
+    // アンケート結果のリアルタイム監視
+    onValue(ref(db, 'surveys/yuchin_poll'), (snap) => {
+        const data = snap.val() || {};
+        const myVote = data[uid];
+        
+        if (myVote) {
+            document.getElementById('yuchin-options-container').style.display = 'none';
+            document.getElementById('yuchin-voted-msg').style.display = 'block';
+        } else {
+            document.getElementById('yuchin-options-container').style.display = 'flex';
+            document.getElementById('yuchin-voted-msg').style.display = 'none';
+        }
+
+        const counts = { allow: 0, apology: 0, whatever: 0, slightly_no: 0, never: 0 };
+        for (let key in data) {
+            if (counts[data[key]] !== undefined) counts[data[key]]++;
+        }
+        
+        const total = Object.values(counts).reduce((a,b)=>a+b,0) || 1;
+        
+        const resHtml = `
+            <div style="font-size:14px; margin-bottom:5px;">許す: ${counts.allow} (${Math.round(counts.allow/total*100)}%)</div>
+            <div style="font-size:14px; margin-bottom:5px;">謝罪してくれたら許す: ${counts.apology} (${Math.round(counts.apology/total*100)}%)</div>
+            <div style="font-size:14px; margin-bottom:5px;">どうでもいい: ${counts.whatever} (${Math.round(counts.whatever/total*100)}%)</div>
+            <div style="font-size:14px; margin-bottom:5px;">ちょっと許せない: ${counts.slightly_no} (${Math.round(counts.slightly_no/total*100)}%)</div>
+            <div style="font-size:14px;">許せない: ${counts.never} (${Math.round(counts.never/total*100)}%)</div>
+        `;
+        document.getElementById('yuchin-results-container').innerHTML = resHtml;
+    });
+
+    startRankingTimer();
+    startRaidTimer();
+    startBoostStatusTimer();
+    
+    // ロード画面を確実に消す
+    const loader = document.getElementById('loading-screen');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.display = 'none', 500);
     }
 }
 
-function updateUI() {
-    userData.rankTitle = calculateRankTitle(userData.level);
-    document.getElementById('header-name').innerText = userData.name;
-    document.getElementById('header-id').innerText = userData.id;
-    document.getElementById('header-level').innerText = `${userData.level} (${userData.rankTitle})`;
-    document.getElementById('header-coins').innerText = userData.coins;
+// 初期化実行（エラー時も必ずロード画面は消す）
+window.addEventListener('load', () => {
+    initApp().catch(e => {
+        console.error("Init Error:", e);
+        const loader = document.getElementById('loading-screen');
+        if (loader) loader.style.display = 'none';
+    });
+});
+
+async function saveUserData() {
+    try {
+        await update(userRef, userData);
+        updateHeaderUI();
+        updateRankRankingData();
+    } catch (e) {
+        console.error("Firebase save error", e);
+    }
+}
+
+function applySettings() {
+    const toggle = document.getElementById('furigana-toggle');
+    if (toggle) toggle.checked = userData.settings.showFurigana;
     
-    // 背景星表示
-    if (userData.level >= 100) {
+    const slider = document.getElementById('home-scale-slider');
+    const scaleVal = document.getElementById('home-scale-val');
+    if (slider && scaleVal) {
+        slider.value = userData.settings.homeScale;
+        scaleVal.innerText = `${userData.settings.homeScale}%`;
+    }
+
+    const wrapper = document.getElementById('menu-content-wrapper');
+    if (wrapper) {
+        const scale = userData.settings.homeScale / 50;
+        wrapper.style.transform = `scale(${scale})`;
+    }
+    
+    // 背景エフェクト反映
+    if (userData.equippedBackground === 'rank_badge') {
         document.getElementById('bg-star').style.display = 'block';
     } else {
         document.getElementById('bg-star').style.display = 'none';
     }
-
-    // ブーストインジケータ更新
-    const now = Date.now();
-    if (userData.boosts && userData.boosts.coinUntil > now) {
-        document.getElementById('boost-coin-badge').style.display = 'flex';
-    } else {
-        document.getElementById('boost-coin-badge').style.display = 'none';
-    }
-    if (userData.boosts && userData.boosts.expUntil > now) {
-        document.getElementById('boost-exp-badge').style.display = 'flex';
-    } else {
-        document.getElementById('boost-exp-badge').style.display = 'none';
-    }
 }
 
-function applySettingsToDOM() {
-    document.getElementById('home-scale-slider').value = userData.settings.homeScale || 50;
-    document.getElementById('home-scale-val').innerText = `${userData.settings.homeScale || 50}%`;
-    document.getElementById('menu-content-wrapper').style.transform = `scale(${(userData.settings.homeScale || 50) / 50})`;
+function updateHeaderUI() {
+    document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin || 0)}`;
+    document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin || 0}`;
+    document.getElementById('raid-point-display').innerText = `🎯${userData.raidPoint || 0}`;
+    document.getElementById('rank-coin-display-header').innerText = `RC ${userData.rankCoin || 0}`;
+    document.getElementById('level-display').innerText = `Lv.${userData.level || 1}`;
     
-    const radios = document.getElementsByName('furi-toggle');
-    for (let r of radios) {
-        if (r.value === String(userData.settings.showFurigana)) r.checked = true;
+    const rankName = getRankName(userData.rankIndex || 0);
+    document.getElementById('header-rank-badge').innerText = `Rank ${rankName}`;
+    
+    const nextXp = getNextLevelXp(userData.level || 1);
+    const xpPercent = Math.min(100, ((userData.xp || 0) / nextXp) * 100);
+    document.getElementById('xp-bar-fill').style.width = `${xpPercent}%`;
+    document.getElementById('xp-text').innerText = `${Math.floor(userData.xp || 0)} / ${nextXp} XP`;
+}
+
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+}
+
+// ==========================================
+// ストーリー/レイド マップ描画
+// ==========================================
+function renderStoryMap() {
+    const grid = document.getElementById('stage-grid');
+    grid.innerHTML = '';
+    document.getElementById('current-story-stage').innerText = userData.storyStage || 1;
+    for (let i = 1; i <= 100; i++) {
+        const btn = document.createElement('button');
+        btn.className = `stage-btn ${i === userData.storyStage ? 'current' : (i < userData.storyStage ? 'completed' : 'locked')}`;
+        btn.innerText = i;
+        if (i === userData.storyStage) btn.onclick = () => app.startGame('story', i);
+        grid.appendChild(btn);
     }
 }
 
-async function saveUserData() {
-    updateUI();
-    await set(ref(db, `users/${uid}`), userData);
-}
-
-// オンラインプレゼンス定期通知
-function updateOnlinePresence() {
-    if (!uid) return;
-    set(ref(db, `presence/${uid}`), {
-        name: userData.name,
-        id: userData.id,
-        level: userData.level,
-        lastSeen: serverTimestamp()
-    });
-}
-setInterval(updateOnlinePresence, 30000);
-
-// タイピングコアロジック
-function nextWord() {
-    currentWordObj = wordDatabase[Math.floor(Math.random() * wordDatabase.length)];
-    typedRomLength = 0;
+function renderRaidMap() {
+    const grid = document.getElementById('raid-stages-grid');
+    grid.innerHTML = '';
+    const isOpen = isRaidOpen();
+    const canPlay = canPlayRaid();
+    document.getElementById('raid-point-info').innerText = userData.raidPoint || 0;
     
-    document.getElementById('word-ja').innerText = currentWordObj.ja;
-    if (userData.settings.showFurigana !== false) {
-        document.getElementById('word-furi').innerText = currentWordObj.furi;
-    } else {
-        document.getElementById('word-furi').innerText = '';
+    if (!isOpen) {
+        const diff = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        document.getElementById('raid-status-timer').innerHTML = `⏳ 次のレイド開始まで: ${formatTimeRemaining(diff)}`;
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">レイドは開催時間外です</div>';
+        return;
     }
-    renderRoman();
-}
-
-function renderRoman() {
-    const typed = currentWordObj.rom.substring(0, typedRomLength);
-    const untyped = currentWordObj.rom.substring(typedRomLength);
-    document.getElementById('word-rom-typed').innerText = typed;
-    document.getElementById('word-rom-untyped').innerText = untyped;
-}
-
-// キー入力イベント
-window.addEventListener('keydown', (e) => {
-    if (!isGameActive || !currentWordObj) return;
-    if (e.key === 'Escape' || e.key === 'Tab' || e.key === 'Enter') return;
+    if (!canPlay) {
+        const diff = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        document.getElementById('raid-status-timer').innerHTML = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">この回のレイドはクリア済みです。次の開催時間をお待ちください。</div>';
+        return;
+    }
     
-    const targetChar = currentWordObj.rom[typedRomLength];
-    if (e.key.toLowerCase() === targetChar.toLowerCase()) {
-        typedRomLength++;
-        // コンボエフェクトポップ
-        createComboEffect(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2 + 50);
+    const diff = getRaidCloseTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    document.getElementById('raid-status-timer').innerHTML = `🔥 レイド開催中！ 終了まで: ${formatTimeRemaining(diff)}`;
+
+    for (let i = 1; i <= 6; i++) {
+        const btn = document.createElement('button');
+        btn.className = `raid-stage-btn ${i === raidState.currentStage ? 'current' : (i < raidState.currentStage ? 'completed' : 'locked')}`;
+        let label = i === 6 ? 'レイドボス' : `ステージ ${i}`;
+        let target = getRaidTargetScore(i);
+        btn.innerHTML = `${label}<br><span style="font-size:14px; font-weight:normal;">目標: ${target.toLocaleString()} / 60秒</span>`;
+        if (i === raidState.currentStage) btn.onclick = () => app.startGame('raid', i);
+        grid.appendChild(btn);
+    }
+}
+
+function startRaidTimer() {
+    setInterval(() => {
+        const isOpen = isRaidOpen();
+        const canPlay = canPlayRaid();
+        const menuBtn = document.getElementById('raid-menu-btn');
+        const menuTimer = document.getElementById('raid-menu-timer');
         
-        if (typedRomLength >= currentWordObj.rom.length) {
-            // ワードクリア加点計算
-            let addScore = gameMode === 'hard' ? 250 : 100;
-            if (gameMode === 'training') {
-                addScore = 300; // 修行はベースが高い
-            }
-            // デバフ中は半減
-            if (isDebuffActive) {
-                addScore = Math.floor(addScore * 0.5);
-            }
-            
-            gameScoreValue += addScore;
-            document.getElementById('game-score').innerText = gameScoreValue;
-            
-            // ストーリーモードダメージ処理
-            if (gameMode === 'story') {
-                currentEnemyCurrentHp -= addScore;
-                if (currentEnemyCurrentHp < 0) currentEnemyCurrentHp = 0;
-                updateStoryEnemyUI();
-                
-                // 敵を撃破したか即座に判定（クリア時のフリーズ固まりを防止するため、ここで確実にインターバルを止めてクリアへ流す）
-                if (currentEnemyCurrentHp <= 0) {
-                    endGame(true); // 勝利終了
-                    return;
-                }
-            } else if (gameMode === 'training') {
-                // 修行モードの2000000目標スコア到達判定
-                if (gameScoreValue >= 2000000) {
-                    endGame(false);
-                    return;
-                }
-            }
-            
-            nextWord();
+        if (isOpen && canPlay) {
+            menuBtn.classList.remove('disabled');
+            const diff = getRaidCloseTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+            menuTimer.innerText = `🔥 開催中! (あと${formatTimeRemaining(diff)})`;
+            menuTimer.style.color = '#ff5252';
         } else {
-            renderRoman();
+            menuBtn.classList.add('disabled');
+            const diff = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+            menuTimer.innerText = `⏳ 次回: ${formatTimeRemaining(diff)}`;
+            menuTimer.style.color = '#ff9800';
+            if (isOpen && !canPlay) raidState.currentStage = 1;
+        }
+        if (document.getElementById('raid-map-screen').classList.contains('active')) renderRaidMap();
+    }, 1000);
+}
+
+// ==========================================
+// ゲームプレイ関連
+// ==========================================
+function startGame(mode, stage = null) {
+    gameState.mode = mode;
+    gameState.isPlaying = true;
+    gameState.isEnding = false; // クリア済みフラグの初期化
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.currentRomajiIndex = 0;
+    gameState.comboMultiplier = 1.0;
+    gameState.typingDisabled = false;
+    gameState.timeExtendActive = false;
+    gameState.passiveUsed = false;
+    gameState.comboNoResetTime = 0;
+    gameState.comboProtectCharges = 0;
+    gameState.timeLeft = 60;
+    gameState.initialTime = gameState.timeLeft;
+    gameState.rankObstacleTriggered = false;
+    
+    applyPassiveOnStart();
+    resetSkillUI();
+    
+    showScreen('game-screen');
+    
+    document.getElementById('story-target-container').style.display = 'none';
+    document.getElementById('raid-target-container').style.display = 'none';
+    document.getElementById('npc-info-container').style.display = 'none';
+    
+    if (mode === 'story') {
+        gameState.storyStage = stage;
+        gameState.targetScore = getStoryTargetScore(stage);
+        document.getElementById('story-target-container').style.display = 'block';
+        updateStoryTargetUI();
+    } else if (mode === 'raid') {
+        gameState.raidStage = stage;
+        gameState.targetScore = getRaidTargetScore(stage);
+        gameState.raidObstacle = getRandomRaidObstacle();
+        document.getElementById('raid-target-container').style.display = 'block';
+        updateRaidTargetUI();
+    } else if (mode === 'rank') {
+        document.getElementById('npc-info-container').style.display = 'block';
+        document.getElementById('npc-info-name').innerText = `対戦相手: ${npcNames[Math.floor(Math.random() * npcNames.length)]}`;
+        gameState.npcTargetScore = getNpcTargetScore(userData.rankIndex || 0);
+        gameState.npcCurrentScore = 0;
+        gameState.npcScoreIncrement = gameState.npcTargetScore / 60;
+        document.getElementById('npc-info-score').innerText = "0";
+    }
+
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(gameTimerTick, 1000);
+}
+
+function gameTimerTick() {
+    if (gameState.timeExtendActive || !gameState.isPlaying || gameState.isEnding) return;
+    
+    gameState.timeLeft--;
+    document.getElementById('time-display').innerText = gameState.timeLeft;
+    
+    if (gameState.mode === 'rank') {
+        gameState.npcCurrentScore += Math.floor(gameState.npcScoreIncrement * (0.8 + Math.random() * 0.4));
+        document.getElementById('npc-info-score').innerText = gameState.npcCurrentScore.toLocaleString();
+    }
+    
+    triggerObstacles();
+    if (gameState.timeLeft <= 0) endGame();
+}
+
+function applyPassiveOnStart() {
+    if (userData.equippedPassive && passiveData[userData.equippedPassive]) {
+        const passive = passiveData[userData.equippedPassive];
+        if (passive.onGameStart) passive.onGameStart();
+        if (passive.id === 'combo_no_reset_beta') gameState.comboProtectCharges = 3;
+        else if (passive.id === 'combo_no_reset_alpha') gameState.comboProtectCharges = 1;
+        updateComboProtectUI();
+    }
+}
+
+function updateComboProtectUI() {
+    const indicator = document.getElementById('combo-protect-indicator');
+    if (gameState.comboProtectCharges > 0) {
+        indicator.innerText = `🛡️ 保護: ${gameState.comboProtectCharges}回`;
+        indicator.style.display = 'block';
+    } else if (gameState.comboNoResetTime > Date.now()) {
+        indicator.innerText = `🛡️ 保護: アクティブ`;
+        indicator.style.display = 'block';
+    } else {
+        indicator.style.display = 'none';
+    }
+}
+
+function triggerObstacles() {
+    const elapsed = gameState.initialTime - gameState.timeLeft;
+    if (gameState.mode === 'story' && gameState.storyStage) {
+        const obstacleType = getStageObstacle(gameState.storyStage);
+        if (obstacleType && elapsed === 30 && !gameState.obstacleTriggered) {
+            gameState.obstacleTriggered = true;
+            executeObstacle(obstacleType);
+        }
+    } else if (gameState.mode === 'raid') {
+        if (elapsed % 20 === 0 && elapsed > 0) {
+            executeObstacle(gameState.raidObstacle);
+        }
+    } else if (gameState.mode === 'rank') {
+        // Bランク(5)以上はデバフをかけてくる
+        if ((userData.rankIndex || 0) >= 5 && gameState.timeLeft === 30 && !gameState.rankObstacleTriggered) {
+            gameState.rankObstacleTriggered = true;
+            const obs = Math.random() < 0.5 ? 'freeze' : 'combo_half';
+            executeObstacle(obs);
         }
     }
+}
+
+function executeObstacle(type) {
+    const overlay = document.getElementById('game-overlay');
+    const msg = document.getElementById('game-message');
+    
+    if (type === 'darkness') {
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
+        msg.innerText = '暗闇！'; msg.style.opacity = '1';
+        setTimeout(() => { overlay.style.backgroundColor = 'transparent'; msg.style.opacity = '0'; }, 5000);
+    } else if (type === 'time_reduce') {
+        gameState.timeLeft = Math.max(1, gameState.timeLeft - 10);
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        const anim = document.getElementById('time-reduce-animation');
+        anim.style.opacity = '1'; anim.style.top = '30px';
+        setTimeout(() => { anim.style.opacity = '0'; anim.style.top = '0px'; }, 1000);
+    } else if (type === 'freeze') {
+        gameState.typingDisabled = true;
+        overlay.style.backgroundColor = 'rgba(0, 255, 255, 0.3)';
+        msg.innerText = '凍結！！'; msg.style.opacity = '1';
+        setTimeout(() => { gameState.typingDisabled = false; overlay.style.backgroundColor = 'transparent'; msg.style.opacity = '0'; }, 5000);
+    } else if (type === 'combo_half') {
+        gameState.combo = Math.floor(gameState.combo / 2);
+        updateGameUI();
+        msg.innerText = 'コンボ半減！！'; msg.style.opacity = '1';
+        setTimeout(() => { msg.style.opacity = '0'; }, 3000);
+    }
+}
+
+function startTimeExtendGame() {
+    if (!gameState.isPlaying) return;
+    gameState.timeExtendActive = true;
+    gameState.typingDisabled = true;
+    clearInterval(gameState.timer);
+    
+    const gameEl = document.getElementById('time-extend-game');
+    const bar = document.getElementById('time-extend-bar');
+    gameEl.style.display = 'block';
+    
+    let position = 0; let direction = 1; const speed = 5; let animationId;
+    const animate = () => {
+        position += direction * speed;
+        if (position >= 100 || position <= 0) direction *= -1;
+        bar.style.left = position + '%';
+        animationId = requestAnimationFrame(animate);
+    };
+    animate();
+    
+    const stopGame = () => {
+        cancelAnimationFrame(animationId);
+        const finalPos = parseFloat(bar.style.left) || 0;
+        let addedTime = 0;
+        
+        if (finalPos >= 48 && finalPos <= 52) { addedTime = 12; document.getElementById('time-extend-result').innerHTML = '🎯 パーフェクト！ +12秒！'; }
+        else if (finalPos >= 40 && finalPos <= 60) { addedTime = 8; document.getElementById('time-extend-result').innerHTML = '🎉 グッド！ +8秒！'; }
+        else { addedTime = 5; document.getElementById('time-extend-result').innerHTML = '👍 ナイス！ +5秒！'; }
+        
+        gameState.timeLeft += addedTime;
+        document.getElementById('time-display').innerText = gameState.timeLeft;
+        
+        setTimeout(() => {
+            gameEl.style.display = 'none';
+            gameState.timeExtendActive = false;
+            gameState.typingDisabled = false;
+            gameState.timer = setInterval(gameTimerTick, 1000);
+            document.removeEventListener('keydown', spaceHandler);
+        }, 1500);
+    };
+    
+    const spaceHandler = (e) => { if (e.code === 'Space') { e.preventDefault(); stopGame(); } };
+    document.addEventListener('keydown', spaceHandler);
+}
+
+function resetSkillUI() {
+    const btn = document.getElementById('skill-btn');
+    const overlay = document.getElementById('skill-cooldown-overlay');
+    if (userData.equippedSkill && skillData[userData.equippedSkill]) {
+        const skill = skillData[userData.equippedSkill];
+        if (skill.id === 'auto_input_gamma' && userData.storyStage < 100 && !(userData.storyRewardsClaimed && userData.storyRewardsClaimed.includes('100'))) {
+            document.getElementById('skill-btn-text').innerText = 'スキル無し'; btn.disabled = true; gameState.isSkillReady = false; return;
+        }
+        document.getElementById('skill-btn-text').innerText = skill.name.replace('時間伸ばし', '時間延').substring(0, 6);
+        gameState.isSkillReady = true; gameState.skillCooldownLeft = 0; btn.disabled = false; overlay.style.height = '0%';
+    } else {
+        document.getElementById('skill-btn-text').innerText = 'スキル無し'; btn.disabled = true; gameState.isSkillReady = false;
+    }
+}
+
+function useSkill() {
+    if (!gameState.isPlaying || !gameState.isSkillReady || !userData.equippedSkill || gameState.typingDisabled) return;
+    const skill = skillData[userData.equippedSkill];
+    if (skill.id === 'auto_input_gamma' && userData.storyStage < 100 && !(userData.storyRewardsClaimed && userData.storyRewardsClaimed.includes('100'))) return;
+    
+    skill.execute();
+    
+    gameState.isSkillReady = false;
+    gameState.skillCooldownLeft = skill.cooldown;
+    const btn = document.getElementById('skill-btn');
+    const overlay = document.getElementById('skill-cooldown-overlay');
+    btn.disabled = true;
+    
+    gameState.skillCooldownTimer = setInterval(() => {
+        gameState.skillCooldownLeft -= 0.1;
+        const percent = (gameState.skillCooldownLeft / skill.cooldown) * 100;
+        overlay.style.height = `${percent}%`;
+        if (gameState.skillCooldownLeft <= 0) {
+            clearInterval(gameState.skillCooldownTimer);
+            gameState.isSkillReady = true; btn.disabled = false; overlay.style.height = '0%';
+        }
+    }, 100);
+}
+
+function setNextWord() {
+    gameState.currentWordObj = typingData[Math.floor(Math.random() * typingData.length)];
+    gameState.currentRomajiIndex = 0;
+    gameState.currentWordStartTime = Date.now(); // タイピング速度計測用
+    updateTypingDisplay();
+}
+
+function updateTypingDisplay() {
+    if (!gameState.currentWordObj) return;
+    document.getElementById('japanese-text').innerText = gameState.currentWordObj.ja;
+    document.getElementById('furigana-text').innerText = userData.settings.showFurigana ? gameState.currentWordObj.furigana : '';
+    
+    const typed = gameState.currentWordObj.romaji.substring(0, gameState.currentRomajiIndex);
+    const untyped = gameState.currentWordObj.romaji.substring(gameState.currentRomajiIndex);
+    const untypedClass = gameState.mode === 'hard' ? 'untyped-hidden' : 'untyped';
+    
+    document.getElementById('romaji-text').innerHTML = `<span class="typed">${typed}</span><span class="${untypedClass}">${untyped}</span>`;
+}
+
+function showSpeedBonusAnim(speed, bonus) {
+    const el = document.createElement('div');
+    el.className = 'speed-anim';
+    el.innerHTML = `<div class="speed-anim-time">1文字あたり ${speed.toFixed(2)}秒</div><div class="speed-anim-combo">+${bonus} コンボ！</div>`;
+    document.getElementById('typing-area').appendChild(el);
+    setTimeout(() => el.remove(), 1500);
+}
+
+function handleCorrectKey(isAuto = false) {
+    if (gameState.isEnding || !gameState.isPlaying) return; // 二重実行防止
+
+    gameState.currentRomajiIndex++;
+    gameState.score += gameState.combo * 5;
+    gameState.combo++;
+    if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+    
+    updateGameUI();
+    
+    // 目標スコア到達で確実に終了させる（複数回呼ばれるのを防ぐ）
+    if ((gameState.mode === 'story' || gameState.mode === 'raid') && gameState.score >= gameState.targetScore) {
+        if (!gameState.isEnding) {
+            endGame(); 
+        }
+        return;
+    }
+    
+    if (gameState.currentRomajiIndex >= gameState.currentWordObj.romaji.length) {
+        // 【新要素】単語打ち切り時のスピードボーナス計算
+        const sec = Math.max(0.01, (Date.now() - gameState.currentWordStartTime) / 1000);
+        const chars = gameState.currentWordObj.romaji.length;
+        const speedPerChar = sec / chars;
+        let comboBonus = Math.floor(5 / speedPerChar);
+        
+        // 自動入力中はボーナスを最大35に制限
+        if (gameState.isAutoTyping && comboBonus > 35) {
+            comboBonus = 35;
+        }
+        
+        gameState.combo += comboBonus;
+        if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+        
+        showSpeedBonusAnim(speedPerChar, comboBonus);
+        
+        setNextWord();
+        updateGameUI();
+    } else {
+        updateTypingDisplay();
+    }
+}
+
+function handleMissKey() {
+    let preventReset = false;
+    if (gameState.comboNoResetTime > Date.now()) {
+        preventReset = true;
+    } else if (gameState.comboProtectCharges > 0) {
+        gameState.comboProtectCharges--;
+        preventReset = true;
+        updateComboProtectUI();
+    } else if (!gameState.passiveUsed && userData.equippedPassive) {
+        if (userData.equippedPassive === 'combo_no_reset_alpha') {
+            preventReset = true; gameState.passiveUsed = true; showPassiveEffect('🛡️ コンボ維持！');
+        } else if (userData.equippedPassive === 'combo_no_reset_epsilon') {
+            preventReset = true; gameState.passiveUsed = true; gameState.comboNoResetTime = Date.now() + 3500;
+            showPassiveEffect('🛡️ 3.5秒間無敵！'); updateComboProtectUI(); setTimeout(updateComboProtectUI, 3500);
+        }
+    }
+    
+    if (!preventReset) {
+        gameState.combo = 0;
+        updateGameUI();
+    }
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive || gameState.isEnding) return;
+    if (e.code === 'Space') { e.preventDefault(); useSkill(); return; }
+    const key = e.key.toLowerCase();
+    if (key.length !== 1 || !/[a-z\-]/.test(key)) return;
+    
+    if (!gameState.currentWordObj || gameState.currentRomajiIndex >= gameState.currentWordObj.romaji.length) return; // 念のための安全策
+
+    if (key === gameState.currentWordObj.romaji[gameState.currentRomajiIndex].toLowerCase()) handleCorrectKey();
+    else handleMissKey();
 });
 
-function createComboEffect(x, y) {
-    const box = document.getElementById('typing-box');
-    const pop = document.createElement('div');
-    pop.className = 'combo-pop';
-    pop.innerText = '✨';
-    pop.style.left = `${Math.random() * 80 + 10}%`;
-    pop.style.top = `${Math.random() * 40 + 30}%`;
-    box.appendChild(pop);
-    setTimeout(() => pop.remove(), 600);
+function updateGameUI() {
+    document.getElementById('score-display').innerText = gameState.score.toLocaleString();
+    document.getElementById('combo-display').innerText = gameState.combo.toLocaleString();
+    if (gameState.mode === 'story') updateStoryTargetUI();
+    if (gameState.mode === 'raid') updateRaidTargetUI();
 }
 
-function updateStoryEnemyUI() {
-    const enemy = storyEnemies[selectedStoryEnemyIndex];
-    document.getElementById('story-enemy-name').innerText = `👿 ${enemy.name}`;
-    document.getElementById('story-enemy-hp-txt').innerText = `HP: ${currentEnemyCurrentHp} / ${enemy.hp}`;
-    const pct = (currentEnemyCurrentHp / enemy.hp) * 100;
-    document.getElementById('story-enemy-hp-fill').style.width = `${pct}%`;
+function updateStoryTargetUI() {
+    const target = gameState.targetScore; const current = gameState.score;
+    const percent = Math.min(100, (current / target) * 100);
+    const remaining = Math.max(0, target - current);
+    document.getElementById('story-target-info').innerHTML = `📖 ステージ ${gameState.storyStage}`;
+    document.getElementById('story-target-bar-fill').style.width = `${percent}%`;
+    document.getElementById('story-target-text').innerHTML = `${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})`;
 }
 
-// ゲーム終了処理（ストーリーの固まり防止策を完璧に施した強化版）
-function endGame(isStoryWin = false) {
-    isGameActive = false;
-    
-    // すべてのタイマーインターバルを確実に即時クリア
-    if (gameInterval) {
-        clearInterval(gameInterval);
-        gameInterval = null;
-    }
-    if (debuffInterval) {
-        clearInterval(debuffInterval);
-        debuffInterval = null;
-    }
-    
-    // デバフオーバーレイ表示を初期化リセット
-    isDebuffActive = false;
-    document.getElementById('debuff-overlay-notice').style.display = 'none';
-
-    document.getElementById('game-screen').classList.remove('active');
-
-    if (gameMode === 'story' && isStoryWin) {
-        // ストーリーモードで敵を倒してクリアした場合
-        const enemy = storyEnemies[selectedStoryEnemyIndex];
-        
-        let rewardCoins = enemy.rewardCoins;
-        let rewardExp = enemy.rewardExp;
-        
-        // 倍率ブースト適用
-        const now = Date.now();
-        if (userData.boosts && userData.boosts.coinUntil > now) rewardCoins *= 2;
-        if (userData.boosts && userData.boosts.expUntil > now) rewardExp *= 2;
-        
-        userData.coins += rewardCoins;
-        userData.exp += rewardExp;
-        
-        // レベルアップの判定処理
-        while (userData.exp >= userData.level * 150) {
-            userData.exp -= userData.level * 150;
-            userData.level++;
-        }
-        
-        saveUserData();
-        
-        // ストーリー専用クリア結果画面を表示（固まらずに進む）
-        document.getElementById('story-res-enemy').innerText = enemy.name;
-        document.getElementById('story-res-coins').innerText = rewardCoins;
-        document.getElementById('story-res-exp').innerText = rewardExp;
-        document.getElementById('story-result-screen').classList.add('active');
-        
-    } else {
-        // 通常のノーマル、ハード、修行モードなどのリザルト処理
-        let gainCoins = Math.floor(gameScoreValue / 50);
-        let gainExp = Math.floor(gameScoreValue / 40);
-        
-        if (gameMode === 'hard') {
-            gainCoins = Math.floor(gameScoreValue / 30);
-            gainExp = Math.floor(gameScoreValue / 25);
-        } else if (gameMode === 'training') {
-            gainCoins = Math.floor(gameScoreValue / 100); // 修行はスコアが莫大なので換算率を調整
-            gainExp = Math.floor(gameScoreValue / 50);
-        }
-
-        // ブースト反映
-        const now = Date.now();
-        if (userData.boosts && userData.boosts.coinUntil > now) gainCoins *= 2;
-        if (userData.boosts && userData.boosts.expUntil > now) gainExp *= 2;
-
-        userData.coins += gainCoins;
-        userData.exp += gainExp;
-
-        while (userData.exp >= userData.level * 150) {
-            userData.exp -= userData.level * 150;
-            userData.level++;
-        }
-
-        saveUserData();
-
-        document.getElementById('res-score').innerText = gameScoreValue;
-        document.getElementById('res-coins').innerText = gainCoins;
-        document.getElementById('res-exp').innerText = gainExp;
-        document.getElementById('result-screen').classList.add('active');
-    }
+function updateRaidTargetUI() {
+    const target = gameState.targetScore; const current = gameState.score;
+    const percent = Math.min(100, (current / target) * 100);
+    const remaining = Math.max(0, target - current);
+    document.getElementById('raid-target-info').innerHTML = gameState.raidStage === 6 ? '🔥 レイドボス 🔥' : `🔥 レイドステージ ${gameState.raidStage}`;
+    document.getElementById('raid-target-bar-fill').style.width = `${percent}%`;
+    document.getElementById('raid-target-text').innerHTML = `${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})`;
 }
 
-
-// アプリケーション全体のエクスポーズオブジェクト
-window.app = {
-    openModal: (id) => {
-        if (id === 'ranking-modal') app.loadRanking();
-        document.getElementById(id).classList.add('active');
-    },
-    closeModal: (id) => {
-        document.getElementById(id).classList.remove('active');
-    },
+function endGame(forced = false) {
+    if (gameState.isEnding && !forced) return; // 既に処理中ならスキップ
+    gameState.isEnding = true;
+    gameState.isPlaying = false;
     
-    startSetup: (mode) => {
-        app.closeModal('mode-modal');
-        gameMode = mode;
-        gameScoreValue = 0;
-        isDebuffActive = false;
-        document.getElementById('debuff-overlay-notice').style.display = 'none';
-        document.getElementById('game-score').innerText = "0";
+    clearInterval(gameState.timer); 
+    clearInterval(gameState.skillCooldownTimer); 
+    clearInterval(gameState.autoTypeInterval);
+    
+    // UI初期化
+    document.getElementById('rank-match-result').style.display = 'none';
+    document.getElementById('normal-rewards-container').style.display = 'block';
+    document.getElementById('rank-rewards-container').style.display = 'none';
+    document.getElementById('rank-up-msg').style.display = 'none';
+    document.getElementById('rank-down-msg').style.display = 'none';
+    document.getElementById('story-clear-msg').style.display = 'none';
+    document.getElementById('story-reward-msg').style.display = 'none';
+    document.getElementById('raid-clear-msg').style.display = 'none';
+    document.getElementById('level-up-msg').style.display = 'none';
+    
+    if (forced) { showScreen('menu-screen'); return; } // BANなどで強制終了の場合はリザルトを出さない
+
+    let baseCoin = Math.floor(gameState.score / 100);
+    let baseGoldDrop = gameState.goldDropRate;
+    if (gameState.mode === 'hard') baseCoin *= 2;
+    
+    let earnedCoin = Math.floor(baseCoin * gameState.coinMultiplier);
+    let earnedXp = Math.floor(baseCoin * gameState.xpMultiplier);
+    
+    // ランクマッチ処理
+    if (gameState.mode === 'rank') {
+        gameState.npcCurrentScore = gameState.npcTargetScore; 
+        document.getElementById('npc-info-score').innerText = gameState.npcCurrentScore.toLocaleString();
         
-        if (gameMode === 'story') {
-            // ストーリーモード選択ダイアログ
-            let msg = "挑戦するボス敵モンスターの番号階級を選択してください:\n";
-            storyEnemies.forEach((e, idx) => {
-                msg += `${idx + 1}: ${e.name} (HP: ${e.hp})\n`;
-            });
-            const sel = prompt(msg, "1");
-            let sIdx = parseInt(sel) - 1;
-            if (isNaN(sIdx) || sIdx < 0 || sIdx >= storyEnemies.length) {
-                sIdx = 0;
-            }
-            selectedStoryEnemyIndex = sIdx;
-            const enemy = storyEnemies[sIdx];
-            currentEnemyCurrentHp = enemy.hp;
+        document.getElementById('normal-rewards-container').style.display = 'none';
+        document.getElementById('rank-rewards-container').style.display = 'block';
+        document.getElementById('rank-match-result').style.display = 'block';
+        
+        let earnedRxp = 0; let earnedRc = 0;
+        const diff = gameState.score - gameState.npcCurrentScore;
+        
+        if (diff > 0) {
+            document.getElementById('rank-match-result').innerText = '🎊 勝利！ 🎊';
+            document.getElementById('rank-match-result').style.color = '#ffeb3b';
             
-            document.getElementById('story-enemy-container').style.display = 'flex';
-            updateStoryEnemyUI();
-            gameTimerValue = 90; // ストーリーは少し長めの90秒
+            if (diff >= 300000) earnedRxp = 600;
+            else if (diff >= 100000) earnedRxp = 500;
+            else if (diff >= 50000) earnedRxp = 300;
+            else if (diff >= 15000) earnedRxp = 150;
+            else if (diff >= 5000) earnedRxp = 100;
+            else earnedRxp = 50;
+            
+            earnedRc = Math.floor(gameState.score / 100);
         } else {
-            document.getElementById('story-enemy-container').style.display = 'none';
-            gameTimerValue = 60;
+            document.getElementById('rank-match-result').innerText = '💀 敗北...';
+            document.getElementById('rank-match-result').style.color = '#9e9e9e';
+            earnedRxp = -10; // 負けたら -10 RXP に修正
         }
-
-        // レッドアンドブルーの修行モード用の目標スコア表示サポート
-        if (gameMode === 'training') {
-            gameTimerValue = 999; // 目標200万点に達するまで終わらない超ロング修行
-            alert("「レッドアンドブルーの修行モード」を開始します。\n【ルール】目標スコアは2000000（200万）点です！\nさらに10秒に一度、スコアが半減するデバフが発生します！");
-        }
-
-        document.getElementById('game-timer').innerText = gameTimerValue;
-        document.getElementById('main-menu').classList.remove('active');
-        document.getElementById('game-screen').classList.add('active');
         
-        isGameActive = true;
-        nextWord();
-
-        // 共通ゲーム進行インターバルタイマー
-        gameInterval = setInterval(() => {
-            if (!isGameActive) return;
-            gameTimerValue--;
-            document.getElementById('game-timer').innerText = gameTimerValue;
-            
-            if (gameTimerValue <= 0) {
-                endGame(false); // タイムアップ終了
+        userData.rankXp += earnedRxp;
+        userData.rankCoin += earnedRc;
+        
+        // ランクアップ/ダウン処理
+        let rankUpOccurred = false;
+        while (userData.rankXp >= 1000) {
+            userData.rankXp -= 1000;
+            userData.rankIndex++;
+            rankUpOccurred = true;
+        }
+        if (rankUpOccurred) document.getElementById('rank-up-msg').style.display = 'block';
+        
+        let rankDownOccurred = false;
+        while (userData.rankXp < 0) {
+            if (userData.rankIndex > 0) {
+                userData.rankIndex--;
+                userData.rankXp += 1000;
+                rankDownOccurred = true;
+            } else {
+                userData.rankXp = 0;
+                break;
             }
-        }, 1000);
+        }
+        if (rankDownOccurred && !rankUpOccurred) document.getElementById('rank-down-msg').style.display = 'block';
+        
+        document.getElementById('result-rc').innerText = earnedRc.toLocaleString();
+        document.getElementById('result-rxp').innerText = (earnedRxp > 0 ? "+" + earnedRxp : earnedRxp).toLocaleString();
+        
+        earnedCoin = 0; earnedXp = 0; // 通常報酬はなし
+        updateOnlinePresence(); // ランク変動反映のため
+    }
+    
+    userData.coin += earnedCoin;
+    // XPは数値として足し算を保証する
+    userData.xp = Number(userData.xp) + earnedXp;
+    
+    let earnedGold = 0;
+    if (gameState.mode !== 'rank' && Math.random() < baseGoldDrop) {
+        earnedGold = gameState.goldEarnAmount;
+        userData.goldCoin += earnedGold;
+    }
 
-        // 修行モード用：【要件修正】デバフが10秒に一回くるように制御
-        if (gameMode === 'training') {
-            let elapsedTrainingSeconds = 0;
-            debuffInterval = setInterval(() => {
-                if (!isGameActive) return;
-                elapsedTrainingSeconds++;
-                
-                // 10秒に1回の間隔
-                if (elapsedTrainingSeconds % 10 === 0) {
-                    isDebuffActive = true;
-                    document.getElementById('debuff-overlay-notice').style.display = 'block';
-                    
-                    // 3秒間デバフ効果が持続したのち解除される演出
-                    setTimeout(() => {
-                        isDebuffActive = false;
-                        document.getElementById('debuff-overlay-notice').style.display = 'none';
-                    }, 3000);
-                }
-            }, 1000);
+    let earnedRaid = 0;
+    if (gameState.mode === 'raid') {
+        if (gameState.score >= gameState.targetScore) {
+            earnedRaid = gameState.raidStage === 6 ? 10 : 2;
+            if (userData.equippedPassive) {
+                if (userData.equippedPassive === 'raid_point_increase_alpha') earnedRaid = Math.floor(earnedRaid * 1.5);
+                else if (userData.equippedPassive === 'raid_point_increase_beta') earnedRaid *= 2;
+            }
+            userData.raidPoint += earnedRaid;
+            if (gameState.raidStage === 6) { userData.raidClearedTime = Date.now(); document.getElementById('raid-clear-msg').innerText = '🔥 全レイドクリア！'; }
+            else { raidState.currentStage++; document.getElementById('raid-clear-msg').innerText = '🔥 ステージクリア！'; }
+            document.getElementById('raid-clear-msg').style.display = 'block';
+        } else {
+            document.getElementById('raid-clear-msg').innerText = '❌ レイド失敗... (スコア未達)';
+            document.getElementById('raid-clear-msg').style.display = 'block';
+        }
+    }
+
+    if (gameState.mode === 'story') {
+        if (gameState.score >= gameState.targetScore) {
+            const playedStage = gameState.storyStage;
+            if (playedStage === userData.storyStage && userData.storyStage < 100) userData.storyStage++;
+            document.getElementById('story-clear-msg').innerText = '✅ ステージクリア！'; document.getElementById('story-clear-msg').style.display = 'block';
+            const storyRewardsList = checkStoryRewards(playedStage); // クリアしたステージでチェック
+            if (storyRewardsList.length > 0) {
+                const rewDiv = document.getElementById('story-reward-msg');
+                rewDiv.innerHTML = '🎁 報酬獲得！<br>' + storyRewardsList.join('<br>'); rewDiv.style.display = 'block';
+            }
+        } else {
+            document.getElementById('story-clear-msg').innerText = '❌ スコアが足りませんでした...'; document.getElementById('story-clear-msg').style.display = 'block';
+        }
+    }
+
+    if (gameState.mode === 'normal' || gameState.mode === 'hard') {
+        userData.playCount++;
+        if (gameState.score > userData.bestScore) userData.bestScore = gameState.score;
+        if (gameState.maxCombo > userData.bestCombo) userData.bestCombo = gameState.maxCombo;
+        updateRankingData(gameState.score, gameState.maxCombo);
+        incrementPlayCountRanking();
+    }
+
+    // レベルアップのチェック
+    let leveledUp = false; 
+    let nextXp = getNextLevelXp(userData.level);
+    while (userData.xp >= nextXp) { 
+        userData.xp -= nextXp; 
+        userData.level++; 
+        leveledUp = true; 
+        nextXp = getNextLevelXp(userData.level); 
+    }
+    // 本当にレベルアップした時だけ表示
+    if (leveledUp) {
+        document.getElementById('level-up-msg').style.display = 'block';
+    }
+
+    document.getElementById('result-score').innerText = gameState.score.toLocaleString();
+    document.getElementById('result-combo').innerText = gameState.maxCombo.toLocaleString();
+    document.getElementById('result-coin').innerText = earnedCoin.toLocaleString();
+    document.getElementById('result-xp').innerText = earnedXp.toLocaleString();
+    
+    if (earnedGold > 0) { document.getElementById('gold-coin-result').style.display = 'block'; document.getElementById('result-gold').innerText = earnedGold.toLocaleString(); }
+    else document.getElementById('gold-coin-result').style.display = 'none';
+    
+    if (earnedRaid > 0) { document.getElementById('raid-point-result').style.display = 'block'; document.getElementById('result-raid').innerText = earnedRaid.toLocaleString(); }
+    else document.getElementById('raid-point-result').style.display = 'none';
+
+    saveUserData();
+    showScreen('result-screen');
+}
+
+// ==========================================
+// ランキング機能
+// ==========================================
+function updateRankingData(score, combo) {
+    if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
+    const dateKey = getRankingDateKey();
+    const badge = userData.equippedBackground === 'rank_badge';
+    const n = userData.name || "";
+    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+    get(ref(db, `rankings/score/${dateKey}/${uid}`)).then(snap => {
+        const currentBest = snap.exists() ? snap.val().value : 0;
+        if (score > currentBest) set(ref(db, `rankings/score/${dateKey}/${uid}`), { name: userData.name, value: score, userId: userData.userId, isAdmin: isAdm, isBugHunter: userData.isBugHunter, hasBadge: badge });
+    });
+    get(ref(db, `rankings/combo/${dateKey}/${uid}`)).then(snap => {
+        const currentBest = snap.exists() ? snap.val().value : 0;
+        if (combo > currentBest) set(ref(db, `rankings/combo/${dateKey}/${uid}`), { name: userData.name, value: combo, userId: userData.userId, isAdmin: isAdm, isBugHunter: userData.isBugHunter, hasBadge: badge });
+    });
+}
+
+function incrementPlayCountRanking() {
+    if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
+    const dateKey = getRankingDateKey();
+    const badge = userData.equippedBackground === 'rank_badge';
+    const n = userData.name || "";
+    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+    get(ref(db, `rankings/playCount/${dateKey}/${uid}`)).then(snap => {
+        const currentCount = snap.exists() ? snap.val().value : 0;
+        set(ref(db, `rankings/playCount/${dateKey}/${uid}`), { name: userData.name, value: currentCount + 1, userId: userData.userId, isAdmin: isAdm, isBugHunter: userData.isBugHunter, hasBadge: badge });
+    });
+}
+
+function startRankingTimer() {
+    setInterval(() => {
+        const diff = getNextResetTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        document.getElementById('ranking-timer').innerText = `⏳ 次のリセットまで: ${formatTimeRemaining(diff)}`;
+    }, 1000);
+}
+
+async function fetchAndDisplayRanking(type) {
+    const listContainer = document.getElementById('ranking-list');
+    listContainer.innerHTML = '読み込み中...';
+    const dateKey = getRankingDateKey();
+    try {
+        const snap = await get(ref(db, `rankings/${type}/${dateKey}`));
+        if (!snap.exists()) { listContainer.innerHTML = '<div style="text-align:center; padding:20px;">まだデータがありません</div>'; return; }
+        
+        let data = []; 
+        snap.forEach(child => {
+            if (child.val()) data.push(child.val());
+        });
+        
+        data.sort((a, b) => b.value - a.value);
+        
+        listContainer.innerHTML = '';
+        const displayLimit = Math.min(data.length, 100);
+        for (let i = 0; i < displayLimit; i++) {
+            const item = data[i];
+            const div = document.createElement('div'); div.className = 'list-item';
+            let rankStr = i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i+1}位`;
+            let dName = formatUserName(item.name, item.userId, item.isAdmin, item.hasBadge, item.isBugHunter);
+            div.innerHTML = `<div class="rank-item-info"><span style="font-weight:bold; color:#00bcd4; display:inline-block; width:60px;">${rankStr}</span><span style="color:white;">${dName}</span></div><div style="font-size:24px; font-weight:bold; color:#ff9800;">${item.value.toLocaleString()}</div>`;
+            listContainer.appendChild(div);
+        }
+    } catch (e) { listContainer.innerHTML = '<div style="color:red;">エラーが発生しました</div>'; }
+}
+
+async function fetchAndDisplayRankRanking() {
+    const list = document.getElementById('rank-ranking-list');
+    list.innerHTML = '読み込み中...';
+    try {
+        const snap = await get(ref(db, `rankings/rankOverall`));
+        if (!snap.exists()) { list.innerHTML = '<div style="text-align:center; padding:20px;">まだデータがありません</div>'; return; }
+        let data = []; 
+        snap.forEach(c => {
+            if (c.val()) data.push(c.val());
+        });
+        
+        data.sort((a, b) => {
+            if (b.rankIndex !== a.rankIndex) return b.rankIndex - a.rankIndex;
+            return b.rankXp - a.rankXp;
+        });
+        
+        list.innerHTML = '';
+        const displayLimit = Math.min(data.length, 100);
+        for (let i = 0; i < displayLimit; i++) {
+            const item = data[i];
+            const div = document.createElement('div'); div.className = 'list-item';
+            let rankStr = i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i+1}位`;
+            let dName = formatUserName(item.name, item.userId, item.isAdmin, item.hasBadge, item.isBugHunter);
+            let rName = getRankName(item.rankIndex);
+            div.innerHTML = `<div class="rank-item-info"><span style="font-weight:bold; color:#fbc02d; display:inline-block; width:60px;">${rankStr}</span><span style="color:white;">${dName}</span></div><div style="font-size:20px; font-weight:bold; color:#fff;">Rank <span style="color:#fbc02d">${rName}</span> <span style="font-size:14px; color:#aaa;">(${item.rankXp} RXP)</span></div>`;
+            list.appendChild(div);
+        }
+    } catch (e) { list.innerHTML = '<div style="color:red;">エラーが発生しました</div>'; }
+}
+
+// ==========================================
+// ショップ・インベントリ関連
+// ==========================================
+function renderShopList(tab) {
+    const list = document.getElementById('shop-list'); list.innerHTML = '';
+    let dataObj = tab === 'skills' || tab === 'raid' ? skillData : (tab === 'items' ? itemData : passiveData);
+    for (const key in dataObj) {
+        const item = dataObj[key];
+        if (item.priceType === 'none') continue;
+        if (tab === 'skills' && key === 'auto_input_gamma') continue;
+        if (tab === 'items' && (key === 'coin_boost_alpha' || key === 'xp_boost_alpha' || key === 'gold_luck_boost_alpha' || key === 'rank_xp_boost_alpha' || key === 'coin_boost_omega_plus')) continue;
+        if (tab === 'raid' && item.priceType !== 'raid') continue;
+        if (tab !== 'raid' && item.priceType === 'raid') continue;
+        
+        const isOwned = (tab === 'skills' && userData.skills.includes(key)) || (tab === 'passive' && userData.passives.includes(key));
+        let priceStr = item.priceType === 'coin' ? `🪙${item.price.toLocaleString()}` : `🎯${item.price}`;
+        let btnHtml = isOwned ? `<button class="action-btn" disabled>所持</button>` : `<button class="action-btn" onclick="app.buyItem('${tab}', '${key}')">${priceStr}</button>`;
+        const div = document.createElement('div'); div.className = 'list-item';
+        div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+        list.appendChild(div);
+    }
+}
+
+function renderRankShopList() {
+    const list = document.getElementById('rank-shop-list-modal'); list.innerHTML = '';
+    const keys = ['rank_xp_boost_alpha'];
+    keys.forEach(key => {
+        const item = itemData[key];
+        let btnHtml = `<button class="action-btn" style="background: linear-gradient(145deg, #fbc02d, #f57f17); color: black;" onclick="app.buyItem('items', '${key}')">${item.price} RC</button>`;
+        const div = document.createElement('div'); div.className = 'list-item'; div.style.border = '1px solid #f57f17';
+        div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+        list.appendChild(div);
+    });
+}
+
+function renderRankRewardsList() {
+    const list = document.getElementById('rank-rewards-list-modal'); list.innerHTML = '';
+    rankRewardsData.forEach(reward => {
+        const isUnlocked = (userData.rankIndex || 0) >= reward.reqIdx;
+        const isClaimed = userData.rankRewardsClaimed.includes(reward.id);
+        
+        let btnHtml = `<button class="action-btn" disabled style="background:#444; color:#888;">未到達</button>`;
+        if (isClaimed) {
+            btnHtml = `<button class="action-btn" disabled>受取済</button>`;
+        } else if (isUnlocked) {
+            btnHtml = `<button class="action-btn" style="background: linear-gradient(145deg, #ff9800, #f57c00);" onclick="app.claimRankReward('${reward.id}')">受け取る</button>`;
+        }
+        
+        const div = document.createElement('div'); div.className = 'list-item';
+        div.innerHTML = `<div class="shop-item-info"><h3>【Rank ${reward.id}】${reward.name}</h3><p>${reward.desc}</p></div><div>${btnHtml}</div>`;
+        list.appendChild(div);
+    });
+}
+
+function renderInventoryList(tab) {
+    const list = document.getElementById('inventory-list'); list.innerHTML = '';
+    if (tab === 'skills') {
+        userData.skills.forEach(key => {
+            if (!skillData[key]) return;
+            const item = skillData[key]; const isEquipped = userData.equippedSkill === key;
+            const btnHtml = isEquipped ? `<button class="action-btn equipped" onclick="app.equipSkill('${key}')">装備中</button>` : `<button class="action-btn" onclick="app.equipSkill('${key}')">装備</button>`;
+            const div = document.createElement('div'); div.className = 'list-item';
+            div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+            list.appendChild(div);
+        });
+    } else if (tab === 'passive') {
+        userData.passives.forEach(key => {
+            if (!passiveData[key]) return;
+            const item = passiveData[key]; const isEquipped = userData.equippedPassive === key;
+            const btnHtml = isEquipped ? `<button class="action-btn equipped" onclick="app.equipPassive('${key}')">装備中</button>` : `<button class="action-btn" onclick="app.equipPassive('${key}')">装備</button>`;
+            const div = document.createElement('div'); div.className = 'list-item';
+            div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+            list.appendChild(div);
+        });
+    } else if (tab === 'items') {
+        for (const key in userData.items) {
+            if (userData.items[key] <= 0 || !itemData[key]) continue;
+            const item = itemData[key]; const count = userData.items[key];
+            const isActive = gameState.activeBoosts[key] && gameState.activeBoosts[key] > Date.now();
+            let btnHtml = isActive ? `<button class="action-btn" disabled>使用中</button>` : `<button class="action-btn use-btn" onclick="app.useItem('${key}')">使う (${count})</button>`;
+            const div = document.createElement('div'); div.className = 'list-item';
+            div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+            list.appendChild(div);
+        }
+    } else if (tab === 'backgrounds') {
+        userData.backgrounds = userData.backgrounds || [];
+        userData.backgrounds.forEach(key => {
+            if (key !== 'rank_badge') return; // 現在はこれのみ
+            const isEquipped = userData.equippedBackground === key;
+            const btnHtml = isEquipped ? `<button class="action-btn equipped" onclick="app.equipBackground('${key}')">装備中</button>` : `<button class="action-btn" onclick="app.equipBackground('${key}')">装備</button>`;
+            const div = document.createElement('div'); div.className = 'list-item';
+            div.innerHTML = `<div class="shop-item-info"><h3>ランクの証</h3><p>背景中央にランクZ3の証を表示し、名前にも専用マークが付きます。</p></div><div>${btnHtml}</div>`;
+            list.appendChild(div);
+        });
+    }
+}
+
+function startBoostStatusTimer() {
+    setInterval(() => {
+        const container = document.getElementById('boost-status-container'); container.innerHTML = ''; const now = Date.now();
+        for (const key in gameState.activeBoosts) {
+            const expireTime = gameState.activeBoosts[key];
+            if (expireTime > now) {
+                const item = itemData[key]; const diff = expireTime - now;
+                const m = Math.floor(diff / 60000); const s = Math.floor((diff % 60000) / 1000);
+                const el = document.createElement('div');
+                let icon = '🎁'; if (key.includes('coin')) icon = '🪙'; if (key.includes('gold')) icon = '🥇'; if (key.includes('xp')) icon = '✨';
+                let extraClass = ''; if (key.includes('mini')) extraClass = 'mini-coin'; if (key.includes('gold')) extraClass = 'gold'; if (key.includes('xp')) extraClass = 'xp';
+                el.className = `boost-indicator ${extraClass}`; el.innerHTML = `${icon} 効果名: ${item.name} | 残り時間: ${m}分${s}秒`;
+                container.appendChild(el);
+            } else {
+                if (itemData[key].effect) itemData[key].effect(false);
+                delete gameState.activeBoosts[key]; renderInventoryList('items');
+            }
+        }
+    }, 1000);
+}
+
+// ==========================================
+// グローバルAPI (window.app)
+// ==========================================
+window.app = {
+    showScreen, startGame,
+    openStoryMap: () => { renderStoryMap(); showScreen('story-map-screen'); },
+    openRaidMap: () => { renderRaidMap(); showScreen('raid-map-screen'); },
+    
+    openRankMatch: () => {
+        showScreen('rank-match-screen');
+        const rName = getRankName(userData.rankIndex || 0);
+        document.getElementById('current-rank-display').innerText = rName;
+        const rxp = userData.rankXp || 0; const percent = Math.min(100, (rxp / 1000) * 100);
+        document.getElementById('rank-xp-bar-fill-ui').style.width = `${percent}%`; document.getElementById('rank-xp-text-ui').innerText = `${rxp} / 1000 RXP`;
+    },
+    startRankMatch: () => { startGame('rank'); },
+    openRankShopModal: () => {
+        document.getElementById('rank-shop-rc-display').innerText = userData.rankCoin || 0;
+        renderRankShopList(); document.getElementById('rank-shop-modal').classList.add('active');
+    },
+    openRankRewardsModal: () => {
+        renderRankRewardsList(); document.getElementById('rank-rewards-modal').classList.add('active');
+    },
+    claimRankReward: (id) => {
+        const reward = rankRewardsData.find(r => r.id === id);
+        if (reward && (userData.rankIndex || 0) >= reward.reqIdx && !userData.rankRewardsClaimed.includes(id)) {
+            reward.claim(); userData.rankRewardsClaimed.push(id); saveUserData(); renderRankRewardsList();
+            alert(`報酬「${reward.name}」を受け取りました！`);
         }
     },
-
-    buyItem: (type) => {
-        if (userData.coins < 50) {
-            alert("コインが足りません！");
-            return;
-        }
-        userData.coins -= 50;
-        const duration = 5 * 60 * 1000; // 5分間
-        const now = Date.now();
-        
-        if (!userData.boosts) userData.boosts = { coinUntil: 0, expUntil: 0 };
-        
-        if (type === 'coin_boost') {
-            userData.boosts.coinUntil = Math.max(userData.boosts.coinUntil, now) + duration;
-            alert("コイン2倍ブーストを購入しました！(5分間有効)");
-        } else if (type === 'exp_boost') {
-            userData.boosts.expUntil = Math.max(userData.boosts.expUntil, now) + duration;
-            alert("経験値2倍ブーストを購入しました！(5分間有効)");
-        }
-        saveUserData();
+    openRankRanking: () => { showScreen('rank-ranking-screen'); fetchAndDisplayRankRanking(); },
+    
+    openRanking: () => {
+        showScreen('ranking-screen'); document.querySelectorAll('#ranking-screen .tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('#ranking-screen .tab').classList.add('active'); fetchAndDisplayRanking('score');
     },
-
-    loadRanking: async () => {
-        const list = document.getElementById('ranking-list');
-        list.innerHTML = 'ランキング読み込み中...';
+    switchRankingTab: (type) => { document.querySelectorAll('#ranking-screen .tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); fetchAndDisplayRanking(type); },
+    
+    openUsersModal: async () => {
+        document.getElementById('users-modal').classList.add('active');
+        app.switchUsersTab('online');
+    },
+    switchUsersTab: async (type) => {
+        document.getElementById('tab-online').classList.remove('active'); document.getElementById('tab-daily').classList.remove('active');
+        document.getElementById(`tab-${type}`).classList.add('active');
+        const list = document.getElementById('users-list'); list.innerHTML = '読み込み中...';
+        
         try {
-            const usersSnap = await get(ref(db, 'users'));
-            if (!usersSnap.exists()) {
-                list.innerHTML = 'データがありません。';
-                return;
-            }
-            
-            let arr = [];
-            usersSnap.forEach((child) => {
-                const u = child.val();
-                arr.push(u);
-            });
-            
-            // レベル順にソート
-            arr.sort((a, b) => b.level - a.level);
+            const refPath = type === 'online' ? 'onlineUsers' : `dailyUsers/${getRankingDateKey()}`;
+            const snap = await get(ref(db, refPath));
+            if (!snap.exists()) { list.innerHTML = '<div style="text-align:center;">データがありません</div>'; return; }
+            let users = []; snap.forEach(c => { users.push(c.val()); });
+            users.sort((a, b) => b.timestamp - a.timestamp);
             
             list.innerHTML = '';
-            // 最大100位までズラーっと表示する
-            const showLimit = Math.min(arr.length, 100);
-            for (let i = 0; i < showLimit; i++) {
-                const u = arr[i];
-                const div = document.createElement('div');
-                let rankClass = '';
-                if (i === 0) rankClass = 'rank-1';
-                else if (i === 1) rankClass = 'rank-2';
-                else if (i === 2) rankClass = 'rank-3';
-                
-                div.className = `list-item ${rankClass}`;
-                div.innerHTML = `
-                    <span>第 ${i + 1} 位: ${escapeHtml(u.name)} (No.${u.id})</span>
-                    <span style="color:#00bcd4;">Lv.${u.level} [${calculateRankTitle(u.level)}]</span>
-                `;
+            users.forEach(u => {
+                const div = document.createElement('div'); div.className = 'list-item';
+                let dName = formatUserName(u.name, u.userId, u.isAdmin, u.hasBadge, u.isBugHunter);
+                let rName = getRankName(u.rankIndex || 0);
+                div.innerHTML = `<div style="font-size:20px; color:white;">${dName} <span style="font-size:14px; color:#fbc02d;">[Rank ${rName}]</span></div>`;
                 list.appendChild(div);
-            }
-        } catch(e) {
-            list.innerHTML = 'ランキングの取得に失敗しました。';
-        }
+            });
+        } catch(e) { list.innerHTML = '<div style="color:red;">エラー</div>'; }
     },
 
-    // ゆちんさんのアンケート機能（完全復活表示・送信システム）
-    submitSurvey: async () => {
-        // サーバーステータス（surveyDisabledフラグ）の事前検証確認
-        if (userData.surveyDisabled === true) {
+    openShop: () => { showScreen('shop-screen'); document.querySelectorAll('#shop-screen .tab').forEach(t => t.classList.remove('active')); document.querySelector('#shop-screen .tab').classList.add('active'); renderShopList('skills'); },
+    switchShopTab: (tab) => { document.querySelectorAll('#shop-screen .tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); renderShopList(tab); },
+    buyItem: (type, key) => {
+        let item = type === 'skills' || type === 'raid' ? skillData[key] : (type === 'items' ? itemData[key] : passiveData[key]);
+        if (item.priceType === 'coin' && userData.coin >= item.price) {
+            userData.coin -= item.price;
+            if (type === 'items') userData.items[key] = (userData.items[key] || 0) + 1; else if (type === 'passive') userData.passives.push(key); else userData.skills.push(key);
+            saveUserData(); renderShopList(type); if (type === 'raid') renderShopList('raid');
+        } else if (item.priceType === 'raid' && userData.raidPoint >= item.price) {
+            userData.raidPoint -= item.price;
+            if (type === 'items') userData.items[key] = (userData.items[key] || 0) + 1; else if (type === 'passive') userData.passives.push(key); else userData.skills.push(key);
+            saveUserData(); renderShopList(type); if (type === 'raid') renderShopList('raid');
+        } else if (item.priceType === 'rankCoin' && userData.rankCoin >= item.price) {
+            userData.rankCoin -= item.price;
+            if (type === 'items') userData.items[key] = (userData.items[key] || 0) + 1;
+            saveUserData(); renderRankShopList(); document.getElementById('rank-shop-rc-display').innerText = userData.rankCoin || 0;
+            alert('購入しました！「持ち物」から装備・使用してください。');
+        } else { alert('ポイント・コインが足りません'); }
+    },
+    
+    openInventory: () => { showScreen('inventory-screen'); document.querySelectorAll('#inventory-screen .tab').forEach(t => t.classList.remove('active')); document.querySelector('#inventory-screen .tab').classList.add('active'); renderInventoryList('skills'); },
+    switchInventoryTab: (tab) => { document.querySelectorAll('#inventory-screen .tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); renderInventoryList(tab); },
+    equipSkill: (key) => { userData.equippedSkill = userData.equippedSkill === key ? null : key; saveUserData(); renderInventoryList('skills'); },
+    equipPassive: (key) => { userData.equippedPassive = userData.equippedPassive === key ? null : key; saveUserData(); renderInventoryList('passive'); },
+    equipBackground: (key) => { 
+        userData.equippedBackground = userData.equippedBackground === key ? null : key; 
+        saveUserData(); applySettings(); updateOnlinePresence(); renderInventoryList('backgrounds'); 
+    },
+    useItem: (key) => {
+        if (userData.items[key] > 0) {
+            userData.items[key]--; gameState.activeBoosts[key] = Date.now() + (itemData[key].duration * 1000);
+            if (itemData[key].effect) itemData[key].effect(true);
+            saveUserData(); renderInventoryList('items');
+        }
+    },
+    
+    endResult: () => { showScreen('menu-screen'); },
+    acceptAgreement: () => { localStorage.setItem('agreementAccepted', 'true'); document.getElementById('agreement-modal').classList.remove('active'); },
+    showAgreement: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('agreement-modal').classList.add('active'); },
+    
+    // 警告UIを閉じる処理
+    closeNoticeModal: (hideType) => {
+        let expireTime = 0;
+        if (hideType === '12h') {
+            expireTime = Date.now() + (12 * 60 * 60 * 1000); // 12時間後
+        } else if (hideType === '3d') {
+            expireTime = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3日後
+        }
+        if (expireTime > 0) {
+            localStorage.setItem('hideNoticeUntil', expireTime.toString());
+        }
+        document.getElementById('notice-modal').classList.remove('active');
+    },
+
+    // データベース重複確認付きの名前保存
+    saveName: async () => { 
+        const input = document.getElementById('name-input'); 
+        const newName = input.value.trim().substring(0, 20);
+        if (newName === '') return;
+        if (newName === userData.name) {
+            alert('名前を保存しました！');
+            return;
+        }
+
+        if (newName !== '冒険者') {
+            try {
+                const nameRef = ref(db, `usedNames/${newName}`);
+                const snap = await get(nameRef);
+                if (snap.exists() && snap.val() !== uid) {
+                    alert('この名前は既に他のプレイヤーに使われています。別の名前にしてください。');
+                    return;
+                }
+                // 前の名前が冒険者以外なら解放
+                if (userData.name !== '冒険者') {
+                    await set(ref(db, `usedNames/${userData.name}`), null);
+                }
+                // 新しい名前を登録
+                await set(ref(db, `usedNames/${newName}`), uid);
+            } catch (e) {
+                console.error(e);
+                alert('名前の確認中にエラーが発生しました。');
+                return;
+            }
+        } else {
+            // 新しい名前が冒険者の場合、元の名前を解放
+            if (userData.name !== '冒険者') {
+                await set(ref(db, `usedNames/${userData.name}`), null);
+            }
+        }
+
+        userData.name = newName; 
+        
+        if (userData.name && (userData.name.includes('ビルダーマン') || userData.name.includes('管理者）らも') || userData.name.includes('管理者)らも'))) {
+            userData.isAdmin = true;
+        } else {
+            userData.isAdmin = false;
+        }
+
+        saveUserData(); 
+        updateOnlinePresence(); 
+        alert('名前を保存しました！'); 
+    },
+    
+    toggleFurigana: (val) => { userData.settings.showFurigana = val; saveUserData(); },
+    changeHomeScale: (val) => { userData.settings.homeScale = parseInt(val); document.getElementById('home-scale-val').innerText = `${val}%`; document.getElementById('menu-content-wrapper').style.transform = `scale(${val / 50})`; saveUserData(); },
+    resetHomeScale: () => { document.getElementById('home-scale-slider').value = 50; app.changeHomeScale(50); },
+    closeSettings: () => { document.getElementById('settings-modal').classList.remove('active'); },
+    resetDataConfirm: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('reset-confirm-modal').classList.add('active'); },
+    resetDataExecute: () => { userData = { ...defaultUserData, settings: { homeScale: 50, showFurigana: true } }; saveUserData(); location.reload(); },
+
+    // アンケート関連
+    closeSurveyNotification: () => {
+        document.getElementById('survey-notification').style.display = 'none';
+        localStorage.setItem('surveyNotifClosed_yuchin', 'true');
+    },
+    openSurveyModal: () => {
+        if (userData.surveyDisabled) {
             alert('あなたは管理者からアンケート機能を停止させられました');
             return;
         }
-
-        const txt = document.getElementById('survey-text-content').value.trim();
-        if (!txt) {
-            alert('アンケート内容を入力してください。');
+        document.getElementById('survey-modal').classList.add('active');
+    },
+    submitSurvey: async () => {
+        const input = document.getElementById('survey-input').value.trim();
+        if (input === '') return alert('内容を入力してください。');
+        
+        const dateKey = getRankingDateKey(); // 日付管理用
+        let surveyData = JSON.parse(localStorage.getItem('surveyCount') || '{}');
+        if (surveyData.date !== dateKey) {
+            surveyData = { date: dateKey, count: 0 };
+        }
+        
+        if (surveyData.count >= 2) {
+            return alert('1日の送信上限（2回）に達しました。また明日お願いします！');
+        }
+        
+        try {
+            // surveysノードへ追加
+            const surveyRef = ref(db, `surveys/general/${Date.now()}_${uid}`);
+            await set(surveyRef, {
+                uid: uid,
+                name: userData.name,
+                content: input,
+                timestamp: Date.now()
+            });
+            
+            surveyData.count++;
+            localStorage.setItem('surveyCount', JSON.stringify(surveyData));
+            document.getElementById('survey-input').value = '';
+            alert('アンケートを送信しました！ありがとうございます！');
+        } catch (e) {
+            console.error(e);
+            alert('送信に失敗しました。');
+        }
+    },
+    voteYuchin: async (choice) => {
+        const now = new Date();
+        const thresholdDate = new Date(2026, 4, 23); // 2026年5月23日
+        if (now >= thresholdDate) {
+            alert("このアンケートの投票受付期間は終了しました。");
             return;
         }
 
         try {
-            const surveyRef = ref(db, 'surveys');
-            await push(surveyRef, {
-                senderUid: uid,
-                senderId: userData.id,
-                senderName: userData.name,
-                content: txt,
-                timestamp: serverTimestamp()
-            });
-
-            document.getElementById('survey-text-content').value = '';
-            alert('ゆちんさんのアンケートを送信しました！ご協力ありがとうございます！');
-            app.loadSurveys(); // 送信後にリストを再ロード
-        } catch(e) {
-            alert('送信エラーが発生しました。');
+            await set(ref(db, `surveys/yuchin_poll/${uid}`), choice);
+            alert("ゆちんさんへの投票を保存しました。");
+        } catch (e) {
+            alert("エラーが発生しました。");
         }
     },
-
-    loadSurveys: async () => {
-        const list = document.getElementById('survey-history-list');
-        list.innerHTML = '<div style="color:#aaa; font-weight:bold;">履歴を取得中...</div>';
+    viewSurveyResults: async () => {
+        const n = userData.name || "";
+        const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+        if (!isAdm) {
+            document.getElementById('survey-admin-msg').style.display = 'block';
+            setTimeout(() => { document.getElementById('survey-admin-msg').style.display = 'none'; }, 3000);
+            return;
+        }
+        
+        document.getElementById('survey-modal').classList.remove('active');
+        document.getElementById('survey-results-modal').classList.add('active');
+        const list = document.getElementById('survey-results-list');
+        list.innerHTML = '読み込み中...';
+        
         try {
-            const surveySnap = await get(ref(db, 'surveys'));
-            list.innerHTML = '';
-            if (!surveySnap.exists()) {
-                list.innerHTML = '<div style="color:#666; font-weight:bold;">まだアンケート回答はありません。</div>';
+            const snap = await get(ref(db, 'surveys/general'));
+            if (!snap.exists()) {
+                list.innerHTML = '<div style="text-align:center;">まだアンケートがありません。</div>';
                 return;
             }
-
-            let arr = [];
-            surveySnap.forEach((child) => {
-                arr.push(child.val());
-            });
-
-            // 新しい順に並び替え表示
-            arr.reverse();
-
-            arr.forEach((r) => {
-                const d = new Date(r.timestamp || Date.now());
+            
+            let surveys = [];
+            snap.forEach(c => { surveys.push(c.val()); });
+            
+            // 新しいものが上
+            surveys.sort((a, b) => b.timestamp - a.timestamp);
+            
+            list.innerHTML = '';
+            surveys.forEach(s => {
+                const d = new Date(s.timestamp + (new Date().getTimezoneOffset() + 540) * 60000);
                 const dateStr = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
                 
                 const div = document.createElement('div');
@@ -1366,70 +2436,48 @@ window.app = {
                 div.style.alignItems = 'flex-start';
                 div.style.gap = '5px';
                 
+                let dName = formatUserName(s.name, null, false, false, false);
                 div.innerHTML = `
-                    <div style="font-size: 12px; color: #aaa; font-weight:bold;">${dateStr} - ${escapeHtml(r.senderName)} (No.${r.senderId})</div>
-                    <div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all; font-weight:bold;">${escapeHtml(r.content)}</div>
+                    <div style="font-size: 12px; color: #aaa;">${dateStr}</div>
+                    <div style="font-size: 18px; font-weight: bold; color: #ffeb3b;">${dName}</div>
+                    <div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${escapeHtml(s.content)}</div>
                 `;
                 list.appendChild(div);
             });
             
         } catch (e) {
             console.error(e);
-            list.innerHTML = '<div style="color:red; font-weight:bold;">エラーが発生しました。</div>';
+            list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>';
         }
     },
-
-    saveName: () => { 
-        const input = document.getElementById('name-input'); 
-        if (input.value.trim() !== '') { 
-            userData.name = input.value.trim().substring(0, 20); 
-            saveUserData(); 
-            updateOnlinePresence(); 
-            alert('名前を保存しました！'); 
-        } 
+    
+    // デバッグ・BAN関連機能
+    openDebugModal: () => {
+        const n = userData.name || "";
+        const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+        if (!isAdm) return;
+        document.getElementById('debug-modal').classList.add('active');
     },
-    toggleFurigana: (val) => { 
-        userData.settings.showFurigana = val; 
-        saveUserData(); 
-    },
-    changeHomeScale: (val) => { 
-        userData.settings.homeScale = parseInt(val); 
-        document.getElementById('home-scale-val').innerText = `${val}%`; 
-        document.getElementById('menu-content-wrapper').style.transform = `scale(${val / 50})`; 
-        saveUserData(); 
-    },
-    resetHomeScale: () => { 
-        document.getElementById('home-scale-slider').value = 50; 
-        app.changeHomeScale(50); 
-    },
-    resetDataConfirm: () => { 
-        document.getElementById('settings-modal').classList.remove('active'); 
-        document.getElementById('reset-confirm-modal').classList.add('active'); 
-    },
-    resetDataExecute: () => { 
-        userData = { ...defaultUserData, settings: { homeScale: 50, showFurigana: true } }; 
-        saveUserData(); 
-        location.reload(); 
-    },
-
-    // 管理者デバッグ実行
-    executePunishment: async () => {
+    executeBan: async () => {
         const targetId = document.getElementById('debug-target-id').value;
-        const type = document.getElementById('debug-punish-type').value;
-        const msg = document.getElementById('debug-warn-message').value;
-        
-        if (!targetId) return alert('対象の数値IDを入力してください');
+        const type = document.getElementById('debug-ban-type').value;
+        if (!targetId) return alert('IDを入力してください');
         
         try {
             const mappingSnap = await get(ref(db, `idMapping/${targetId}`));
-            if (!mappingSnap.exists()) return alert('該当するユーザーが見つかりません');
+            if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
             const targetUid = mappingSnap.val();
             
             let pData = null;
+            const now = Date.now();
             if (type === 'warning') {
-                pData = { type: 'warning', message: msg, read: false };
-            } else if (type === 'ban_temp') {
-                pData = { type: 'ban', until: Date.now() + (24 * 60 * 60 * 1000) };
+                pData = { type: 'warning', timestamp: now, read: false };
+            } else if (type === 'ban_10m') {
+                pData = { type: 'ban', until: now + 10 * 60 * 1000 };
+            } else if (type === 'ban_1h') {
+                pData = { type: 'ban', until: now + 60 * 60 * 1000 };
+            } else if (type === 'ban_1d') {
+                pData = { type: 'ban', until: now + 24 * 60 * 60 * 1000 };
             } else if (type === 'ban_perm') {
                 pData = { type: 'ban', until: -1 };
             } else if (type === 'unban') {
@@ -1437,7 +2485,7 @@ window.app = {
             }
             
             await set(ref(db, `users/${targetUid}/punishment`), pData);
-            alert('処罰対象への処理が正常に完了しました。');
+            alert('処理が完了しました。');
         } catch(e) {
             alert('エラーが発生しました');
         }
@@ -1450,7 +2498,7 @@ window.app = {
             if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
             const targetUid = mappingSnap.val();
             await set(ref(db, `users/${targetUid}/isAdmin`), flag);
-            alert(`管理者権限を ${flag ? '付与' : '剥奪'} しました。`);
+            alert(`管理者権限を${flag ? '付与' : '剥奪'}しました。`);
         } catch(e) {
             alert('エラーが発生しました。');
         }
@@ -1463,9 +2511,100 @@ window.app = {
             if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
             const targetUid = mappingSnap.val();
             await set(ref(db, `users/${targetUid}/surveyDisabled`), isDisabled);
-            alert(`アンケート機能を ${isDisabled ? '停止' : '許可'} しました。`);
+            alert(`アンケート機能を${isDisabled ? '停止' : '許可'}しました。`);
         } catch(e) {
             alert('エラーが発生しました。');
+        }
+    },
+    setBugHunter: async (flag) => {
+        const targetId = document.getElementById('debug-target-id').value;
+        if (!targetId) return alert('IDを入力してください');
+        try {
+            const mappingSnap = await get(ref(db, `idMapping/${targetId}`));
+            if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
+            const targetUid = mappingSnap.val();
+            await set(ref(db, `users/${targetUid}/isBugHunter`), flag);
+            alert(`バグ発見体を${flag ? '付与' : '剥奪'}しました。`);
+        } catch(e) {
+            alert('エラーが発生しました。');
+        }
+    },
+    bhSendWarning: async () => {
+        const targetId = document.getElementById('bh-warn-target').value;
+        if (!targetId) return alert('IDを入力してください');
+        try {
+            const mappingSnap = await get(ref(db, `idMapping/${targetId}`));
+            if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
+            const targetUid = mappingSnap.val();
+            
+            const pData = { type: 'warn', timestamp: Date.now(), read: false };
+            await set(ref(db, `users/${targetUid}/punishment`), pData);
+            alert('警告を送信しました。');
+        } catch(e) {
+            alert('エラーが発生しました。');
+        }
+    },
+    bhSubmitReport: async () => {
+        const content = document.getElementById('bh-report-text').value.trim();
+        if (!content) return alert('内容を入力してください');
+        try {
+            const newRef = push(ref(db, 'bugReports'));
+            await set(newRef, {
+                senderId: userData.userId,
+                senderName: userData.name,
+                content: content,
+                timestamp: Date.now()
+            });
+            document.getElementById('bh-report-text').value = '';
+            alert('バグを報告しました。');
+        } catch(e) {
+            alert('エラーが発生しました。');
+        }
+    },
+    viewBugReports: async () => {
+        const n = userData.name || "";
+        const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+        if (!isAdm) return;
+
+        document.getElementById('debug-modal').classList.remove('active');
+        document.getElementById('bugreports-modal').classList.add('active');
+        const list = document.getElementById('bugreports-list');
+        list.innerHTML = '読み込み中...';
+        
+        try {
+            const snap = await get(ref(db, 'bugReports'));
+            if (!snap.exists()) {
+                list.innerHTML = '<div style="text-align:center;">バグ報告はありません。</div>';
+                return;
+            }
+            
+            let reports = [];
+            snap.forEach(c => { reports.push(c.val()); });
+            
+            // 新しいものが上
+            reports.sort((a, b) => b.timestamp - a.timestamp);
+            
+            list.innerHTML = '';
+            reports.forEach(r => {
+                const d = new Date(r.timestamp + (new Date().getTimezoneOffset() + 540) * 60000);
+                const dateStr = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+                
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.style.flexDirection = 'column';
+                div.style.alignItems = 'flex-start';
+                div.style.gap = '5px';
+                
+                div.innerHTML = `
+                    <div style="font-size: 12px; color: #aaa;">${dateStr} - ${escapeHtml(r.senderName)} (No.${r.senderId})</div>
+                    <div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${escapeHtml(r.content)}</div>
+                `;
+                list.appendChild(div);
+            });
+            
+        } catch (e) {
+            console.error(e);
+            list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>';
         }
     },
     closeWarning: async () => {
@@ -1474,45 +2613,8 @@ window.app = {
     }
 };
 
-// ボタン等イベントリスナー割り当て初期化
-document.getElementById('menu-play-btn').addEventListener('click', () => app.openModal('mode-modal'));
-document.getElementById('menu-shop-btn').addEventListener('click', () => app.openModal('shop-modal'));
-document.getElementById('menu-ranking-btn').addEventListener('click', () => app.openModal('ranking-modal'));
-document.getElementById('survey-btn').addEventListener('click', () => app.openModal('survey-modal'));
-
-document.getElementById('settings-btn').addEventListener('click', () => { 
-    document.getElementById('name-input').value = userData.name; 
-    document.getElementById('settings-modal').classList.add('active'); 
-});
-document.getElementById('greek-info-btn').addEventListener('click', () => { 
-    document.getElementById('greek-info-modal').classList.add('active'); 
-});
-document.getElementById('debug-btn').addEventListener('click', () => {
-    document.getElementById('debug-modal').classList.add('active');
-});
-
-// リザルト画面から戻る際の初期化
-const returnToMenuHandler = () => {
-    document.getElementById('result-screen').classList.remove('active');
-    document.getElementById('story-result-screen').classList.remove('active');
-    document.getElementById('main-menu').classList.add('active');
-};
-document.getElementById('res-back-btn').addEventListener('click', returnToMenuHandler);
-document.getElementById('story-res-back-btn').addEventListener('click', returnToMenuHandler);
-
-// デバッグメニュー処罰セレクト要素連動
-document.getElementById('debug-punish-type').addEventListener('change', (e) => {
-    const area = document.getElementById('debug-warn-msg-area');
-    if (e.target.value === 'warning') {
-        area.style.display = 'flex';
-    } else {
-        area.style.display = 'none';
-    }
-});
-
-// Firebase起動
-syncWithFirebase();
-
+document.getElementById('settings-btn').addEventListener('click', () => { document.getElementById('name-input').value = userData.name; document.getElementById('settings-modal').classList.add('active'); });
+document.getElementById('greek-info-btn').addEventListener('click', () => { document.getElementById('greek-info-modal').classList.add('active'); });
 </script>
 </body>
 </html>
