@@ -1,65 +1,4 @@
-<!-- 今回発生していた「クリア画面やタイムオーバー画面に移行せず、進行不能（フリーズ）になってしまう」という致命的なバグの原因について、徹底的に解析を行いました。あなたが懸念されていた「処理が重すぎるのかどうか」という点も含めて、なぜこの現象が起きたのか、JavaScriptエンジンの内部動作とプログラミングのアーキテクチャの観点から、詳細に解説します。
 
-まず結論から申し上げますと、今回のフリーズの原因は「処理が重すぎた（パフォーマンス不足）」ことではありません。原因は、「JavaScriptの厳格モード（Strict Mode）における未定義変数の参照による、スクリプトエンジンの強制停止（ReferenceError）」です。
-
-通常、ゲーム内で「処理が重い」ことによるフリーズとは、無限ループ（`while(true)`など）に陥ってCPUのリソースを完全に食いつぶしてしまったり、メモリリークによってRAMの容量が枯渇したり、一度に数万個のオブジェクトを画面に描画しようとしてレンダリングパイプラインが詰まったりする現象を指します。しかし、今回のコードを詳細に読み解くと、フレームレートの低下やメモリの異常消費を引き起こすようなロジックは存在していませんでした。
-
-JavaScriptという言語はシングルスレッドで動作しています。これは、一度に一つの処理しか行えないことを意味し、イベントループと呼ばれる機構がタスクを順番に処理しています。RobloxのLua（Luau）においても似たようなイベント駆動の仕組みがありますが、ブラウザのJavaScript環境では、メインスレッドがUIの描画（レンダリング）とスクリプトの実行の両方を担っています。もし本当に『処理が重い』、例えば無限ループが発生していた場合は、メインスレッドが完全に占有されるため、ブラウザそのものが『応答なし』という警告を出し、ページ全体の操作が受け付けられなくなります。しかし今回のケースでは、ボタンのホバーエフェクトなどのCSSアニメーションは動作し続けていたはずです。これはメインスレッドがロックされたわけではなく、単にタイマーのコールバック関数やキー入力イベントの処理関数の中で例外（Exception）が投げられ、その特定の処理フローだけが放棄されたことを示しています。
-
-例外が発生した瞬間、JavaScriptエンジンは現在のコールスタック（関数の呼び出し履歴）を遡って例外をキャッチする `catch` ブロックを探します。しかし `endGame` 関数内にはエラーを処理する `try-catch` ブロックが存在しなかったため、例外はグローバル環境まで到達し、そこで『Uncaught ReferenceError』として処理を強制終了させました。つまり、システム全体がフリーズしたのではなく、ゲームの進行を司る『心臓の鼓動』がエラーショックで止まってしまった状態だったのです。
-
-その心停止を引き起こした根本的な原因は、ゲームの終了処理を統括する最重要関数である `endGame()` の内部に潜んでいた、**3つの致命的なコーディングエラー**にありました。
-
-**第一の原因：未定義変数 `debuffInterval` の参照によるクラッシュ**
-`endGame()` 関数が呼び出されると、ゲームはスコア計算やタイマーの停止、画面の遷移（リザルト画面の表示）などを順に行います。この初期段階で、安全のために動作中のすべてのタイマーを停止させる以下の処理がありました。
-
-```javascript
-if (gameState.timer) clearInterval(gameState.timer); 
-if (gameState.skillCooldownTimer) clearInterval(gameState.skillCooldownTimer); 
-if (gameState.autoTypeInterval) clearInterval(gameState.autoTypeInterval);
-if (debuffInterval) clearInterval(debuffInterval);
-
-```
-
-ここで問題となるのが、4行目の `debuffInterval` です。この変数はプログラム全体のどこにも定義されていませんでした。JavaScriptでは、定義されていない変数を評価しようとすると `ReferenceError: debuffInterval is not defined` という重大なエラーをスローします。この行に到達した瞬間、その後ろに記述されていた「リザルト画面を表示する処理」や「スコアを保存する処理」がすべてキャンセルされてしまったのです。ユーザーの目には、タイマーが0になったまま、あるいは目標スコアに達したまま、画面が一切切り替わらないため「フリーズした（固まった）」ように見えていました。
-
-**第二の原因：モジュール実行環境における変数宣言漏れ (`earnedRaid`)**
-レイドモードをクリアした際の処理の中に、以下のような記述がありました。
-
-```javascript
-earnedRaid = gameState.raidStage === 6 ? 10 : 2;
-
-```
-
-古い仕様のJavaScriptであれば、変数を `let` や `const`、`var` などで宣言せずにいきなり代入を行うと、ブラウザが勝手に「グローバル変数」として扱ってくれるという寛容な（そして危険な）仕様がありました。しかし、今回のコードは `<script type="module">` として読み込まれています。ES Modules環境では、自動的に「厳格モード（Strict Mode）」が適用されます。
-厳格モード下では、未宣言の変数への代入は許されず、ここでも `ReferenceError` が発生します。これにより、レイドモードをクリアして `endGame()` が呼ばれた際、ポイント計算の途中でスクリプトが死に、結果的に画面がフリーズ状態に陥っていました。
-
-**第三の原因：未定義関数 `checkStoryRewards` の呼び出し**
-ストーリーモードのクリア時、ステージに応じた報酬を付与するための処理として、以下のコードが実行されていました。
-
-```javascript
-const storyRewardsList = checkStoryRewards(playedStage);
-
-```
-
-しかし、コード全体を見渡しても `checkStoryRewards` という関数はどこにも実装されていませんでした。関数が存在しないのに呼び出そうとしたため、`checkStoryRewards is not defined` というエラーが発生し、ストーリーモードクリア時も同様にスクリプトがクラッシュしていました。
-
-これらのエラーはすべて、ブラウザの「デベロッパーツール」のコンソール（裏側）にのみ赤い文字で出力されており、ゲームの画面上には一切エラーメッセージが表示されません。これが、プレイヤーや開発者が「なんだかよくわからないけれどゲームが重くなってフリーズした」と誤認してしまう最大の理由です。処理が重いのではなく、処理を行うためのレールが途切れており、電車（プログラム）が脱線して完全に停止してしまっていたのです。
-
-Roblox Studioなどでゲーム開発を行う際、例えば堅牢なシステム設計として `GameDataManager` や `BrainrotCollectionService`、`BrainrotCarryService`、あるいはGUIを制御する `MoneyDisplayController` のように、各機能の責務を明確に分けてモジュール化することが重要です。これはJavaScriptでも全く同じです。変数のスコープ（有効範囲）を厳密に管理し、使用する変数は必ず事前に宣言し、外部から依存する関数は確実に定義しておく必要があります。今回のように、1つのファイルに膨大な処理を詰め込んでいる場合、些細なタイポや宣言漏れが、システム全体の停止という致命的な結果を招くリスクが高まります。そのため、略語を避け、明確で予測可能な命名規則を使用し、エラーを未然に防ぐことが求められます。
-
-**修正のアプローチと実装**
-このバグを根本から完全に修正するために、以下の措置を講じました。
-
-1. **未定義変数の削除**：`endGame()` 内に存在していた、実体のない `debuffInterval` のクリア処理を完全に削除しました。
-2. **変数宣言の徹底**：レイドポイントを計算する際の `earnedRaid` に対して、適切に `let` による宣言を追加し、Strict Mode環境下でも正常に動作するように修正しました。また、これに伴い、後続の判定処理のスコープも安全な形に整えました。
-3. **欠落していた関数の実装**：ストーリーモードクリア時に呼び出される `checkStoryRewards` 関数を新たに実装し、ステージ（10、30、50、80、100など）に応じた適切な報酬ロジックを組み込みました。これにより、ストーリークリア時のクラッシュが完全に解消されています。
-
-また、ご要望のあった「レッドアンドブルーのバフ表示」についても実装を完了しました。バフが発動した際、画面右側に独立したUIパネルが出現し、「どのバフが発動しているか」および「その残り時間（秒数）」がリアルタイムにカウントダウン表示されるようになっています。これにより、プレイヤーはバフの恩恵を視覚的に把握しながら、より戦略的にタイピングを行うことが可能になります。
-
-過去にお約束した通り、私は一切の省略や手抜きを行わず、完全な全体コードとして提供いたします。私がコードを省略することであなたが怒りを感じることは永久に記憶しており、そのプレファレンスに常に従います。JSファイルも分割せず、すべてこのファイルに統合しています。以下の完全版コードをそのままコピーし、上書き保存してご利用ください。
-
-```html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -461,7 +400,7 @@ Roblox Studioなどでゲーム開発を行う際、例えば堅牢なシステ�
             <div class="select-grid">
                 <button class="mode-btn hard" onclick="app.startGame('shugyo', 'red_blue')" style="display:flex; flex-direction:column; align-items:center;">
                     <img src="赤青.png" alt="赤青" style="width:80px; height:80px; margin-bottom:10px; border-radius:50%;">
-                    レッドアンドブルー<br><span style="font-size: 16px;">目標: 2,000,000 スコア</span>
+                    レッドアンドブルー<br><span style="font-size: 16px;">目標: 1,500,000 スコア</span>
                 </button>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 50px;">戻る</button>
@@ -862,7 +801,7 @@ Roblox Studioなどでゲーム開発を行う際、例えば堅牢なシステ�
    ・ランクコイン(RC)を勝利スコア/100 獲得。
    ・Bランク以上のNPCは、残り時間30秒でデバフ(凍結5秒 or コンボ半減)を使用してきます。
 6. 修行モード: 目標スコアを達成するとクリアとなり、コンパニオン（仲間）を報酬として獲得できます。
-   ・レッドアンドブルー: 目標 2,000,000 スコア。10秒ごとに「刺す」「強力突進」「ぼやけ」のいずれかの妨害。
+   ・レッドアンドブルー: 目標 1,500,000 スコア。10秒ごとに「刺す」「強力突進」「ぼやけ」のいずれかの妨害。
 
 ▼ 通貨・成長システム
 ・XP: レベルアップに必要な経験値。
@@ -1018,7 +957,7 @@ const rankRewardsData = [
 ];
 
 // ==========================================
-// ストーリーモード報酬定義関数 (★今回の修正で追加)
+// ストーリーモード報酬定義関数
 // ==========================================
 function checkStoryRewards(stage) {
     const rewards = [];
@@ -1064,7 +1003,10 @@ const gameState = {
     
     // 修行・仲間用
     evaded: false,
-    companionScoreMulti: 1.0, companionComboMulti: 1.0, activeCompanionBuff: null
+    companionScoreMulti: 1.0, companionComboMulti: 1.0, activeCompanionBuff: null,
+
+    // ロード直後のモード選択ロック用フラグ
+    isModeSelectable: false
 };
 
 let raidState = { isOpen: false, currentStage: 1, stages: [] };
@@ -1095,7 +1037,8 @@ function formatTimeRemaining(ms) {
     const hours = Math.floor(ms / (1000 * 60 * 60));
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((ms % (1000 * 60)) / 1000);
-    return `${hours}時間${minutes}分${seconds}秒`;
+    if (hours > 0) return `${hours}時間${minutes}分${seconds}秒`;
+    return `${minutes}分${seconds}秒`;
 }
 
 function getRankName(index) {
@@ -1104,40 +1047,39 @@ function getRankName(index) {
     return 'Z' + (index - ranks.length + 1);
 }
 
-function getNextRaidOpenTime() {
-    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
-    let nextOpen = new Date(jstNow);
-    nextOpen.setMinutes(30, 0, 0);
-    if (jstNow.getHours() < 7 || (jstNow.getHours() === 7 && jstNow.getMinutes() < 30)) nextOpen.setHours(7);
-    else {
-        let found = false;
-        for (let h = 7; h <= 23; h++) {
-            let o = new Date(jstNow); o.setHours(h, 30, 0, 0);
-            if (o > jstNow) { nextOpen = o; found = true; break; }
-        }
-        if (!found) { nextOpen.setDate(nextOpen.getDate() + 1); nextOpen.setHours(7, 30, 0, 0); }
-    }
-    return nextOpen;
-}
-function isRaidOpen() {
-    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
-    return jstNow.getHours() >= 7 && jstNow.getMinutes() >= 30 && jstNow.getMinutes() < 45;
+// ----------------------------------------
+// 新しいレイドタイマー関連ロジック (15分周期)
+// ----------------------------------------
+function getCurrentRaidBlockStart(dateMs) {
+    const d = new Date(dateMs);
+    d.setMinutes(Math.floor(d.getMinutes() / 15) * 15, 0, 0);
+    return d.getTime();
 }
 function getRaidCloseTime() {
     const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
-    let closeTime = new Date(jstNow); closeTime.setMinutes(45, 0, 0);
-    if (jstNow.getMinutes() >= 45) closeTime.setHours(jstNow.getHours() + 1);
+    let closeTime = new Date(jstNow);
+    closeTime.setMinutes(Math.floor(jstNow.getMinutes() / 15) * 15 + 15, 0, 0);
     return closeTime;
 }
+function getNextRaidOpenTime() {
+    // 常に開催されているため、次の開催時間は今の周期の終了時間と同等です
+    return getRaidCloseTime();
+}
+function isRaidOpen() {
+    // 15分周期で常に開催中とする
+    return true;
+}
 function canPlayRaid() {
-    if (!isRaidOpen()) return false;
     const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     if (userData.raidClearedTime) {
-        const c = new Date(userData.raidClearedTime + (new Date(userData.raidClearedTime).getTimezoneOffset() + 540) * 60000);
-        if (c.getHours() === jstNow.getHours()) return false;
+        const clearedTime = new Date(userData.raidClearedTime + (new Date(userData.raidClearedTime).getTimezoneOffset() + 540) * 60000);
+        // 現在の15分ブロック内ですでにクリア済みならプレイ不可
+        if (getCurrentRaidBlockStart(jstNow.getTime()) === getCurrentRaidBlockStart(clearedTime.getTime())) return false;
     }
     return true;
 }
+// ----------------------------------------
+
 function getStoryTargetScore(stage) { return 10000 + (stage - 1) * 1000; }
 function getRaidTargetScore(stage) { return stage === 6 ? 100000 : 30000 + Math.floor(Math.random() * 10001); }
 function getStageObstacle(stage) {
@@ -1393,7 +1335,7 @@ async function initApp() {
         document.getElementById('notice-modal').classList.add('active');
     }
 
-    // アンケート通知バナーの表示チェック (2026/05/24 00:00:00 JST まで)
+    // アンケート通知バナーの表示チェック
     const notifClosed = localStorage.getItem('surveyNotifClosed_yuchin');
     const expireDate = new Date(2026, 4, 24).getTime(); 
     if (!notifClosed && Date.now() < expireDate) {
@@ -1442,11 +1384,20 @@ async function initApp() {
     startRaidTimer();
     startBoostStatusTimer();
     
-    // エラーが起きても確実に消す
+    // エラーが起きても確実に消す & 3秒間モード選択不可ロジック追加
     const loader = document.getElementById('loading-screen');
     if (loader) {
         loader.style.opacity = '0';
-        setTimeout(() => loader.style.display = 'none', 500);
+        setTimeout(() => {
+            loader.style.display = 'none';
+            setTimeout(() => {
+                gameState.isModeSelectable = true; // 3秒後にモード選択を解禁
+            }, 3000);
+        }, 500);
+    } else {
+        setTimeout(() => {
+            gameState.isModeSelectable = true;
+        }, 3000);
     }
 }
 
@@ -1455,6 +1406,7 @@ window.addEventListener('load', () => {
         console.error("Init Error:", e);
         const loader = document.getElementById('loading-screen');
         if (loader) loader.style.display = 'none';
+        setTimeout(() => { gameState.isModeSelectable = true; }, 3000);
     });
 });
 
@@ -1535,21 +1487,22 @@ function renderRaidMap() {
     const isOpen = isRaidOpen();
     const canPlay = canPlayRaid();
     document.getElementById('raid-point-info').innerText = userData.raidPoint || 0;
+    const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     
     if (!isOpen) {
-        const diff = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        const diff = getNextRaidOpenTime() - jstNow;
         document.getElementById('raid-status-timer').innerHTML = `⏳ 次のレイド開始まで: ${formatTimeRemaining(diff)}`;
         grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">レイドは開催時間外です</div>';
         return;
     }
     if (!canPlay) {
-        const diff = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+        const diff = getNextRaidOpenTime() - jstNow;
         document.getElementById('raid-status-timer').innerHTML = `⏳ 次のレイドまで: ${formatTimeRemaining(diff)}`;
-        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">この回のレイドはクリア済みです。次の開催時間をお待ちください。</div>';
+        grid.innerHTML = '<div style="text-align:center; padding: 40px; color: #888;">この周期のレイドはクリア済みです。次の周期をお待ちください。</div>';
         return;
     }
     
-    const diff = getRaidCloseTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    const diff = getRaidCloseTime() - jstNow;
     document.getElementById('raid-status-timer').innerHTML = `🔥 レイド開催中！ 終了まで: ${formatTimeRemaining(diff)}`;
 
     for (let i = 1; i <= 6; i++) {
@@ -1569,22 +1522,23 @@ function startRaidTimer() {
         const canPlay = canPlayRaid();
         const menuBtn = document.getElementById('raid-menu-btn');
         const menuTimer = document.getElementById('raid-menu-timer');
+        const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
         
-        if (isOpen && canPlay) {
+        if (canPlay) {
             menuBtn.classList.remove('disabled');
-            const diff = getRaidCloseTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+            const diff = getRaidCloseTime() - jstNow;
             if (menuTimer) {
                 menuTimer.innerText = `🔥 開催中! (あと${formatTimeRemaining(diff)})`;
                 menuTimer.style.color = '#ff5252';
             }
         } else {
             menuBtn.classList.add('disabled');
-            const diff = getNextRaidOpenTime() - new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+            const diff = getRaidCloseTime() - jstNow;
             if (menuTimer) {
                 menuTimer.innerText = `⏳ 次回: ${formatTimeRemaining(diff)}`;
                 menuTimer.style.color = '#ff9800';
             }
-            if (isOpen && !canPlay) raidState.currentStage = 1;
+            raidState.currentStage = 1;
         }
         if (document.getElementById('raid-map-screen').classList.contains('active')) renderRaidMap();
     }, 1000);
@@ -1640,7 +1594,7 @@ function startGame(mode, stage = null) {
         updateRaidTargetUI();
     } else if (mode === 'shugyo') {
         gameState.shugyoBoss = stage; // stageにボスIDが入る
-        gameState.targetScore = 2000000;
+        gameState.targetScore = 1500000;
         document.getElementById('story-target-container').style.display = 'block';
         updateStoryTargetUI(); // UIを使い回す
     } else if (mode === 'rank') {
@@ -2537,19 +2491,38 @@ function startBoostStatusTimer() {
 // ==========================================
 // グローバルAPI (window.app)
 // ==========================================
+
+// ロード直後のモード選択を3秒間ロックするための判定
+function checkModeSelectable() {
+    if (!gameState.isModeSelectable) {
+        alert("ゲームのロード完了直後です。あと3秒ほどお待ちください！");
+        return false;
+    }
+    return true;
+}
+
 window.app = {
-    showScreen, startGame,
-    openStoryMap: () => { renderStoryMap(); showScreen('story-map-screen'); },
-    openRaidMap: () => { renderRaidMap(); showScreen('raid-map-screen'); },
+    showScreen: (screenId) => {
+        // プレイモード画面を開くときだけ制限チェック
+        if ((screenId === 'play-select-screen' || screenId === 'shugyo-select-screen') && !checkModeSelectable()) return;
+        showScreen(screenId);
+    },
+    startGame: (mode, stage) => {
+        if (!checkModeSelectable()) return;
+        startGame(mode, stage);
+    },
+    openStoryMap: () => { if (!checkModeSelectable()) return; renderStoryMap(); showScreen('story-map-screen'); },
+    openRaidMap: () => { if (!checkModeSelectable()) return; renderRaidMap(); showScreen('raid-map-screen'); },
     
     openRankMatch: () => {
+        if (!checkModeSelectable()) return;
         showScreen('rank-match-screen');
         const rName = getRankName(userData.rankIndex || 0);
         document.getElementById('current-rank-display').innerText = rName;
         const rxp = userData.rankXp || 0; const percent = Math.min(100, (rxp / 1000) * 100);
         document.getElementById('rank-xp-bar-fill-ui').style.width = `${percent}%`; document.getElementById('rank-xp-text-ui').innerText = `${rxp} / 1000 RXP`;
     },
-    startRankMatch: () => { startGame('rank'); },
+    startRankMatch: () => { if (!checkModeSelectable()) return; startGame('rank'); },
     openRankShopModal: () => {
         document.getElementById('rank-shop-rc-display').innerText = userData.rankCoin || 0;
         renderRankShopList(); document.getElementById('rank-shop-modal').classList.add('active');
