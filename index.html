@@ -15,47 +15,19 @@
 
         /* 準備中ローディング画面 */
         #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #0f0f0f;
-            color: #00bcd4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            font-size: 48px;
-            font-weight: bold;
-            transition: opacity 0.5s ease;
-            text-shadow: 0 0 20px #00bcd4;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0f0f0f; color: #00bcd4;
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
+            font-size: 48px; font-weight: bold; transition: opacity 0.5s ease; text-shadow: 0 0 20px #00bcd4;
         }
 
         /* ブースト表示 (左下に固定) */
         #boost-status-container { 
-            position: fixed; 
-            bottom: 20px; 
-            left: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-            z-index: 1000; 
-            pointer-events: none;
+            position: fixed; bottom: 20px; left: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; pointer-events: none;
         }
         .boost-indicator {
-            background: rgba(0, 0, 0, 0.85);
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: bold;
-            border: 2px solid #555;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-            text-shadow: 1px 1px 2px black;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            background: rgba(0, 0, 0, 0.85); color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 15px;
+            font-weight: bold; border: 2px solid #555; box-shadow: 0 4px 10px rgba(0,0,0,0.6); text-shadow: 1px 1px 2px black;
+            display: flex; align-items: center; gap: 8px;
         }
         .boost-indicator.mini-coin { border-color: #ffd700; color: #fff; }
         .boost-indicator.gold { border-color: #ffaa00; color: #fff; }
@@ -63,14 +35,7 @@
 
         /* コンパニオンバフ表示領域 (右側に固定) */
         #companion-buff-status {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 1000;
-            pointer-events: none;
+            position: fixed; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; pointer-events: none;
         }
 
         /* 全体レイアウト */
@@ -128,14 +93,14 @@
 
         /* ストーリー/レイドマップ画面 */
         #story-map-screen { justify-content: center; }
-        #story-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #9c27b0; text-shadow: 0 0 15px #9c27b0; }
-        .stage-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; width: 90%; max-width: 1000px; margin: 20px 0; max-height: 500px; overflow-y: auto; padding: 10px; }
+        #story-map-screen h2 { font-size: 40px; margin-bottom: 10px; color: #9c27b0; text-shadow: 0 0 15px #9c27b0; }
+        .stage-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; width: 90%; max-width: 1000px; margin: 10px 0 20px 0; max-height: 500px; overflow-y: auto; padding: 10px; }
         .stage-btn { background: linear-gradient(145deg, #333, #222); color: #fff; border: 2px solid #555; padding: 15px 5px; font-size: 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; font-weight: bold; text-align: center; }
         .stage-btn.completed { background: linear-gradient(145deg, #4caf50, #2e7d32); border-color: #81c784; cursor: not-allowed; opacity: 0.8; }
         .stage-btn.current { background: linear-gradient(145deg, #2196f3, #1565c0); border-color: #64b5f6; box-shadow: 0 0 15px #2196f3; }
         .stage-btn.locked { background: linear-gradient(145deg, #1a1a1a, #111); border-color: #444; color: #666; cursor: not-allowed; }
         .stage-btn.current:hover { transform: scale(1.05); filter: brightness(1.2); }
-        .stage-info { font-size: 18px; margin: 15px 0; color: #ccc; }
+        .stage-info { font-size: 18px; margin: 10px 0; color: #ccc; }
 
         #raid-map-screen { justify-content: center; }
         #raid-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #ef5350; text-shadow: 0 0 15px #ef5350; }
@@ -162,39 +127,20 @@
         
         /* ぼやけエフェクト */
         .blur-effect { animation: blurAnim 5s linear forwards; pointer-events:none; }
-        @keyframes blurAnim {
-            0% { filter: blur(10px); }
-            60% { filter: blur(10px); }
-            100% { filter: blur(0px); }
-        }
+        @keyframes blurAnim { 0% { filter: blur(10px); } 60% { filter: blur(10px); } 100% { filter: blur(0px); } }
 
         /* 剣が刺さるエフェクト */
         .sword-stab {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 150px;
-            z-index: 1000;
-            animation: stabAnim 0.5s ease-out forwards;
-            pointer-events:none;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 150px; z-index: 1000; animation: stabAnim 0.5s ease-out forwards; pointer-events:none;
         }
-        @keyframes stabAnim {
-            0% { transform: translate(-50%, -150vh); }
-            100% { transform: translate(-50%, -50%); }
-        }
+        @keyframes stabAnim { 0% { transform: translate(-50%, -150vh); } 100% { transform: translate(-50%, -50%); } }
 
         /* コンパニオンバフエフェクト */
         .companion-buff {
-            position: absolute;
-            top: 20%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 32px;
-            font-weight: bold;
-            color: #ffeb3b;
-            text-shadow: 0 0 20px #ffeb3b, 2px 2px 5px #000;
-            z-index: 1000;
-            animation: buffAnim 2s ease-out forwards;
-            pointer-events: none;
+            position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 32px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 20px #ffeb3b, 2px 2px 5px #000;
+            z-index: 1000; animation: buffAnim 2s ease-out forwards; pointer-events: none;
         }
         @keyframes buffAnim {
             0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); }
@@ -206,8 +152,7 @@
         #evade-btn {
             display: none; position: fixed; top: 60%; left: 50%; transform: translate(-50%, -50%);
             z-index: 9999; padding: 20px 40px; font-size: 30px; background: red; color: white;
-            border-radius: 10px; border: 3px solid white; box-shadow: 0 0 20px red;
-            cursor: pointer; font-weight: bold;
+            border-radius: 10px; border: 3px solid white; box-shadow: 0 0 20px red; cursor: pointer; font-weight: bold;
         }
         #evade-btn:active { background: darkred; }
 
@@ -253,10 +198,11 @@
         #time-extend-center { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 20px; height: 40px; background: rgba(255,215,0,0.3); border-radius: 5px; }
         #time-extend-perfect { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 6px; height: 40px; background: #ff5252; border-radius: 3px; }
         
-        #skill-button-container { position: absolute; bottom: 50px; right: 50px; z-index: 100; }
-        #skill-btn { background: radial-gradient(circle at 30% 30%, #ab47bc, #6a1b9a); color: #fff; border: none; padding: 20px; font-size: 20px; border-radius: 50%; width: 110px; height: 110px; cursor: pointer; font-weight: bold; box-shadow: 0 0 25px #ce93d8, 0 4px 8px black; position: relative; overflow: hidden; border: 2px solid #e1bee7; }
-        #skill-btn:disabled { background: #424242; box-shadow: none; cursor: not-allowed; color: #9e9e9e; border-color: #616161; }
-        #skill-cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0,0,0,0.6); height: 0%; transition: height 0.1s linear; }
+        #skill-buttons-wrapper { position: absolute; bottom: 50px; right: 50px; z-index: 100; display: flex; gap: 20px; }
+        .skill-btn-circle { background: radial-gradient(circle at 30% 30%, #ab47bc, #6a1b9a); color: #fff; border: none; padding: 20px; font-size: 20px; border-radius: 50%; width: 110px; height: 110px; cursor: pointer; font-weight: bold; box-shadow: 0 0 25px #ce93d8, 0 4px 8px black; position: relative; overflow: hidden; border: 2px solid #e1bee7; }
+        .skill-btn-circle:disabled { background: #424242; box-shadow: none; cursor: not-allowed; color: #9e9e9e; border-color: #616161; }
+        .skill-cooldown-overlay-layer { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0,0,0,0.6); height: 0%; transition: height 0.1s linear; z-index: 1; }
+        .skill-btn-text-layer { position: relative; z-index: 2; }
 
         .passive-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; font-weight: bold; color: #ff9800; text-shadow: 0 0 30px #ff9800; z-index: 502; opacity: 0; pointer-events: none; animation: passiveFade 2s ease-out forwards; }
         @keyframes passiveFade { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
@@ -270,7 +216,7 @@
 
         /* 共通タブUI・リストUI */
         .tab-container { width: 90%; max-width: 800px; margin-top: 30px; background: rgba(20,20,20,0.7); padding: 20px; border-radius: 30px; backdrop-filter: blur(4px); border: 1px solid #3a3a3a; }
-        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; flex-wrap: wrap; }
+        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
         .tab { padding: 12px 24px; cursor: pointer; font-size: 20px; border-bottom: 3px solid transparent; transition: 0.2s; }
         .tab.active { border-bottom-color: #00bcd4; color: #00bcd4; font-weight: bold; text-shadow: 0 0 8px #00bcd4; }
         #ranking-timer { font-size: 18px; color: #ff9800; margin: 10px 0; font-weight: bold; }
@@ -297,13 +243,11 @@
         .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 18px; color: white; cursor: pointer; margin-bottom: 20px; }
         .checkbox-label input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
 
-        /* スクロールバー */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #121212; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; border: 2px solid #121212; }
         ::-webkit-scrollbar-thumb:hover { background: #666; }
         
-        /* BANと警告の専用画面 */
         #ban-screen { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#111; color:white; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
         #warning-screen { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(200,0,0,0.9); color:white; z-index:9999; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
     </style>
@@ -345,8 +289,8 @@
 <div id="app-container">
     <div id="header">
         <div id="header-left">
-            <button id="settings-btn">⚙️</button>
-            <button id="greek-info-btn">🔍</button>
+            <button id="settings-btn" onclick="app.openSettings()">⚙️</button>
+            <button id="greek-info-btn" onclick="document.getElementById('greek-info-modal').classList.add('active')">🔍</button>
             <button id="users-btn" onclick="app.openUsersModal()">👥</button>
             <button id="survey-btn" onclick="app.openSurveyModal()">📝</button>
             <div id="coin-display">🪙0</div>
@@ -410,14 +354,18 @@
             <div class="select-grid">
                 <button class="mode-btn" onclick="app.startGame('normal')">ノーマル<br><span style="font-size: 16px;">通常ルール</span></button>
                 <button class="mode-btn hard" onclick="app.startGame('hard')">ハード<br><span style="font-size: 16px;">未入力非表示 / コイン2倍</span></button>
-                <button class="mode-btn story" onclick="app.openStoryMap()">ストーリー<br><span style="font-size: 16px;">全100ステージ</span></button>
+                <button class="mode-btn story" onclick="app.openStoryMap()">ストーリー<br><span style="font-size: 16px;">全200ステージ</span></button>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 50px;">戻る</button>
         </div>
 
         <div id="story-map-screen" class="screen">
             <h2>📖 ストーリーモード</h2>
-            <div class="stage-info">現在のステージ: <span id="current-story-stage">1</span> / 100</div>
+            <div class="tabs" style="justify-content: center; margin-bottom: 10px;">
+                <div class="tab active" id="story-tab-1" onclick="app.switchStoryTab(1)">第一章 (1-100)</div>
+                <div class="tab" id="story-tab-2" onclick="app.switchStoryTab(2)">第二章 (101-200)</div>
+            </div>
+            <div class="stage-info">現在のステージ: <span id="current-story-stage">1</span> / 200</div>
             <div class="stage-grid" id="stage-grid"></div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
         </div>
@@ -498,12 +446,22 @@
                 <div id="furigana-text"></div>
                 <div id="romaji-text"></div>
             </div>
-            <div id="skill-button-container">
-                <button id="skill-btn" disabled>
-                    <span id="skill-btn-text">スキル無し</span>
-                    <div id="skill-cooldown-overlay"></div>
-                </button>
-                <div style="text-align: center; font-size: 12px; margin-top: 5px;">Spaceキー</div>
+            
+            <div id="skill-buttons-wrapper">
+                <div style="text-align: center;">
+                    <button id="skill-btn-1" class="skill-btn-circle" disabled>
+                        <span id="skill-btn-text-1" class="skill-btn-text-layer">スキル無</span>
+                        <div id="skill-cooldown-overlay-1" class="skill-cooldown-overlay-layer"></div>
+                    </button>
+                    <div style="font-size: 14px; margin-top: 5px; font-weight:bold; text-shadow:1px 1px 2px black;">1キー / Space</div>
+                </div>
+                <div style="text-align: center; display: none;" id="skill-slot-2-container">
+                    <button id="skill-btn-2" class="skill-btn-circle" disabled>
+                        <span id="skill-btn-text-2" class="skill-btn-text-layer">スキル無</span>
+                        <div id="skill-cooldown-overlay-2" class="skill-cooldown-overlay-layer"></div>
+                    </button>
+                    <div style="font-size: 14px; margin-top: 5px; font-weight:bold; text-shadow:1px 1px 2px black;">2キー</div>
+                </div>
             </div>
         </div>
 
@@ -772,56 +730,6 @@
 </div>
 
 <script type="module">
-/*
-=============================================================================
-【このメモたちは、ゲームシステムです。このコメントはアップデートするたびにできる限り書こう！】
-
-▼ ゲームの全体構成
-・HTML/CSS/JSを1つのファイルにまとめたタイピングRPGです。
-・Firebase(Realtime Database)を使用して、ユーザーデータをクラウドに保存・管理しています。
-
-▼ スコア・コンボシステム
-・1文字正解するごとに「コンボ」が+1されます。
-・1文字正解時の獲得スコアは「現在のコンボ数 × 5」です。
-・コンボを繋げば繋ぐほど、スコアが指数関数的に伸びるシステムです。
-・ミスをするとコンボは0にリセットされます（パッシブやスキルでの保護・無敵状態を除く）。
-・【速度計測】: 一単語うち終わった時、1文字あたりの速さ(秒)を算出し、(5 / 速さ) の分だけコンボが一気に増加します。
-  ※ 自動入力スキル中は、追加コンボは最大35に制限されます。
-
-▼ モード一覧
-1. ノーマルモード: 60秒間タイピングし、スコアを稼ぐ基本モード。
-2. ハードモード: 未入力文字が非表示になり、獲得コインが2倍。
-3. ストーリーモード: 全100ステージ。目標スコアが設定されており、到達した瞬間に確実に「クリア判定」となります。
-4. レイドモード: 決まった時間帯に開催。目標スコア到達でクリア。
-5. ランクマッチ: NPCと1対1でスコアを競うモード。
-   ・NPCスコア: Gは1万〜2万。F〜Cまではそこから5,000ずつ増加。Bは50万〜52万5千。以降ランクが上がるごとに10万増加。
-   ・勝利時のRXP：差が 0~5000なら+50、5000~15000なら+100、15000~50000なら+150、50000~75000(〜10万未満)なら+300、100000~300000なら+500、それ以上なら+600。
-   ・負け時は -10RXP。0未満になる場合はランクダウン（Gでは0止まり）。
-   ・ランクコイン(RC)を勝利スコア/100 獲得。
-   ・Bランク以上のNPCは、残り時間30秒でデバフ(凍結5秒 or コンボ半減)を使用してきます。
-6. 修行モード: 目標スコアを達成するとクリアとなり、コンパニオン（仲間）を報酬として獲得できます。
-   ・レッドアンドブルー: 目標 1,500,000 スコア。10秒ごとに「刺す」「強力突進」「ぼやけ」のいずれかの妨害。
-
-▼ 通貨・成長システム
-・XP: レベルアップに必要な経験値。
-・コイン(🪙) / ゴールドコイン(🥇) / レイドポイント(🎯) / ランクコイン(RC)
-・レベル: XPが一定値(100×現在のレベル)に達するとレベルアップ。
-
-▼ UI・管理機能
-・【ユーザーID】: 全てのプレイヤーに固有の「No.XX」が付与され、ランキングなどで名前とともに表示されます。
-・【警告・BAN】: 不正や規約違反を行ったプレイヤーに対し、管理者がID指定で画面をロックする警告やBANを課すことができます。
-・【デバッグモード】: 管理者限定機能。ユーザーIDを指定して管理者権限の付与/剥奪、BANや警告の実行が可能。
-・【バグ発見体】: 管理者から選ばれたユーザーには特別な印が表示され、ユーザー警告やバグ報告が行えます。
-・【アンケート機能】: 1日2回まで要望を送信可能。(管理者は内容を閲覧可能)
-・【ランク報酬】: 到達したランクに応じた特別な報酬(C到達でコイン＆RC大量など)を1度だけ受け取れます。
-・【背景装備】: ランクZ3到達で「ランクの証」を獲得でき、装備すると背景中央に専用画像が浮かび、名前にも画像が付きます。
-・【バグ修正】: 未定義変数呼び出しエラー(ReferenceError)を解決し、全モードのクリア/タイムオーバー時のフリーズを完全に解消しました。
-=============================================================================
-*/
-
-// ==========================================
-// Firebase 設定と初期化
-// ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
 import { getDatabase, ref, set, get, update, onDisconnect, push, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
@@ -841,9 +749,8 @@ const appInstance = initializeApp(firebaseConfig);
 const analytics = getAnalytics(appInstance);
 const db = getDatabase(appInstance);
 
-// ==========================================
-// 出題データ
-// ==========================================
+window.app = {};
+
 const typingData = [
     { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku", furigana: "はやおきはさんもんのとく" },
     { ja: "石の上にも三年", romaji: "isinouenimosannnenn", furigana: "いしのうえにもさんねん" },
@@ -884,9 +791,6 @@ function escapeHtml(str) {
     return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-// ==========================================
-// 仲間 (コンパニオン) データ
-// ==========================================
 const companionData = {
     "red_blue": {
         id: "red_blue",
@@ -896,9 +800,6 @@ const companionData = {
     }
 };
 
-// ==========================================
-// スキルデータ
-// ==========================================
 const skillData = {
     "auto_input_alpha": { id: "auto_input_alpha", name: "自動入力α", desc: "3.5秒間、約0.06秒間隔で自動タイピング。クールダウン25秒。", price: 10000, priceType: 'coin', cooldown: 25, duration: 3.5, interval: 60, execute: function() { startAutoType(this.duration, this.interval); } },
     "auto_input_beta": { id: "auto_input_beta", name: "自動入力β", desc: "4.5秒間、約0.05秒間隔で自動タイピング。クールダウン25秒。", price: 500000, priceType: 'coin', cooldown: 25, duration: 4.5, interval: 50, execute: function() { startAutoType(this.duration, this.interval); } },
@@ -918,12 +819,10 @@ function startAutoType(duration, interval) {
     setTimeout(() => { gameState.isAutoTyping = false; clearInterval(gameState.autoTypeInterval); }, duration * 1000);
 }
 
-// ==========================================
-// パッシブスキルデータ
-// ==========================================
 const passiveData = {
     "combo_set_alpha": { id: "combo_set_alpha", name: "コンボセットα", desc: "ゲーム開始時のコンボが30になります。", price: 30000, priceType: 'coin', onGameStart: function() { gameState.combo = 30; } },
     "combo_set_gamma": { id: "combo_set_gamma", name: "コンボセットγ", desc: "ゲーム開始時のコンボが65になります。", price: 0, priceType: 'none', onGameStart: function() { gameState.combo = 65; } },
+    "combo_set_delta": { id: "combo_set_delta", name: "コンボセットΔ", desc: "ゲーム開始時の最初のコンボが85になります。", price: 0, priceType: 'none', onGameStart: function() { gameState.combo = 85; } },
     "combo_no_reset_alpha": { id: "combo_no_reset_alpha", name: "コンボノットリセットα", desc: "一度だけミスしてもコンボが0になりません。", price: 30000, priceType: 'coin', usedInGame: false },
     "combo_no_reset_epsilon": { id: "combo_no_reset_epsilon", name: "コンボノットリセットε", desc: "一度だけミスしても、コンボが0にならない状態が3.5秒続きます。", price: 100000, priceType: 'coin', usedInGame: false },
     "raid_point_increase_alpha": { id: "raid_point_increase_alpha", name: "レイドポイントフエールα", desc: "貰えるレイドポイントが1.5倍になります。", price: 25, priceType: 'raid' },
@@ -931,9 +830,6 @@ const passiveData = {
     "combo_no_reset_beta": { id: "combo_no_reset_beta", name: "コンボノットリセットβ", desc: "3回分ミスしてもコンボが0になりません。", price: 0, priceType: 'none', usedInGame: false }
 };
 
-// ==========================================
-// アイテムデータ
-// ==========================================
 const itemData = {
     "coin_boost_alpha": { id: "coin_boost_alpha", name: "コインブーストα", desc: "10分間、獲得コインが2倍になる。", price: 0, priceType: 'coin', duration: 600, effect: (active) => { gameState.coinMultiplier = active ? 2 : 1; } },
     "mini_coin_boost_alpha": { id: "mini_coin_boost_alpha", name: "ミニコインブーストα", desc: "5分間、獲得コインが1.5倍になる。", price: 5000, priceType: 'coin', duration: 300, effect: (active) => { gameState.coinMultiplier = active ? 1.5 : 1; } },
@@ -941,12 +837,10 @@ const itemData = {
     "xp_boost_alpha": { id: "xp_boost_alpha", name: "XPブーストα", desc: "10分間、獲得XPが2倍になる。", price: 0, priceType: 'coin', duration: 600, effect: (active) => { gameState.xpMultiplier = active ? 2 : 1; } },
     "gold_luck_boost_alpha": { id: "gold_luck_boost_alpha", name: "ゴールドコインラックブーストα", desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。", price: 0, priceType: 'coin', duration: 600, effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; } },
     "rank_xp_boost_alpha": { id: "rank_xp_boost_alpha", name: "XPブーストα(ランク)", desc: "5分間、獲得XPが1.5倍になる。", price: 1000, priceType: 'rankCoin', duration: 300, effect: (active) => { gameState.xpMultiplier = active ? 1.5 : 1; } },
-    "coin_boost_omega_plus": { id: "coin_boost_omega_plus", name: "コインブーストΩ＋", desc: "30分間、獲得コインが3倍になる。", price: 0, priceType: 'none', duration: 1800, effect: (active) => { gameState.coinMultiplier = active ? 3 : 1; } }
+    "coin_boost_omega_plus": { id: "coin_boost_omega_plus", name: "コインブーストΩ＋", desc: "30分間、獲得コインが3倍になる。", price: 0, priceType: 'none', duration: 1800, effect: (active) => { gameState.coinMultiplier = active ? 3 : 1; } },
+    "double_skill": { id: "double_skill", name: "ダブルスキル", desc: "所持しているだけで発動。スキルを2つ装備でき、試合では1キーと2キーでそれぞれスキルを発動できる。", price: 0, priceType: 'none', passiveItem: true }
 };
 
-// ==========================================
-// ランク報酬データ
-// ==========================================
 const rankRewardsData = [
     { id: 'C', reqIdx: 4, name: 'コイン50万 & RC10万', desc: 'ランクC到達の証。', claim: () => { userData.coin += 500000; userData.rankCoin += 100000; } },
     { id: 'B', reqIdx: 5, name: 'パッシブ「コンボセットγ」', desc: '初期コンボが65になる強力なパッシブ。', claim: () => { userData.passives.push('combo_set_gamma'); } },
@@ -955,9 +849,11 @@ const rankRewardsData = [
     { id: 'Z3', reqIdx: 13, name: '背景「ランクの証」', desc: '装備すると背景と名前に輝く星が付く！', claim: () => { userData.backgrounds.push('rank_badge'); } }
 ];
 
-// ==========================================
-// ストーリーモード報酬定義関数
-// ==========================================
+const bgData = {
+    "rank_badge": { id: "rank_badge", name: "ランクの証", url: "ランクZ3.png", scale: 1.5, opacity: 0.15 },
+    "chap2_clear_bg": { id: "chap2_clear_bg", name: "第2章クリア背景", url: "https://via.placeholder.com/1000x800/111111/9c27b0?text=Chapter+2+Cleared", scale: 1.0, opacity: 0.2 }
+};
+
 function checkStoryRewards(stage) {
     const rewards = [];
     if (stage === 10) { rewards.push('コイン 50,000'); userData.coin += 50000; }
@@ -965,18 +861,23 @@ function checkStoryRewards(stage) {
     else if (stage === 50) { rewards.push('アイテム「ミニコインブーストα」x3'); userData.items['mini_coin_boost_alpha'] = (userData.items['mini_coin_boost_alpha'] || 0) + 3; }
     else if (stage === 80) { rewards.push('パッシブ「コンボノットリセットβ」'); userData.passives.push('combo_no_reset_beta'); }
     else if (stage === 100) { rewards.push('スキル「自動入力γ」'); userData.skills.push('auto_input_gamma'); }
-    else { rewards.push('コイン 5,000'); userData.coin += 5000; }
+    else if (stage === 150) { rewards.push('パッシブ「コンボセットΔ」'); userData.passives.push('combo_set_delta'); }
+    else if (stage === 200) { 
+        rewards.push('背景「第2章クリア」'); userData.backgrounds.push('chap2_clear_bg'); 
+        rewards.push('アイテム「ダブルスキル」'); userData.items['double_skill'] = 1;
+    }
+    else { 
+        if(stage < 100) { rewards.push('コイン 5,000'); userData.coin += 5000; }
+        else { rewards.push('コイン 10,000'); userData.coin += 10000; }
+    }
     return rewards;
 }
 
-// ==========================================
-// 状態管理
-// ==========================================
 const defaultUserData = {
     userId: null, isAdmin: false, surveyDisabled: false, isBugHunter: false,
     name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
     rankIndex: 0, rankXp: 0, rankCoin: 0,
-    skills: [], equippedSkill: null, passives: [], equippedPassive: null, items: {}, backgrounds: [], equippedBackground: null,
+    skills: [], equippedSkill: null, equippedSkill2: null, passives: [], equippedPassive: null, items: {}, activeBoosts: {}, backgrounds: [], equippedBackground: null,
     companions: [], equippedCompanion: null,
     playCount: 0, bestScore: 0, bestCombo: 0, storyStage: 1, raidClearedTime: 0,
     settings: { homeScale: 50, showFurigana: true },
@@ -994,25 +895,19 @@ const gameState = {
     timer: null, isAutoTyping: false, autoTypeInterval: null,
     comboMultiplier: 1.0, coinMultiplier: 1, xpMultiplier: 1, 
     goldDropRate: 0.01, goldEarnAmount: 1,
-    skillCooldownTimer: null, skillCooldownLeft: 0, isSkillReady: false,
-    activeBoosts: {}, obstacleTriggeredThisTick: false, companionTriggeredThisTick: false, typingDisabled: false,
+    skillCooldownTimer: null, skillCooldownLeft: {1: 0, 2: 0}, isSkillReady: {1: false, 2: false},
+    activeBoosts: {}, obstacleTriggeredThisTick: false, companionTriggeredThisTick: false, typingDisabled: false, poisonComboBlock: false,
     targetScore: 0, timeExtendActive: false, raidObstacle: null,
     passiveUsed: false, comboNoResetTime: 0, comboProtectCharges: 0,
     npcTargetScore: 0, npcCurrentScore: 0, npcScoreIncrement: 0, rankObstacleTriggered: false,
-    
-    // 修行・仲間用
     evaded: false,
     companionScoreMulti: 1.0, companionComboMulti: 1.0, activeCompanionBuff: null,
-
-    // ロード直後のモード選択ロック用フラグ
-    isModeSelectable: false
+    isModeSelectable: false, storyObstacleTriggered: false, storyObstacleTriggerTime: 0, rankObstacleTriggerTime: -1, rankObstacleType: null
 };
 
 let raidState = { isOpen: false, currentStage: 1, stages: [] };
+let currentStoryChapter = 1;
 
-// ==========================================
-// ユーティリティ
-// ==========================================
 function generateUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -1046,42 +941,39 @@ function getRankName(index) {
     return 'Z' + (index - ranks.length + 1);
 }
 
-// ----------------------------------------
-// 新しいレイドタイマー関連ロジック (15分周期)
-// ----------------------------------------
 function getCurrentRaidBlockStart(dateMs) {
     const d = new Date(dateMs);
-    d.setMinutes(Math.floor(d.getMinutes() / 15) * 15, 0, 0);
+    d.setMinutes(Math.floor(d.getMinutes() / 30) * 30, 0, 0);
     return d.getTime();
 }
 function getRaidCloseTime() {
     const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     let closeTime = new Date(jstNow);
-    closeTime.setMinutes(Math.floor(jstNow.getMinutes() / 15) * 15 + 15, 0, 0);
+    closeTime.setMinutes(Math.floor(jstNow.getMinutes() / 30) * 30 + 30, 0, 0);
     return closeTime;
 }
 function getNextRaidOpenTime() {
-    // 常に開催されているため、次の開催時間は今の周期の終了時間と同等です
     return getRaidCloseTime();
 }
 function isRaidOpen() {
-    // 15分周期で常に開催中とする
     return true;
 }
 function canPlayRaid() {
     const jstNow = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
     if (userData.raidClearedTime) {
         const clearedTime = new Date(userData.raidClearedTime + (new Date(userData.raidClearedTime).getTimezoneOffset() + 540) * 60000);
-        // 現在の15分ブロック内ですでにクリア済みならプレイ不可
         if (getCurrentRaidBlockStart(jstNow.getTime()) === getCurrentRaidBlockStart(clearedTime.getTime())) return false;
     }
     return true;
 }
-// ----------------------------------------
 
-function getStoryTargetScore(stage) { return 10000 + (stage - 1) * 1000; }
+function getStoryTargetScore(stage) {
+    if (stage <= 100) return 10000 + (stage - 1) * 1000;
+    else return 200000 + (stage - 101) * 10000;
+}
 function getRaidTargetScore(stage) { return stage === 6 ? 100000 : 30000 + Math.floor(Math.random() * 10001); }
 function getStageObstacle(stage) {
+    if (stage > 100) return 'freeze_and_poison';
     if (stage >= 76) return 'freeze';
     if (stage >= 51) return 'time_reduce';
     if (stage >= 26) return 'darkness';
@@ -1090,16 +982,16 @@ function getStageObstacle(stage) {
 function getRandomRaidObstacle() { return ['darkness', 'time_reduce', 'freeze'][Math.floor(Math.random() * 3)]; }
 
 function getNpcTargetScore(rankIdx) {
-    if (rankIdx === 0) return 10000 + Math.floor(Math.random() * 10001); // G: 10000-20000
-    if (rankIdx >= 1 && rankIdx <= 4) { // F〜C
-        const base = 10000 + (rankIdx * 5000);
-        return base + Math.floor(Math.random() * 10001);
+    if (rankIdx === 0) return 100000 + Math.floor(Math.random() * 50001); 
+    if (rankIdx === 1) return 150000 + Math.floor(Math.random() * 50001); 
+    if (rankIdx === 2) return 200000 + Math.floor(Math.random() * 50001); 
+    if (rankIdx === 3) return 250000 + Math.floor(Math.random() * 50001); 
+    if (rankIdx === 4) return 350000 + Math.floor(Math.random() * 50001); 
+    if (rankIdx >= 5) {
+        const base = 500000 + ((rankIdx - 5) * 50000);
+        return base - 10000 + Math.floor(Math.random() * 20001);
     }
-    if (rankIdx >= 5) { // B以降
-        const base = 500000 + ((rankIdx - 5) * 100000);
-        return base + Math.floor(Math.random() * 25001); // B: 500000~525000...
-    }
-    return 10000;
+    return 100000;
 }
 
 function showPassiveEffect(text) {
@@ -1110,12 +1002,10 @@ function showPassiveEffect(text) {
     setTimeout(() => el.remove(), 2000);
 }
 
-// ユーザー名のフォーマット表示
 function formatUserName(name, userId, isAdmin, hasBadge, isBugHunter) {
     let html = '';
     const n = name || "";
     
-    // 全角半角ブレ吸収
     if (n.includes('ビルダーマン')) {
         html += `<img src="ビルダー.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[ビルダー]">`;
     } else if (isAdmin || n.includes('管理者）らも') || n.includes('管理者)らも')) {
@@ -1136,9 +1026,6 @@ function formatUserName(name, userId, isAdmin, hasBadge, isBugHunter) {
     return html;
 }
 
-// ==========================================
-// オンライン/ランキングデータ送信
-// ==========================================
 function updateOnlinePresence() {
     if (!uid) return;
     const hasBadge = userData.equippedBackground === 'rank_badge';
@@ -1227,7 +1114,6 @@ function listenForPunishmentAndAdmin() {
     });
 }
 
-// BAN時間の更新
 setInterval(() => {
     const banText = document.getElementById('ban-time-left');
     if (document.getElementById('ban-screen').style.display === 'flex') {
@@ -1268,9 +1154,6 @@ async function assignNewUserId(uid) {
     return newId;
 }
 
-// ==========================================
-// 初期化・データロード
-// ==========================================
 async function initApp() {
     if (!uid) {
         uid = generateUUID();
@@ -1292,6 +1175,7 @@ async function initApp() {
             if (userData.settings.homeScale === undefined) userData.settings.homeScale = 50;
             if (userData.settings.showFurigana === undefined) userData.settings.showFurigana = true;
             if (!userData.items) userData.items = {};
+            if (!userData.activeBoosts) userData.activeBoosts = {};
             if (!userData.backgrounds) userData.backgrounds = [];
             if (!userData.companions) userData.companions = [];
             if (!userData.goldCoin) userData.goldCoin = 0;
@@ -1334,7 +1218,6 @@ async function initApp() {
         document.getElementById('notice-modal').classList.add('active');
     }
 
-    // アンケート通知バナーの表示チェック
     const notifClosed = localStorage.getItem('surveyNotifClosed_yuchin');
     const expireDate = new Date(2026, 4, 24).getTime(); 
     if (!notifClosed && Date.now() < expireDate) {
@@ -1343,7 +1226,6 @@ async function initApp() {
         document.getElementById('survey-notification').style.display = 'none';
     }
 
-    // アンケート結果のリアルタイム監視
     onValue(ref(db, 'surveys/yuchin_poll'), (snap) => {
         const data = snap.val() || {};
         const myVote = data[uid];
@@ -1383,14 +1265,13 @@ async function initApp() {
     startRaidTimer();
     startBoostStatusTimer();
     
-    // エラーが起きても確実に消す & 3秒間モード選択不可ロジック追加
     const loader = document.getElementById('loading-screen');
     if (loader) {
         loader.style.opacity = '0';
         setTimeout(() => {
             loader.style.display = 'none';
             setTimeout(() => {
-                gameState.isModeSelectable = true; // 3秒後にモード選択を解禁
+                gameState.isModeSelectable = true;
             }, 3000);
         }, 500);
     } else {
@@ -1437,6 +1318,10 @@ function applySettings() {
     }
     
     if (userData.equippedBackground === 'rank_badge') {
+        document.getElementById('bg-star').innerHTML = `<img src="ランクZ3.png" alt="Z3" style="transform: scale(1.5);">`;
+        document.getElementById('bg-star').style.display = 'block';
+    } else if (userData.equippedBackground === 'chap2_clear_bg') {
+        document.getElementById('bg-star').innerHTML = `<div style="width:100vw; height:100vh; background:radial-gradient(circle, rgba(156,39,176,0.3) 0%, transparent 70%);"></div>`;
         document.getElementById('bg-star').style.display = 'block';
     } else {
         document.getElementById('bg-star').style.display = 'none';
@@ -1464,18 +1349,26 @@ function showScreen(screenId) {
     document.getElementById(screenId).classList.add('active');
 }
 
-// ==========================================
-// ストーリー/レイド マップ描画
-// ==========================================
 function renderStoryMap() {
     const grid = document.getElementById('stage-grid');
     grid.innerHTML = '';
     document.getElementById('current-story-stage').innerText = userData.storyStage || 1;
-    for (let i = 1; i <= 100; i++) {
+    
+    const start = currentStoryChapter === 1 ? 1 : 101;
+    const end = currentStoryChapter === 1 ? 100 : 200;
+    
+    for (let i = start; i <= end; i++) {
         const btn = document.createElement('button');
-        btn.className = `stage-btn ${i === userData.storyStage ? 'current' : (i < userData.storyStage ? 'completed' : 'locked')}`;
         btn.innerText = i;
-        if (i === userData.storyStage) btn.onclick = () => app.startGame('story', i);
+        btn.className = 'stage-btn';
+        if (i < userData.storyStage) {
+            btn.classList.add('completed');
+        } else if (i === userData.storyStage) {
+            btn.classList.add('current');
+            btn.onclick = () => app.startGame('story', null, i);
+        } else {
+            btn.classList.add('locked');
+        }
         grid.appendChild(btn);
     }
 }
@@ -1510,7 +1403,7 @@ function renderRaidMap() {
         let label = i === 6 ? 'レイドボス' : `ステージ ${i}`;
         let target = getRaidTargetScore(i);
         btn.innerHTML = `${label}<br><span style="font-size:14px; font-weight:normal;">目標: ${target.toLocaleString()} / 60秒</span>`;
-        if (i === raidState.currentStage) btn.onclick = () => app.startGame('raid', i);
+        if (i === raidState.currentStage) btn.onclick = () => app.startGame('raid', null, null, i);
         grid.appendChild(btn);
     }
 }
@@ -1543,13 +1436,13 @@ function startRaidTimer() {
     }, 1000);
 }
 
-// ==========================================
-// ゲームプレイ関連
-// ==========================================
-function startGame(mode, stage = null) {
+function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null) {
     gameState.mode = mode;
+    gameState.storyStage = storyStage;
+    gameState.raidStage = raidStage;
+    gameState.shugyoBoss = shugyoBoss;
     gameState.isPlaying = true;
-    gameState.isEnding = false; // クリア済みフラグの初期化
+    gameState.isEnding = false; 
     gameState.score = 0;
     gameState.combo = 0;
     gameState.maxCombo = 0;
@@ -1560,19 +1453,22 @@ function startGame(mode, stage = null) {
     gameState.passiveUsed = false;
     gameState.comboNoResetTime = 0;
     gameState.comboProtectCharges = 0;
+    gameState.comboPoisoned = false;
+    gameState.storyObstacleTriggered = false;
+    gameState.storyObstacleTriggerTime = 0;
     gameState.timeLeft = 60;
-    gameState.initialTime = gameState.timeLeft;
+    gameState.initialTime = 60;
     gameState.rankObstacleTriggered = false;
-    
+    gameState.rankObstacleTriggerTime = -1;
+    gameState.rankObstacleType = null;
     gameState.evaded = false;
     gameState.companionScoreMulti = 1.0;
     gameState.companionComboMulti = 1.0;
     gameState.obstacleTriggeredThisTick = false;
     gameState.companionTriggeredThisTick = false;
-    gameState.activeCompanionBuff = null; // バフのリセット
+    gameState.activeCompanionBuff = null;
     
     applyPassiveOnStart();
-    resetSkillUI();
     
     showScreen('game-screen');
     
@@ -1581,51 +1477,97 @@ function startGame(mode, stage = null) {
     document.getElementById('npc-info-container').style.display = 'none';
     
     if (mode === 'story') {
-        gameState.storyStage = stage;
-        gameState.targetScore = getStoryTargetScore(stage);
+        gameState.targetScore = getStoryTargetScore(storyStage);
         document.getElementById('story-target-container').style.display = 'block';
         updateStoryTargetUI();
+        gameState.raidObstacle = getStageObstacle(storyStage);
     } else if (mode === 'raid') {
-        gameState.raidStage = stage;
-        gameState.targetScore = getRaidTargetScore(stage);
+        gameState.targetScore = getRaidTargetScore(raidStage);
         gameState.raidObstacle = getRandomRaidObstacle();
         document.getElementById('raid-target-container').style.display = 'block';
         updateRaidTargetUI();
     } else if (mode === 'shugyo') {
-        gameState.shugyoBoss = stage; // stageにボスIDが入る
         gameState.targetScore = 1500000;
         document.getElementById('story-target-container').style.display = 'block';
-        updateStoryTargetUI(); // UIを使い回す
+        updateStoryTargetUI(); 
     } else if (mode === 'rank') {
         document.getElementById('npc-info-container').style.display = 'block';
-        document.getElementById('npc-info-name').innerText = `対戦相手: ${npcNames[Math.floor(Math.random() * npcNames.length)]}`;
+        document.getElementById('npc-info-name').innerText = `対戦相手: ${npcNames[Math.min(userData.rankIndex, npcNames.length - 1)]}`;
         gameState.npcTargetScore = getNpcTargetScore(userData.rankIndex || 0);
         gameState.npcCurrentScore = 0;
         gameState.npcScoreIncrement = gameState.npcTargetScore / 60;
         document.getElementById('npc-info-score').innerText = "0";
+        
+        if (userData.rankIndex >= 5) {
+            gameState.rankObstacleTriggerTime = Math.floor(Math.random() * 40) + 10;
+            gameState.rankObstacleType = Math.random() < 0.5 ? 'freeze' : 'combo_half';
+        }
     }
 
+    setupSkills();
     updateGameUI();
     setNextWord();
     
-    gameState.timer = setInterval(gameTimerTick, 1000);
+    gameState.timer = setInterval(gameTimerTick, 100);
+}
+
+function setupSkills() {
+    const hasDouble = (userData.items && userData.items['double_skill'] > 0);
+    document.getElementById('skill-slot-2-container').style.display = hasDouble ? 'block' : 'none';
+    
+    const btn1 = document.getElementById('skill-btn-1');
+    const text1 = document.getElementById('skill-btn-text-1');
+    const over1 = document.getElementById('skill-cooldown-overlay-1');
+    if (userData.equippedSkill && skillData[userData.equippedSkill]) {
+        text1.innerText = skillData[userData.equippedSkill].name.replace('時間伸ばし', '時間延').substring(0, 6);
+        btn1.disabled = false;
+        gameState.isSkillReady[1] = true;
+        gameState.skillCooldownLeft[1] = 0;
+        over1.style.height = '0%';
+    } else {
+        text1.innerText = "スキル無";
+        btn1.disabled = true;
+        gameState.isSkillReady[1] = false;
+    }
+    
+    const btn2 = document.getElementById('skill-btn-2');
+    const text2 = document.getElementById('skill-btn-text-2');
+    const over2 = document.getElementById('skill-cooldown-overlay-2');
+    if (hasDouble && userData.equippedSkill2 && skillData[userData.equippedSkill2]) {
+        text2.innerText = skillData[userData.equippedSkill2].name.replace('時間伸ばし', '時間延').substring(0, 6);
+        btn2.disabled = false;
+        gameState.isSkillReady[2] = true;
+        gameState.skillCooldownLeft[2] = 0;
+        over2.style.height = '0%';
+    } else {
+        text2.innerText = "スキル無";
+        btn2.disabled = true;
+        gameState.isSkillReady[2] = false;
+    }
 }
 
 function gameTimerTick() {
     if (gameState.timeExtendActive || !gameState.isPlaying || gameState.isEnding) return;
     
-    gameState.timeLeft--;
-    document.getElementById('time-display').innerText = gameState.timeLeft;
+    gameState.timeLeft -= 0.1;
+    document.getElementById('time-display').innerText = Math.max(0, Math.ceil(gameState.timeLeft));
     
     if (gameState.mode === 'rank') {
-        gameState.npcCurrentScore += Math.floor(gameState.npcScoreIncrement * (0.8 + Math.random() * 0.4));
-        document.getElementById('npc-info-score').innerText = gameState.npcCurrentScore.toLocaleString();
+        gameState.npcCurrentScore += gameState.npcScoreIncrement / 10;
+        document.getElementById('npc-info-score').innerText = Math.floor(gameState.npcCurrentScore).toLocaleString();
     }
     
     triggerObstacles();
     triggerCompanionBuff();
+    updateComboProtectUI();
     
-    if (gameState.timeLeft <= 0) endGame();
+    if (gameState.timeLeft <= 0) {
+        if (gameState.mode === 'story' || gameState.mode === 'raid' || gameState.mode === 'shugyo') {
+            endGame(gameState.score >= gameState.targetScore);
+        } else {
+            endGame(true);
+        }
+    }
 }
 
 function applyPassiveOnStart() {
@@ -1640,18 +1582,27 @@ function applyPassiveOnStart() {
 
 function updateComboProtectUI() {
     const indicator = document.getElementById('combo-protect-indicator');
-    if (gameState.comboProtectCharges > 0) {
+    if (gameState.comboPoisoned) {
+        indicator.innerText = `☠️ コンボ増加無効`;
+        indicator.style.display = 'block';
+        indicator.style.borderColor = '#9c27b0';
+        indicator.style.color = '#ce93d8';
+    } else if (gameState.comboNoResetTime > Date.now()) {
+        const left = Math.ceil((gameState.comboNoResetTime - Date.now()) / 1000);
+        indicator.innerText = `🛡️ 保護: ${left}s`;
+        indicator.style.display = 'block';
+        indicator.style.borderColor = '#00e676';
+        indicator.style.color = '#00e676';
+    } else if (gameState.comboProtectCharges > 0) {
         indicator.innerText = `🛡️ 保護: ${gameState.comboProtectCharges}回`;
         indicator.style.display = 'block';
-    } else if (gameState.comboNoResetTime > Date.now()) {
-        indicator.innerText = `🛡️ 保護: アクティブ`;
-        indicator.style.display = 'block';
+        indicator.style.borderColor = '#00e676';
+        indicator.style.color = '#00e676';
     } else {
         indicator.style.display = 'none';
     }
 }
 
-// 回避ボタン処理
 document.getElementById('evade-btn').addEventListener('click', () => {
     gameState.evaded = true;
     document.getElementById('evade-btn').style.display = 'none';
@@ -1682,7 +1633,7 @@ function executeShugyoObstacle(type) {
         
         setTimeout(() => {
             btn.style.display = 'none';
-            if (!gameState.evaded) {
+            if (!gameState.evaded && gameState.isPlaying) {
                 gameState.typingDisabled = true;
                 
                 const stabEl = document.createElement('div');
@@ -1706,33 +1657,43 @@ function executeShugyoObstacle(type) {
 }
 
 function triggerObstacles() {
-    const elapsed = gameState.initialTime - gameState.timeLeft;
-    if (elapsed <= 0) return;
+    if (gameState.timeLeft <= 0 || gameState.initialTime - gameState.timeLeft <= 0) return;
     
-    if (gameState.mode === 'story' && gameState.storyStage) {
-        const obstacleType = getStageObstacle(gameState.storyStage);
-        if (obstacleType && elapsed === 30 && !gameState.obstacleTriggered) {
-            gameState.obstacleTriggered = true;
-            executeObstacle(obstacleType);
+    if (gameState.mode === 'story' && gameState.storyStage >= 101 && !gameState.storyObstacleTriggered) {
+        if (gameState.storyObstacleTriggerTime === 0) {
+            gameState.storyObstacleTriggerTime = Math.floor(Math.random() * 40) + 10;
         }
-    } else if (gameState.mode === 'raid') {
-        if (elapsed % 20 === 0) {
+        if (gameState.timeLeft <= gameState.storyObstacleTriggerTime) {
+            gameState.storyObstacleTriggered = true;
+            executeObstacle('freeze_and_poison');
+        }
+    } else if (gameState.mode === 'story' && gameState.storyStage <= 100 && gameState.raidObstacle && !gameState.storyObstacleTriggered) {
+        if (gameState.initialTime - gameState.timeLeft >= 30) {
+            gameState.storyObstacleTriggered = true;
             executeObstacle(gameState.raidObstacle);
         }
+    } else if (gameState.mode === 'raid') {
+        const intTime = Math.ceil(gameState.timeLeft);
+        if (intTime > 0 && intTime % 20 === 0 && !gameState.obstacleTriggeredThisTick) {
+            gameState.obstacleTriggeredThisTick = true;
+            executeObstacle(gameState.raidObstacle);
+        } else if (intTime % 20 !== 0) {
+            gameState.obstacleTriggeredThisTick = false;
+        }
     } else if (gameState.mode === 'rank') {
-        if ((userData.rankIndex || 0) >= 5 && gameState.timeLeft === 30 && !gameState.rankObstacleTriggered) {
+        if (!gameState.rankObstacleTriggered && gameState.rankObstacleTriggerTime > 0 && gameState.timeLeft <= gameState.rankObstacleTriggerTime) {
             gameState.rankObstacleTriggered = true;
-            const obs = Math.random() < 0.5 ? 'freeze' : 'combo_half';
-            executeObstacle(obs);
+            executeObstacle(gameState.rankObstacleType);
         }
     } else if (gameState.mode === 'shugyo') {
-        if (elapsed % 10 === 0 && !gameState.obstacleTriggeredThisTick) {
+        const intTime = Math.ceil(gameState.timeLeft);
+        if (intTime > 0 && intTime % 10 === 0 && !gameState.obstacleTriggeredThisTick) {
             gameState.obstacleTriggeredThisTick = true;
             const r = Math.random();
             if (r < 0.33) executeShugyoObstacle('stab');
             else if (r < 0.66) executeShugyoObstacle('dash');
             else executeShugyoObstacle('blur');
-        } else if (elapsed % 10 !== 0) {
+        } else if (intTime % 10 !== 0) {
             gameState.obstacleTriggeredThisTick = false;
         }
     }
@@ -1740,8 +1701,6 @@ function triggerObstacles() {
 
 function applyCompanionBuff(type) {
     const msgEl = document.getElementById('companion-buff-msg');
-    
-    // アニメーション再トリガーのためクローン
     const newMsg = msgEl.cloneNode(true);
     msgEl.parentNode.replaceChild(newMsg, msgEl);
     
@@ -1762,45 +1721,68 @@ function applyCompanionBuff(type) {
 }
 
 function triggerCompanionBuff() {
-    const elapsed = gameState.initialTime - gameState.timeLeft;
-    if (elapsed <= 0) return;
+    const intTime = Math.ceil(gameState.timeLeft);
+    if (intTime <= 0 || gameState.initialTime - gameState.timeLeft <= 0) return;
     
     if (userData.equippedCompanion === 'red_blue') {
-        if (elapsed % 20 === 0 && !gameState.companionTriggeredThisTick) {
+        if (intTime % 20 === 0 && !gameState.companionTriggeredThisTick) {
             gameState.companionTriggeredThisTick = true;
             const r = Math.random();
             if (r < 0.5) applyCompanionBuff('score2x');
             else applyCompanionBuff('combo1.5x');
-        } else if (elapsed % 20 !== 0) {
+        } else if (intTime % 20 !== 0) {
             gameState.companionTriggeredThisTick = false;
         }
     }
 }
 
+function showGameMessage(msg, color = '#00bcd4') {
+    const el = document.getElementById('game-message');
+    el.innerText = msg;
+    el.style.color = color;
+    el.style.textShadow = `0 0 30px ${color}`;
+    el.style.opacity = 1;
+    setTimeout(() => { el.style.opacity = 0; }, 2000);
+}
+
 function executeObstacle(type) {
     const overlay = document.getElementById('game-overlay');
-    const msg = document.getElementById('game-message');
     
     if (type === 'darkness') {
         overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
-        msg.innerText = '暗闇！'; msg.style.opacity = '1';
-        setTimeout(() => { overlay.style.backgroundColor = 'transparent'; msg.style.opacity = '0'; }, 5000);
+        showGameMessage('👁️ 暗闇！', '#333');
+        setTimeout(() => { overlay.style.backgroundColor = 'transparent'; }, 5000);
     } else if (type === 'time_reduce') {
         gameState.timeLeft = Math.max(1, gameState.timeLeft - 10);
-        document.getElementById('time-display').innerText = gameState.timeLeft;
+        document.getElementById('time-display').innerText = Math.ceil(gameState.timeLeft);
         const anim = document.getElementById('time-reduce-animation');
         anim.style.opacity = '1'; anim.style.top = '30px';
         setTimeout(() => { anim.style.opacity = '0'; anim.style.top = '0px'; }, 1000);
     } else if (type === 'freeze') {
         gameState.typingDisabled = true;
         overlay.style.backgroundColor = 'rgba(0, 255, 255, 0.3)';
-        msg.innerText = '凍結！！'; msg.style.opacity = '1';
-        setTimeout(() => { gameState.typingDisabled = false; overlay.style.backgroundColor = 'transparent'; msg.style.opacity = '0'; }, 5000);
+        showGameMessage('🧊 凍結！！', '#00bcd4');
+        setTimeout(() => { gameState.typingDisabled = false; overlay.style.backgroundColor = 'transparent'; }, 5000);
     } else if (type === 'combo_half') {
         gameState.combo = Math.floor(gameState.combo / 2);
         updateGameUI();
-        msg.innerText = 'コンボ半減！！'; msg.style.opacity = '1';
-        setTimeout(() => { msg.style.opacity = '0'; }, 3000);
+        showGameMessage('✂️ コンボ半減！！', '#f44336');
+    } else if (type === 'freeze_and_poison') {
+        gameState.typingDisabled = true;
+        overlay.style.backgroundColor = 'rgba(128, 0, 128, 0.5)';
+        showGameMessage("☠️ 毒！ 3秒間タイピング不可！", "#9c27b0");
+        setTimeout(() => {
+            if (!gameState.isPlaying || gameState.isEnding) return;
+            gameState.typingDisabled = false;
+            overlay.style.backgroundColor = 'transparent';
+            gameState.comboPoisoned = true;
+            showGameMessage("☠️ 毒の後遺症: 5秒間コンボ無効！", "#9c27b0");
+            updateComboProtectUI();
+            setTimeout(() => {
+                gameState.comboPoisoned = false;
+                updateComboProtectUI();
+            }, 5000);
+        }, 3000);
     }
 }
 
@@ -1833,13 +1815,13 @@ function startTimeExtendGame() {
         else { addedTime = 5; document.getElementById('time-extend-result').innerHTML = '👍 ナイス！ +5秒！'; }
         
         gameState.timeLeft += addedTime;
-        document.getElementById('time-display').innerText = gameState.timeLeft;
+        document.getElementById('time-display').innerText = Math.ceil(gameState.timeLeft);
         
         setTimeout(() => {
             gameEl.style.display = 'none';
             gameState.timeExtendActive = false;
             gameState.typingDisabled = false;
-            gameState.timer = setInterval(gameTimerTick, 1000);
+            gameState.timer = setInterval(gameTimerTick, 100);
             document.removeEventListener('keydown', spaceHandler);
         }, 1500);
     };
@@ -1848,41 +1830,30 @@ function startTimeExtendGame() {
     document.addEventListener('keydown', spaceHandler);
 }
 
-function resetSkillUI() {
-    const btn = document.getElementById('skill-btn');
-    const overlay = document.getElementById('skill-cooldown-overlay');
-    if (userData.equippedSkill && skillData[userData.equippedSkill]) {
-        const skill = skillData[userData.equippedSkill];
-        if (skill.id === 'auto_input_gamma' && userData.storyStage < 100 && !(userData.storyRewardsClaimed && userData.storyRewardsClaimed.includes('100'))) {
-            document.getElementById('skill-btn-text').innerText = 'スキル無し'; btn.disabled = true; gameState.isSkillReady = false; return;
-        }
-        document.getElementById('skill-btn-text').innerText = skill.name.replace('時間伸ばし', '時間延').substring(0, 6);
-        gameState.isSkillReady = true; gameState.skillCooldownLeft = 0; btn.disabled = false; overlay.style.height = '0%';
-    } else {
-        document.getElementById('skill-btn-text').innerText = 'スキル無し'; btn.disabled = true; gameState.isSkillReady = false;
-    }
-}
-
-function useSkill() {
-    if (!gameState.isPlaying || !gameState.isSkillReady || !userData.equippedSkill || gameState.typingDisabled) return;
-    const skill = skillData[userData.equippedSkill];
+function useSkill(slot) {
+    if (!gameState.isPlaying || !gameState.isSkillReady[slot] || gameState.typingDisabled) return;
+    const skillId = slot === 1 ? userData.equippedSkill : userData.equippedSkill2;
+    if (!skillId) return;
+    const skill = skillData[skillId];
+    
     if (skill.id === 'auto_input_gamma' && userData.storyStage < 100 && !(userData.storyRewardsClaimed && userData.storyRewardsClaimed.includes('100'))) return;
     
     skill.execute();
     
-    gameState.isSkillReady = false;
-    gameState.skillCooldownLeft = skill.cooldown;
-    const btn = document.getElementById('skill-btn');
-    const overlay = document.getElementById('skill-cooldown-overlay');
+    gameState.isSkillReady[slot] = false;
+    gameState.skillCooldownLeft[slot] = skill.cooldown;
+    const btn = document.getElementById(`skill-btn-${slot}`);
+    const overlay = document.getElementById(`skill-cooldown-overlay-${slot}`);
     btn.disabled = true;
     
-    gameState.skillCooldownTimer = setInterval(() => {
-        gameState.skillCooldownLeft -= 0.1;
-        const percent = (gameState.skillCooldownLeft / skill.cooldown) * 100;
+    const intv = setInterval(() => {
+        if (!gameState.isPlaying) { clearInterval(intv); return; }
+        gameState.skillCooldownLeft[slot] -= 0.1;
+        const percent = (gameState.skillCooldownLeft[slot] / skill.cooldown) * 100;
         overlay.style.height = `${percent}%`;
-        if (gameState.skillCooldownLeft <= 0) {
-            clearInterval(gameState.skillCooldownTimer);
-            gameState.isSkillReady = true; btn.disabled = false; overlay.style.height = '0%';
+        if (gameState.skillCooldownLeft[slot] <= 0) {
+            clearInterval(intv);
+            gameState.isSkillReady[slot] = true; btn.disabled = false; overlay.style.height = '0%';
         }
     }, 100);
 }
@@ -1890,7 +1861,7 @@ function useSkill() {
 function setNextWord() {
     gameState.currentWordObj = typingData[Math.floor(Math.random() * typingData.length)];
     gameState.currentRomajiIndex = 0;
-    gameState.currentWordStartTime = Date.now(); // タイピング速度計測用
+    gameState.currentWordStartTime = Date.now(); 
     updateTypingDisplay();
 }
 
@@ -1919,22 +1890,20 @@ function handleCorrectKey(isAuto = false) {
 
     gameState.currentRomajiIndex++;
     
-    // スコアバフ適用
     let scMulti = gameState.comboMultiplier * gameState.companionScoreMulti;
     gameState.score += Math.floor(gameState.combo * 5 * scMulti);
     
-    // コンボバフ適用
-    gameState.combo += Math.floor(1 * gameState.companionComboMulti);
+    if (!gameState.comboPoisoned) {
+        gameState.combo += Math.floor(1 * gameState.companionComboMulti);
+    }
     
     if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
     
     updateGameUI();
     
-    // ★ 即時クリア判定 ★
-    // ここで endGame を呼ぶタイミングを制御し、無限ループやフリーズを防止
     if ((gameState.mode === 'story' || gameState.mode === 'raid' || gameState.mode === 'shugyo') && gameState.score >= gameState.targetScore) {
         if (!gameState.isEnding) {
-            setTimeout(() => endGame(), 0);
+            setTimeout(() => endGame(true), 0);
         }
         return;
     }
@@ -1945,14 +1914,15 @@ function handleCorrectKey(isAuto = false) {
         const speedPerChar = sec / chars;
         let comboBonus = Math.floor((5 / speedPerChar) * gameState.companionComboMulti);
         
-        if (gameState.isAutoTyping && comboBonus > 35) {
-            comboBonus = 35;
+        if (gameState.isAutoTyping && comboBonus > 50) {
+            comboBonus = 50;
         }
         
-        gameState.combo += comboBonus;
-        if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
-        
-        showSpeedBonusAnim(speedPerChar, comboBonus);
+        if (!gameState.comboPoisoned && comboBonus > 0) {
+            gameState.combo += comboBonus;
+            if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+            showSpeedBonusAnim(speedPerChar, comboBonus);
+        }
         
         setNextWord();
         updateGameUI();
@@ -1986,7 +1956,17 @@ function handleMissKey() {
 
 document.addEventListener('keydown', (e) => {
     if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive || gameState.isEnding) return;
-    if (e.code === 'Space') { e.preventDefault(); useSkill(); return; }
+    
+    const hasDouble = (userData.items && userData.items['double_skill'] > 0);
+    if (e.key === '1' || (!hasDouble && e.code === 'Space')) {
+        if (gameState.isSkillReady[1] && userData.equippedSkill) { e.preventDefault(); useSkill(1); return; }
+    }
+    if (hasDouble && e.key === '2') {
+        if (gameState.isSkillReady[2] && userData.equippedSkill2) { e.preventDefault(); useSkill(2); return; }
+    }
+    
+    if (e.code === 'Space') { e.preventDefault(); return; }
+
     const key = e.key.toLowerCase();
     if (key.length !== 1 || !/[a-z\-]/.test(key)) return;
     
@@ -2027,21 +2007,14 @@ function updateRaidTargetUI() {
     document.getElementById('raid-target-text').innerHTML = `${current.toLocaleString()} / ${target.toLocaleString()} (残り ${remaining.toLocaleString()})`;
 }
 
-// ==========================================
-// ★ バグ修正：クリア時フリーズ解消と正常なリセット
-// ==========================================
-function endGame(forced = false) {
+function endGame(isClear = false) {
     if (gameState.isEnding) return; 
     gameState.isEnding = true;
     gameState.isPlaying = false;
     
-    // 安全にすべてのインターバルをクリア
-    // ※未定義だった debuffInterval の呼び出しを削除し ReferenceError を完全に防止
     if (gameState.timer) clearInterval(gameState.timer); 
-    if (gameState.skillCooldownTimer) clearInterval(gameState.skillCooldownTimer); 
     if (gameState.autoTypeInterval) clearInterval(gameState.autoTypeInterval);
     
-    // UIの初期化（非表示にするべきものをすべて隠す）
     document.getElementById('rank-match-result').style.display = 'none';
     document.getElementById('normal-rewards-container').style.display = 'block';
     document.getElementById('rank-rewards-container').style.display = 'none';
@@ -2052,11 +2025,8 @@ function endGame(forced = false) {
     document.getElementById('raid-clear-msg').style.display = 'none';
     document.getElementById('level-up-msg').style.display = 'none';
     
-    // ぼかしなどのエフェクト解除
     document.getElementById('game-overlay').classList.remove('blur-effect');
     document.getElementById('evade-btn').style.display = 'none';
-    
-    if (forced) { showScreen('menu-screen'); return; } 
 
     let baseCoin = Math.floor(gameState.score / 100);
     let baseGoldDrop = gameState.goldDropRate;
@@ -2064,9 +2034,8 @@ function endGame(forced = false) {
     
     let earnedCoin = Math.floor(baseCoin * gameState.coinMultiplier);
     let earnedXp = Math.floor(baseCoin * gameState.xpMultiplier);
-    let earnedRaid = 0; // Strictモード違反を防ぐための明示的な宣言
+    let earnedRaid = 0; 
     
-    // ランクマッチ処理
     if (gameState.mode === 'rank') {
         gameState.npcCurrentScore = gameState.npcTargetScore; 
         document.getElementById('npc-info-score').innerText = gameState.npcCurrentScore.toLocaleString();
@@ -2137,8 +2106,8 @@ function endGame(forced = false) {
     }
 
     if (gameState.mode === 'raid') {
-        if (gameState.score >= gameState.targetScore) {
-            earnedRaid = gameState.raidStage === 6 ? 10 : 2; // Strictモード違反解決
+        if (isClear) {
+            earnedRaid = gameState.raidStage === 6 ? 10 : 2; 
             if (userData.equippedPassive) {
                 if (userData.equippedPassive === 'raid_point_increase_alpha') earnedRaid = Math.floor(earnedRaid * 1.5);
                 else if (userData.equippedPassive === 'raid_point_increase_beta') earnedRaid *= 2;
@@ -2154,14 +2123,14 @@ function endGame(forced = false) {
     }
 
     if (gameState.mode === 'story') {
-        if (gameState.score >= gameState.targetScore) {
+        if (isClear) {
             const playedStage = gameState.storyStage;
-            if (playedStage === userData.storyStage && userData.storyStage < 100) userData.storyStage++;
+            if (playedStage === userData.storyStage && userData.storyStage < 200) userData.storyStage++;
             document.getElementById('story-clear-msg').innerText = '✅ ステージクリア！'; 
             document.getElementById('story-clear-msg').style.display = 'block';
             
             if (!userData.storyRewardsClaimed) userData.storyRewardsClaimed = [];
-            const storyRewardsList = checkStoryRewards(playedStage); // ★欠落していた関数の実装によるReferenceError解消
+            const storyRewardsList = checkStoryRewards(playedStage); 
             if (storyRewardsList.length > 0) {
                 const rewDiv = document.getElementById('story-reward-msg');
                 rewDiv.innerHTML = '🎁 報酬獲得！<br>' + storyRewardsList.join('<br>'); 
@@ -2174,7 +2143,7 @@ function endGame(forced = false) {
     }
 
     if (gameState.mode === 'shugyo') {
-        if (gameState.score >= gameState.targetScore) {
+        if (isClear) {
             document.getElementById('story-clear-msg').innerText = '✅ 修行クリア！'; 
             document.getElementById('story-clear-msg').style.display = 'block';
             
@@ -2200,7 +2169,6 @@ function endGame(forced = false) {
         incrementPlayCountRanking();
     }
 
-    // レベルアップのチェック
     let leveledUp = false; 
     let nextXp = getNextLevelXp(userData.level);
     while (userData.xp >= nextXp) { 
@@ -2228,9 +2196,6 @@ function endGame(forced = false) {
     showScreen('result-screen');
 }
 
-// ==========================================
-// ランキング機能
-// ==========================================
 function updateRankingData(score, combo) {
     if (gameState.mode !== 'normal' && gameState.mode !== 'hard') return;
     const dateKey = getRankingDateKey();
@@ -2324,9 +2289,6 @@ async function fetchAndDisplayRankRanking() {
     } catch (e) { list.innerHTML = '<div style="color:red;">エラーが発生しました</div>'; }
 }
 
-// ==========================================
-// ショップ・インベントリ関連
-// ==========================================
 function renderShopList(tab) {
     const list = document.getElementById('shop-list'); list.innerHTML = '';
     let dataObj = tab === 'skills' || tab === 'raid' ? skillData : (tab === 'items' ? itemData : passiveData);
@@ -2382,12 +2344,28 @@ function renderInventoryList(tab) {
     const list = document.getElementById('inventory-list'); list.innerHTML = '';
     
     userData.companions = userData.companions || []; 
+    const hasDouble = (userData.items && userData.items['double_skill'] > 0);
     
     if (tab === 'skills') {
         userData.skills.forEach(key => {
             if (!skillData[key]) return;
-            const item = skillData[key]; const isEquipped = userData.equippedSkill === key;
-            const btnHtml = isEquipped ? `<button class="action-btn equipped" onclick="app.equipSkill('${key}')">装備中</button>` : `<button class="action-btn" onclick="app.equipSkill('${key}')">装備</button>`;
+            const item = skillData[key]; 
+            let btnHtml = '';
+            
+            if (hasDouble) {
+                const isEq1 = userData.equippedSkill === key;
+                const isEq2 = userData.equippedSkill2 === key;
+                btnHtml = `
+                    <div style="display:flex; gap:5px; flex-direction:column;">
+                        <button class="action-btn ${isEq1 ? 'equipped' : ''}" onclick="app.equipSkill('${key}', 1)">${isEq1 ? 'スロット1装備中' : 'スロット1に装備'}</button>
+                        <button class="action-btn ${isEq2 ? 'equipped' : ''}" onclick="app.equipSkill('${key}', 2)">${isEq2 ? 'スロット2装備中' : 'スロット2に装備'}</button>
+                    </div>
+                `;
+            } else {
+                const isEq = userData.equippedSkill === key;
+                btnHtml = `<button class="action-btn ${isEq ? 'equipped' : ''}" onclick="app.equipSkill('${key}', 1)">${isEq ? '装備中' : '装備する'}</button>`;
+            }
+            
             const div = document.createElement('div'); div.className = 'list-item';
             div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
             list.appendChild(div);
@@ -2405,8 +2383,11 @@ function renderInventoryList(tab) {
         for (const key in userData.items) {
             if (userData.items[key] <= 0 || !itemData[key]) continue;
             const item = itemData[key]; const count = userData.items[key];
-            const isActive = gameState.activeBoosts[key] && gameState.activeBoosts[key] > Date.now();
-            let btnHtml = isActive ? `<button class="action-btn" disabled>使用中</button>` : `<button class="action-btn use-btn" onclick="app.useItem('${key}')">使う (${count})</button>`;
+            const isActive = userData.activeBoosts[key] && userData.activeBoosts[key] > Date.now();
+            let btnHtml = '';
+            if (item.passiveItem) btnHtml = `<button class="action-btn" disabled>所持で効果発揮 (${count})</button>`;
+            else btnHtml = isActive ? `<button class="action-btn" disabled>使用中</button>` : `<button class="action-btn use-btn" onclick="app.useItem('${key}')">使う (${count})</button>`;
+            
             const div = document.createElement('div'); div.className = 'list-item';
             div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
             list.appendChild(div);
@@ -2414,19 +2395,23 @@ function renderInventoryList(tab) {
     } else if (tab === 'backgrounds') {
         userData.backgrounds = userData.backgrounds || [];
         userData.backgrounds.forEach(key => {
-            if (key !== 'rank_badge') return; 
+            if (!bgData[key]) return; 
+            const b = bgData[key];
             const isEquipped = userData.equippedBackground === key;
             const btnHtml = isEquipped ? `<button class="action-btn equipped" onclick="app.equipBackground('${key}')">装備中</button>` : `<button class="action-btn" onclick="app.equipBackground('${key}')">装備</button>`;
             const div = document.createElement('div'); div.className = 'list-item';
-            div.innerHTML = `<div class="shop-item-info"><h3>ランクの証</h3><p>背景中央にランクZ3の証を表示し、名前にも専用マークが付きます。</p></div><div>${btnHtml}</div>`;
+            div.innerHTML = `<div class="shop-item-info"><h3>${b.name}</h3></div><div>${btnHtml}</div>`;
             list.appendChild(div);
         });
+        const unEqDiv = document.createElement('div'); unEqDiv.className = 'list-item';
+        unEqDiv.innerHTML = `<div class="shop-item-info"><h3>標準背景</h3></div><button class="action-btn ${!userData.equippedBackground ? 'equipped' : ''}" onclick="app.equipBackground(null)">${!userData.equippedBackground ? '装備中' : '装備する'}</button>`;
+        list.appendChild(unEqDiv);
     } else if (tab === 'companions') {
         userData.companions.forEach(key => {
             if (!companionData[key]) return;
             const c = companionData[key];
             const isEquipped = userData.equippedCompanion === key;
-            const btnHtml = isEquipped ? `<button class="action-btn equipped" onclick="app.equipCompanion('${key}')">装備中</button>` : `<button class="action-btn" onclick="app.equipCompanion('${key}')">装備</button>`;
+            const btnHtml = isEquipped ? `<button class="action-btn equipped" onclick="app.equipCompanion('${key}')">同行中</button>` : `<button class="action-btn" onclick="app.equipCompanion('${key}')">同行させる</button>`;
             const div = document.createElement('div'); div.className = 'list-item';
             div.innerHTML = `
                 <div style="display:flex; align-items:center; gap:15px;">
@@ -2436,6 +2421,10 @@ function renderInventoryList(tab) {
                 <div>${btnHtml}</div>`;
             list.appendChild(div);
         });
+        const unEqDiv = document.createElement('div'); unEqDiv.className = 'list-item';
+        unEqDiv.innerHTML = `<div class="shop-item-info"><h3>一人で冒険する</h3></div><button class="action-btn ${!userData.equippedCompanion ? 'equipped' : ''}" onclick="app.equipCompanion(null)">${!userData.equippedCompanion ? '選択中' : '選択する'}</button>`;
+        list.appendChild(unEqDiv);
+        
         if (userData.companions.length === 0) {
             list.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">仲間はまだいません。修行モードで獲得しよう！</div>';
         }
@@ -2447,23 +2436,32 @@ function startBoostStatusTimer() {
         const now = Date.now();
         const container = document.getElementById('boost-status-container'); 
         container.innerHTML = ''; 
-        for (const key in gameState.activeBoosts) {
-            const expireTime = gameState.activeBoosts[key];
+        let changed = false;
+        
+        for (const key in userData.activeBoosts) {
+            const expireTime = userData.activeBoosts[key];
             if (expireTime > now) {
                 const item = itemData[key]; const diff = expireTime - now;
                 const m = Math.floor(diff / 60000); const s = Math.floor((diff % 60000) / 1000);
                 const el = document.createElement('div');
                 let icon = '🎁'; if (key.includes('coin')) icon = '🪙'; if (key.includes('gold')) icon = '🥇'; if (key.includes('xp')) icon = '✨';
                 let extraClass = ''; if (key.includes('mini')) extraClass = 'mini-coin'; if (key.includes('gold')) extraClass = 'gold'; if (key.includes('xp')) extraClass = 'xp';
-                el.className = `boost-indicator ${extraClass}`; el.innerHTML = `${icon} 効果名: ${item.name} | 残り時間: ${m}分${s}秒`;
+                el.className = `boost-indicator ${extraClass}`; el.innerHTML = `<span>${icon} ${item.name}</span><span>${m}:${s.toString().padStart(2, '0')}</span>`;
                 container.appendChild(el);
+                if(item.effect) item.effect(true);
             } else {
                 if (itemData[key].effect) itemData[key].effect(false);
-                delete gameState.activeBoosts[key]; renderInventoryList('items');
+                delete userData.activeBoosts[key];
+                changed = true;
+            }
+        }
+        if (changed) {
+            saveUserData();
+            if (document.getElementById('inventory-screen').classList.contains('active')) {
+                app.switchInventoryTab(document.querySelector('#inventory-screen .tab.active')?.innerText === 'アイテム' ? 'items' : '');
             }
         }
         
-        // ★ 今回追加：コンパニオンバフのUI更新
         const buffContainer = document.getElementById('companion-buff-status');
         if (buffContainer) {
             if (gameState.isPlaying && gameState.activeCompanionBuff) {
@@ -2484,14 +2482,9 @@ function startBoostStatusTimer() {
                 buffContainer.innerHTML = '';
             }
         }
-    }, 100);
+    }, 1000);
 }
 
-// ==========================================
-// グローバルAPI (window.app)
-// ==========================================
-
-// ロード直後のモード選択を3秒間ロックするための判定
 function checkModeSelectable() {
     if (!gameState.isModeSelectable) {
         alert("ゲームのロード完了直後です。あと3秒ほどお待ちください！");
@@ -2502,15 +2495,21 @@ function checkModeSelectable() {
 
 window.app = {
     showScreen: (screenId) => {
-        // プレイモード画面を開くときだけ制限チェック
         if ((screenId === 'play-select-screen' || screenId === 'shugyo-select-screen') && !checkModeSelectable()) return;
         showScreen(screenId);
     },
-    startGame: (mode, stage) => {
+    startGame: (mode, shugyoBoss, storyStage, raidStage) => {
         if (!checkModeSelectable()) return;
-        startGame(mode, stage);
+        startGame(mode, shugyoBoss, storyStage, raidStage);
     },
     openStoryMap: () => { if (!checkModeSelectable()) return; renderStoryMap(); showScreen('story-map-screen'); },
+    switchStoryTab: (chapter) => {
+        if (chapter === 2 && userData.storyStage <= 100) { alert("第一章(ステージ100)をクリアすると解放されます！"); return; }
+        currentStoryChapter = chapter;
+        document.getElementById('story-tab-1').classList.toggle('active', chapter === 1);
+        document.getElementById('story-tab-2').classList.toggle('active', chapter === 2);
+        renderStoryMap();
+    },
     openRaidMap: () => { if (!checkModeSelectable()) return; renderRaidMap(); showScreen('raid-map-screen'); },
     
     openRankMatch: () => {
@@ -2554,7 +2553,7 @@ window.app = {
         const list = document.getElementById('users-list'); list.innerHTML = '読み込み中...';
         
         try {
-            const refPath = type === 'online' ? 'onlineUsers' : `dailyUsers/${getRankingDateKey()}`;
+            const refPath = type === 'online' ? `onlineUsers` : `dailyUsers/${getRankingDateKey()}`;
             const snap = await get(ref(db, refPath));
             if (!snap.exists()) { list.innerHTML = '<div style="text-align:center;">データがありません</div>'; return; }
             let users = []; snap.forEach(c => { users.push(c.val()); });
@@ -2573,19 +2572,19 @@ window.app = {
 
     openShop: () => { showScreen('shop-screen'); document.querySelectorAll('#shop-screen .tab').forEach(t => t.classList.remove('active')); document.querySelector('#shop-screen .tab').classList.add('active'); renderShopList('skills'); },
     switchShopTab: (tab) => { document.querySelectorAll('#shop-screen .tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); renderShopList(tab); },
-    buyItem: (type, key) => {
-        let item = type === 'skills' || type === 'raid' ? skillData[key] : (type === 'items' ? itemData[key] : passiveData[key]);
+    buyItem: (tab, key) => {
+        let item = tab === 'skills' || tab === 'raid' ? skillData[key] : (tab === 'items' ? itemData[key] : passiveData[key]);
         if (item.priceType === 'coin' && userData.coin >= item.price) {
             userData.coin -= item.price;
-            if (type === 'items') userData.items[key] = (userData.items[key] || 0) + 1; else if (type === 'passive') userData.passives.push(key); else userData.skills.push(key);
-            saveUserData(); renderShopList(type); if (type === 'raid') renderShopList('raid');
+            if (tab === 'items') userData.items[key] = (userData.items[key] || 0) + 1; else if (tab === 'passive') userData.passives.push(key); else userData.skills.push(key);
+            saveUserData(); renderShopList(tab); if (tab === 'raid') renderShopList('raid');
         } else if (item.priceType === 'raid' && userData.raidPoint >= item.price) {
             userData.raidPoint -= item.price;
-            if (type === 'items') userData.items[key] = (userData.items[key] || 0) + 1; else if (type === 'passive') userData.passives.push(key); else userData.skills.push(key);
-            saveUserData(); renderShopList(type); if (type === 'raid') renderShopList('raid');
+            if (tab === 'items') userData.items[key] = (userData.items[key] || 0) + 1; else if (tab === 'passive') userData.passives.push(key); else userData.skills.push(key);
+            saveUserData(); renderShopList(tab); if (tab === 'raid') renderShopList('raid');
         } else if (item.priceType === 'rankCoin' && userData.rankCoin >= item.price) {
             userData.rankCoin -= item.price;
-            if (type === 'items') userData.items[key] = (userData.items[key] || 0) + 1;
+            if (tab === 'items') userData.items[key] = (userData.items[key] || 0) + 1;
             saveUserData(); renderRankShopList(); document.getElementById('rank-shop-rc-display').innerText = userData.rankCoin || 0;
             alert('購入しました！「持ち物」から装備・使用してください。');
         } else { alert('ポイント・コインが足りません'); }
@@ -2593,7 +2592,16 @@ window.app = {
     
     openInventory: () => { showScreen('inventory-screen'); document.querySelectorAll('#inventory-screen .tab').forEach(t => t.classList.remove('active')); document.querySelector('#inventory-screen .tab').classList.add('active'); renderInventoryList('skills'); },
     switchInventoryTab: (tab) => { document.querySelectorAll('#inventory-screen .tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); renderInventoryList(tab); },
-    equipSkill: (key) => { userData.equippedSkill = userData.equippedSkill === key ? null : key; saveUserData(); renderInventoryList('skills'); },
+    equipSkill: (key, slot) => { 
+        if (slot === 1) {
+            if (userData.equippedSkill === key) userData.equippedSkill = null;
+            else { userData.equippedSkill = key; if (userData.equippedSkill2 === key) userData.equippedSkill2 = null; }
+        } else {
+            if (userData.equippedSkill2 === key) userData.equippedSkill2 = null;
+            else { userData.equippedSkill2 = key; if (userData.equippedSkill === key) userData.equippedSkill = null; }
+        }
+        saveUserData(); renderInventoryList('skills'); 
+    },
     equipPassive: (key) => { userData.equippedPassive = userData.equippedPassive === key ? null : key; saveUserData(); renderInventoryList('passive'); },
     equipBackground: (key) => { 
         userData.equippedBackground = userData.equippedBackground === key ? null : key; 
@@ -2605,7 +2613,7 @@ window.app = {
     },
     useItem: (key) => {
         if (userData.items[key] > 0) {
-            userData.items[key]--; gameState.activeBoosts[key] = Date.now() + (itemData[key].duration * 1000);
+            userData.items[key]--; userData.activeBoosts[key] = Date.now() + (itemData[key].duration * 1000);
             if (itemData[key].effect) itemData[key].effect(true);
             saveUserData(); renderInventoryList('items');
         }
@@ -2615,67 +2623,37 @@ window.app = {
     acceptAgreement: () => { localStorage.setItem('agreementAccepted', 'true'); document.getElementById('agreement-modal').classList.remove('active'); },
     showAgreement: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('agreement-modal').classList.add('active'); },
     
-    // 警告UIを閉じる処理
     closeNoticeModal: (hideType) => {
         let expireTime = 0;
-        if (hideType === '12h') {
-            expireTime = Date.now() + (12 * 60 * 60 * 1000); // 12時間後
-        } else if (hideType === '3d') {
-            expireTime = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3日後
-        }
-        if (expireTime > 0) {
-            localStorage.setItem('hideNoticeUntil', expireTime.toString());
-        }
+        if (hideType === '12h') expireTime = Date.now() + (12 * 60 * 60 * 1000);
+        else if (hideType === '3d') expireTime = Date.now() + (3 * 24 * 60 * 60 * 1000);
+        if (expireTime > 0) localStorage.setItem('hideNoticeUntil', expireTime.toString());
         document.getElementById('notice-modal').classList.remove('active');
     },
 
-    // データベース重複確認付きの名前保存
     saveName: async () => { 
         const input = document.getElementById('name-input'); 
         const newName = input.value.trim().substring(0, 20);
         if (newName === '') return;
-        if (newName === userData.name) {
-            alert('名前を保存しました！');
-            return;
-        }
+        if (newName === userData.name) { alert('名前を保存しました！'); return; }
 
         if (newName !== '冒険者') {
             try {
                 const nameRef = ref(db, `usedNames/${newName}`);
                 const snap = await get(nameRef);
-                if (snap.exists() && snap.val() !== uid) {
-                    alert('この名前は既に他のプレイヤーに使われています。別の名前にしてください。');
-                    return;
-                }
-                // 前の名前が冒険者以外なら解放
-                if (userData.name !== '冒険者') {
-                    await set(ref(db, `usedNames/${userData.name}`), null);
-                }
-                // 新しい名前を登録
+                if (snap.exists() && snap.val() !== uid) { alert('この名前は既に他のプレイヤーに使われています。別の名前にしてください。'); return; }
+                if (userData.name !== '冒険者') await set(ref(db, `usedNames/${userData.name}`), null);
                 await set(ref(db, `usedNames/${newName}`), uid);
-            } catch (e) {
-                console.error(e);
-                alert('名前の確認中にエラーが発生しました。');
-                return;
-            }
+            } catch (e) { alert('名前の確認中にエラーが発生しました。'); return; }
         } else {
-            // 新しい名前が冒険者の場合、元の名前を解放
-            if (userData.name !== '冒険者') {
-                await set(ref(db, `usedNames/${userData.name}`), null);
-            }
+            if (userData.name !== '冒険者') await set(ref(db, `usedNames/${userData.name}`), null);
         }
 
         userData.name = newName; 
-        
-        if (userData.name && (userData.name.includes('ビルダーマン') || userData.name.includes('管理者）らも') || userData.name.includes('管理者)らも'))) {
-            userData.isAdmin = true;
-        } else {
-            userData.isAdmin = false;
-        }
+        if (userData.name && (userData.name.includes('ビルダーマン') || userData.name.includes('管理者）らも') || userData.name.includes('管理者)らも'))) userData.isAdmin = true;
+        else userData.isAdmin = false;
 
-        saveUserData(); 
-        updateOnlinePresence(); 
-        alert('名前を保存しました！'); 
+        saveUserData(); updateOnlinePresence(); alert('名前を保存しました！'); 
     },
     
     toggleFurigana: (val) => { userData.settings.showFurigana = val; saveUserData(); },
@@ -2685,67 +2663,43 @@ window.app = {
     resetDataConfirm: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('reset-confirm-modal').classList.add('active'); },
     resetDataExecute: () => { userData = { ...defaultUserData, settings: { homeScale: 50, showFurigana: true } }; saveUserData(); location.reload(); },
 
-    // アンケート関連
     closeSurveyNotification: () => {
         document.getElementById('survey-notification').style.display = 'none';
         localStorage.setItem('surveyNotifClosed_yuchin', 'true');
     },
     openSurveyModal: () => {
-        if (userData.surveyDisabled) {
-            alert('あなたは管理者からアンケート機能を停止させられました');
-            return;
-        }
+        if (userData.surveyDisabled) { alert('あなたは管理者からアンケート機能を停止させられました'); return; }
         document.getElementById('survey-modal').classList.add('active');
     },
     submitSurvey: async () => {
         const input = document.getElementById('survey-input').value.trim();
         if (input === '') return alert('内容を入力してください。');
         
-        const dateKey = getRankingDateKey(); // 日付管理用
+        const dateKey = getRankingDateKey();
         let surveyData = JSON.parse(localStorage.getItem('surveyCount') || '{}');
-        if (surveyData.date !== dateKey) {
-            surveyData = { date: dateKey, count: 0 };
-        }
-        
-        if (surveyData.count >= 2) {
-            return alert('1日の送信上限（2回）に達しました。また明日お願いします！');
-        }
+        if (surveyData.date !== dateKey) surveyData = { date: dateKey, count: 0 };
+        if (surveyData.count >= 2) return alert('1日の送信上限（2回）に達しました。また明日お願いします！');
         
         try {
-            // surveysノードへ追加
             const surveyRef = ref(db, `surveys/general/${Date.now()}_${uid}`);
-            await set(surveyRef, {
-                uid: uid,
-                name: userData.name,
-                content: input,
-                timestamp: Date.now()
-            });
+            await set(surveyRef, { uid: uid, name: userData.name, content: input, timestamp: Date.now() });
             
             surveyData.count++;
             localStorage.setItem('surveyCount', JSON.stringify(surveyData));
             document.getElementById('survey-input').value = '';
             alert('アンケートを送信しました！ありがとうございます！');
-        } catch (e) {
-            console.error(e);
-            alert('送信に失敗しました。');
-        }
+        } catch (e) { alert('送信に失敗しました。'); }
     },
     voteYuchin: async (choice) => {
         try {
             await set(ref(db, `surveys/yuchin_poll/${uid}`), choice);
             alert("ゆちんさんへの投票を保存しました。");
-        } catch (e) {
-            alert("エラーが発生しました。");
-        }
+        } catch (e) { alert("エラーが発生しました。"); }
     },
     viewSurveyResults: async () => {
         const n = userData.name || "";
         const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
-        if (!isAdm) {
-            document.getElementById('survey-admin-msg').style.display = 'block';
-            setTimeout(() => { document.getElementById('survey-admin-msg').style.display = 'none'; }, 3000);
-            return;
-        }
+        if (!isAdm) { document.getElementById('survey-admin-msg').style.display = 'block'; setTimeout(() => { document.getElementById('survey-admin-msg').style.display = 'none'; }, 3000); return; }
         
         document.getElementById('survey-modal').classList.remove('active');
         document.getElementById('survey-results-modal').classList.add('active');
@@ -2754,44 +2708,22 @@ window.app = {
         
         try {
             const snap = await get(ref(db, 'surveys/general'));
-            if (!snap.exists()) {
-                list.innerHTML = '<div style="text-align:center;">まだアンケートがありません。</div>';
-                return;
-            }
-            
-            let surveys = [];
-            snap.forEach(c => { surveys.push(c.val()); });
-            
-            // 新しいものが上
+            if (!snap.exists()) { list.innerHTML = '<div style="text-align:center;">まだアンケートがありません。</div>'; return; }
+            let surveys = []; snap.forEach(c => { surveys.push(c.val()); });
             surveys.sort((a, b) => b.timestamp - a.timestamp);
             
             list.innerHTML = '';
             surveys.forEach(s => {
                 const d = new Date(s.timestamp + (new Date().getTimezoneOffset() + 540) * 60000);
                 const dateStr = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
-                
                 const div = document.createElement('div');
-                div.className = 'list-item';
-                div.style.flexDirection = 'column';
-                div.style.alignItems = 'flex-start';
-                div.style.gap = '5px';
-                
-                let dName = formatUserName(s.name, null, false, false, false);
-                div.innerHTML = `
-                    <div style="font-size: 12px; color: #aaa;">${dateStr}</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #ffeb3b;">${dName}</div>
-                    <div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${escapeHtml(s.content)}</div>
-                `;
+                div.className = 'list-item'; div.style.flexDirection = 'column'; div.style.alignItems = 'flex-start'; div.style.gap = '5px';
+                div.innerHTML = `<div style="font-size: 12px; color: #aaa;">${dateStr}</div><div style="font-size: 18px; font-weight: bold; color: #ffeb3b;">${formatUserName(s.name, null, false, false, false)}</div><div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${escapeHtml(s.content)}</div>`;
                 list.appendChild(div);
             });
-            
-        } catch (e) {
-            console.error(e);
-            list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>';
-        }
+        } catch (e) { list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>'; }
     },
     
-    // デバッグ・BAN関連機能
     openDebugModal: () => {
         const n = userData.name || "";
         const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
@@ -2810,25 +2742,16 @@ window.app = {
             
             let pData = null;
             const now = Date.now();
-            if (type === 'warning') {
-                pData = { type: 'warning', timestamp: now, read: false };
-            } else if (type === 'ban_10m') {
-                pData = { type: 'ban', until: now + 10 * 60 * 1000 };
-            } else if (type === 'ban_1h') {
-                pData = { type: 'ban', until: now + 60 * 60 * 1000 };
-            } else if (type === 'ban_1d') {
-                pData = { type: 'ban', until: now + 24 * 60 * 60 * 1000 };
-            } else if (type === 'ban_perm') {
-                pData = { type: 'ban', until: -1 };
-            } else if (type === 'unban') {
-                pData = null;
-            }
+            if (type === 'warning') pData = { type: 'warning', timestamp: now, read: false };
+            else if (type === 'ban_10m') pData = { type: 'ban', until: now + 10 * 60 * 1000 };
+            else if (type === 'ban_1h') pData = { type: 'ban', until: now + 60 * 60 * 1000 };
+            else if (type === 'ban_1d') pData = { type: 'ban', until: now + 24 * 60 * 60 * 1000 };
+            else if (type === 'ban_perm') pData = { type: 'ban', until: -1 };
+            else if (type === 'unban') pData = null;
             
             await set(ref(db, `users/${targetUid}/punishment`), pData);
             alert('処理が完了しました。');
-        } catch(e) {
-            alert('エラーが発生しました');
-        }
+        } catch(e) { alert('エラーが発生しました'); }
     },
     setAdmin: async (flag) => {
         const targetId = document.getElementById('debug-target-id').value;
@@ -2839,9 +2762,7 @@ window.app = {
             const targetUid = mappingSnap.val();
             await set(ref(db, `users/${targetUid}/isAdmin`), flag);
             alert(`管理者権限を${flag ? '付与' : '剥奪'}しました。`);
-        } catch(e) {
-            alert('エラーが発生しました。');
-        }
+        } catch(e) { alert('エラーが発生しました。'); }
     },
     setSurveyStatus: async (isDisabled) => {
         const targetId = document.getElementById('debug-target-id').value;
@@ -2852,9 +2773,7 @@ window.app = {
             const targetUid = mappingSnap.val();
             await set(ref(db, `users/${targetUid}/surveyDisabled`), isDisabled);
             alert(`アンケート機能を${isDisabled ? '停止' : '許可'}しました。`);
-        } catch(e) {
-            alert('エラーが発生しました。');
-        }
+        } catch(e) { alert('エラーが発生しました。'); }
     },
     setBugHunter: async (flag) => {
         const targetId = document.getElementById('debug-target-id').value;
@@ -2865,9 +2784,7 @@ window.app = {
             const targetUid = mappingSnap.val();
             await set(ref(db, `users/${targetUid}/isBugHunter`), flag);
             alert(`バグ発見体を${flag ? '付与' : '剥奪'}しました。`);
-        } catch(e) {
-            alert('エラーが発生しました。');
-        }
+        } catch(e) { alert('エラーが発生しました。'); }
     },
     bhSendWarning: async () => {
         const targetId = document.getElementById('bh-warn-target').value;
@@ -2880,26 +2797,17 @@ window.app = {
             const pData = { type: 'warn', timestamp: Date.now(), read: false };
             await set(ref(db, `users/${targetUid}/punishment`), pData);
             alert('警告を送信しました。');
-        } catch(e) {
-            alert('エラーが発生しました。');
-        }
+        } catch(e) { alert('エラーが発生しました。'); }
     },
     bhSubmitReport: async () => {
         const content = document.getElementById('bh-report-text').value.trim();
         if (!content) return alert('内容を入力してください');
         try {
             const newRef = push(ref(db, 'bugReports'));
-            await set(newRef, {
-                senderId: userData.userId,
-                senderName: userData.name,
-                content: content,
-                timestamp: Date.now()
-            });
+            await set(newRef, { senderId: userData.userId, senderName: userData.name, content: content, timestamp: Date.now() });
             document.getElementById('bh-report-text').value = '';
             alert('バグを報告しました。');
-        } catch(e) {
-            alert('エラーが発生しました。');
-        }
+        } catch(e) { alert('エラーが発生しました。'); }
     },
     viewBugReports: async () => {
         const n = userData.name || "";
@@ -2913,39 +2821,20 @@ window.app = {
         
         try {
             const snap = await get(ref(db, 'bugReports'));
-            if (!snap.exists()) {
-                list.innerHTML = '<div style="text-align:center;">バグ報告はありません。</div>';
-                return;
-            }
-            
-            let reports = [];
-            snap.forEach(c => { reports.push(c.val()); });
-            
-            // 新しいものが上
+            if (!snap.exists()) { list.innerHTML = '<div style="text-align:center;">バグ報告はありません。</div>'; return; }
+            let reports = []; snap.forEach(c => { reports.push(c.val()); });
             reports.sort((a, b) => b.timestamp - a.timestamp);
             
             list.innerHTML = '';
             reports.forEach(r => {
                 const d = new Date(r.timestamp + (new Date().getTimezoneOffset() + 540) * 60000);
                 const dateStr = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
-                
                 const div = document.createElement('div');
-                div.className = 'list-item';
-                div.style.flexDirection = 'column';
-                div.style.alignItems = 'flex-start';
-                div.style.gap = '5px';
-                
-                div.innerHTML = `
-                    <div style="font-size: 12px; color: #aaa;">${dateStr} - ${escapeHtml(r.senderName)} (No.${r.senderId})</div>
-                    <div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${escapeHtml(r.content)}</div>
-                `;
+                div.className = 'list-item'; div.style.flexDirection = 'column'; div.style.alignItems = 'flex-start'; div.style.gap = '5px';
+                div.innerHTML = `<div style="font-size: 12px; color: #aaa;">${dateStr} - ${escapeHtml(r.senderName)} (No.${r.senderId})</div><div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${escapeHtml(r.content)}</div>`;
                 list.appendChild(div);
             });
-            
-        } catch (e) {
-            console.error(e);
-            list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>';
-        }
+        } catch (e) { list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>'; }
     },
     closeWarning: async () => {
         await update(ref(db, `users/${uid}/punishment`), { read: true });
@@ -2958,5 +2847,3 @@ document.getElementById('greek-info-btn').addEventListener('click', () => { docu
 </script>
 </body>
 </html>
-
-```
