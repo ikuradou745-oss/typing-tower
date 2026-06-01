@@ -281,11 +281,6 @@
 <div id="companion-buff-status"></div>
 <div id="combo-protect-indicator"></div>
 
-<div id="survey-notification" style="display: none; background: linear-gradient(90deg, #ff9800, #ff5722); color: #fff; padding: 12px; text-align: center; font-weight: bold; font-size: 16px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 50;">
-    <span id="survey-notification-text">新しいアンケートがあります。</span>
-    <span onclick="app.closeSurveyNotification()" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 24px; text-shadow: 1px 1px 2px black;">✖</span>
-</div>
-
 <div id="app-container">
     <div id="header">
         <div id="header-left">
@@ -343,7 +338,11 @@
             <div class="select-grid">
                 <button class="mode-btn hard" onclick="app.startGame('shugyo', 'red_blue')" style="display:flex; flex-direction:column; align-items:center;">
                     <img src="赤青.png" alt="赤青" style="width:80px; height:80px; margin-bottom:10px; border-radius:50%;">
-                    レッドアンドブルー<br><span style="font-size: 16px;">目標: 1,500,000 スコア</span>
+                    レッドアンドブルー<br><span style="font-size: 16px;">目標: 1,000,000 スコア</span>
+                </button>
+                <button class="mode-btn hard" onclick="app.startGame('shugyo', 'sunsun')" style="display:flex; flex-direction:column; align-items:center;">
+                    <img src="スンスン.png" alt="スンスン" style="width:80px; height:80px; margin-bottom:10px; border-radius:50%;">
+                    スンスン<br><span style="font-size: 16px;">目標: 1,250,000 スコア</span>
                 </button>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 50px;">戻る</button>
@@ -585,19 +584,6 @@
         <p>アップデートで作って欲しい内容を教えてください！<br>（1日2回まで送信可能）</p>
         <textarea id="survey-input" class="modal-input" style="height: 100px; resize: none; font-size: 16px;" placeholder="ここに内容を入力..."></textarea>
         <button class="modal-btn" style="background: linear-gradient(145deg, #4caf50, #2e7d32);" onclick="app.submitSurvey()">送信する</button>
-        
-        <div id="yuchin-survey-section" style="margin-top: 30px; border-top: 1px solid #444; padding-top: 20px;">
-            <h3 style="color: #ffeb3b;">📊 ゆちんさんを許すかどうか</h3>
-            <div id="yuchin-options-container" style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="modal-btn" style="margin:0; background:#4caf50;" onclick="app.voteYuchin('許す')">許す</button>
-                <button class="modal-btn" style="margin:0; background:#8bc34a;" onclick="app.voteYuchin('謝罪してくれたら許す')">謝罪してくれたら許す</button>
-                <button class="modal-btn" style="margin:0; background:#9e9e9e;" onclick="app.voteYuchin('どうでもいい')">どうでもいい</button>
-                <button class="modal-btn" style="margin:0; background:#ff9800;" onclick="app.voteYuchin('ちょっと許せない')">ちょっと許せない</button>
-                <button class="modal-btn" style="margin:0; background:#f44336;" onclick="app.voteYuchin('許せない')">許せない</button>
-            </div>
-            <div id="yuchin-voted-msg" style="display: none; color: #ffeb3b; font-weight: bold; margin-bottom: 10px; text-align: center;">投票済みです。ありがとうございます。</div>
-            <div id="yuchin-results-container" style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;"></div>
-        </div>
 
         <hr style="border-color: #444; margin: 20px 0;">
         <button class="modal-btn" style="background: linear-gradient(145deg, #7b1fa2, #4a148c);" onclick="app.viewSurveyResults()">アンケート内容を見る</button>
@@ -751,6 +737,48 @@ const db = getDatabase(appInstance);
 
 window.app = {};
 
+// ==========================================
+// 🎵 サウンド生成モジュール (Web Audio API)
+// ==========================================
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    if (type === 'type') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.05);
+    } else if (type === 'miss') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.2);
+    } else if (type === 'button') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.1);
+    }
+}
+document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.classList.contains('tab')) {
+        playSound('button');
+    }
+});
+
+
 const typingData = [
     { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku", furigana: "はやおきはさんもんのとく" },
     { ja: "石の上にも三年", romaji: "isinouenimosannnenn", furigana: "いしのうえにもさんねん" },
@@ -797,6 +825,12 @@ const companionData = {
         name: "レッドアンドブルー",
         img: "赤青.png",
         desc: "20秒ごとに「スコア2倍(5秒)」か「コンボ1.5倍(5秒)」のバフをかける。"
+    },
+    "sunsun": {
+        id: "sunsun",
+        name: "スンスン",
+        img: "スンスン.png",
+        desc: "最初の20秒後、以降15秒ごとに「自動エナジー(4.5秒)」か「発電(コンボ+200)」のバフをかける。"
     }
 };
 
@@ -808,7 +842,11 @@ const skillData = {
     "auto_input_omega": { id: "auto_input_omega", name: "自動入力Ω", desc: "5.5秒間、0.045秒間隔で自動入力。クールダウン35秒。", price: 0, priceType: 'none', cooldown: 35, duration: 5.5, interval: 45, execute: function() { startAutoType(this.duration, this.interval); } },
     "time_extend_alpha": { id: "time_extend_alpha", name: "時間伸ばしα", desc: "タイマーを止めてゲージを止めるミニゲーム。クールダウン120秒。", price: 50, priceType: 'raid', cooldown: 120, execute: function() { startTimeExtendGame(); } },
     "combo_up_alpha": { id: "combo_up_alpha", name: "コンボアップα", desc: "5秒間、コンボが1.5倍。クールダウン35秒。", price: 10000, priceType: 'coin', cooldown: 35, duration: 5, execute: function() { gameState.comboMultiplier = 1.5; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } },
-    "combo_up_beta": { id: "combo_up_beta", name: "コンボアップβ", desc: "7.5秒間、コンボが1.85倍。クールダウン35秒。", price: 500000, priceType: 'coin', cooldown: 35, duration: 7.5, execute: function() { gameState.comboMultiplier = 1.85; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } }
+    "combo_up_beta": { id: "combo_up_beta", name: "コンボアップβ", desc: "7.5秒間、コンボが1.85倍。クールダウン35秒。", price: 500000, priceType: 'coin', cooldown: 35, duration: 7.5, execute: function() { gameState.comboMultiplier = 1.85; setTimeout(() => { gameState.comboMultiplier = 1.0; }, this.duration * 1000); } },
+    "punch_alpha": { id: "punch_alpha", name: "パンチα", desc: "ランクマッチ専用。相手のスコア増加を3秒間停止。クールダウン35秒。", price: 250000, priceType: 'coin', cooldown: 35, duration: 3, execute: function() { applyPunch(this.duration, 0); } },
+    "punch_beta": { id: "punch_beta", name: "パンチβ", desc: "ランクマッチ専用。相手のスコア増加を5.5秒間停止。クールダウン30秒。", price: 500000, priceType: 'coin', cooldown: 30, duration: 5.5, execute: function() { applyPunch(this.duration, 0); } },
+    "punch_gamma": { id: "punch_gamma", name: "パンチγ", desc: "ランクマッチ専用。相手のスコア増加を6.5秒間停止。クールダウン35秒。", price: 750000, priceType: 'coin', cooldown: 35, duration: 6.5, execute: function() { applyPunch(this.duration, 0); } },
+    "punch_delta": { id: "punch_delta", name: "パンチΔ", desc: "ランクマッチ専用。相手のスコア増加を6.5秒停止＆スコア50万減少。クールダウン30秒。", price: 1000000, priceType: 'coin', cooldown: 30, duration: 6.5, execute: function() { applyPunch(this.duration, 500000); } }
 };
 
 function startAutoType(duration, interval) {
@@ -819,6 +857,21 @@ function startAutoType(duration, interval) {
     setTimeout(() => { gameState.isAutoTyping = false; clearInterval(gameState.autoTypeInterval); }, duration * 1000);
 }
 
+function applyPunch(duration, reduceScore) {
+    if (gameState.mode !== 'rank') {
+        showGameMessage('ランクマッチ専用スキルです！', '#f44336');
+        return;
+    }
+    gameState.npcScoreFreezeTime = Date.now() + duration * 1000;
+    if (reduceScore > 0) {
+        gameState.npcCurrentScore = Math.max(0, gameState.npcCurrentScore - reduceScore);
+        document.getElementById('npc-info-score').innerText = Math.floor(gameState.npcCurrentScore).toLocaleString();
+        showGameMessage(`相手が${duration}秒停止＆50万スコア減少！`, '#2196f3');
+    } else {
+        showGameMessage(`相手が${duration}秒停止！`, '#2196f3');
+    }
+}
+
 const passiveData = {
     "combo_set_alpha": { id: "combo_set_alpha", name: "コンボセットα", desc: "ゲーム開始時のコンボが30になります。", price: 30000, priceType: 'coin', onGameStart: function() { gameState.combo = 30; } },
     "combo_set_gamma": { id: "combo_set_gamma", name: "コンボセットγ", desc: "ゲーム開始時のコンボが65になります。", price: 0, priceType: 'none', onGameStart: function() { gameState.combo = 65; } },
@@ -827,7 +880,9 @@ const passiveData = {
     "combo_no_reset_epsilon": { id: "combo_no_reset_epsilon", name: "コンボノットリセットε", desc: "一度だけミスしても、コンボが0にならない状態が3.5秒続きます。", price: 100000, priceType: 'coin', usedInGame: false },
     "raid_point_increase_alpha": { id: "raid_point_increase_alpha", name: "レイドポイントフエールα", desc: "貰えるレイドポイントが1.5倍になります。", price: 25, priceType: 'raid' },
     "raid_point_increase_beta": { id: "raid_point_increase_beta", name: "レイドポイントフエールβ", desc: "貰えるレイドポイントが2倍になります。", price: 25, priceType: 'raid' },
-    "combo_no_reset_beta": { id: "combo_no_reset_beta", name: "コンボノットリセットβ", desc: "3回分ミスしてもコンボが0になりません。", price: 0, priceType: 'none', usedInGame: false }
+    "combo_no_reset_beta": { id: "combo_no_reset_beta", name: "コンボノットリセットβ", desc: "3回分ミスしてもコンボが0になりません。", price: 0, priceType: 'none', usedInGame: false },
+    "franklin_badge_alpha": { id: "franklin_badge_alpha", name: "フランクリンバッジα", desc: "敵からのスタン（凍結、毒、バチバチなど）を喰らわなくなる。", price: 500000, priceType: 'coin' },
+    "franklin_badge_beta": { id: "franklin_badge_beta", name: "フランクリンバッジβ", desc: "スタンを喰らわず、受けたスタンの時間分、残り時間が増える。", price: 1000000, priceType: 'coin' }
 };
 
 const itemData = {
@@ -902,7 +957,8 @@ const gameState = {
     npcTargetScore: 0, npcCurrentScore: 0, npcScoreIncrement: 0, rankObstacleTriggered: false,
     evaded: false,
     companionScoreMulti: 1.0, companionComboMulti: 1.0, activeCompanionBuff: null,
-    isModeSelectable: false, storyObstacleTriggered: false, storyObstacleTriggerTime: 0, rankObstacleTriggerTime: -1, rankObstacleType: null
+    isModeSelectable: false, storyObstacleTriggered: false, storyObstacleTriggerTime: 0, rankObstacleTriggerTime: -1, rankObstacleType: null,
+    autoEnergyActive: false, bachibachiState: false, bachibachiTick: 0, nextSunsunBuffTime: undefined, npcScoreFreezeTime: 0
 };
 
 let raidState = { isOpen: false, currentStage: 1, stages: [] };
@@ -1218,49 +1274,6 @@ async function initApp() {
         document.getElementById('notice-modal').classList.add('active');
     }
 
-    const notifClosed = localStorage.getItem('surveyNotifClosed_yuchin');
-    const expireDate = new Date(2026, 4, 24).getTime(); 
-    if (!notifClosed && Date.now() < expireDate) {
-        document.getElementById('survey-notification').style.display = 'block';
-    } else {
-        document.getElementById('survey-notification').style.display = 'none';
-    }
-
-    onValue(ref(db, 'surveys/yuchin_poll'), (snap) => {
-        const data = snap.val() || {};
-        const myVote = data[uid];
-        
-        const optsContainer = document.getElementById('yuchin-options-container');
-        const votedMsg = document.getElementById('yuchin-voted-msg');
-        
-        if (optsContainer && votedMsg) {
-            if (myVote) {
-                optsContainer.style.display = 'none';
-                votedMsg.style.display = 'block';
-            } else {
-                optsContainer.style.display = 'flex';
-                votedMsg.style.display = 'none';
-            }
-        }
-
-        const counts = { '許す': 0, '謝罪してくれたら許す': 0, 'どうでもいい': 0, 'ちょっと許せない': 0, '許せない': 0 };
-        for (let key in data) {
-            if (counts[data[key]] !== undefined) counts[data[key]]++;
-        }
-        
-        const total = Object.values(counts).reduce((a,b)=>a+b,0) || 1;
-        
-        const resHtml = `
-            <div style="font-size:14px; margin-bottom:5px;">許す: ${counts['許す']} (${Math.round(counts['許す']/total*100)}%)</div>
-            <div style="font-size:14px; margin-bottom:5px;">謝罪してくれたら許す: ${counts['謝罪してくれたら許す']} (${Math.round(counts['謝罪してくれたら許す']/total*100)}%)</div>
-            <div style="font-size:14px; margin-bottom:5px;">どうでもいい: ${counts['どうでもいい']} (${Math.round(counts['どうでもいい']/total*100)}%)</div>
-            <div style="font-size:14px; margin-bottom:5px;">ちょっと許せない: ${counts['ちょっと許せない']} (${Math.round(counts['ちょっと許せない']/total*100)}%)</div>
-            <div style="font-size:14px;">許せない: ${counts['許せない']} (${Math.round(counts['許せない']/total*100)}%)</div>
-        `;
-        const resCont = document.getElementById('yuchin-results-container');
-        if(resCont) resCont.innerHTML = resHtml;
-    });
-
     startRankingTimer();
     startRaidTimer();
     startBoostStatusTimer();
@@ -1467,6 +1480,11 @@ function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null)
     gameState.obstacleTriggeredThisTick = false;
     gameState.companionTriggeredThisTick = false;
     gameState.activeCompanionBuff = null;
+    gameState.autoEnergyActive = false;
+    gameState.bachibachiState = false;
+    gameState.bachibachiTick = 0;
+    gameState.nextSunsunBuffTime = undefined;
+    gameState.npcScoreFreezeTime = 0;
     
     applyPassiveOnStart();
     
@@ -1487,7 +1505,8 @@ function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null)
         document.getElementById('raid-target-container').style.display = 'block';
         updateRaidTargetUI();
     } else if (mode === 'shugyo') {
-        gameState.targetScore = 1500000;
+        if (shugyoBoss === 'red_blue') gameState.targetScore = 1000000;
+        else if (shugyoBoss === 'sunsun') gameState.targetScore = 1250000;
         document.getElementById('story-target-container').style.display = 'block';
         updateStoryTargetUI(); 
     } else if (mode === 'rank') {
@@ -1553,8 +1572,25 @@ function gameTimerTick() {
     document.getElementById('time-display').innerText = Math.max(0, Math.ceil(gameState.timeLeft));
     
     if (gameState.mode === 'rank') {
-        gameState.npcCurrentScore += gameState.npcScoreIncrement / 10;
-        document.getElementById('npc-info-score').innerText = Math.floor(gameState.npcCurrentScore).toLocaleString();
+        if (!gameState.npcScoreFreezeTime || gameState.npcScoreFreezeTime < Date.now()) {
+            gameState.npcCurrentScore += gameState.npcScoreIncrement / 10;
+            document.getElementById('npc-info-score').innerText = Math.floor(gameState.npcCurrentScore).toLocaleString();
+        }
+    }
+
+    if (gameState.bachibachiState) {
+        gameState.bachibachiTick = (gameState.bachibachiTick || 0) + 1;
+        if (gameState.bachibachiTick >= 5) { // 0.5秒
+            gameState.bachibachiTick = 0;
+            gameState.typingDisabled = true;
+            const overlay = document.getElementById('game-overlay');
+            overlay.style.backgroundColor = 'rgba(255, 235, 59, 0.3)';
+            setTimeout(() => {
+                if (!gameState.isPlaying || gameState.isEnding) return;
+                gameState.typingDisabled = false;
+                overlay.style.backgroundColor = 'transparent';
+            }, 100);
+        }
     }
     
     triggerObstacles();
@@ -1656,6 +1692,33 @@ function executeShugyoObstacle(type) {
     }
 }
 
+function executeSunsunObstacle(type) {
+    if (type === 'bachibachi') {
+        if (checkFranklinBadge(0)) return; 
+        gameState.score = Math.floor(gameState.score * 0.75); // 25%減少
+        updateGameUI();
+        showGameMessage('⚡ バチバチ！スコア25%減少！', '#ffeb3b');
+    } else if (type === 'biribiri') {
+        if (checkFranklinBadge(4)) return; 
+        gameState.typingDisabled = true;
+        const overlay = document.getElementById('game-overlay');
+        overlay.style.backgroundColor = 'rgba(255, 235, 59, 0.4)';
+        showGameMessage('⚡ ビリビリイナズマ！4秒スタン！', '#ffeb3b');
+        
+        setTimeout(() => {
+            if (!gameState.isPlaying || gameState.isEnding) return;
+            gameState.typingDisabled = false;
+            overlay.style.backgroundColor = 'transparent';
+            
+            gameState.bachibachiState = true;
+            showGameMessage('⚡ バチバチ状態！', '#ffeb3b');
+            setTimeout(() => {
+                gameState.bachibachiState = false;
+            }, 5000);
+        }, 4000);
+    }
+}
+
 function triggerObstacles() {
     if (gameState.timeLeft <= 0 || gameState.initialTime - gameState.timeLeft <= 0) return;
     
@@ -1687,14 +1750,26 @@ function triggerObstacles() {
         }
     } else if (gameState.mode === 'shugyo') {
         const intTime = Math.ceil(gameState.timeLeft);
-        if (intTime > 0 && intTime % 10 === 0 && !gameState.obstacleTriggeredThisTick) {
-            gameState.obstacleTriggeredThisTick = true;
-            const r = Math.random();
-            if (r < 0.33) executeShugyoObstacle('stab');
-            else if (r < 0.66) executeShugyoObstacle('dash');
-            else executeShugyoObstacle('blur');
-        } else if (intTime % 10 !== 0) {
-            gameState.obstacleTriggeredThisTick = false;
+        if (gameState.shugyoBoss === 'red_blue') {
+            if (intTime > 0 && intTime % 10 === 0 && !gameState.obstacleTriggeredThisTick) {
+                gameState.obstacleTriggeredThisTick = true;
+                const r = Math.random();
+                if (r < 0.33) executeShugyoObstacle('stab');
+                else if (r < 0.66) executeShugyoObstacle('dash');
+                else executeShugyoObstacle('blur');
+            } else if (intTime % 10 !== 0) {
+                gameState.obstacleTriggeredThisTick = false;
+            }
+        } else if (gameState.shugyoBoss === 'sunsun') {
+            const elapsed = gameState.initialTime - gameState.timeLeft;
+            if (intTime > 0 && Math.floor(elapsed) % 15 === 0 && Math.floor(elapsed) > 0 && !gameState.obstacleTriggeredThisTick) {
+                gameState.obstacleTriggeredThisTick = true;
+                const r = Math.random();
+                if (r < 0.5) executeSunsunObstacle('bachibachi');
+                else executeSunsunObstacle('biribiri');
+            } else if (Math.floor(elapsed) % 15 !== 0) {
+                gameState.obstacleTriggeredThisTick = false;
+            }
         }
     }
 }
@@ -1712,11 +1787,24 @@ function applyCompanionBuff(type) {
         newMsg.innerText = "【レッドアンドブルー】の支援！ スコア2倍！";
         gameState.activeCompanionBuff = { name: "スコア2倍", endTime: endTime };
         setTimeout(() => { if (gameState.activeCompanionBuff && gameState.activeCompanionBuff.endTime === endTime) { gameState.companionScoreMulti = 1; } }, duration);
-    } else {
+    } else if (type === 'combo1.5x') {
         gameState.companionComboMulti = 1.5;
         newMsg.innerText = "【レッドアンドブルー】の支援！ コンボ1.5倍！";
         gameState.activeCompanionBuff = { name: "コンボ1.5倍", endTime: endTime };
         setTimeout(() => { if (gameState.activeCompanionBuff && gameState.activeCompanionBuff.endTime === endTime) { gameState.companionComboMulti = 1; } }, duration);
+    } else if (type === 'auto_energy') {
+        newMsg.innerText = "【スンスン】の支援！ 自動エナジー！";
+        gameState.activeCompanionBuff = { name: "自動エナジー", endTime: Date.now() + 4500 };
+        gameState.autoEnergyActive = true;
+        startAutoType(4.5, 50); 
+        setTimeout(() => { gameState.autoEnergyActive = false; }, 4500);
+    } else if (type === 'power_gen') {
+        newMsg.innerText = "【スンスン】の支援！ 発電！コンボ+200！";
+        if (!gameState.comboPoisoned) {
+            gameState.combo += 200;
+            if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+            updateGameUI();
+        }
     }
 }
 
@@ -1733,6 +1821,16 @@ function triggerCompanionBuff() {
         } else if (intTime % 20 !== 0) {
             gameState.companionTriggeredThisTick = false;
         }
+    } else if (userData.equippedCompanion === 'sunsun') {
+        if (gameState.nextSunsunBuffTime === undefined) {
+            gameState.nextSunsunBuffTime = gameState.initialTime - 20;
+        }
+        if (gameState.timeLeft <= gameState.nextSunsunBuffTime) {
+            gameState.nextSunsunBuffTime -= 15;
+            const r = Math.random();
+            if (r < 0.5) applyCompanionBuff('auto_energy');
+            else applyCompanionBuff('power_gen');
+        }
     }
 }
 
@@ -1743,6 +1841,18 @@ function showGameMessage(msg, color = '#00bcd4') {
     el.style.textShadow = `0 0 30px ${color}`;
     el.style.opacity = 1;
     setTimeout(() => { el.style.opacity = 0; }, 2000);
+}
+
+function checkFranklinBadge(stunSec) {
+    if (userData.equippedPassive === 'franklin_badge_beta') {
+        gameState.timeLeft += stunSec;
+        showGameMessage(`🛡️ スタン無効＆時間+${stunSec}秒！`, '#4caf50');
+        return true;
+    } else if (userData.equippedPassive === 'franklin_badge_alpha') {
+        showGameMessage('🛡️ スタン無効！', '#4caf50');
+        return true;
+    }
+    return false;
 }
 
 function executeObstacle(type) {
@@ -1759,6 +1869,7 @@ function executeObstacle(type) {
         anim.style.opacity = '1'; anim.style.top = '30px';
         setTimeout(() => { anim.style.opacity = '0'; anim.style.top = '0px'; }, 1000);
     } else if (type === 'freeze') {
+        if (checkFranklinBadge(5)) return;
         gameState.typingDisabled = true;
         overlay.style.backgroundColor = 'rgba(0, 255, 255, 0.3)';
         showGameMessage('🧊 凍結！！', '#00bcd4');
@@ -1768,6 +1879,7 @@ function executeObstacle(type) {
         updateGameUI();
         showGameMessage('✂️ コンボ半減！！', '#f44336');
     } else if (type === 'freeze_and_poison') {
+        if (checkFranklinBadge(3)) return; 
         gameState.typingDisabled = true;
         overlay.style.backgroundColor = 'rgba(128, 0, 128, 0.5)';
         showGameMessage("☠️ 毒！ 3秒間タイピング不可！", "#9c27b0");
@@ -1831,7 +1943,7 @@ function startTimeExtendGame() {
 }
 
 function useSkill(slot) {
-    if (!gameState.isPlaying || !gameState.isSkillReady[slot] || gameState.typingDisabled) return;
+    if (!gameState.isPlaying || !gameState.isSkillReady[slot] || gameState.typingDisabled || gameState.autoEnergyActive) return;
     const skillId = slot === 1 ? userData.equippedSkill : userData.equippedSkill2;
     if (!skillId) return;
     const skill = skillData[skillId];
@@ -1888,6 +2000,8 @@ function showSpeedBonusAnim(speed, bonus) {
 function handleCorrectKey(isAuto = false) {
     if (gameState.isEnding || !gameState.isPlaying) return; 
 
+    if (!isAuto) playSound('type');
+
     gameState.currentRomajiIndex++;
     
     let scMulti = gameState.comboMultiplier * gameState.companionScoreMulti;
@@ -1932,6 +2046,7 @@ function handleCorrectKey(isAuto = false) {
 }
 
 function handleMissKey() {
+    playSound('miss');
     let preventReset = false;
     if (gameState.comboNoResetTime > Date.now()) {
         preventReset = true;
@@ -1955,7 +2070,7 @@ function handleMissKey() {
 }
 
 document.addEventListener('keydown', (e) => {
-    if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive || gameState.isEnding) return;
+    if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive || gameState.isEnding || gameState.autoEnergyActive) return;
     
     const hasDouble = (userData.items && userData.items['double_skill'] > 0);
     if (e.key === '1' || (!hasDouble && e.code === 'Space')) {
@@ -2663,10 +2778,6 @@ window.app = {
     resetDataConfirm: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('reset-confirm-modal').classList.add('active'); },
     resetDataExecute: () => { userData = { ...defaultUserData, settings: { homeScale: 50, showFurigana: true } }; saveUserData(); location.reload(); },
 
-    closeSurveyNotification: () => {
-        document.getElementById('survey-notification').style.display = 'none';
-        localStorage.setItem('surveyNotifClosed_yuchin', 'true');
-    },
     openSurveyModal: () => {
         if (userData.surveyDisabled) { alert('あなたは管理者からアンケート機能を停止させられました'); return; }
         document.getElementById('survey-modal').classList.add('active');
@@ -2689,12 +2800,6 @@ window.app = {
             document.getElementById('survey-input').value = '';
             alert('アンケートを送信しました！ありがとうございます！');
         } catch (e) { alert('送信に失敗しました。'); }
-    },
-    voteYuchin: async (choice) => {
-        try {
-            await set(ref(db, `surveys/yuchin_poll/${uid}`), choice);
-            alert("ゆちんさんへの投票を保存しました。");
-        } catch (e) { alert("エラーが発生しました。"); }
     },
     viewSurveyResults: async () => {
         const n = userData.name || "";
