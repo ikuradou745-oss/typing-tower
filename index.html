@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -316,6 +317,7 @@
                     <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
                     <button class="menu-btn shugyo-mode" onclick="app.showScreen('shugyo-select-screen')">⚔️ 修行モード</button>
                     <button class="menu-btn rank-mode" onclick="app.openRankMatch()">🏆 ランクマッチ</button>
+                    <button class="menu-btn" style="grid-column: span 4; background: linear-gradient(145deg, #fbc02d, #f57f17); border-color: #fff; color: black; font-size: 24px; padding: 20px;" onclick="app.openGoldShop()">🏅 ゴールドコインショップ</button>
                     <button class="menu-btn" id="debug-btn" onclick="app.openDebugModal()" style="display:none; grid-column: span 4; background: linear-gradient(145deg, #d32f2f, #b71c1c); border-color: #f44336; margin-top: 10px;">🛠️ デバッグ</button>
                 </div>
                 
@@ -666,6 +668,26 @@
     </div>
 </div>
 
+<div id="gold-shop-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 700px;">
+        <h2 style="color: #ffaa00; text-shadow: 0 0 10px rgba(255,170,0,0.5);">🏅 ゴールドコインショップ</h2>
+        <div style="font-size: 20px; text-align: center; margin-bottom: 15px;">所持ゴールドコイン: <span id="gold-shop-coin-display" style="color: #ffaa00; font-weight: bold;">0</span></div>
+        <div id="gold-shop-list" class="list-container" style="max-height: 50vh;"></div>
+        <button class="modal-btn" onclick="document.getElementById('gold-shop-modal').classList.remove('active')" style="margin-top: 15px;">閉じる</button>
+    </div>
+</div>
+
+<div id="discard-confirm-modal" class="modal-overlay" style="z-index: 2500;">
+    <div class="modal-content">
+        <h2 style="color: #f44336;">⚠️ 確認</h2>
+        <p style="text-align:center;">本当に捨てますか？<br>この操作は取り消せません。</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="modal-btn danger" onclick="app.discardSkillExecute()">はい、捨てます</button>
+            <button class="modal-btn" style="background: #555;" onclick="document.getElementById('discard-confirm-modal').classList.remove('active')">やめる</button>
+        </div>
+    </div>
+</div>
+
 <div id="agreement-modal" class="modal-overlay">
     <div class="modal-content">
         <h2>⚠️ 注意事項</h2>
@@ -893,7 +915,15 @@ const itemData = {
     "gold_luck_boost_alpha": { id: "gold_luck_boost_alpha", name: "ゴールドコインラックブーストα", desc: "10分間、ゴールドコインのドロップ率が2倍(2%)になる。", price: 0, priceType: 'coin', duration: 600, effect: (active) => { gameState.goldDropRate = active ? 0.02 : 0.01; } },
     "rank_xp_boost_alpha": { id: "rank_xp_boost_alpha", name: "XPブーストα(ランク)", desc: "5分間、獲得XPが1.5倍になる。", price: 1000, priceType: 'rankCoin', duration: 300, effect: (active) => { gameState.xpMultiplier = active ? 1.5 : 1; } },
     "coin_boost_omega_plus": { id: "coin_boost_omega_plus", name: "コインブーストΩ＋", desc: "30分間、獲得コインが3倍になる。", price: 0, priceType: 'none', duration: 1800, effect: (active) => { gameState.coinMultiplier = active ? 3 : 1; } },
-    "double_skill": { id: "double_skill", name: "ダブルスキル", desc: "所持しているだけで発動。スキルを2つ装備でき、試合では1キーと2キーでそれぞれスキルを発動できる。", price: 0, priceType: 'none', passiveItem: true }
+    
+    // 変更・追加アイテム
+    "cooldown_cut": { id: "cooldown_cut", name: "クールダウンカット", desc: "持っているだけでスキルのクールダウンが5秒縮む（元が25秒以下なら15%短縮）。", price: 0, priceType: 'none', passiveItem: true },
+    "gold_luck_alpha": { id: "gold_luck_alpha", name: "ラックゴールドα", desc: "持っているだけで試合中ゴールドコインを落とす確率が3%になる。(一番レアリティが高いものが優先)", price: 10, priceType: 'goldCoin', passiveItem: true },
+    "magnifying_glass": { id: "magnifying_glass", name: "虫眼鏡", desc: "装備していると獲得XPが2倍になる。", price: 25, priceType: 'goldCoin', equippable: true },
+    "coin_coin_alpha": { id: "coin_coin_alpha", name: "コインコインα", desc: "装備していると獲得コインが1.5倍になる。", price: 30, priceType: 'goldCoin', equippable: true },
+    "coin_coin_gamma": { id: "coin_coin_gamma", name: "コインコインγ", desc: "装備していると獲得コインが2倍になる。", price: 100, priceType: 'goldCoin', equippable: true },
+    "red_hat": { id: "red_hat", name: "赤い帽子", desc: "持っているだけでスキルを捨てることができるようになる。", price: 30, priceType: 'goldCoin', passiveItem: true },
+    "coin_coin_pi": { id: "coin_coin_pi", name: "コインコインπ", desc: "装備していると獲得コインが3.14倍になる。", price: 314, priceType: 'goldCoin', equippable: true }
 };
 
 const rankRewardsData = [
@@ -919,7 +949,7 @@ function checkStoryRewards(stage) {
     else if (stage === 150) { rewards.push('パッシブ「コンボセットΔ」'); userData.passives.push('combo_set_delta'); }
     else if (stage === 200) { 
         rewards.push('背景「第2章クリア」'); userData.backgrounds.push('chap2_clear_bg'); 
-        rewards.push('アイテム「ダブルスキル」'); userData.items['double_skill'] = 1;
+        rewards.push('アイテム「クールダウンカット」'); userData.items['cooldown_cut'] = (userData.items['cooldown_cut'] || 0) + 1;
     }
     else { 
         if(stage < 100) { rewards.push('コイン 5,000'); userData.coin += 5000; }
@@ -933,7 +963,7 @@ const defaultUserData = {
     name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
     rankIndex: 0, rankXp: 0, rankCoin: 0,
     skills: [], equippedSkill: null, equippedSkill2: null, passives: [], equippedPassive: null, items: {}, activeBoosts: {}, backgrounds: [], equippedBackground: null,
-    companions: [], equippedCompanion: null,
+    companions: [], equippedCompanion: null, equippedGoldItems: [],
     playCount: 0, bestScore: 0, bestCombo: 0, storyStage: 1, raidClearedTime: 0,
     settings: { homeScale: 50, showFurigana: true },
     storyRewardsClaimed: [], rankRewardsClaimed: []
@@ -1234,6 +1264,7 @@ async function initApp() {
             if (!userData.activeBoosts) userData.activeBoosts = {};
             if (!userData.backgrounds) userData.backgrounds = [];
             if (!userData.companions) userData.companions = [];
+            if (!userData.equippedGoldItems) userData.equippedGoldItems = [];
             if (!userData.goldCoin) userData.goldCoin = 0;
             if (!userData.raidPoint) userData.raidPoint = 0;
             if (userData.rankIndex === undefined) userData.rankIndex = 0;
@@ -1531,8 +1562,8 @@ function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null)
 }
 
 function setupSkills() {
-    const hasDouble = (userData.items && userData.items['double_skill'] > 0);
-    document.getElementById('skill-slot-2-container').style.display = hasDouble ? 'block' : 'none';
+    // スキルスロット2の処理は使用しないため非表示固定
+    document.getElementById('skill-slot-2-container').style.display = 'none';
     
     const btn1 = document.getElementById('skill-btn-1');
     const text1 = document.getElementById('skill-btn-text-1');
@@ -1547,21 +1578,6 @@ function setupSkills() {
         text1.innerText = "スキル無";
         btn1.disabled = true;
         gameState.isSkillReady[1] = false;
-    }
-    
-    const btn2 = document.getElementById('skill-btn-2');
-    const text2 = document.getElementById('skill-btn-text-2');
-    const over2 = document.getElementById('skill-cooldown-overlay-2');
-    if (hasDouble && userData.equippedSkill2 && skillData[userData.equippedSkill2]) {
-        text2.innerText = skillData[userData.equippedSkill2].name.replace('時間伸ばし', '時間延').substring(0, 6);
-        btn2.disabled = false;
-        gameState.isSkillReady[2] = true;
-        gameState.skillCooldownLeft[2] = 0;
-        over2.style.height = '0%';
-    } else {
-        text2.innerText = "スキル無";
-        btn2.disabled = true;
-        gameState.isSkillReady[2] = false;
     }
 }
 
@@ -1953,7 +1969,17 @@ function useSkill(slot) {
     skill.execute();
     
     gameState.isSkillReady[slot] = false;
-    gameState.skillCooldownLeft[slot] = skill.cooldown;
+    
+    let cd = skill.cooldown;
+    if (userData.items && userData.items['cooldown_cut'] > 0) {
+        if (cd <= 25) {
+            cd = cd * 0.85;
+        } else {
+            cd = Math.max(0, cd - 5);
+        }
+    }
+    
+    gameState.skillCooldownLeft[slot] = cd;
     const btn = document.getElementById(`skill-btn-${slot}`);
     const overlay = document.getElementById(`skill-cooldown-overlay-${slot}`);
     btn.disabled = true;
@@ -1961,7 +1987,7 @@ function useSkill(slot) {
     const intv = setInterval(() => {
         if (!gameState.isPlaying) { clearInterval(intv); return; }
         gameState.skillCooldownLeft[slot] -= 0.1;
-        const percent = (gameState.skillCooldownLeft[slot] / skill.cooldown) * 100;
+        const percent = (gameState.skillCooldownLeft[slot] / cd) * 100;
         overlay.style.height = `${percent}%`;
         if (gameState.skillCooldownLeft[slot] <= 0) {
             clearInterval(intv);
@@ -2072,12 +2098,8 @@ function handleMissKey() {
 document.addEventListener('keydown', (e) => {
     if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive || gameState.isEnding || gameState.autoEnergyActive) return;
     
-    const hasDouble = (userData.items && userData.items['double_skill'] > 0);
-    if (e.key === '1' || (!hasDouble && e.code === 'Space')) {
+    if (e.key === '1' || e.code === 'Space') {
         if (gameState.isSkillReady[1] && userData.equippedSkill) { e.preventDefault(); useSkill(1); return; }
-    }
-    if (hasDouble && e.key === '2') {
-        if (gameState.isSkillReady[2] && userData.equippedSkill2) { e.preventDefault(); useSkill(2); return; }
     }
     
     if (e.code === 'Space') { e.preventDefault(); return; }
@@ -2145,10 +2167,25 @@ function endGame(isClear = false) {
 
     let baseCoin = Math.floor(gameState.score / 100);
     let baseGoldDrop = gameState.goldDropRate;
+    
+    // ゴールドアイテム「ラックゴールドα」のパッシブ効果
+    if (userData.items && userData.items['gold_luck_alpha'] > 0) {
+        baseGoldDrop = 0.03; // レアリティが追加されればここで優先処理
+    }
+    
     if (gameState.mode === 'hard') baseCoin *= 2;
     
-    let earnedCoin = Math.floor(baseCoin * gameState.coinMultiplier);
-    let earnedXp = Math.floor(baseCoin * gameState.xpMultiplier);
+    let extraXpMulti = 1;
+    let extraCoinMulti = 1;
+    if (userData.equippedGoldItems) {
+        if (userData.equippedGoldItems.includes('magnifying_glass')) extraXpMulti *= 2;
+        if (userData.equippedGoldItems.includes('coin_coin_alpha')) extraCoinMulti *= 1.5;
+        if (userData.equippedGoldItems.includes('coin_coin_gamma')) extraCoinMulti *= 2;
+        if (userData.equippedGoldItems.includes('coin_coin_pi')) extraCoinMulti *= 3.14;
+    }
+    
+    let earnedCoin = Math.floor(baseCoin * gameState.coinMultiplier * extraCoinMulti);
+    let earnedXp = Math.floor(baseCoin * gameState.xpMultiplier * extraXpMulti);
     let earnedRaid = 0; 
     
     if (gameState.mode === 'rank') {
@@ -2409,7 +2446,7 @@ function renderShopList(tab) {
     let dataObj = tab === 'skills' || tab === 'raid' ? skillData : (tab === 'items' ? itemData : passiveData);
     for (const key in dataObj) {
         const item = dataObj[key];
-        if (item.priceType === 'none') continue;
+        if (item.priceType === 'none' || item.priceType === 'goldCoin') continue;
         if (tab === 'skills' && key === 'auto_input_gamma') continue;
         if (tab === 'items' && (key === 'coin_boost_alpha' || key === 'xp_boost_alpha' || key === 'gold_luck_boost_alpha' || key === 'rank_xp_boost_alpha' || key === 'coin_boost_omega_plus')) continue;
         if (tab === 'raid' && item.priceType !== 'raid') continue;
@@ -2436,6 +2473,22 @@ function renderRankShopList() {
     });
 }
 
+function renderGoldShopList() {
+    const list = document.getElementById('gold-shop-list'); list.innerHTML = '';
+    document.getElementById('gold-shop-coin-display').innerText = userData.goldCoin || 0;
+    for (const key in itemData) {
+        const item = itemData[key];
+        if (item.priceType !== 'goldCoin') continue;
+        
+        const isOwned = (item.passiveItem || item.equippable) && userData.items[key] > 0;
+        let btnHtml = isOwned ? `<button class="action-btn" disabled>所持</button>` : `<button class="action-btn" style="background: linear-gradient(145deg, #fbc02d, #f57f17); color: black;" onclick="app.buyItem('items', '${key}')">🥇${item.price}</button>`;
+        
+        const div = document.createElement('div'); div.className = 'list-item'; div.style.border = '1px solid #ffaa00';
+        div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+        list.appendChild(div);
+    }
+}
+
 function renderRankRewardsList() {
     const list = document.getElementById('rank-rewards-list-modal'); list.innerHTML = '';
     rankRewardsData.forEach(reward => {
@@ -2459,30 +2512,26 @@ function renderInventoryList(tab) {
     const list = document.getElementById('inventory-list'); list.innerHTML = '';
     
     userData.companions = userData.companions || []; 
-    const hasDouble = (userData.items && userData.items['double_skill'] > 0);
     
     if (tab === 'skills') {
+        const hasRedHat = (userData.items && userData.items['red_hat'] > 0);
+        const skillCount = userData.skills.length;
+
         userData.skills.forEach(key => {
             if (!skillData[key]) return;
             const item = skillData[key]; 
             let btnHtml = '';
             
-            if (hasDouble) {
-                const isEq1 = userData.equippedSkill === key;
-                const isEq2 = userData.equippedSkill2 === key;
-                btnHtml = `
-                    <div style="display:flex; gap:5px; flex-direction:column;">
-                        <button class="action-btn ${isEq1 ? 'equipped' : ''}" onclick="app.equipSkill('${key}', 1)">${isEq1 ? 'スロット1装備中' : 'スロット1に装備'}</button>
-                        <button class="action-btn ${isEq2 ? 'equipped' : ''}" onclick="app.equipSkill('${key}', 2)">${isEq2 ? 'スロット2装備中' : 'スロット2に装備'}</button>
-                    </div>
-                `;
-            } else {
-                const isEq = userData.equippedSkill === key;
-                btnHtml = `<button class="action-btn ${isEq ? 'equipped' : ''}" onclick="app.equipSkill('${key}', 1)">${isEq ? '装備中' : '装備する'}</button>`;
+            const isEq = userData.equippedSkill === key;
+            btnHtml = `<button class="action-btn ${isEq ? 'equipped' : ''}" onclick="app.equipSkill('${key}', 1)">${isEq ? '装備中' : '装備する'}</button>`;
+            
+            if (hasRedHat) {
+                const canDiscard = skillCount >= 2;
+                btnHtml += `<button class="action-btn danger" style="background:#f44336; margin-left:10px;" ${!canDiscard ? 'disabled' : ''} onclick="app.discardSkillConfirm('${key}')">捨てる</button>`;
             }
             
             const div = document.createElement('div'); div.className = 'list-item';
-            div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+            div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div style="display:flex; align-items:center;">${btnHtml}</div>`;
             list.appendChild(div);
         });
     } else if (tab === 'passive') {
@@ -2498,10 +2547,16 @@ function renderInventoryList(tab) {
         for (const key in userData.items) {
             if (userData.items[key] <= 0 || !itemData[key]) continue;
             const item = itemData[key]; const count = userData.items[key];
-            const isActive = userData.activeBoosts[key] && userData.activeBoosts[key] > Date.now();
             let btnHtml = '';
-            if (item.passiveItem) btnHtml = `<button class="action-btn" disabled>所持で効果発揮 (${count})</button>`;
-            else btnHtml = isActive ? `<button class="action-btn" disabled>使用中</button>` : `<button class="action-btn use-btn" onclick="app.useItem('${key}')">使う (${count})</button>`;
+            if (item.passiveItem) {
+                btnHtml = `<button class="action-btn" disabled>所持で効果発揮 ${count > 1 ? `(${count})` : ''}</button>`;
+            } else if (item.equippable) {
+                const isEquipped = userData.equippedGoldItems && userData.equippedGoldItems.includes(key);
+                btnHtml = `<button class="action-btn ${isEquipped ? 'equipped' : ''}" onclick="app.toggleGoldItemEquip('${key}')">${isEquipped ? '外す' : '装備する'}</button>`;
+            } else {
+                const isActive = userData.activeBoosts[key] && userData.activeBoosts[key] > Date.now();
+                btnHtml = isActive ? `<button class="action-btn" disabled>使用中</button>` : `<button class="action-btn use-btn" onclick="app.useItem('${key}')">使う (${count})</button>`;
+            }
             
             const div = document.createElement('div'); div.className = 'list-item';
             div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
@@ -2565,7 +2620,7 @@ function startBoostStatusTimer() {
                 container.appendChild(el);
                 if(item.effect) item.effect(true);
             } else {
-                if (itemData[key].effect) itemData[key].effect(false);
+                if (itemData[key] && itemData[key].effect) itemData[key].effect(false);
                 delete userData.activeBoosts[key];
                 changed = true;
             }
@@ -2687,6 +2742,11 @@ window.app = {
 
     openShop: () => { showScreen('shop-screen'); document.querySelectorAll('#shop-screen .tab').forEach(t => t.classList.remove('active')); document.querySelector('#shop-screen .tab').classList.add('active'); renderShopList('skills'); },
     switchShopTab: (tab) => { document.querySelectorAll('#shop-screen .tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); renderShopList(tab); },
+    openGoldShop: () => {
+        if (!checkModeSelectable()) return;
+        document.getElementById('gold-shop-modal').classList.add('active');
+        renderGoldShopList();
+    },
     buyItem: (tab, key) => {
         let item = tab === 'skills' || tab === 'raid' ? skillData[key] : (tab === 'items' ? itemData[key] : passiveData[key]);
         if (item.priceType === 'coin' && userData.coin >= item.price) {
@@ -2702,20 +2762,27 @@ window.app = {
             if (tab === 'items') userData.items[key] = (userData.items[key] || 0) + 1;
             saveUserData(); renderRankShopList(); document.getElementById('rank-shop-rc-display').innerText = userData.rankCoin || 0;
             alert('購入しました！「持ち物」から装備・使用してください。');
+        } else if (item.priceType === 'goldCoin' && userData.goldCoin >= item.price) {
+            userData.goldCoin -= item.price;
+            userData.items[key] = (userData.items[key] || 0) + 1;
+            saveUserData();
+            if (document.getElementById('gold-shop-modal').classList.contains('active')) renderGoldShopList();
         } else { alert('ポイント・コインが足りません'); }
     },
     
     openInventory: () => { showScreen('inventory-screen'); document.querySelectorAll('#inventory-screen .tab').forEach(t => t.classList.remove('active')); document.querySelector('#inventory-screen .tab').classList.add('active'); renderInventoryList('skills'); },
     switchInventoryTab: (tab) => { document.querySelectorAll('#inventory-screen .tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); renderInventoryList(tab); },
     equipSkill: (key, slot) => { 
-        if (slot === 1) {
-            if (userData.equippedSkill === key) userData.equippedSkill = null;
-            else { userData.equippedSkill = key; if (userData.equippedSkill2 === key) userData.equippedSkill2 = null; }
-        } else {
-            if (userData.equippedSkill2 === key) userData.equippedSkill2 = null;
-            else { userData.equippedSkill2 = key; if (userData.equippedSkill === key) userData.equippedSkill = null; }
-        }
+        if (userData.equippedSkill === key) userData.equippedSkill = null;
+        else userData.equippedSkill = key;
         saveUserData(); renderInventoryList('skills'); 
+    },
+    toggleGoldItemEquip: (key) => {
+        if (!userData.equippedGoldItems) userData.equippedGoldItems = [];
+        const idx = userData.equippedGoldItems.indexOf(key);
+        if (idx > -1) userData.equippedGoldItems.splice(idx, 1);
+        else userData.equippedGoldItems.push(key);
+        saveUserData(); renderInventoryList('items');
     },
     equipPassive: (key) => { userData.equippedPassive = userData.equippedPassive === key ? null : key; saveUserData(); renderInventoryList('passive'); },
     equipBackground: (key) => { 
@@ -2734,6 +2801,25 @@ window.app = {
         }
     },
     
+    discardSkillConfirm: (key) => {
+        window.skillToDiscard = key;
+        document.getElementById('discard-confirm-modal').classList.add('active');
+    },
+    discardSkillExecute: () => {
+        if (window.skillToDiscard) {
+            const idx = userData.skills.indexOf(window.skillToDiscard);
+            if (idx > -1) {
+                userData.skills.splice(idx, 1);
+                if (userData.equippedSkill === window.skillToDiscard) userData.equippedSkill = null;
+                saveUserData();
+                renderInventoryList('skills');
+                setupSkills();
+            }
+            window.skillToDiscard = null;
+        }
+        document.getElementById('discard-confirm-modal').classList.remove('active');
+    },
+
     endResult: () => { showScreen('menu-screen'); },
     acceptAgreement: () => { localStorage.setItem('agreementAccepted', 'true'); document.getElementById('agreement-modal').classList.remove('active'); },
     showAgreement: () => { document.getElementById('settings-modal').classList.remove('active'); document.getElementById('agreement-modal').classList.add('active'); },
@@ -2952,3 +3038,5 @@ document.getElementById('greek-info-btn').addEventListener('click', () => { docu
 </script>
 </body>
 </html>
+
+```
