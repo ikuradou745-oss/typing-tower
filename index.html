@@ -72,16 +72,27 @@
         .menu-btn:hover { background: linear-gradient(145deg, #3a3a3a, #2a2a2a); border-color: #00bcd4; transform: translateY(-5px); box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0, 188, 212, 0.4); color: #ffffff; }
         .menu-btn.story-mode { grid-column: span 2; background: linear-gradient(145deg, #7b1fa2, #4a148c); border-color: #9c27b0; padding: 25px 15px; }
         .menu-btn.raid-mode { grid-column: span 2; background: linear-gradient(145deg, #c62828, #b71c1c); border-color: #ef5350; padding: 25px 15px; }
-        .menu-btn.shugyo-mode { grid-column: span 4; background: linear-gradient(145deg, #00796b, #4527a0); border-color: #7e57c2; padding: 25px 20px; font-size: 24px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .menu-btn.shugyo-mode { grid-column: span 2; background: linear-gradient(145deg, #00796b, #4527a0); border-color: #7e57c2; padding: 25px 20px; font-size: 20px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .menu-btn.companion-mode { grid-column: span 2; background: linear-gradient(145deg, #00acc1, #00838f); border-color: #00e5ff; padding: 25px 20px; font-size: 20px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         .menu-btn.rank-mode { grid-column: span 4; background: linear-gradient(145deg, #f57f17, #f9a825); border-color: #fbc02d; padding: 30px 20px; font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         .menu-btn.rank-mode:hover { box-shadow: 0 15px 25px rgba(0,0,0,0.7), 0 0 20px rgba(251, 192, 45, 0.6); border-color: #fff; }
         .menu-btn.raid-mode.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-        .raid-timer-info { grid-column: span 4; text-align: center; font-size: 18px; color: #ff9800; margin-top: -10px; margin-bottom: 5px; }
 
         /* 修行選択画面 */
         #shugyo-select-screen { justify-content: center; }
         #shugyo-select-screen h2 { font-size: 48px; margin-bottom: 50px; text-shadow: 0 0 15px #ab47bc; color:#e1bee7; }
         
+        /* 仲間集め選択画面 */
+        #companion-collect-screen { justify-content: center; }
+        #companion-collect-screen h2 { font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 15px #00e5ff; color:#e0f7fa; }
+        .companion-list-container { display: flex; flex-direction: column; gap: 20px; width: 90%; max-width: 900px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
+        .companion-item { background: rgba(30, 30, 30, 0.9); border: 2px solid #00acc1; border-radius: 15px; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .companion-item-left { display: flex; gap: 20px; align-items: center; flex: 1; }
+        .companion-item-left img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #fff; }
+        .companion-item-info h3 { font-size: 28px; color: #00e5ff; margin-bottom: 5px; }
+        .companion-item-info p { font-size: 14px; color: #ccc; line-height: 1.4; }
+        .companion-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; width: 200px; }
+
         /* プレイ選択画面 */
         #play-select-screen { justify-content: center; }
         #play-select-screen h2 { font-size: 48px; margin-bottom: 50px; text-shadow: 0 0 15px #2196f3; }
@@ -92,7 +103,7 @@
         .mode-btn:hover { filter: brightness(1.15); transform: translateY(-8px); box-shadow: 0 15px 25px rgba(0,0,0,0.6); }
 
         /* ストーリー/レイドマップ画面 */
-        #story-map-screen { justify-content: center; }
+        #story-map-screen, #raid-map-screen { justify-content: center; }
         #story-map-screen h2 { font-size: 40px; margin-bottom: 10px; color: #9c27b0; text-shadow: 0 0 15px #9c27b0; }
         .stage-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; width: 90%; max-width: 1000px; margin: 10px 0 20px 0; max-height: 500px; overflow-y: auto; padding: 10px; }
         .stage-btn { background: linear-gradient(145deg, #333, #222); color: #fff; border: 2px solid #555; padding: 15px 5px; font-size: 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; font-weight: bold; text-align: center; }
@@ -102,7 +113,6 @@
         .stage-btn.current:hover { transform: scale(1.05); filter: brightness(1.2); }
         .stage-info { font-size: 18px; margin: 10px 0; color: #ccc; }
 
-        #raid-map-screen { justify-content: center; }
         #raid-map-screen h2 { font-size: 40px; margin-bottom: 20px; color: #ef5350; text-shadow: 0 0 15px #ef5350; }
         .raid-stages-grid { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 600px; margin: 20px 0; }
         .raid-stage-btn { background: linear-gradient(145deg, #333, #222); color: #fff; border: 2px solid #ef5350; padding: 20px; font-size: 20px; border-radius: 15px; cursor: pointer; transition: all 0.2s; font-weight: bold; text-align: center; }
@@ -125,35 +135,16 @@
         /* ゲーム画面 */
         #game-screen { justify-content: center; position: relative; }
         
-        /* ぼやけエフェクト */
         .blur-effect { animation: blurAnim 5s linear forwards; pointer-events:none; }
         @keyframes blurAnim { 0% { filter: blur(10px); } 60% { filter: blur(10px); } 100% { filter: blur(0px); } }
 
-        /* 剣が刺さるエフェクト */
-        .sword-stab {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 150px; z-index: 1000; animation: stabAnim 0.5s ease-out forwards; pointer-events:none;
-        }
+        .sword-stab { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 150px; z-index: 1000; animation: stabAnim 0.5s ease-out forwards; pointer-events:none; }
         @keyframes stabAnim { 0% { transform: translate(-50%, -150vh); } 100% { transform: translate(-50%, -50%); } }
 
-        /* コンパニオンバフエフェクト */
-        .companion-buff {
-            position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 32px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 20px #ffeb3b, 2px 2px 5px #000;
-            z-index: 1000; animation: buffAnim 2s ease-out forwards; pointer-events: none;
-        }
-        @keyframes buffAnim {
-            0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
-        }
+        .companion-buff { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 20px #ffeb3b, 2px 2px 5px #000; z-index: 1000; animation: buffAnim 2s ease-out forwards; pointer-events: none; }
+        @keyframes buffAnim { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -70%) scale(1); } }
 
-        #evade-btn {
-            display: none; position: fixed; top: 60%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 9999; padding: 20px 40px; font-size: 30px; background: red; color: white;
-            border-radius: 10px; border: 3px solid white; box-shadow: 0 0 20px red; cursor: pointer; font-weight: bold;
-        }
+        #evade-btn { display: none; position: fixed; top: 60%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; padding: 20px 40px; font-size: 30px; background: red; color: white; border-radius: 10px; border: 3px solid white; box-shadow: 0 0 20px red; cursor: pointer; font-weight: bold; }
         #evade-btn:active { background: darkred; }
 
         #story-target-container, #raid-target-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 400px; text-align: center; }
@@ -165,7 +156,6 @@
         #raid-target-bar-fill { height: 100%; background: linear-gradient(90deg, #ffab91, #ff5722, #d84315); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #ff5722; }
         #story-target-text, #raid-target-text { margin-top: 5px; font-size: 16px; color: #ccc; }
         
-        /* NPC情報表示 (ランクマッチ用) */
         #npc-info-container { position: absolute; top: 20px; left: 20px; background: rgba(20, 20, 20, 0.85); padding: 15px 25px; border-radius: 15px; border: 2px solid #f44336; box-shadow: 0 0 15px rgba(244, 67, 54, 0.4); display: none; z-index: 100; }
         #npc-info-name { font-size: 18px; color: #ffeb3b; font-weight: bold; margin-bottom: 5px; }
         #npc-info-score { font-size: 32px; color: #f44336; font-weight: bold; text-shadow: 1px 1px 3px black; }
@@ -179,13 +169,11 @@
         .untyped { color: #b0bec5; }
         .untyped-hidden { color: transparent; }
 
-        /* スピードボーナスアニメーション */
         .speed-anim { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-weight: bold; color: #00e676; text-shadow: 0 0 15px #00e676, 2px 2px 5px #000; animation: floatUpSpeed 1.5s ease-out forwards; pointer-events: none; z-index: 200; }
         .speed-anim-time { font-size: 24px; margin-bottom: 5px; color: #a0e9ff; text-shadow: 0 0 10px #a0e9ff; }
         .speed-anim-combo { font-size: 40px; }
         @keyframes floatUpSpeed { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 20% { transform: translate(-50%, -60%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -120px) scale(1); } }
 
-        /* 妨害エフェクト */
         #game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 500; transition: background-color 0.5s ease; }
         #game-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: bold; color: #00bcd4; text-shadow: 0 0 30px #00bcd4; z-index: 501; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; width: 100%; }
         #time-reduce-animation { position: fixed; top: 30px; right: 30px; font-size: 48px; font-weight: bold; color: #ff5252; text-shadow: 0 0 20px #ff5252; z-index: 501; opacity: 0; pointer-events: none; }
@@ -206,6 +194,11 @@
 
         .passive-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; font-weight: bold; color: #ff9800; text-shadow: 0 0 30px #ff9800; z-index: 502; opacity: 0; pointer-events: none; animation: passiveFade 2s ease-out forwards; }
         @keyframes passiveFade { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
+
+        /* コイン雨エフェクト */
+        #coin-rain-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 800; overflow: hidden; display: none; }
+        .coin-rain-item { position: absolute; width: 40px; height: 40px; background: radial-gradient(circle, #ffeb3b, #fbc02d); border-radius: 50%; border: 3px solid #ff9800; box-shadow: 0 0 10px rgba(255, 235, 59, 0.8); animation: coinFall linear forwards; }
+        @keyframes coinFall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0.8; } }
 
         /* リザルト画面 */
         #result-screen { justify-content: center; overflow-y: auto; padding: 20px 0; }
@@ -281,6 +274,8 @@
 <div id="companion-buff-status"></div>
 <div id="combo-protect-indicator"></div>
 
+<div id="coin-rain-container"></div>
+
 <div id="app-container">
     <div id="header">
         <div id="header-left">
@@ -315,8 +310,8 @@
                     <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
                     <button class="menu-btn raid-mode" onclick="app.openRaidMap()" id="raid-menu-btn">レイド</button>
                     <button class="menu-btn shugyo-mode" onclick="app.showScreen('shugyo-select-screen')">⚔️ 修行モード</button>
+                    <button class="menu-btn companion-mode" onclick="app.openCompanionCollect()">🤝 仲間集め</button>
                     <button class="menu-btn rank-mode" onclick="app.openRankMatch()">🏆 ランクマッチ</button>
-                    <button class="menu-btn" style="grid-column: span 4; background: linear-gradient(145deg, #fbc02d, #f57f17); border-color: #fff; color: black; font-size: 24px; padding: 20px;" onclick="app.openGoldShop()">🏅 ゴールドコインショップ</button>
                     <button class="menu-btn" id="debug-btn" onclick="app.openDebugModal()" style="display:none; grid-column: span 4; background: linear-gradient(145deg, #d32f2f, #b71c1c); border-color: #f44336; margin-top: 10px;">🛠️ デバッグ</button>
                 </div>
                 
@@ -338,15 +333,21 @@
             <h2>⚔️ 修行モード</h2>
             <div class="select-grid">
                 <button class="mode-btn hard" onclick="app.startGame('shugyo', 'red_blue')" style="display:flex; flex-direction:column; align-items:center;">
-                    <img src="赤青.png" alt="赤青" style="width:80px; height:80px; margin-bottom:10px; border-radius:50%;">
+                    <img src="赤青.png" alt="赤青" style="width:80px; height:80px; margin-bottom:10px; border-radius:50%;" onerror="this.src='https://via.placeholder.com/80';">
                     レッドアンドブルー<br><span style="font-size: 16px;">目標: 1,000,000 スコア</span>
                 </button>
                 <button class="mode-btn hard" onclick="app.startGame('shugyo', 'sunsun')" style="display:flex; flex-direction:column; align-items:center;">
-                    <img src="スンスン.png" alt="スンスン" style="width:80px; height:80px; margin-bottom:10px; border-radius:50%;">
+                    <img src="スンスン.png" alt="スンスン" style="width:80px; height:80px; margin-bottom:10px; border-radius:50%;" onerror="this.src='https://via.placeholder.com/80';">
                     スンスン<br><span style="font-size: 16px;">目標: 1,250,000 スコア</span>
                 </button>
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 50px;">戻る</button>
+        </div>
+
+        <div id="companion-collect-screen" class="screen">
+            <h2>🤝 仲間集め</h2>
+            <div class="companion-list-container" id="companion-collect-list"></div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 30px;">戻る</button>
         </div>
 
         <div id="play-select-screen" class="screen">
@@ -527,6 +528,7 @@
                     <div class="tab" onclick="app.switchShopTab('items')">アイテム</div>
                     <div class="tab" onclick="app.switchShopTab('raid')">レイド</div>
                     <div class="tab" onclick="app.switchShopTab('passive')">パッシブ</div>
+                    <div class="tab" onclick="app.switchShopTab('goldCoin')">ゴールドコイン</div>
                 </div>
                 <div id="shop-list" class="list-container"></div>
             </div>
@@ -667,15 +669,6 @@
     </div>
 </div>
 
-<div id="gold-shop-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 700px;">
-        <h2 style="color: #ffaa00; text-shadow: 0 0 10px rgba(255,170,0,0.5);">🏅 ゴールドコインショップ</h2>
-        <div style="font-size: 20px; text-align: center; margin-bottom: 15px;">所持ゴールドコイン: <span id="gold-shop-coin-display" style="color: #ffaa00; font-weight: bold;">0</span></div>
-        <div id="gold-shop-list" class="list-container" style="max-height: 50vh;"></div>
-        <button class="modal-btn" onclick="document.getElementById('gold-shop-modal').classList.remove('active')" style="margin-top: 15px;">閉じる</button>
-    </div>
-</div>
-
 <div id="discard-confirm-modal" class="modal-overlay" style="z-index: 2500;">
     <div class="modal-content">
         <h2 style="color: #f44336;">⚠️ 確認</h2>
@@ -769,13 +762,9 @@ function playSound(type) {
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     
+    // タイピング音を削除指示のため、'type'の場合は何もしない
     if (type === 'type') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + 0.05);
+        return;
     } else if (type === 'miss') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(150, audioCtx.currentTime);
@@ -851,7 +840,25 @@ const companionData = {
         id: "sunsun",
         name: "スンスン",
         img: "スンスン.png",
-        desc: "最初の20秒後、以降15秒ごとに「自動エナジー(4.5秒)」か「発電(コンボ+200)」のバフをかける。"
+        desc: "最初の20秒後、以降15秒ごとに「スコア+50万」か「発電(コンボ+200)」のバフをかける。"
+    },
+    "deathbringer": {
+        id: "deathbringer",
+        name: "デスブリンガー",
+        img: "デスブリンガー.png",
+        desc: "残り時間が20秒を切ると覚醒。スコア1.5倍、1単語クリアでコンボ+20、2回のミス保護付与。"
+    },
+    "smile": {
+        id: "smile",
+        name: "スマイル",
+        img: "スマイル.png",
+        desc: "【ランクマッチ限定】開始20秒で相手5秒スタン＆スコア25万強奪。以降15秒毎に相手5秒スタンかスコア30万減。"
+    },
+    "coinranger": {
+        id: "coinranger",
+        name: "コインレンジャー",
+        img: "コインレンジャー.png",
+        desc: "15~20秒毎に(コンボ×10)のコイン獲得。残り10秒以降は1文字打つごとにコイン+100。"
     }
 };
 
@@ -887,7 +894,7 @@ function applyPunch(duration, reduceScore) {
     if (reduceScore > 0) {
         gameState.npcCurrentScore = Math.max(0, gameState.npcCurrentScore - reduceScore);
         document.getElementById('npc-info-score').innerText = Math.floor(gameState.npcCurrentScore).toLocaleString();
-        showGameMessage(`相手が${duration}秒停止＆50万スコア減少！`, '#2196f3');
+        showGameMessage(`相手が${duration}秒停止＆スコア減少！`, '#2196f3');
     } else {
         showGameMessage(`相手が${duration}秒停止！`, '#2196f3');
     }
@@ -915,7 +922,6 @@ const itemData = {
     "rank_xp_boost_alpha": { id: "rank_xp_boost_alpha", name: "XPブーストα(ランク)", desc: "5分間、獲得XPが1.5倍になる。", price: 1000, priceType: 'rankCoin', duration: 300, effect: (active) => { gameState.xpMultiplier = active ? 1.5 : 1; } },
     "coin_boost_omega_plus": { id: "coin_boost_omega_plus", name: "コインブーストΩ＋", desc: "30分間、獲得コインが3倍になる。", price: 0, priceType: 'none', duration: 1800, effect: (active) => { gameState.coinMultiplier = active ? 3 : 1; } },
     
-    // 変更・追加アイテム
     "cooldown_cut": { id: "cooldown_cut", name: "クールダウンカット", desc: "持っているだけでスキルのクールダウンが5秒縮む（元が25秒以下なら15%短縮）。", price: 0, priceType: 'none', passiveItem: true },
     "gold_luck_alpha": { id: "gold_luck_alpha", name: "ラックゴールドα", desc: "持っているだけで試合中ゴールドコインを落とす確率が3%になる。(一番レアリティが高いものが優先)", price: 10, priceType: 'goldCoin', passiveItem: true },
     "magnifying_glass": { id: "magnifying_glass", name: "虫眼鏡", desc: "装備していると獲得XPが2倍になる。", price: 25, priceType: 'goldCoin', equippable: true },
@@ -973,7 +979,7 @@ let userData = { ...defaultUserData };
 let uid = localStorage.getItem('typingGameUid');
 
 const gameState = {
-    isPlaying: false, isEnding: false, mode: 'normal', storyStage: null, raidStage: null, shugyoBoss: null,
+    isPlaying: false, isEnding: false, mode: 'normal', storyStage: null, raidStage: null, shugyoBoss: null, companionBoss: null,
     timeLeft: 60, initialTime: 60, score: 0, combo: 0, maxCombo: 0,
     currentWordObj: null, currentRomajiIndex: 0, currentWordStartTime: 0,
     timer: null, isAutoTyping: false, autoTypeInterval: null,
@@ -987,7 +993,9 @@ const gameState = {
     evaded: false,
     companionScoreMulti: 1.0, companionComboMulti: 1.0, activeCompanionBuff: null,
     isModeSelectable: false, storyObstacleTriggered: false, storyObstacleTriggerTime: 0, rankObstacleTriggerTime: -1, rankObstacleType: null,
-    autoEnergyActive: false, bachibachiState: false, bachibachiTick: 0, nextSunsunBuffTime: undefined, npcScoreFreezeTime: 0
+    autoEnergyActive: false, bachibachiState: false, bachibachiTick: 0, nextSunsunBuffTime: undefined, npcScoreFreezeTime: 0,
+    dbScore500kTriggered: false, dbScore800kTriggered: false, skillSealed: false, fastTimer: false,
+    dbAwakened: false, smileFirstTriggered: false, scorePoisoned: false, comboQuarterDebuff: false, nextCoinRangerTick: undefined, comboPoisoned: false
 };
 
 let raidState = { isOpen: false, currentStage: 1, stages: [] };
@@ -1479,11 +1487,125 @@ function startRaidTimer() {
     }, 1000);
 }
 
+function renderCompanionCollectList() {
+    const list = document.getElementById('companion-collect-list');
+    list.innerHTML = '';
+
+    const createItem = (id, info, conditions, isUnlocked, isOwned) => {
+        const div = document.createElement('div');
+        div.className = 'companion-item';
+        
+        let conditionHtml = '';
+        conditions.forEach(c => {
+            conditionHtml += `<li style="color:${c.met ? '#4caf50' : '#f44336'}">${c.met ? '✅' : '❌'} ${c.text}</li>`;
+        });
+
+        let btnHtml = '';
+        if (isOwned) {
+            btnHtml = `<button class="action-btn" disabled style="background:#555;">獲得済み</button>`;
+        } else if (isUnlocked) {
+            btnHtml = `<button class="action-btn" style="background: linear-gradient(145deg, #00e676, #00c853); color:black;" onclick="app.startCompanionBattle('${id}')">挑戦する</button>`;
+        } else {
+            btnHtml = `<button class="action-btn" disabled style="background:#555; color:#aaa;">挑戦不可</button>`;
+        }
+
+        div.innerHTML = `
+            <div class="companion-item-left">
+                <img src="${info.img}" onerror="this.src='https://via.placeholder.com/80';">
+                <div class="companion-item-info">
+                    <h3>${info.name}</h3>
+                    <p>${info.desc}</p>
+                </div>
+            </div>
+            <div class="companion-item-right">
+                <ul style="list-style:none; font-size:14px; text-align:right;">${conditionHtml}</ul>
+                ${btnHtml}
+            </div>
+        `;
+        list.appendChild(div);
+    };
+
+    // 1. デスブリンガー
+    const dbCond1 = { text: "ストーリー100クリア", met: userData.storyStage > 100 };
+    const dbCond2 = { text: "仲間「レッドアンドブルー」所持", met: (userData.companions || []).includes('red_blue') };
+    const dbUnlocked = dbCond1.met && dbCond2.met;
+    const dbOwned = (userData.companions || []).includes('deathbringer');
+    createItem('deathbringer', companionData['deathbringer'], [dbCond1, dbCond2], dbUnlocked, dbOwned);
+
+    // 2. スマイル
+    const smCond1 = { text: "仲間「スンスン」所持", met: (userData.companions || []).includes('sunsun') };
+    const smCond2 = { text: "ランクA以上", met: (userData.rankIndex || 0) >= 6 }; // Aはindex 6
+    const smCond3 = { text: "ミニコインブーストα 100個以上", met: (userData.items['mini_coin_boost_alpha'] || 0) >= 100 };
+    const smUnlocked = smCond1.met && smCond2.met && smCond3.met;
+    const smOwned = (userData.companions || []).includes('smile');
+    createItem('smile', companionData['smile'], [smCond1, smCond2, smCond3], smUnlocked, smOwned);
+
+    // 3. コインレンジャー
+    const crCond1 = { text: "スキル「コンボアップβ」所持", met: (userData.skills || []).includes('combo_up_beta') };
+    const crCond2 = { text: "コイン1,000,000以上所持", met: (userData.coin || 0) >= 1000000 };
+    const crUnlocked = crCond1.met && crCond2.met;
+    const crOwned = (userData.companions || []).includes('coinranger');
+    createItem('coinranger', companionData['coinranger'], [crCond1, crCond2], crUnlocked, crOwned);
+}
+
+function startCompanionBattle(bossId) {
+    gameState.mode = 'companion_battle';
+    gameState.companionBoss = bossId;
+    gameState.isPlaying = true;
+    gameState.isEnding = false;
+    gameState.score = 0;
+    gameState.combo = 0;
+    gameState.maxCombo = 0;
+    gameState.currentRomajiIndex = 0;
+    gameState.comboMultiplier = 1.0;
+    gameState.typingDisabled = false;
+    gameState.timeExtendActive = false;
+    gameState.passiveUsed = false;
+    gameState.comboNoResetTime = 0;
+    gameState.comboProtectCharges = 0;
+    gameState.comboPoisoned = false;
+    gameState.timeLeft = 60;
+    gameState.initialTime = 60;
+    gameState.companionScoreMulti = 1.0;
+    gameState.companionComboMulti = 1.0;
+    gameState.obstacleTriggeredThisTick = false;
+    gameState.companionTriggeredThisTick = false;
+    gameState.activeCompanionBuff = null;
+    gameState.targetScore = 1000000;
+    
+    // 専用フラグ初期化
+    gameState.dbScore500kTriggered = false;
+    gameState.dbScore800kTriggered = false;
+    gameState.skillSealed = false;
+    gameState.fastTimer = false;
+    gameState.scorePoisoned = false;
+    gameState.comboQuarterDebuff = false;
+    document.getElementById('time-display').style.color = 'white';
+
+    applyPassiveOnStart();
+    
+    showScreen('game-screen');
+    
+    document.getElementById('story-target-container').style.display = 'block';
+    document.getElementById('raid-target-container').style.display = 'none';
+    document.getElementById('npc-info-container').style.display = 'none';
+    
+    document.getElementById('story-target-info').innerHTML = `🤝 仲間集め: ${companionData[bossId].name}`;
+    updateStoryTargetUI();
+    
+    setupSkills();
+    updateGameUI();
+    setNextWord();
+    
+    gameState.timer = setInterval(gameTimerTick, 100);
+}
+
 function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null) {
     gameState.mode = mode;
     gameState.storyStage = storyStage;
     gameState.raidStage = raidStage;
     gameState.shugyoBoss = shugyoBoss;
+    gameState.companionBoss = null;
     gameState.isPlaying = true;
     gameState.isEnding = false; 
     gameState.score = 0;
@@ -1515,7 +1637,12 @@ function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null)
     gameState.bachibachiTick = 0;
     gameState.nextSunsunBuffTime = undefined;
     gameState.npcScoreFreezeTime = 0;
+    gameState.dbAwakened = false;
+    gameState.smileFirstTriggered = false;
+    gameState.nextCoinRangerTick = undefined;
     
+    document.getElementById('time-display').style.color = 'white';
+
     applyPassiveOnStart();
     
     showScreen('game-screen');
@@ -1561,7 +1688,6 @@ function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null)
 }
 
 function setupSkills() {
-    // スキルスロット2の処理は使用しないため非表示固定
     document.getElementById('skill-slot-2-container').style.display = 'none';
     
     const btn1 = document.getElementById('skill-btn-1');
@@ -1580,10 +1706,27 @@ function setupSkills() {
     }
 }
 
+function showCoinRain() {
+    const container = document.getElementById('coin-rain-container');
+    container.style.display = 'block';
+    container.innerHTML = '';
+    for (let i = 0; i < 50; i++) {
+        const coin = document.createElement('div');
+        coin.className = 'coin-rain-item';
+        coin.style.left = Math.random() * 100 + 'vw';
+        coin.style.animationDuration = (Math.random() * 1 + 1) + 's';
+        coin.style.animationDelay = (Math.random() * 2) + 's';
+        container.appendChild(coin);
+    }
+    setTimeout(() => { container.style.display = 'none'; container.innerHTML = ''; }, 5000);
+}
+
 function gameTimerTick() {
     if (gameState.timeExtendActive || !gameState.isPlaying || gameState.isEnding) return;
     
     gameState.timeLeft -= 0.1;
+    if (gameState.fastTimer) gameState.timeLeft -= 0.1;
+
     document.getElementById('time-display').innerText = Math.max(0, Math.ceil(gameState.timeLeft));
     
     if (gameState.mode === 'rank') {
@@ -1595,7 +1738,7 @@ function gameTimerTick() {
 
     if (gameState.bachibachiState) {
         gameState.bachibachiTick = (gameState.bachibachiTick || 0) + 1;
-        if (gameState.bachibachiTick >= 5) { // 0.5秒
+        if (gameState.bachibachiTick >= 5) {
             gameState.bachibachiTick = 0;
             gameState.typingDisabled = true;
             const overlay = document.getElementById('game-overlay');
@@ -1607,13 +1750,30 @@ function gameTimerTick() {
             }, 100);
         }
     }
-    
+
+    // 仲間集め（デスブリンガー）の監視
+    if (gameState.mode === 'companion_battle' && gameState.companionBoss === 'deathbringer') {
+        if (!gameState.dbScore500kTriggered && gameState.score >= 500000) {
+            gameState.score = 0;
+            gameState.dbScore500kTriggered = true;
+            showGameMessage('💀 スコア吸収！強制リセット！', '#f44336');
+            updateGameUI();
+        }
+        if (!gameState.dbScore800kTriggered && gameState.score >= 800000) {
+            gameState.dbScore800kTriggered = true;
+            gameState.skillSealed = true;
+            gameState.fastTimer = true;
+            document.getElementById('time-display').style.color = '#ff5252';
+            showGameMessage('💀 スキル封印＆タイマー倍速！', '#f44336');
+        }
+    }
+
     triggerObstacles();
     triggerCompanionBuff();
     updateComboProtectUI();
     
     if (gameState.timeLeft <= 0) {
-        if (gameState.mode === 'story' || gameState.mode === 'raid' || gameState.mode === 'shugyo') {
+        if (gameState.mode === 'story' || gameState.mode === 'raid' || gameState.mode === 'shugyo' || gameState.mode === 'companion_battle') {
             endGame(gameState.score >= gameState.targetScore);
         } else {
             endGame(true);
@@ -1710,7 +1870,7 @@ function executeShugyoObstacle(type) {
 function executeSunsunObstacle(type) {
     if (type === 'bachibachi') {
         if (checkFranklinBadge(0)) return; 
-        gameState.score = Math.floor(gameState.score * 0.75); // 25%減少
+        gameState.score = Math.floor(gameState.score * 0.75);
         updateGameUI();
         showGameMessage('⚡ バチバチ！スコア25%減少！', '#ffeb3b');
     } else if (type === 'biribiri') {
@@ -1737,6 +1897,49 @@ function executeSunsunObstacle(type) {
 function triggerObstacles() {
     if (gameState.timeLeft <= 0 || gameState.initialTime - gameState.timeLeft <= 0) return;
     
+    const intTime = Math.ceil(gameState.timeLeft);
+    const elapsed = gameState.initialTime - gameState.timeLeft;
+    
+    // 仲間集めの妨害
+    if (gameState.mode === 'companion_battle') {
+        if (gameState.companionBoss === 'smile') {
+            if (elapsed <= 30) {
+                if (Math.floor(elapsed) % 3 === 0 && Math.floor(elapsed) > 0 && !gameState.obstacleTriggeredThisTick) {
+                    gameState.obstacleTriggeredThisTick = true;
+                    // 暗闇
+                    const overlay = document.getElementById('game-overlay');
+                    overlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
+                    gameState.skillSealed = true;
+                    showGameMessage('👁️ 暗闇！スキル無効！', '#333');
+                    setTimeout(() => { overlay.style.backgroundColor = 'transparent'; gameState.skillSealed = false; }, 1500);
+                } else if (Math.floor(elapsed) % 3 !== 0) {
+                    gameState.obstacleTriggeredThisTick = false;
+                }
+            } else {
+                if (Math.floor(elapsed) % 7 === 0 && !gameState.obstacleTriggeredThisTick) {
+                    gameState.obstacleTriggeredThisTick = true;
+                    // 雷 3秒スタン
+                    gameState.typingDisabled = true;
+                    const overlay = document.getElementById('game-overlay');
+                    overlay.style.backgroundColor = 'rgba(255, 235, 59, 0.5)';
+                    showGameMessage('⚡ カミナリ！3秒スタン！', '#ffeb3b');
+                    setTimeout(() => { gameState.typingDisabled = false; overlay.style.backgroundColor = 'transparent'; }, 3000);
+                } else if (Math.floor(elapsed) % 7 !== 0) {
+                    gameState.obstacleTriggeredThisTick = false;
+                }
+            }
+        } else if (gameState.companionBoss === 'coinranger') {
+            if (!gameState.dbScore800kTriggered && gameState.score >= 800000) {
+                gameState.dbScore800kTriggered = true;
+                showCoinRain();
+                showGameMessage('🪙 大量のコインが降ってきた！', '#ffeb3b');
+                gameState.comboQuarterDebuff = true;
+                showGameMessage('🪙 コンボ増加25%デバフ！(20秒)', '#ffeb3b');
+                setTimeout(() => { gameState.comboQuarterDebuff = false; }, 20000);
+            }
+        }
+    }
+
     if (gameState.mode === 'story' && gameState.storyStage >= 101 && !gameState.storyObstacleTriggered) {
         if (gameState.storyObstacleTriggerTime === 0) {
             gameState.storyObstacleTriggerTime = Math.floor(Math.random() * 40) + 10;
@@ -1751,7 +1954,6 @@ function triggerObstacles() {
             executeObstacle(gameState.raidObstacle);
         }
     } else if (gameState.mode === 'raid') {
-        const intTime = Math.ceil(gameState.timeLeft);
         if (intTime > 0 && intTime % 20 === 0 && !gameState.obstacleTriggeredThisTick) {
             gameState.obstacleTriggeredThisTick = true;
             executeObstacle(gameState.raidObstacle);
@@ -1764,7 +1966,6 @@ function triggerObstacles() {
             executeObstacle(gameState.rankObstacleType);
         }
     } else if (gameState.mode === 'shugyo') {
-        const intTime = Math.ceil(gameState.timeLeft);
         if (gameState.shugyoBoss === 'red_blue') {
             if (intTime > 0 && intTime % 10 === 0 && !gameState.obstacleTriggeredThisTick) {
                 gameState.obstacleTriggeredThisTick = true;
@@ -1776,7 +1977,6 @@ function triggerObstacles() {
                 gameState.obstacleTriggeredThisTick = false;
             }
         } else if (gameState.shugyoBoss === 'sunsun') {
-            const elapsed = gameState.initialTime - gameState.timeLeft;
             if (intTime > 0 && Math.floor(elapsed) % 15 === 0 && Math.floor(elapsed) > 0 && !gameState.obstacleTriggeredThisTick) {
                 gameState.obstacleTriggeredThisTick = true;
                 const r = Math.random();
@@ -1789,32 +1989,33 @@ function triggerObstacles() {
     }
 }
 
-function applyCompanionBuff(type) {
+function showCompanionBuffMsg(text) {
     const msgEl = document.getElementById('companion-buff-msg');
     const newMsg = msgEl.cloneNode(true);
     msgEl.parentNode.replaceChild(newMsg, msgEl);
-    
+    newMsg.innerText = text;
+}
+
+function applyCompanionBuff(type) {
     const duration = 5000;
     const endTime = Date.now() + duration;
     
     if (type === 'score2x') {
         gameState.companionScoreMulti = 2;
-        newMsg.innerText = "【レッドアンドブルー】の支援！ スコア2倍！";
+        showCompanionBuffMsg("【レッドアンドブルー】の支援！ スコア2倍！");
         gameState.activeCompanionBuff = { name: "スコア2倍", endTime: endTime };
         setTimeout(() => { if (gameState.activeCompanionBuff && gameState.activeCompanionBuff.endTime === endTime) { gameState.companionScoreMulti = 1; } }, duration);
     } else if (type === 'combo1.5x') {
         gameState.companionComboMulti = 1.5;
-        newMsg.innerText = "【レッドアンドブルー】の支援！ コンボ1.5倍！";
+        showCompanionBuffMsg("【レッドアンドブルー】の支援！ コンボ1.5倍！");
         gameState.activeCompanionBuff = { name: "コンボ1.5倍", endTime: endTime };
         setTimeout(() => { if (gameState.activeCompanionBuff && gameState.activeCompanionBuff.endTime === endTime) { gameState.companionComboMulti = 1; } }, duration);
-    } else if (type === 'auto_energy') {
-        newMsg.innerText = "【スンスン】の支援！ 自動エナジー！";
-        gameState.activeCompanionBuff = { name: "自動エナジー", endTime: Date.now() + 4500 };
-        gameState.autoEnergyActive = true;
-        startAutoType(4.5, 50); 
-        setTimeout(() => { gameState.autoEnergyActive = false; }, 4500);
+    } else if (type === 'score_500k') {
+        showCompanionBuffMsg("【スンスン】の支援！ スコア+50万！");
+        gameState.score += 500000;
+        updateGameUI();
     } else if (type === 'power_gen') {
-        newMsg.innerText = "【スンスン】の支援！ 発電！コンボ+200！";
+        showCompanionBuffMsg("【スンスン】の支援！ 発電！コンボ+200！");
         if (!gameState.comboPoisoned) {
             gameState.combo += 200;
             if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
@@ -1825,7 +2026,8 @@ function applyCompanionBuff(type) {
 
 function triggerCompanionBuff() {
     const intTime = Math.ceil(gameState.timeLeft);
-    if (intTime <= 0 || gameState.initialTime - gameState.timeLeft <= 0) return;
+    const elapsed = gameState.initialTime - gameState.timeLeft;
+    if (intTime <= 0 || elapsed <= 0) return;
     
     if (userData.equippedCompanion === 'red_blue') {
         if (intTime % 20 === 0 && !gameState.companionTriggeredThisTick) {
@@ -1843,8 +2045,51 @@ function triggerCompanionBuff() {
         if (gameState.timeLeft <= gameState.nextSunsunBuffTime) {
             gameState.nextSunsunBuffTime -= 15;
             const r = Math.random();
-            if (r < 0.5) applyCompanionBuff('auto_energy');
+            if (r < 0.5) applyCompanionBuff('score_500k');
             else applyCompanionBuff('power_gen');
+        }
+    } else if (userData.equippedCompanion === 'deathbringer') {
+        if (gameState.timeLeft <= 20 && !gameState.dbAwakened) {
+            gameState.dbAwakened = true;
+            gameState.companionScoreMulti = 1.5;
+            gameState.comboProtectCharges += 2;
+            updateComboProtectUI();
+            showCompanionBuffMsg('【デスブリンガー】覚醒！スコア1.5倍＆コンボ保護+2');
+        }
+    } else if (userData.equippedCompanion === 'smile' && gameState.mode === 'rank') {
+        if (elapsed >= 20 && !gameState.smileFirstTriggered) {
+            gameState.smileFirstTriggered = true;
+            applyPunch(5, 0); 
+            gameState.npcCurrentScore = Math.max(0, gameState.npcCurrentScore - 250000);
+            document.getElementById('npc-info-score').innerText = Math.floor(gameState.npcCurrentScore).toLocaleString();
+            gameState.score += 250000;
+            updateGameUI();
+            showCompanionBuffMsg('【スマイル】相手5秒スタン＆スコア25万強奪！');
+            gameState.nextSmileTick = gameState.timeLeft - 15;
+        }
+        if (gameState.smileFirstTriggered && gameState.nextSmileTick !== undefined && gameState.timeLeft <= gameState.nextSmileTick) {
+            gameState.nextSmileTick -= 15;
+            if (Math.random() < 0.5) {
+                applyPunch(5, 0);
+                showCompanionBuffMsg('【スマイル】相手5秒スタン！');
+            } else {
+                gameState.npcCurrentScore = Math.max(0, gameState.npcCurrentScore - 300000);
+                document.getElementById('npc-info-score').innerText = Math.floor(gameState.npcCurrentScore).toLocaleString();
+                showCompanionBuffMsg('【スマイル】相手のスコアを30万減少！');
+            }
+        }
+    } else if (userData.equippedCompanion === 'coinranger') {
+        if (gameState.nextCoinRangerTick === undefined) {
+            gameState.nextCoinRangerTick = gameState.initialTime - (Math.floor(Math.random()*6)+15);
+        }
+        if (gameState.timeLeft <= gameState.nextCoinRangerTick && gameState.timeLeft > 10) {
+            gameState.nextCoinRangerTick = gameState.timeLeft - (Math.floor(Math.random()*6)+15);
+            const earned = gameState.combo * 10;
+            if (earned > 0) {
+                userData.coin += earned;
+                showCompanionBuffMsg(`【コインレンジャー】コイン ${earned} 獲得！`);
+                document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin)}`;
+            }
         }
     }
 }
@@ -1859,6 +2104,7 @@ function showGameMessage(msg, color = '#00bcd4') {
 }
 
 function checkFranklinBadge(stunSec) {
+    if (gameState.mode === 'companion_battle') return false; 
     if (userData.equippedPassive === 'franklin_badge_beta') {
         gameState.timeLeft += stunSec;
         showGameMessage(`🛡️ スタン無効＆時間+${stunSec}秒！`, '#4caf50');
@@ -1959,12 +2205,34 @@ function startTimeExtendGame() {
 
 function useSkill(slot) {
     if (!gameState.isPlaying || !gameState.isSkillReady[slot] || gameState.typingDisabled || gameState.autoEnergyActive) return;
+    if (gameState.skillSealed) {
+        showGameMessage('封印されている！', '#f44336');
+        return;
+    }
+
     const skillId = slot === 1 ? userData.equippedSkill : userData.equippedSkill2;
     if (!skillId) return;
     const skill = skillData[skillId];
     
     if (skill.id === 'auto_input_gamma' && userData.storyStage < 100 && !(userData.storyRewardsClaimed && userData.storyRewardsClaimed.includes('100'))) return;
     
+    // コインレンジャーの妨害ペナルティ
+    if (gameState.mode === 'companion_battle' && gameState.companionBoss === 'coinranger') {
+        gameState.typingDisabled = true;
+        gameState.comboPoisoned = true;
+        gameState.scorePoisoned = true;
+        const overlay = document.getElementById('game-overlay');
+        overlay.style.backgroundColor = 'rgba(128, 0, 128, 0.6)';
+        showGameMessage("☠️ スキル使用ペナルティ！ 10秒スタン＆毒＆スコア無効！", "#9c27b0");
+        setTimeout(() => {
+            if (!gameState.isPlaying || gameState.isEnding) return;
+            gameState.typingDisabled = false;
+            gameState.comboPoisoned = false;
+            gameState.scorePoisoned = false;
+            overlay.style.backgroundColor = 'transparent';
+        }, 10000);
+    }
+
     skill.execute();
     
     gameState.isSkillReady[slot] = false;
@@ -2030,17 +2298,31 @@ function handleCorrectKey(isAuto = false) {
     gameState.currentRomajiIndex++;
     
     let scMulti = gameState.comboMultiplier * gameState.companionScoreMulti;
-    gameState.score += Math.floor(gameState.combo * 5 * scMulti);
+    
+    if (!gameState.scorePoisoned) {
+        gameState.score += Math.floor(gameState.combo * 5 * scMulti);
+    }
     
     if (!gameState.comboPoisoned) {
-        gameState.combo += Math.floor(1 * gameState.companionComboMulti);
+        let addCombo = 1 * gameState.companionComboMulti;
+        if (gameState.comboQuarterDebuff) {
+            gameState.combo += 0.25; 
+        } else {
+            gameState.combo += addCombo;
+        }
     }
     
     if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
     
+    // コインレンジャー能力 (1文字100コイン)
+    if (userData.equippedCompanion === 'coinranger' && gameState.timeLeft <= 10) {
+        userData.coin += 100;
+        document.getElementById('coin-display').innerText = `🪙${Math.floor(userData.coin)}`;
+    }
+
     updateGameUI();
     
-    if ((gameState.mode === 'story' || gameState.mode === 'raid' || gameState.mode === 'shugyo') && gameState.score >= gameState.targetScore) {
+    if ((gameState.mode === 'story' || gameState.mode === 'raid' || gameState.mode === 'shugyo' || gameState.mode === 'companion_battle') && gameState.score >= gameState.targetScore) {
         if (!gameState.isEnding) {
             setTimeout(() => endGame(true), 0);
         }
@@ -2058,9 +2340,15 @@ function handleCorrectKey(isAuto = false) {
         }
         
         if (!gameState.comboPoisoned && comboBonus > 0) {
+            if (gameState.comboQuarterDebuff) comboBonus = comboBonus * 0.25;
             gameState.combo += comboBonus;
             if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
-            showSpeedBonusAnim(speedPerChar, comboBonus);
+            if (comboBonus >= 1) showSpeedBonusAnim(speedPerChar, Math.floor(comboBonus));
+        }
+
+        if (userData.equippedCompanion === 'deathbringer' && gameState.dbAwakened) {
+            gameState.combo += 20;
+            showCompanionBuffMsg('【デスブリンガー】単語クリアボーナス！コンボ+20！');
         }
         
         setNextWord();
@@ -2114,8 +2402,8 @@ document.addEventListener('keydown', (e) => {
 
 function updateGameUI() {
     document.getElementById('score-display').innerText = gameState.score.toLocaleString();
-    document.getElementById('combo-display').innerText = gameState.combo.toLocaleString();
-    if (gameState.mode === 'story' || gameState.mode === 'shugyo') updateStoryTargetUI();
+    document.getElementById('combo-display').innerText = Math.floor(gameState.combo).toLocaleString();
+    if (gameState.mode === 'story' || gameState.mode === 'shugyo' || gameState.mode === 'companion_battle') updateStoryTargetUI();
     if (gameState.mode === 'raid') updateRaidTargetUI();
 }
 
@@ -2126,6 +2414,8 @@ function updateStoryTargetUI() {
     
     if (gameState.mode === 'shugyo') {
         document.getElementById('story-target-info').innerHTML = `⚔️ 修行対象: ${companionData[gameState.shugyoBoss].name}`;
+    } else if (gameState.mode === 'companion_battle') {
+        document.getElementById('story-target-info').innerHTML = `🤝 仲間集め: ${companionData[gameState.companionBoss].name}`;
     } else {
         document.getElementById('story-target-info').innerHTML = `📖 ステージ ${gameState.storyStage}`;
     }
@@ -2163,13 +2453,13 @@ function endGame(isClear = false) {
     
     document.getElementById('game-overlay').classList.remove('blur-effect');
     document.getElementById('evade-btn').style.display = 'none';
+    document.getElementById('time-display').style.color = 'white';
 
     let baseCoin = Math.floor(gameState.score / 100);
     let baseGoldDrop = gameState.goldDropRate;
     
-    // ゴールドアイテム「ラックゴールドα」のパッシブ効果
     if (userData.items && userData.items['gold_luck_alpha'] > 0) {
-        baseGoldDrop = 0.03; // レアリティが追加されればここで優先処理
+        baseGoldDrop = 0.03; 
     }
     
     if (gameState.mode === 'hard') baseCoin *= 2;
@@ -2251,7 +2541,7 @@ function endGame(isClear = false) {
     userData.xp = Number(userData.xp) + earnedXp;
     
     let earnedGold = 0;
-    if (gameState.mode !== 'rank' && gameState.mode !== 'shugyo' && Math.random() < baseGoldDrop) {
+    if (gameState.mode !== 'rank' && gameState.mode !== 'shugyo' && gameState.mode !== 'companion_battle' && Math.random() < baseGoldDrop) {
         earnedGold = gameState.goldEarnAmount;
         userData.goldCoin += earnedGold;
     }
@@ -2312,11 +2602,30 @@ function endGame(isClear = false) {
         }
     }
 
+    if (gameState.mode === 'companion_battle') {
+        if (isClear) {
+            document.getElementById('story-clear-msg').innerText = '✅ 仲間獲得バトル クリア！'; 
+            document.getElementById('story-clear-msg').style.display = 'block';
+            
+            userData.companions = userData.companions || [];
+            if (!userData.companions.includes(gameState.companionBoss)) {
+                userData.companions.push(gameState.companionBoss);
+                const cName = companionData[gameState.companionBoss].name;
+                const rewDiv = document.getElementById('story-reward-msg');
+                rewDiv.innerHTML = `🎁 仲間「${cName}」を獲得しました！<br>持ち物から装備できます。`; 
+                rewDiv.style.display = 'block';
+            }
+        } else {
+            document.getElementById('story-clear-msg').innerText = '❌ バトル失敗... (スコア未達)'; 
+            document.getElementById('story-clear-msg').style.display = 'block';
+        }
+    }
+
     if (gameState.mode === 'normal' || gameState.mode === 'hard') {
         userData.playCount++;
         if (gameState.score > userData.bestScore) userData.bestScore = gameState.score;
-        if (gameState.maxCombo > userData.bestCombo) userData.bestCombo = gameState.maxCombo;
-        updateRankingData(gameState.score, gameState.maxCombo);
+        if (Math.floor(gameState.maxCombo) > userData.bestCombo) userData.bestCombo = Math.floor(gameState.maxCombo);
+        updateRankingData(gameState.score, Math.floor(gameState.maxCombo));
         incrementPlayCountRanking();
     }
 
@@ -2333,7 +2642,7 @@ function endGame(isClear = false) {
     }
 
     document.getElementById('result-score').innerText = gameState.score.toLocaleString();
-    document.getElementById('result-combo').innerText = gameState.maxCombo.toLocaleString();
+    document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo).toLocaleString();
     document.getElementById('result-coin').innerText = earnedCoin.toLocaleString();
     document.getElementById('result-xp').innerText = earnedXp.toLocaleString();
     
@@ -2442,6 +2751,22 @@ async function fetchAndDisplayRankRanking() {
 
 function renderShopList(tab) {
     const list = document.getElementById('shop-list'); list.innerHTML = '';
+    
+    if (tab === 'goldCoin') {
+        for (const key in itemData) {
+            const item = itemData[key];
+            if (item.priceType !== 'goldCoin') continue;
+            
+            const isOwned = (item.passiveItem || item.equippable) && userData.items[key] > 0;
+            let btnHtml = isOwned ? `<button class="action-btn" disabled>所持</button>` : `<button class="action-btn" style="background: linear-gradient(145deg, #fbc02d, #f57f17); color: black;" onclick="app.buyItem('items', '${key}')">🥇${item.price}</button>`;
+            
+            const div = document.createElement('div'); div.className = 'list-item'; div.style.border = '1px solid #ffaa00';
+            div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
+            list.appendChild(div);
+        }
+        return;
+    }
+
     let dataObj = tab === 'skills' || tab === 'raid' ? skillData : (tab === 'items' ? itemData : passiveData);
     for (const key in dataObj) {
         const item = dataObj[key];
@@ -2470,22 +2795,6 @@ function renderRankShopList() {
         div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
         list.appendChild(div);
     });
-}
-
-function renderGoldShopList() {
-    const list = document.getElementById('gold-shop-list'); list.innerHTML = '';
-    document.getElementById('gold-shop-coin-display').innerText = userData.goldCoin || 0;
-    for (const key in itemData) {
-        const item = itemData[key];
-        if (item.priceType !== 'goldCoin') continue;
-        
-        const isOwned = (item.passiveItem || item.equippable) && userData.items[key] > 0;
-        let btnHtml = isOwned ? `<button class="action-btn" disabled>所持</button>` : `<button class="action-btn" style="background: linear-gradient(145deg, #fbc02d, #f57f17); color: black;" onclick="app.buyItem('items', '${key}')">🥇${item.price}</button>`;
-        
-        const div = document.createElement('div'); div.className = 'list-item'; div.style.border = '1px solid #ffaa00';
-        div.innerHTML = `<div class="shop-item-info"><h3>${item.name}</h3><p>${item.desc}</p></div><div>${btnHtml}</div>`;
-        list.appendChild(div);
-    }
 }
 
 function renderRankRewardsList() {
@@ -2584,7 +2893,7 @@ function renderInventoryList(tab) {
             const div = document.createElement('div'); div.className = 'list-item';
             div.innerHTML = `
                 <div style="display:flex; align-items:center; gap:15px;">
-                    <img src="${c.img}" style="width:50px; height:50px; border-radius:50%; border:2px solid #00bcd4;">
+                    <img src="${c.img}" style="width:50px; height:50px; border-radius:50%; border:2px solid #00bcd4;" onerror="this.src='https://via.placeholder.com/50';">
                     <div class="shop-item-info"><h3>${c.name}</h3><p>${c.desc}</p></div>
                 </div>
                 <div>${btnHtml}</div>`;
@@ -2595,7 +2904,7 @@ function renderInventoryList(tab) {
         list.appendChild(unEqDiv);
         
         if (userData.companions.length === 0) {
-            list.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">仲間はまだいません。修行モードで獲得しよう！</div>';
+            list.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">仲間はまだいません。修行モードや仲間集めで獲得しよう！</div>';
         }
     }
 }
@@ -2664,7 +2973,7 @@ function checkModeSelectable() {
 
 window.app = {
     showScreen: (screenId) => {
-        if ((screenId === 'play-select-screen' || screenId === 'shugyo-select-screen') && !checkModeSelectable()) return;
+        if ((screenId === 'play-select-screen' || screenId === 'shugyo-select-screen' || screenId === 'companion-collect-screen') && !checkModeSelectable()) return;
         showScreen(screenId);
     },
     startGame: (mode, shugyoBoss, storyStage, raidStage) => {
@@ -2681,6 +2990,16 @@ window.app = {
     },
     openRaidMap: () => { if (!checkModeSelectable()) return; renderRaidMap(); showScreen('raid-map-screen'); },
     
+    openCompanionCollect: () => {
+        if (!checkModeSelectable()) return;
+        renderCompanionCollectList();
+        showScreen('companion-collect-screen');
+    },
+    startCompanionBattle: (bossId) => {
+        if (!checkModeSelectable()) return;
+        startCompanionBattle(bossId);
+    },
+
     openRankMatch: () => {
         if (!checkModeSelectable()) return;
         showScreen('rank-match-screen');
@@ -2744,7 +3063,7 @@ window.app = {
     openGoldShop: () => {
         if (!checkModeSelectable()) return;
         document.getElementById('gold-shop-modal').classList.add('active');
-        renderGoldShopList();
+        renderShopList('goldCoin');
     },
     buyItem: (tab, key) => {
         let item = tab === 'skills' || tab === 'raid' ? skillData[key] : (tab === 'items' ? itemData[key] : passiveData[key]);
@@ -2765,7 +3084,8 @@ window.app = {
             userData.goldCoin -= item.price;
             userData.items[key] = (userData.items[key] || 0) + 1;
             saveUserData();
-            if (document.getElementById('gold-shop-modal').classList.contains('active')) renderGoldShopList();
+            if (document.getElementById('gold-shop-modal').classList.contains('active')) renderShopList('goldCoin');
+            if (document.getElementById('shop-screen').classList.contains('active') && document.querySelector('#shop-screen .tab.active').innerText === 'ゴールドコイン') renderShopList('goldCoin');
         } else { alert('ポイント・コインが足りません'); }
     },
     
