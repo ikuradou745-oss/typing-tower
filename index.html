@@ -50,6 +50,7 @@
         #gold-coin-display { font-size: 18px; font-weight: bold; color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
         #raid-point-display { font-size: 18px; font-weight: bold; color: #ff5722; text-shadow: 0 0 10px rgba(255, 87, 34, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
         #rank-coin-display-header { font-size: 18px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
+        #six-point-display { font-size: 18px; font-weight: bold; color: #8ce7ff; text-shadow: 0 0 10px rgba(140, 231, 255, 0.6); display: flex; align-items: center; gap: 5px; margin-left: 10px; }
         
         #header-right { display: flex; align-items: center; gap: 15px; width: 450px; justify-content: flex-end; }
         #header-rank-badge { background: linear-gradient(145deg, #f57f17, #fbc02d); color: #000; padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 0 8px rgba(251, 192, 45, 0.6); }
@@ -287,6 +288,7 @@
             <div id="gold-coin-display">🥇0</div>
             <div id="raid-point-display">🎯0</div>
             <div id="rank-coin-display-header">RC 0</div>
+            <div id="six-point-display">6P 0</div>
         </div>
         <div id="header-right">
             <div id="header-rank-badge">Rank G</div>
@@ -305,6 +307,7 @@
                 <div class="menu-grid">
                     <button class="menu-btn" onclick="app.showScreen('play-select-screen')">プレイ</button>
                     <button class="menu-btn" onclick="app.openRanking()">ランキング</button>
+                    <button class="menu-btn" onclick="app.openSixEvent()">sixイベント</button>
                     <button class="menu-btn" onclick="app.openShop()">ショップ</button>
                     <button class="menu-btn" onclick="app.openInventory()">持ち物</button>
                     <button class="menu-btn story-mode" onclick="app.openStoryMap()">ストーリーモード</button>
@@ -512,6 +515,20 @@
             <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
         </div>
 
+        <div id="six-event-screen" class="screen">
+            <h2 style="font-size: 40px; color: #ffeb3b; text-shadow: 0 0 18px #ffeb3b;">✨ sixイベント ✨</h2>
+            <p style="margin-top: 10px; color: #ddd; font-size: 14px;">期間: 2026/6/30 23:59 まで</p>
+            <div style="width: min(100%, 980px); margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;">
+                <button class="menu-btn" style="min-height:110px;" onclick="app.openSixSection('play')">通常プレイ</button>
+                <button class="menu-btn" style="min-height:110px;" onclick="app.openSixSection('shop')">ショップ</button>
+                <button class="menu-btn" style="min-height:110px;" onclick="app.openSixSection('login')">ログインボーナス</button>
+                <button class="menu-btn" style="min-height:110px;" onclick="app.openSixSection('endless')">エンドレスモード</button>
+                <button class="menu-btn" style="min-height:110px;" onclick="app.openSixSection('achievements')">実績</button>
+                <button class="menu-btn" style="min-height:110px;" onclick="app.openSixSection('ranking')">エンドレスランキング</button>
+            </div>
+            <button class="back-btn" onclick="app.showScreen('menu-screen')" style="margin-top: 30px;">戻る</button>
+        </div>
+
         <div id="rank-ranking-screen" class="screen">
             <h2 style="font-size: 36px; color: #ffeb3b; text-shadow: 0 0 15px rgba(255,235,59,0.5);">🏅 ランクランキング</h2>
             <div class="tab-container">
@@ -549,6 +566,14 @@
             </div>
             <button class="back-btn" onclick="app.showScreen('menu-screen')">戻る</button>
         </div>
+    </div>
+</div>
+
+<div id="six-event-modal" class="modal-overlay" style="z-index: 3000;">
+    <div class="modal-content" style="max-width: 900px; width: 95%;">
+        <h2 style="color: #ffeb3b;">sixイベント</h2>
+        <div id="six-event-modal-body"></div>
+        <button class="back-btn" onclick="document.getElementById('six-event-modal').classList.remove('active')" style="width:100%; margin-top: 15px;">閉じる</button>
     </div>
 </div>
 
@@ -732,6 +757,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 import { getDatabase, ref, set, get, update, onDisconnect, push, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -747,7 +773,37 @@ const firebaseConfig = {
 
 const appInstance = initializeApp(firebaseConfig);
 const analytics = getAnalytics(appInstance);
+const auth = getAuth(appInstance);
 const db = getDatabase(appInstance);
+let _authResolved = false;
+const authReady = new Promise((resolve) => {
+    let triedSignIn = false;
+    onAuthStateChanged(auth, async (user) => {
+        if (user && !_authResolved) {
+            uid = user.uid;
+            localStorage.setItem('typingGameUid', uid);
+            _authResolved = true;
+            resolve(user);
+        } else if (!user && !triedSignIn) {
+            triedSignIn = true;
+            try {
+                const cred = await signInAnonymously(auth);
+                uid = cred.user.uid;
+                localStorage.setItem('typingGameUid', uid);
+                if (!_authResolved) {
+                    _authResolved = true;
+                    resolve(cred.user);
+                }
+            } catch (e) {
+                console.error('Auth error', e);
+                if (!_authResolved) {
+                    _authResolved = true;
+                    resolve(null);
+                }
+            }
+        }
+    });
+});
 
 window.app = {};
 
@@ -788,6 +844,177 @@ document.addEventListener('click', (e) => {
     }
 });
 
+const SIX_EVENT_END = new Date('2026-06-30T23:59:59+09:00').getTime();
+function isOwnerAdmin(user = userData) { return Number(user?.userId) === 1; }
+function isSixEventActive() { return Date.now() <= SIX_EVENT_END; }
+
+function getSixState() {
+    try { return JSON.parse(localStorage.getItem('sixEventState') || '{}') || {}; }
+    catch { return {}; }
+}
+function setSixState(v) { localStorage.setItem('sixEventState', JSON.stringify(v || {})); }
+
+function getSixLeaderboard() {
+    try { return JSON.parse(localStorage.getItem('sixEventLeaderboard') || '[]') || []; }
+    catch { return []; }
+}
+function setSixLeaderboard(v) { localStorage.setItem('sixEventLeaderboard', JSON.stringify(v || [])); }
+function upsertSixBestScore(score) {
+    const key = String(userData.userId || uid || 'me');
+    const list = getSixLeaderboard();
+    const idx = list.findIndex(v => String(v.key) === key);
+    const entry = { key, userId: userData.userId || null, name: userData.name || '冒険者', score: Math.max(Number(score) || 0, idx >= 0 ? Number(list[idx].score) || 0 : 0), timestamp: Date.now() };
+    if (idx >= 0) list[idx] = entry; else list.push(entry);
+    list.sort((a, b) => b.score - a.score || a.timestamp - b.timestamp);
+    setSixLeaderboard(list.slice(0, 50));
+    return entry.score;
+}
+function renderSixEventModal(section) {
+    const body = document.getElementById('six-event-modal-body');
+    if (!body) return;
+    const state = getSixState();
+    if (section === 'play') {
+        body.innerHTML = `
+            <p style="margin-bottom:15px;">通常プレイは60秒、目標スコアは500000です。クリアでsixポイント+1。</p>
+            <button class="modal-btn" onclick="app.startGame('six_normal')">通常プレイを開始</button>
+        `;
+        return;
+    }
+    if (section === 'endless') {
+        body.innerHTML = `
+            <p style="margin-bottom:15px;">タイマーなしで無限に打てます。5分何もしないと自動終了します。</p>
+            <button class="modal-btn" onclick="app.startGame('six_endless')">エンドレスモードを開始</button>
+        `;
+        return;
+    }
+    if (section === 'shop') {
+        const shopHtml = [
+            ['buff_alpha', 'バフα', '10 sixP', '5秒間、1文字ごとにコンボ+5。', 'buff_alpha'],
+            ['franklin_badge_sigma', 'フランクリンバッジΣ', '10 sixP', 'コンボ半減・時間短縮を無効化。', 'franklin_badge_sigma'],
+            ['raid25', 'レイドポイント25', '10 sixP', 'レイドポイント+25。', 'raid25'],
+            ['coin250k', 'コイン250000', '20 sixP', 'コイン+250000。', 'coin250k'],
+            ['buff_gamma', 'バフγ', '30 sixP', '5秒コンボ+5、10秒ミス無効。', 'buff_gamma'],
+            ['badge67', '67バッジ', '30 sixP', '試合中1回だけミス無効化。', 'badge67'],
+            ['coin1m', 'コイン1000000', '50 sixP', 'コイン+1000000。', 'coin1m'],
+            ['buff_omega', 'バフΩ', '50 sixP', '5秒コンボ+5、ミス無効、単語完了でコンボ+10。', 'buff_omega'],
+            ['comp67', '67仲間', '100 sixP', '強力な仲間を購入。', 'comp67']
+        ].map(([id,name,price,desc]) => `<div class="list-item"><div class="shop-item-info"><h3>${name}</h3><p>${desc}</p><p style="color:#8ce7ff;">${price}</p></div><button class="action-btn" onclick="app.buySixItem('${id}')">購入</button></div>`).join('');
+        body.innerHTML = `<div class="list-container" style="max-height:55vh;">${shopHtml}</div>`;
+        return;
+    }
+    if (section === 'achievements') {
+        const clears = userData.sixEvent?.a1Clears || 0;
+        const best = userData.sixEvent?.endlessBest || 0;
+        const points = userData.sixPoints || 0;
+        body.innerHTML = `
+            <div class="list-container" style="max-height:55vh;">
+                <div class="list-item"><div><h3>通常プレイ50回クリア</h3><p>報酬: 6兵士</p><p>進捗: ${clears}/50</p></div><button class="action-btn" onclick="app.claimSixAchievement('a1')" ${clears < 50 ? 'disabled' : ''}>受け取る</button></div>
+                <div class="list-item"><div><h3>エンドレス50,000,000達成</h3><p>報酬: 7兵士</p><p>進捗: ${best.toLocaleString()}/50,000,000</p></div><button class="action-btn" onclick="app.claimSixAchievement('a2')" ${best < 50000000 ? 'disabled' : ''}>受け取る</button></div>
+                <div class="list-item"><div><h3>sixポイント67達成</h3><p>報酬: 67パワーストーン</p><p>進捗: ${points}/67</p></div><button class="action-btn" onclick="app.claimSixAchievement('a3')" ${points < 67 ? 'disabled' : ''}>受け取る</button></div>
+            </div>`;
+        return;
+    }
+    if (section === 'login') {
+        const claimed = state.loginClaimed || null;
+        body.innerHTML = `
+            <div class="list-container" style="max-height:55vh;">
+                ${[1,2,3,4,5,6,7].map(day => {
+                    const labels = ['コイン5万','レイド10','ゴールド3','コイン25万','レイド25','ゴールド8','67チェーン'];
+                    const disabled = claimed === day;
+                    return `<div class="list-item"><div><h3>${day}日目</h3><p>${labels[day-1]}</p></div><button class="action-btn" onclick="app.claimSixLogin(${day})" ${disabled ? 'disabled' : ''}>${disabled ? '受取済み' : '受け取る'}</button></div>`;
+                }).join('')}
+            </div>
+            <p style="margin-top:10px; color:#ccc;">24時間ごとに再受取できます。</p>`;
+        return;
+    }
+    if (section === 'ranking') {
+        const list = getSixLeaderboard();
+        const me = list.find(v => String(v.key) === String(userData.userId || uid || 'me'));
+        const claimed = state.rankingClaimedDate || '';
+        const todayKey = new Date().toISOString().slice(0, 10);
+        body.innerHTML = `
+            <p style="margin-bottom:12px;">エンドレススコアのローカルランキングです。</p>
+            <button class="modal-btn" onclick="app.claimSixRankingReward('${todayKey}')">報酬受け取り</button>
+            <div class="list-container" style="max-height:55vh; margin-top: 15px;">
+                ${list.slice(0, 10).map((v, i) => `<div class="list-item"><div><h3>${i+1}位 ${escapeHtml(v.name || '')}</h3><p>${Number(v.score || 0).toLocaleString()}点</p></div></div>`).join('')}
+                ${!list.length ? '<div style="text-align:center; color:#ccc;">まだ記録がありません</div>' : ''}
+            </div>
+            <p style="margin-top:10px; color:#ccc;">今日の受取状況: ${claimed === todayKey ? '受取済み' : '未受取'}</p>`;
+        return;
+    }
+    body.innerHTML = '<p>内容を読み込めませんでした。</p>';
+}
+function applySixShopItem(id) {
+    if ((userData.sixPoints || 0) <= 0) return false;
+    const map = {
+        buff_alpha: { cost: 10, apply: () => { if (!userData.skills.includes('buff_alpha')) userData.skills.push('buff_alpha'); } },
+        franklin_badge_sigma: { cost: 10, apply: () => { if (!userData.passives.includes('franklin_badge_sigma')) userData.passives.push('franklin_badge_sigma'); } },
+        raid25: { cost: 10, apply: () => { userData.raidPoint += 25; } },
+        coin250k: { cost: 20, apply: () => { userData.coin += 250000; } },
+        buff_gamma: { cost: 30, apply: () => { if (!userData.skills.includes('buff_gamma')) userData.skills.push('buff_gamma'); } },
+        badge67: { cost: 30, apply: () => { userData.items['badge67'] = (userData.items['badge67'] || 0) + 1; } },
+        coin1m: { cost: 50, apply: () => { userData.coin += 1000000; } },
+        buff_omega: { cost: 50, apply: () => { if (!userData.skills.includes('buff_omega')) userData.skills.push('buff_omega'); } },
+        comp67: { cost: 100, apply: () => { if (!userData.companions.includes('comp67')) userData.companions.push('comp67'); } },
+    };
+    const item = map[id];
+    if (!item || (userData.sixPoints || 0) < item.cost) return false;
+    userData.sixPoints -= item.cost;
+    item.apply();
+    saveUserData();
+    updateHeaderUI();
+    return true;
+}
+function claimSixAchievement(id) {
+    userData.sixEvent = userData.sixEvent || {};
+    if (id === 'a1' && (userData.sixEvent.a1Clears || 0) >= 50) {
+        userData.items['6soldier'] = (userData.items['6soldier'] || 0) + 1;
+    } else if (id === 'a2' && (userData.sixEvent.endlessBest || 0) >= 50000000) {
+        userData.items['7soldier'] = (userData.items['7soldier'] || 0) + 1;
+    } else if (id === 'a3' && (userData.sixPoints || 0) >= 67) {
+        userData.items['67_power_stone'] = (userData.items['67_power_stone'] || 0) + 1;
+    } else return false;
+    saveUserData();
+    alert('報酬を受け取りました。');
+    return true;
+}
+function claimSixLogin(day) {
+    const state = getSixState();
+    const last = state.loginClaimedAt || 0;
+    if (Date.now() - last < 24 * 60 * 60 * 1000) return alert('まだ受け取れません。');
+    const rewards = {
+        1: () => userData.coin += 50000,
+        2: () => userData.raidPoint += 10,
+        3: () => userData.goldCoin += 3,
+        4: () => userData.coin += 250000,
+        5: () => userData.raidPoint += 25,
+        6: () => userData.goldCoin += 8,
+        7: () => { userData.backgrounds = userData.backgrounds || []; if (!userData.backgrounds.includes('67_chain')) userData.backgrounds.push('67_chain'); }
+    };
+    if (!rewards[day]) return;
+    rewards[day]();
+    state.loginClaimed = day;
+    state.loginClaimedAt = Date.now();
+    setSixState(state);
+    saveUserData();
+    updateHeaderUI();
+    alert('受け取りました！');
+}
+function claimSixRankingReward(dateKey) {
+    const state = getSixState();
+    const todayKey = dateKey || new Date().toISOString().slice(0, 10);
+    if (state.rankingClaimedDate === todayKey) return alert('すでに受け取っています。');
+    const top = getSixLeaderboard()[0];
+    if (!top || String(top.key) !== String(userData.userId || uid || 'me')) {
+        return alert('1位の時だけ受け取れます。');
+    }
+    userData.items['first_combo_plus30'] = (userData.items['first_combo_plus30'] || 0) + 1;
+    if (userData.items['first_combo_plus30'] > 1) userData.items['first_combo_plus30'] = 1;
+    state.rankingClaimedDate = todayKey;
+    setSixState(state);
+    saveUserData();
+    alert('報酬を受け取りました。');
+}
 
 const typingData = [
     { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku", furigana: "はやおきはさんもんのとく" },
@@ -840,7 +1067,7 @@ const companionData = {
         id: "sunsun",
         name: "スンスン",
         img: "スンスン.png",
-        desc: "最初の20秒後、以降15秒ごとに「スコア+50万」か「発電(コンボ+200)」のバフをかける。"
+        desc: "最初の20秒後、以降15秒ごとに「スコア+10万」か「発電(コンボ+200)」のバフをかける。"
     },
     "deathbringer": {
         id: "deathbringer",
@@ -931,6 +1158,8 @@ const itemData = {
     "coin_coin_pi": { id: "coin_coin_pi", name: "コインコインπ", desc: "装備していると獲得コインが3.14倍になる。", price: 314, priceType: 'goldCoin', equippable: true }
 };
 
+const sixEventData = {}; // logic handled by helper functions above
+
 const rankRewardsData = [
     { id: 'C', reqIdx: 4, name: 'コイン50万 & RC10万', desc: 'ランクC到達の証。', claim: () => { userData.coin += 500000; userData.rankCoin += 100000; } },
     { id: 'B', reqIdx: 5, name: 'パッシブ「コンボセットγ」', desc: '初期コンボが65になる強力なパッシブ。', claim: () => { userData.passives.push('combo_set_gamma'); } },
@@ -965,13 +1194,14 @@ function checkStoryRewards(stage) {
 
 const defaultUserData = {
     userId: null, isAdmin: false, surveyDisabled: false, isBugHunter: false,
-    name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0,
+    name: "冒険者", level: 1, xp: 0, coin: 0, goldCoin: 0, raidPoint: 0, sixPoints: 0,
     rankIndex: 0, rankXp: 0, rankCoin: 0,
     skills: [], equippedSkill: null, equippedSkill2: null, passives: [], equippedPassive: null, items: {}, activeBoosts: {}, backgrounds: [], equippedBackground: null,
     companions: [], equippedCompanion: null, equippedGoldItems: [],
     playCount: 0, bestScore: 0, bestCombo: 0, storyStage: 1, raidClearedTime: 0,
     settings: { homeScale: 50, showFurigana: true },
-    storyRewardsClaimed: [], rankRewardsClaimed: []
+    storyRewardsClaimed: [], rankRewardsClaimed: [],
+    sixEvent: { a1Clears: 0, endlessBest: 0, loginClaimed: null, rankingClaimedDate: null }
 };
 
 let userRef = null;
@@ -992,6 +1222,8 @@ const gameState = {
     npcTargetScore: 0, npcCurrentScore: 0, npcScoreIncrement: 0, rankObstacleTriggered: false,
     evaded: false,
     companionScoreMulti: 1.0, companionComboMulti: 1.0, activeCompanionBuff: null,
+    sixBuffAlphaUntil: 0, sixBuffGammaUntil: 0, sixBuffGammaComboUntil: 0, sixBuffOmegaUntil: 0,
+    sixMode: null, sixInactivitySince: 0,
     isModeSelectable: false, storyObstacleTriggered: false, storyObstacleTriggerTime: 0, rankObstacleTriggerTime: -1, rankObstacleType: null,
     autoEnergyActive: false, bachibachiState: false, bachibachiTick: 0, nextSunsunBuffTime: undefined, npcScoreFreezeTime: 0,
     dbScore500kTriggered: false, dbScore800kTriggered: false, skillSealed: false, fastTimer: false,
@@ -1099,9 +1331,9 @@ function formatUserName(name, userId, isAdmin, hasBadge, isBugHunter) {
     let html = '';
     const n = name || "";
     
-    if (n.includes('ビルダーマン')) {
-        html += `<img src="ビルダー.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[ビルダー]">`;
-    } else if (isAdmin || n.includes('管理者）らも') || n.includes('管理者)らも')) {
+    if (Number(userId) === 1) {
+        html += `<img src="ビルダー.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[ビルダーマン]">`;
+    } else if (isAdmin) {
         html += `<img src="管理者.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[管理]">`;
     }
     
@@ -1122,8 +1354,7 @@ function formatUserName(name, userId, isAdmin, hasBadge, isBugHunter) {
 function updateOnlinePresence() {
     if (!uid) return;
     const hasBadge = userData.equippedBackground === 'rank_badge';
-    const n = userData.name || "";
-    const isAdm = userData.isAdmin || n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも');
+    const isAdm = userData.isAdmin || isOwnerAdmin(userData);
     const info = { 
         name: userData.name, 
         userId: userData.userId, 
@@ -1232,22 +1463,14 @@ setInterval(() => {
 }, 1000);
 
 async function assignNewUserId(uid) {
-    const counterRef = ref(db, 'global/nextUserId');
-    let newId = 1;
-    try {
-        const result = await runTransaction(counterRef, (currentData) => {
-            if (currentData === null) return 1;
-            return currentData + 1;
-        });
-        if (result.committed) {
-            newId = result.snapshot.val();
-            await set(ref(db, `idMapping/${newId}`), uid);
-        }
-    } catch(e) { console.error(e); }
-    return newId;
+    const stored = Number(localStorage.getItem('typingGameNumericUserId'));
+    if (Number.isFinite(stored) && stored > 0) return stored;
+    localStorage.setItem('typingGameNumericUserId', '1');
+    return 1;
 }
 
 async function initApp() {
+    await authReady;
     if (!uid) {
         uid = generateUUID();
         localStorage.setItem('typingGameUid', uid);
@@ -1283,19 +1506,19 @@ async function initApp() {
             if (!userData.raidClearedTime) userData.raidClearedTime = 0;
             if (!userData.storyRewardsClaimed) userData.storyRewardsClaimed = [];
             if (!userData.rankRewardsClaimed) userData.rankRewardsClaimed = [];
+            if (!userData.sixEvent) userData.sixEvent = { a1Clears: 0, endlessBest: 0, loginClaimed: null, rankingClaimedDate: null };
+            userData.sixPoints = Number(userData.sixPoints) || 0;
             userData.xp = Number(userData.xp) || 0;
         } else {
             userData.userId = await assignNewUserId(uid);
             await set(userRef, userData);
         }
+        userData.isAdmin = isOwnerAdmin(userData);
     } catch (e) {
         console.error("Firebase load error", e);
     }
 
-    const n = userData.name || "";
-    if (n.includes('ビルダーマン') || n.includes('管理者）らも') || n.includes('管理者)らも')) {
-        userData.isAdmin = true;
-    }
+    userData.isAdmin = isOwnerAdmin(userData);
 
     updateHeaderUI();
     applySettings();
@@ -1384,6 +1607,8 @@ function updateHeaderUI() {
     document.getElementById('gold-coin-display').innerText = `🥇${userData.goldCoin || 0}`;
     document.getElementById('raid-point-display').innerText = `🎯${userData.raidPoint || 0}`;
     document.getElementById('rank-coin-display-header').innerText = `RC ${userData.rankCoin || 0}`;
+    const sixDisp = document.getElementById('six-point-display');
+    if (sixDisp) sixDisp.innerText = `6P ${userData.sixPoints || 0}`;
     document.getElementById('level-display').innerText = `Lv.${userData.level || 1}`;
     
     const rankName = getRankName(userData.rankIndex || 0);
@@ -1566,6 +1791,7 @@ function startCompanionBattle(bossId) {
     gameState.comboPoisoned = false;
     gameState.timeLeft = 60;
     gameState.initialTime = 60;
+    if (mode === 'six_endless') { gameState.timeLeft = 9999; gameState.initialTime = 9999; }
     gameState.companionScoreMulti = 1.0;
     gameState.companionComboMulti = 1.0;
     gameState.obstacleTriggeredThisTick = false;
@@ -1602,6 +1828,7 @@ function startCompanionBattle(bossId) {
 
 function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null) {
     gameState.mode = mode;
+    gameState.sixMode = String(mode).startsWith('six_') ? mode : null;
     gameState.storyStage = storyStage;
     gameState.raidStage = raidStage;
     gameState.shugyoBoss = shugyoBoss;
@@ -1678,6 +1905,15 @@ function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null)
             gameState.rankObstacleTriggerTime = Math.floor(Math.random() * 40) + 10;
             gameState.rankObstacleType = Math.random() < 0.5 ? 'freeze' : 'combo_half';
         }
+    } else if (mode === 'six_normal') {
+        gameState.targetScore = 500000;
+        document.getElementById('story-target-container').style.display = 'block';
+        document.getElementById('story-target-info').innerText = '目標スコア: 500,000';
+        document.getElementById('story-target-text').innerText = '60秒で達成しよう。';
+    } else if (mode === 'six_endless') {
+        document.getElementById('story-target-container').style.display = 'block';
+        document.getElementById('story-target-info').innerText = 'エンドレスモード';
+        document.getElementById('story-target-text').innerText = '5分何もしないと自動終了します。';
     }
 
     setupSkills();
@@ -1724,10 +1960,17 @@ function showCoinRain() {
 function gameTimerTick() {
     if (gameState.timeExtendActive || !gameState.isPlaying || gameState.isEnding) return;
     
-    gameState.timeLeft -= 0.1;
-    if (gameState.fastTimer) gameState.timeLeft -= 0.1;
-
-    document.getElementById('time-display').innerText = Math.max(0, Math.ceil(gameState.timeLeft));
+    if (gameState.mode === 'six_endless') {
+        if (Date.now() - (gameState.sixInactivitySince || Date.now()) >= 5 * 60 * 1000) {
+            endGame(true);
+            return;
+        }
+        document.getElementById('time-display').innerText = '∞';
+    } else {
+        gameState.timeLeft -= 0.1;
+        if (gameState.fastTimer) gameState.timeLeft -= 0.1;
+        document.getElementById('time-display').innerText = Math.max(0, Math.ceil(gameState.timeLeft));
+    }
     
     if (gameState.mode === 'rank') {
         if (!gameState.npcScoreFreezeTime || gameState.npcScoreFreezeTime < Date.now()) {
@@ -2296,6 +2539,7 @@ function handleCorrectKey(isAuto = false) {
     if (!isAuto) playSound('type');
 
     gameState.currentRomajiIndex++;
+    if (gameState.mode === 'six_endless') gameState.sixInactivitySince = Date.now();
     
     let scMulti = gameState.comboMultiplier * gameState.companionScoreMulti;
     
@@ -2340,6 +2584,9 @@ function handleCorrectKey(isAuto = false) {
         }
         
         if (!gameState.comboPoisoned && comboBonus > 0) {
+            if (gameState.sixBuffGammaComboUntil > Date.now() || gameState.sixBuffOmegaUntil > Date.now()) {
+                comboBonus += 5;
+            }
             if (gameState.comboQuarterDebuff) comboBonus = comboBonus * 0.25;
             gameState.combo += comboBonus;
             if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
@@ -2349,6 +2596,12 @@ function handleCorrectKey(isAuto = false) {
         if (userData.equippedCompanion === 'deathbringer' && gameState.dbAwakened) {
             gameState.combo += 20;
             showCompanionBuffMsg('【デスブリンガー】単語クリアボーナス！コンボ+20！');
+        }
+        if (gameState.sixBuffOmegaUntil > Date.now()) {
+            gameState.combo += 10;
+        }
+        if (gameState.sixBuffOmegaUntil > Date.now()) {
+            gameState.combo += 10;
         }
         
         setNextWord();
@@ -2377,8 +2630,14 @@ function handleMissKey() {
     }
     
     if (!preventReset) {
-        gameState.combo = 0;
-        updateGameUI();
+        if (userData.items && userData.items['badge67'] > 0) {
+            userData.items['badge67'] -= 1;
+            preventReset = true;
+        }
+        if (!preventReset) {
+            gameState.combo = 0;
+            updateGameUI();
+        }
     }
 }
 
@@ -2457,12 +2716,15 @@ function endGame(isClear = false) {
 
     let baseCoin = Math.floor(gameState.score / 100);
     let baseGoldDrop = gameState.goldDropRate;
+    let earnedSixPoint = 0;
     
     if (userData.items && userData.items['gold_luck_alpha'] > 0) {
         baseGoldDrop = 0.03; 
     }
     
     if (gameState.mode === 'hard') baseCoin *= 2;
+    if (gameState.mode === 'six_normal') { baseCoin = 0; earnedSixPoint = 1; }
+    if (gameState.mode === 'six_endless') { baseCoin = 0; }
     
     let extraXpMulti = 1;
     let extraCoinMulti = 1;
@@ -2621,6 +2883,18 @@ function endGame(isClear = false) {
         }
     }
 
+    if (gameState.mode === 'six_normal') {
+        userData.sixEvent = userData.sixEvent || {};
+        userData.sixEvent.a1Clears = (userData.sixEvent.a1Clears || 0) + 1;
+        userData.sixPoints = (userData.sixPoints || 0) + earnedSixPoint;
+        const s = getSixState(); s.normalClears = (s.normalClears || 0) + 1; setSixState(s);
+    }
+    if (gameState.mode === 'six_endless') {
+        userData.sixEvent = userData.sixEvent || {};
+        userData.sixEvent.endlessBest = Math.max(userData.sixEvent.endlessBest || 0, gameState.score);
+        upsertSixBestScore(gameState.score);
+    }
+
     if (gameState.mode === 'normal' || gameState.mode === 'hard') {
         userData.playCount++;
         if (gameState.score > userData.bestScore) userData.bestScore = gameState.score;
@@ -2645,6 +2919,30 @@ function endGame(isClear = false) {
     document.getElementById('result-combo').innerText = Math.floor(gameState.maxCombo).toLocaleString();
     document.getElementById('result-coin').innerText = earnedCoin.toLocaleString();
     document.getElementById('result-xp').innerText = earnedXp.toLocaleString();
+    if (gameState.mode === 'six_normal') {
+        document.getElementById('result-title').innerText = 'sixイベント結果';
+        document.getElementById('coin-result-container').style.display = 'none';
+        document.getElementById('xp-result-container').style.display = 'none';
+        document.getElementById('story-reward-msg').style.display = 'block';
+        document.getElementById('story-reward-msg').innerText = 'sixポイント +1 を獲得しました！';
+    }
+    if (gameState.mode === 'six_endless') {
+        document.getElementById('result-title').innerText = 'エンドレス結果';
+        document.getElementById('coin-result-container').style.display = 'none';
+        document.getElementById('xp-result-container').style.display = 'none';
+    }
+    if (gameState.mode === 'six_normal') {
+        document.getElementById('result-title').innerText = 'sixイベント結果';
+        document.getElementById('coin-result-container').style.display = 'none';
+        document.getElementById('xp-result-container').style.display = 'none';
+        document.getElementById('story-reward-msg').style.display = 'block';
+        document.getElementById('story-reward-msg').innerText = 'sixポイント +1 を獲得しました！';
+    }
+    if (gameState.mode === 'six_endless') {
+        document.getElementById('result-title').innerText = 'エンドレス結果';
+        document.getElementById('coin-result-container').style.display = 'none';
+        document.getElementById('xp-result-container').style.display = 'none';
+    }
     
     if (earnedGold > 0) { document.getElementById('gold-coin-result').style.display = 'block'; document.getElementById('result-gold').innerText = earnedGold.toLocaleString(); }
     else document.getElementById('gold-coin-result').style.display = 'none';
@@ -3024,7 +3322,13 @@ window.app = {
         }
     },
     openRankRanking: () => { showScreen('rank-ranking-screen'); fetchAndDisplayRankRanking(); },
-    
+    openSixEvent: () => { if (!isSixEventActive()) return alert('sixイベントは終了しました'); showScreen('six-event-screen'); },
+    openSixSection: (section) => { document.getElementById('six-event-modal').classList.add('active'); renderSixEventModal(section); },
+    buySixItem: (id) => { if (applySixShopItem(id)) alert('購入しました。'); else alert('sixポイントが足りません。'); },
+    claimSixAchievement: (id) => { claimSixAchievement(id); },
+    claimSixLogin: (day) => { claimSixLogin(day); },
+    claimSixRankingReward: (dateKey) => { claimSixRankingReward(dateKey); },
+
     openRanking: () => {
         showScreen('ranking-screen'); document.querySelectorAll('#ranking-screen .tab').forEach(t => t.classList.remove('active'));
         document.querySelector('#ranking-screen .tab').classList.add('active'); fetchAndDisplayRanking('score');
@@ -3156,22 +3460,8 @@ window.app = {
         const newName = input.value.trim().substring(0, 20);
         if (newName === '') return;
         if (newName === userData.name) { alert('名前を保存しました！'); return; }
-
-        if (newName !== '冒険者') {
-            try {
-                const nameRef = ref(db, `usedNames/${newName}`);
-                const snap = await get(nameRef);
-                if (snap.exists() && snap.val() !== uid) { alert('この名前は既に他のプレイヤーに使われています。別の名前にしてください。'); return; }
-                if (userData.name !== '冒険者') await set(ref(db, `usedNames/${userData.name}`), null);
-                await set(ref(db, `usedNames/${newName}`), uid);
-            } catch (e) { alert('名前の確認中にエラーが発生しました。'); return; }
-        } else {
-            if (userData.name !== '冒険者') await set(ref(db, `usedNames/${userData.name}`), null);
-        }
-
         userData.name = newName; 
-        if (userData.name && (userData.name.includes('ビルダーマン') || userData.name.includes('管理者）らも') || userData.name.includes('管理者)らも'))) userData.isAdmin = true;
-        else userData.isAdmin = false;
+        userData.isAdmin = isOwnerAdmin(userData);
 
         saveUserData(); updateOnlinePresence(); alert('名前を保存しました！'); 
     },
