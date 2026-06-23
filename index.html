@@ -339,8 +339,19 @@
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; border: 2px solid #121212; }
         ::-webkit-scrollbar-thumb:hover { background: #666; }
         
-        #ban-screen { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#111; color:white; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
+        #ban-screen { display:none !important; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#111; color:white; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
         #warning-screen { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(200,0,0,0.9); color:white; z-index:9999; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; }
+        #ads-btn { background:none; border:none; font-size:24px; cursor:pointer; color:#e0e0e0; transition: transform 0.3s ease; }
+        #ads-btn:hover { transform: scale(1.1); color:#ffffff; }
+        .rainbow-name {
+            background: linear-gradient(90deg, #ff4d4d, #ffb84d, #fff44d, #4dff88, #4dd2ff, #7a4dff, #ff4dd2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(255,255,255,0.12);
+            font-weight: 700;
+        }
+        #six-endless-stop-btn { box-shadow: 0 0 18px rgba(255, 213, 79, 0.45); }
     </style>
 </head>
 <body>
@@ -381,6 +392,7 @@
             <button id="greek-info-btn" onclick="document.getElementById('greek-info-modal').classList.add('active')">🔍</button>
             <button id="users-btn" onclick="app.openUsersModal()">👥</button>
             <button id="survey-btn" onclick="app.openSurveyModal()">📝</button>
+            <button id="ads-btn" onclick="app.openAdsModal()" title="宣伝">📢</button>
             <div id="coin-display">🪙0</div>
             <div id="gold-coin-display">🥇0</div>
             <div id="raid-point-display">🎯0</div>
@@ -419,7 +431,7 @@
                 <div id="six-event-banner" class="menu-six-banner">
                     <div class="menu-six-banner-top">
                         <div class="menu-six-banner-title">✨ SIX EVENT ✨</div>
-                        <div class="menu-six-banner-sub">2026/6/30 23:59 まで開催</div>
+                        <div class="menu-six-banner-sub">2026/7/6 23:59 まで開催</div>
                     </div>
                     <div class="menu-six-banner-row">
                         <div class="menu-six-pill play"><strong>通常プレイ</strong><span>60秒・目標500000・クリアで sixポイント+1</span></div>
@@ -545,6 +557,7 @@
                 <div>スコア: <span id="score-display">0</span></div>
                 <div>コンボ: <span id="combo-display">0</span></div>
             </div>
+            <button id="six-endless-stop-btn" class="modal-btn" style="display:none; position:absolute; top: 150px; left: 50%; transform: translateX(-50%); width: 220px; z-index: 1200;" onclick="app.stopSixEndless()">終了</button>
             <div id="story-target-container">
                 <div id="story-target-info"></div>
                 <div id="story-target-bar-container"><div id="story-target-bar-fill"></div></div>
@@ -628,7 +641,7 @@
 
         <div id="six-event-screen" class="screen">
             <h2 style="font-size: 40px; color: #ffeb3b; text-shadow: 0 0 18px #ffeb3b;">✨ sixイベント ✨</h2>
-            <p style="margin-top: 10px; color: #ddd; font-size: 14px;">期間: 2026/6/30 23:59 まで</p>
+            <p style="margin-top: 10px; color: #ddd; font-size: 14px;">期間: 2026/7/6 23:59 まで</p>
             <div style="width: min(100%, 980px); margin-top: 24px; padding: 18px; border-radius: 28px; background: linear-gradient(135deg, rgba(124,77,255,0.16), rgba(255,64,129,0.16), rgba(255,235,59,0.08)); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 12px 30px rgba(0,0,0,0.35); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;">
                 <button class="menu-btn six-event-btn" style="min-height:110px;" onclick="app.openSixSection('play')">通常プレイ</button>
                 <button class="menu-btn six-event-btn" style="min-height:110px;" onclick="app.openSixSection('shop')">ショップ</button>
@@ -740,6 +753,79 @@
     </div>
 </div>
 
+<div id="ads-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 800px; width: 95%;">
+        <h2 style="color: #00e5ff;">📢 宣伝</h2>
+        <div id="ads-list" class="list-container" style="max-height: 55vh;"></div>
+        <button class="back-btn" onclick="document.getElementById('ads-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="super-debug-code-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;">
+        <h2 style="color: #ffd54f;">スーパーデバッグ</h2>
+        <p style="text-align:center; color:#ddd; margin-bottom: 15px;">コードを入力してください</p>
+        <input id="super-debug-code-input" class="modal-input" placeholder="コードを入力">
+        <button class="modal-btn" style="background: linear-gradient(145deg, #ffd54f, #ffb300); color:#111;" onclick="app.checkSuperDebugCode()">開く</button>
+        <button class="back-btn" onclick="document.getElementById('super-debug-code-modal').classList.remove('active')" style="width:100%; margin-top:10px;">閉じる</button>
+    </div>
+</div>
+
+<div id="super-debug-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 900px; width: 95%;">
+        <h2 style="color: #ffd54f;">👑 スーパーデバッグ</h2>
+        <p style="text-align:center; color:#ddd; margin-bottom: 16px;">IDを指定して、値や所持品を調整できます。</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+                <label style="display:block; margin-bottom: 8px;">対象ユーザーID</label>
+                <input id="super-debug-target-id" type="number" class="modal-input" placeholder="ID">
+                <label style="display:block; margin-bottom: 8px;">対象種類</label>
+                <select id="super-debug-type" class="modal-input" style="background:#222; color:white;" onchange="app.updateSuperDebugTypeUI()">
+                    <option value="coin">コイン</option>
+                    <option value="raidPoint">レイドポイント</option>
+                    <option value="goldCoin">ゴールドコイン</option>
+                    <option value="rankCoin">RC</option>
+                    <option value="rankXp">RXP</option>
+                    <option value="sixPoints">6P</option>
+                    <option value="xp">XP</option>
+                    <option value="level">LV</option>
+                    <option value="skill">スキル</option>
+                    <option value="passive">パッシブ</option>
+                    <option value="item">アイテム</option>
+                    <option value="background">背景</option>
+                    <option value="companion">仲間</option>
+                </select>
+                <label style="display:block; margin-bottom: 8px;">操作</label>
+                <select id="super-debug-op" class="modal-input" style="background:#222; color:white;">
+                    <option value="add">増やす</option>
+                    <option value="sub">減らす</option>
+                    <option value="set">セット</option>
+                </select>
+                <label style="display:block; margin-bottom: 8px;">数値</label>
+                <input id="super-debug-amount" type="number" class="modal-input" value="1">
+            </div>
+            <div id="super-debug-collection-panel">
+                <label style="display:block; margin-bottom: 8px;">所持品選択</label>
+                <select id="super-debug-category" class="modal-input" style="background:#222; color:white;" onchange="app.renderSuperDebugItemList()">
+                    <option value="skill">スキル</option>
+                    <option value="passive">パッシブ</option>
+                    <option value="item">アイテム</option>
+                    <option value="background">背景</option>
+                    <option value="companion">仲間</option>
+                </select>
+                <label style="display:block; margin-bottom: 8px;">対象アイテム</label>
+                <select id="super-debug-item" class="modal-input" style="background:#222; color:white;"></select>
+                <div style="font-size:13px; color:#ccc; line-height:1.6; margin-top:10px;">
+                    所持品はカテゴリを選ぶと候補が出ます。<br>
+                    背景は装備だけでなく所持にも追加できます。
+                </div>
+            </div>
+        </div>
+        <button class="modal-btn" style="background: linear-gradient(145deg, #ffd54f, #ffb300); color:#111;" onclick="app.applySuperDebug()">反映</button>
+        <button class="back-btn" onclick="document.getElementById('super-debug-modal').classList.remove('active')" style="width:100%; margin-top:10px;">閉じる</button>
+    </div>
+</div>
+
 <div id="debug-modal" class="modal-overlay">
     <div class="modal-content">
         <h2 style="color: #f44336;">🛠️ デバッグモード</h2>
@@ -756,11 +842,7 @@
             <h3>BAN・警告管理</h3>
             <select id="debug-ban-type" class="modal-input" style="background:#222; color:white;">
                 <option value="warning">警告</option>
-                <option value="ban_10m">10分間BAN</option>
-                <option value="ban_1h">1時間BAN</option>
-                <option value="ban_1d">1日BAN</option>
-                <option value="ban_perm">永久BAN</option>
-                <option value="unban">BAN解除</option>
+                <option value="unban">警告解除</option>
             </select>
             <button class="modal-btn danger" onclick="app.executeBan()">実行</button>
         </div>
@@ -775,6 +857,7 @@
             <button class="modal-btn danger" onclick="app.setBugHunter(false)">バグ発見体を外す</button>
         </div>
         <button class="modal-btn" style="background: #9c27b0;" onclick="app.viewBugReports()">バグ報告内容を見る</button>
+        <button class="modal-btn" id="super-debug-open-btn" style="display:none; background: linear-gradient(145deg, #ffd54f, #ffb300); color:#111;" onclick="app.openSuperDebugPrompt()">スーパーデバッグ</button>
         <button class="back-btn" onclick="document.getElementById('debug-modal').classList.remove('active')" style="width: 100%; margin-top: 10px;">閉じる</button>
     </div>
 </div>
@@ -955,7 +1038,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-const SIX_EVENT_END = new Date('2026-06-30T23:59:59+09:00').getTime();
+const SIX_EVENT_END = new Date('2026-07-06T23:59:59+09:00').getTime();
 function isOwnerAdmin(user = userData) { return Number(user?.userId) === 1; }
 function isSixEventActive() { return Date.now() <= SIX_EVENT_END; }
 
@@ -974,10 +1057,18 @@ function upsertSixBestScore(score) {
     const key = String(userData.userId || uid || 'me');
     const list = getSixLeaderboard();
     const idx = list.findIndex(v => String(v.key) === key);
-    const entry = { key, userId: userData.userId || null, name: userData.name || '冒険者', score: Math.max(Number(score) || 0, idx >= 0 ? Number(list[idx].score) || 0 : 0), timestamp: Date.now() };
+    const entry = {
+        key,
+        userId: userData.userId || null,
+        name: userData.name || '冒険者',
+        score: Math.max(Number(score) || 0, idx >= 0 ? Number(list[idx].score) || 0 : 0),
+        timestamp: Date.now(),
+        equippedBackground: userData.equippedBackground || null
+    };
     if (idx >= 0) list[idx] = entry; else list.push(entry);
-    list.sort((a, b) => b.score - a.score || a.timestamp - b.timestamp);
+    list.sort((a, b) => Number(b.score || 0) - Number(a.score || 0) || Number(a.timestamp || 0) - Number(b.timestamp || 0));
     setSixLeaderboard(list.slice(0, 50));
+    set(ref(db, `sixEvent/endlessRanking/${getRankingDateKey()}/${key}`), entry).catch(() => {});
     return entry.score;
 }
 
@@ -1000,39 +1091,43 @@ function renderSixEventModal(section) {
     const body = document.getElementById('six-event-modal-body');
     if (!body) return;
     const state = getSixState();
+
     if (section === 'play') {
         body.innerHTML = `
             <div style="padding:16px 18px; border-radius:20px; background:linear-gradient(135deg, rgba(33,150,243,0.14), rgba(255,255,255,0.05)); border:1px solid rgba(255,255,255,0.12); margin-bottom:14px;">
                 <p style="margin-bottom:15px;">通常プレイは60秒、目標スコアは500000です。クリアでsixポイント+1。</p>
-            <button class="modal-btn six-event-start-btn" onclick="app.startSixGame('six_normal')">通常プレイを開始</button>
+                <button class="modal-btn six-event-start-btn" onclick="app.startSixGame('six_normal')">通常プレイを開始</button>
             </div>
         `;
         return;
     }
+
     if (section === 'endless') {
         body.innerHTML = `
             <div style="padding:16px 18px; border-radius:20px; background:linear-gradient(135deg, rgba(124,77,255,0.14), rgba(255,255,255,0.05)); border:1px solid rgba(255,255,255,0.12); margin-bottom:14px;">
                 <p style="margin-bottom:15px;">タイマーなしで無限に打てます。5分何もしないと自動終了します。</p>
-            <button class="modal-btn six-event-start-btn" onclick="app.startSixGame('six_endless')">エンドレスモードを開始</button>
+                <button class="modal-btn six-event-start-btn" onclick="app.startSixGame('six_endless')">エンドレスモードを開始</button>
             </div>
         `;
         return;
     }
+
     if (section === 'shop') {
         const shopHtml = [
-            ['buff_alpha', 'バフα', '10 sixP', '5秒間、1文字ごとにコンボ+5。', 'buff_alpha'],
-            ['franklin_badge_sigma', 'フランクリンバッジΣ', '10 sixP', 'コンボ半減・時間短縮を無効化。', 'franklin_badge_sigma'],
-            ['raid25', 'レイドポイント25', '10 sixP', 'レイドポイント+25。', 'raid25'],
-            ['coin250k', 'コイン250000', '20 sixP', 'コイン+250000。', 'coin250k'],
-            ['buff_gamma', 'バフγ', '30 sixP', '5秒コンボ+5、10秒ミス無効。', 'buff_gamma'],
-            ['badge67', '67バッジ', '30 sixP', '試合中1回だけミス無効化。', 'badge67'],
-            ['coin1m', 'コイン1000000', '50 sixP', 'コイン+1000000。', 'coin1m'],
-            ['buff_omega', 'バフΩ', '50 sixP', '5秒コンボ+5、ミス無効、単語完了でコンボ+10。', 'buff_omega'],
-            ['comp67', '67仲間', '100 sixP', '強力な仲間を購入。', 'comp67']
+            ['buff_alpha', 'バフα', '10 sixP', '5秒間、1文字ごとにコンボ+5。'],
+            ['franklin_badge_sigma', 'フランクリンバッジΣ', '10 sixP', 'コンボ半減・時間短縮を無効化。'],
+            ['raid25', 'レイドポイント25', '10 sixP', 'レイドポイント+25。'],
+            ['coin250k', 'コイン250000', '20 sixP', 'コイン+250000。'],
+            ['buff_gamma', 'バフγ', '30 sixP', '5秒コンボ+5、10秒ミス無効。'],
+            ['badge67', '67バッジ', '30 sixP', '試合中1回だけミス無効化。'],
+            ['coin1m', 'コイン1000000', '50 sixP', 'コイン+1000000。'],
+            ['buff_omega', 'バフΩ', '50 sixP', '5秒コンボ+5、ミス無効、単語完了でコンボ+10。'],
+            ['comp67', '67仲間', '100 sixP', '強力な仲間を購入。']
         ].map(([id,name,price,desc]) => `<div class="list-item"><div class="shop-item-info"><h3>${name}</h3><p>${desc}</p><p style="color:#8ce7ff;">${price}</p></div><button class="action-btn" onclick="app.buySixItem('${id}')">購入</button></div>`).join('');
         body.innerHTML = `<div class="list-container" style="max-height:55vh;">${shopHtml}</div>`;
         return;
     }
+
     if (section === 'achievements') {
         const clears = userData.sixEvent?.a1Clears || 0;
         const best = userData.sixEvent?.endlessBest || 0;
@@ -1045,34 +1140,59 @@ function renderSixEventModal(section) {
             </div>`;
         return;
     }
+
     if (section === 'login') {
-        const claimed = state.loginClaimed || null;
+        const now = Date.now();
+        const nextAt = (state.loginLastClaimAt || 0) + 24 * 60 * 60 * 1000;
+        const canClaim = now >= nextAt;
+        const nextText = canClaim ? '今すぐ受け取れます。' : `次回: ${new Date(nextAt).toLocaleString('ja-JP')}`;
         body.innerHTML = `
             <div class="list-container" style="max-height:55vh;">
                 ${[1,2,3,4,5,6,7].map(day => {
                     const labels = ['コイン5万','レイド10','ゴールド3','コイン25万','レイド25','ゴールド8','67チェーン'];
-                    const disabled = claimed === day;
-                    return `<div class="list-item"><div><h3>${day}日目</h3><p>${labels[day-1]}</p></div><button class="action-btn" onclick="app.claimSixLogin(${day})" ${disabled ? 'disabled' : ''}>${disabled ? '受取済み' : '受け取る'}</button></div>`;
+                    return `<div class="list-item"><div><h3>${day}日目</h3><p>${labels[day-1]}</p></div><button class="action-btn" onclick="app.claimSixLogin(${day})" ${canClaim ? '' : 'disabled'}>${canClaim ? '受け取る' : '待機中'}</button></div>`;
                 }).join('')}
             </div>
-            <p style="margin-top:10px; color:#ccc;">24時間ごとに再受取できます。</p>`;
+            <p style="margin-top:10px; color:#ccc;">1回受け取ると、次は24時間後です。</p>
+            <p style="margin-top:6px; color:#8ce7ff;">${nextText}</p>`;
         return;
     }
+
     if (section === 'ranking') {
-        const list = getSixLeaderboard();
-        const me = list.find(v => String(v.key) === String(userData.userId || uid || 'me'));
-        const claimed = state.rankingClaimedDate || '';
-        const todayKey = new Date().toISOString().slice(0, 10);
-        body.innerHTML = `
-            <p style="margin-bottom:12px;">エンドレススコアのローカルランキングです。</p>
-            <button class="modal-btn" onclick="app.claimSixRankingReward('${todayKey}')">報酬受け取り</button>
-            <div class="list-container" style="max-height:55vh; margin-top: 15px;">
-                ${list.slice(0, 10).map((v, i) => `<div class="list-item"><div><h3>${i+1}位 ${escapeHtml(v.name || '')}</h3><p>${Number(v.score || 0).toLocaleString()}点</p></div></div>`).join('')}
-                ${!list.length ? '<div style="text-align:center; color:#ccc;">まだ記録がありません</div>' : ''}
-            </div>
-            <p style="margin-top:10px; color:#ccc;">今日の受取状況: ${claimed === todayKey ? '受取済み' : '未受取'}</p>`;
+        body.innerHTML = `<p style="margin-bottom:12px;">ランキングを読み込み中...</p><div id="six-ranking-loading" style="color:#ccc;">読み込み中...</div>`;
+        const dateKey = getRankingDateKey();
+        const refPath = ref(db, `sixEvent/endlessRanking/${dateKey}`);
+        get(refPath).then((snap) => {
+            let list = [];
+            if (snap.exists()) {
+                snap.forEach(c => { if (c.val()) list.push(c.val()); });
+                list.sort((a, b) => Number(b.score || 0) - Number(a.score || 0) || Number(a.timestamp || 0) - Number(b.timestamp || 0));
+            } else {
+                list = getSixLeaderboard().slice().sort((a, b) => Number(b.score || 0) - Number(a.score || 0) || Number(a.timestamp || 0) - Number(b.timestamp || 0));
+            }
+            const claimed = state.rankingClaimedDate || '';
+            const todayKey = new Date().toISOString().slice(0, 10);
+            body.innerHTML = `
+                <p style="margin-bottom:12px;">エンドレススコアのランキングです。朝7時にリセットされます。</p>
+                <button class="modal-btn" onclick="app.claimSixRankingReward('${todayKey}')">報酬受け取り</button>
+                <div class="list-container" style="max-height:55vh; margin-top: 15px;">
+                    ${list.slice(0, 10).map((v, i) => `<div class="list-item"><div><h3>${i+1}位 ${formatUserName(v.name || '', v.userId || null, !!v.isAdmin, !!v.hasBadge, !!v.isBugHunter, v.equippedBackground)}</h3><p>${Number(v.score || 0).toLocaleString()}点</p></div></div>`).join('')}
+                    ${!list.length ? '<div style="text-align:center; color:#ccc;">まだ記録がありません</div>' : ''}
+                </div>
+                <p style="margin-top:10px; color:#ccc;">今日の受取状況: ${claimed === todayKey ? '受取済み' : '未受取'}</p>`;
+        }).catch(() => {
+            const list = getSixLeaderboard();
+            body.innerHTML = `
+                <p style="margin-bottom:12px;">エンドレススコアのランキングです。朝7時にリセットされます。</p>
+                <button class="modal-btn" onclick="app.claimSixRankingReward('${new Date().toISOString().slice(0, 10)}')">報酬受け取り</button>
+                <div class="list-container" style="max-height:55vh; margin-top: 15px;">
+                    ${list.slice(0, 10).map((v, i) => `<div class="list-item"><div><h3>${i+1}位 ${formatUserName(v.name || '', v.userId || null, !!v.isAdmin, !!v.hasBadge, !!v.isBugHunter, v.equippedBackground)}</h3><p>${Number(v.score || 0).toLocaleString()}点</p></div></div>`).join('')}
+                    ${!list.length ? '<div style="text-align:center; color:#ccc;">まだ記録がありません</div>' : ''}
+                </div>`;
+        });
         return;
     }
+
     body.innerHTML = '<p>内容を読み込めませんでした。</p>';
 }
 function applySixShopItem(id) {
@@ -1111,42 +1231,56 @@ function claimSixAchievement(id) {
 }
 function claimSixLogin(day) {
     const state = getSixState();
-    const last = state.loginClaimedAt || 0;
-    if (Date.now() - last < 24 * 60 * 60 * 1000) return alert('まだ受け取れません。');
+    const now = Date.now();
+    const nextAt = (state.loginLastClaimAt || 0) + 24 * 60 * 60 * 1000;
+    if (now < nextAt) {
+        alert(`まだ受け取れません。次回は ${new Date(nextAt).toLocaleString('ja-JP')} です。`);
+        return false;
+    }
+
     const rewards = {
-        1: () => userData.coin += 50000,
-        2: () => userData.raidPoint += 10,
-        3: () => userData.goldCoin += 3,
-        4: () => userData.coin += 250000,
-        5: () => userData.raidPoint += 25,
-        6: () => userData.goldCoin += 8,
+        1: () => { userData.coin += 50000; },
+        2: () => { userData.raidPoint += 10; },
+        3: () => { userData.goldCoin += 3; },
+        4: () => { userData.coin += 250000; },
+        5: () => { userData.raidPoint += 25; },
+        6: () => { userData.goldCoin += 8; },
         7: () => { userData.backgrounds = userData.backgrounds || []; if (!userData.backgrounds.includes('67_chain')) userData.backgrounds.push('67_chain'); }
     };
-    if (!rewards[day]) return;
+    if (!rewards[day]) return false;
+
     rewards[day]();
-    state.loginClaimed = day;
-    state.loginClaimedAt = Date.now();
+    state.loginLastClaimAt = now;
+    state.loginLastClaimDay = day;
     setSixState(state);
     saveUserData();
     updateHeaderUI();
     alert('受け取りました！');
+    return true;
 }
-function claimSixRankingReward(dateKey) {
+async function claimSixRankingReward(dateKey) {
     const state = getSixState();
     const todayKey = dateKey || new Date().toISOString().slice(0, 10);
     if (state.rankingClaimedDate === todayKey) return alert('すでに受け取っています。');
-    const top = getSixLeaderboard()[0];
-    if (!top || String(top.key) !== String(userData.userId || uid || 'me')) {
-        return alert('1位の時だけ受け取れます。');
+
+    const key = String(userData.userId || uid || 'me');
+    const snapshot = await get(ref(db, `sixEvent/endlessRanking/${getRankingDateKey()}`));
+    let list = [];
+    if (snapshot.exists()) {
+        snapshot.forEach(c => { if (c.val()) list.push(c.val()); });
+        list.sort((a, b) => Number(b.score || 0) - Number(a.score || 0) || Number(a.timestamp || 0) - Number(b.timestamp || 0));
+    } else {
+        list = getSixLeaderboard().slice().sort((a, b) => Number(b.score || 0) - Number(a.score || 0) || Number(a.timestamp || 0) - Number(b.timestamp || 0));
     }
-    userData.items['first_combo_plus30'] = (userData.items['first_combo_plus30'] || 0) + 1;
-    if (userData.items['first_combo_plus30'] > 1) userData.items['first_combo_plus30'] = 1;
+    const top = list[0];
+    if (!top || String(top.key) !== key) return alert('1位の時だけ受け取れます。');
+
+    userData.items['first_combo_plus30'] = 1;
     state.rankingClaimedDate = todayKey;
     setSixState(state);
     saveUserData();
     alert('報酬を受け取りました。');
 }
-
 const typingData = [
     { ja: "早起きは三文の得", romaji: "hayaokihasannmonnnotoku", furigana: "はやおきはさんもんのとく" },
     { ja: "石の上にも三年", romaji: "isinouenimosannnenn", furigana: "いしのうえにもさんねん" },
@@ -1332,7 +1466,8 @@ const defaultUserData = {
     playCount: 0, bestScore: 0, bestCombo: 0, storyStage: 1, raidClearedTime: 0,
     settings: { homeScale: 50, showFurigana: true },
     storyRewardsClaimed: [], rankRewardsClaimed: [],
-    sixEvent: { a1Clears: 0, endlessBest: 0, loginClaimed: null, rankingClaimedDate: null }
+    adRewardClaimed: false, superDebugUnlocked: false,
+    sixEvent: { a1Clears: 0, endlessBest: 0, loginLastClaimAt: 0, loginLastClaimDay: null, rankingClaimedDate: null }
 };
 
 let userRef = null;
@@ -1450,6 +1585,33 @@ function getNpcTargetScore(rankIdx) {
     return 100000;
 }
 
+
+async function sha256Hex(str) {
+    const data = new TextEncoder().encode(str);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function renderAdsList() {
+    const list = document.getElementById('ads-list');
+    if (!list) return;
+    const ad = {
+        title: 'クイズゲーム',
+        author: 'ゆせ',
+        url: 'https://cookies-game.github.io/quiz-game/',
+        desc: 'クイズゲーム'
+    };
+    list.innerHTML = `
+        <div class="list-item" style="align-items:flex-start; flex-direction:column; gap:10px;">
+            <div style="font-size:22px; font-weight:bold; color:#00e5ff;">${ad.title}</div>
+            <div style="color:#ccc;">宣伝者: ${escapeHtml(ad.author)}</div>
+            <div style="color:#fff;">内容: ${escapeHtml(ad.desc)}</div>
+            <button class="modal-btn" style="margin-top:6px; background:linear-gradient(145deg, #4caf50, #2e7d32);" onclick="app.claimAdRewardAndOpen()">報酬を受け取る</button>
+            <div style="color:#ffd54f; font-size:13px;">報酬: 5万コイン（1回だけ）＋サイトを開きます</div>
+        </div>
+    `;
+}
+
 function showPassiveEffect(text) {
     const el = document.createElement('div');
     el.className = 'passive-effect';
@@ -1458,18 +1620,21 @@ function showPassiveEffect(text) {
     setTimeout(() => el.remove(), 2000);
 }
 
-function formatUserName(name, userId, isAdmin, hasBadge, isBugHunter) {
+function formatUserName(name, userId, isAdmin, hasBadge, isBugHunter, equippedBackground) {
     let html = '';
     const n = name || "";
-    
+    const isRainbow = equippedBackground === '67_chain' || equippedBackground === '67chain';
+
     if (Number(userId) === 1) {
         html += `<img src="ビルダー.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[ビルダーマン]">`;
     } else if (isAdmin) {
         html += `<img src="管理者.png" style="height: 1.2em; vertical-align: middle; margin-right: 5px;" alt="[管理]">`;
     }
-    
-    html += `<span>${escapeHtml(name)}</span>`;
-    
+
+    html += isRainbow
+        ? `<span class="rainbow-name">${escapeHtml(n)}</span>`
+        : `<span>${escapeHtml(n)}</span>`;
+
     if (hasBadge) {
         html += `<img src="ランクZ3.png" style="height: 1.5em; vertical-align: middle; margin-left: 5px;" alt="[Z3]">`;
     }
@@ -1482,6 +1647,7 @@ function formatUserName(name, userId, isAdmin, hasBadge, isBugHunter) {
     return html;
 }
 
+
 function updateOnlinePresence() {
     if (!uid) return;
     const hasBadge = userData.equippedBackground === 'rank_badge';
@@ -1493,6 +1659,7 @@ function updateOnlinePresence() {
         isBugHunter: userData.isBugHunter, 
         rankIndex: userData.rankIndex, 
         hasBadge: hasBadge, 
+        equippedBackground: userData.equippedBackground || null,
         timestamp: Date.now() 
     };
     
@@ -1518,7 +1685,8 @@ function updateRankRankingData() {
         isBugHunter: userData.isBugHunter,
         rankIndex: userData.rankIndex,
         rankXp: userData.rankXp,
-        hasBadge: userData.equippedBackground === 'rank_badge'
+        hasBadge: userData.equippedBackground === 'rank_badge',
+        equippedBackground: userData.equippedBackground || null
     });
 }
 
@@ -1526,17 +1694,12 @@ function listenForPunishmentAndAdmin() {
     const pRef = ref(db, `users/${uid}/punishment`);
     onValue(pRef, (snap) => {
         const p = snap.val();
-        if (p) {
-            if (p.type === 'warning' || p.type === 'warn') {
-                if (!p.read) {
-                    document.getElementById('warning-screen').style.display = 'flex';
-                }
-            } else if (p.type === 'ban') {
-                document.getElementById('ban-screen').style.display = 'flex';
-                if (gameState.isPlaying) endGame(true); 
-            }
-        } else {
-            document.getElementById('ban-screen').style.display = 'none';
+        const banScreen = document.getElementById('ban-screen');
+        if (banScreen) banScreen.style.display = 'none';
+        if (p && (p.type === 'warning' || p.type === 'warn') && !p.read) {
+            document.getElementById('warning-screen').style.display = 'flex';
+        } else if (p && p.type === 'ban') {
+            set(ref(db, `users/${uid}/punishment`), null).catch(() => {});
         }
     });
 
@@ -1546,24 +1709,19 @@ function listenForPunishmentAndAdmin() {
     });
 
     const adminRef = ref(db, `users/${uid}/isAdmin`);
-    onValue(adminRef, (snap) => {
-        const isAdm = isOwnerAdmin(userData);
+    onValue(adminRef, () => {
         userData.isAdmin = isOwnerAdmin(userData);
-        if (userData.isAdmin) {
-            document.getElementById('debug-btn').style.display = 'block';
-        } else {
-            document.getElementById('debug-btn').style.display = 'none';
-        }
+        const debugBtn = document.getElementById('debug-btn');
+        if (debugBtn) debugBtn.style.display = userData.isAdmin ? 'block' : 'none';
+        const superBtn = document.getElementById('super-debug-open-btn');
+        if (superBtn) superBtn.style.display = userData.userId === 1 ? 'block' : 'none';
     });
 
     const bhRef = ref(db, `users/${uid}/isBugHunter`);
     onValue(bhRef, (snap) => {
         userData.isBugHunter = snap.val() || false;
-        if (userData.isBugHunter) {
-            document.getElementById('bughunter-debug-area').style.display = 'block';
-        } else {
-            document.getElementById('bughunter-debug-area').style.display = 'none';
-        }
+        const area = document.getElementById('bughunter-debug-area');
+        if (area) area.style.display = userData.isBugHunter ? 'block' : 'none';
         if (uid) updateOnlinePresence(); 
     });
 }
@@ -1593,10 +1751,40 @@ setInterval(() => {
 }, 1000);
 
 async function assignNewUserId(uid) {
-    const stored = Number(localStorage.getItem('typingGameNumericUserId'));
-    if (Number.isFinite(stored) && stored > 0) return stored;
-    localStorage.setItem('typingGameNumericUserId', '1');
-    return 1;
+    try {
+        const existingSnap = await get(ref(db, `uidToNumericId/${uid}`));
+        if (existingSnap.exists()) {
+            const existingId = Number(existingSnap.val());
+            if (Number.isFinite(existingId) && existingId > 0) {
+                localStorage.setItem('typingGameNumericUserId', String(existingId));
+                await set(ref(db, `idMapping/${existingId}`), uid);
+                return existingId;
+            }
+        }
+
+        const cached = Number(localStorage.getItem('typingGameNumericUserId'));
+        if (Number.isFinite(cached) && cached > 0) {
+            const mapSnap = await get(ref(db, `idMapping/${cached}`));
+            if (!mapSnap.exists()) {
+                await set(ref(db, `idMapping/${cached}`), uid);
+                await set(ref(db, `uidToNumericId/${uid}`), cached);
+                return cached;
+            }
+        }
+
+        const counterRef = ref(db, 'meta/nextUserId');
+        const tx = await runTransaction(counterRef, (current) => (Number(current) || 0) + 1);
+        const newId = Number(tx.snapshot.val() || 1);
+        await set(ref(db, `idMapping/${newId}`), uid);
+        await set(ref(db, `uidToNumericId/${uid}`), newId);
+        localStorage.setItem('typingGameNumericUserId', String(newId));
+        return newId;
+    } catch (e) {
+        console.error('assignNewUserId error', e);
+        const fallback = Number(localStorage.getItem('typingGameNumericUserId')) || 1;
+        localStorage.setItem('typingGameNumericUserId', String(fallback));
+        return fallback;
+    }
 }
 
 async function initApp() {
@@ -1937,7 +2125,6 @@ function startCompanionBattle(bossId) {
     gameState.comboPoisoned = false;
     gameState.timeLeft = 60;
     gameState.initialTime = 60;
-    if (mode === 'six_endless') { gameState.timeLeft = 9999; gameState.initialTime = 9999; }
     gameState.companionScoreMulti = 1.0;
     gameState.companionComboMulti = 1.0;
     gameState.obstacleTriggeredThisTick = false;
@@ -2067,11 +2254,16 @@ function startGame(mode, shugyoBoss = null, storyStage = null, raidStage = null)
         gameState.targetScore = 500000;
         document.getElementById('story-target-container').style.display = 'block';
         document.getElementById('story-target-info').innerText = '目標スコア: 500,000';
+        document.getElementById('story-target-bar-fill').style.width = '0%';
         document.getElementById('story-target-text').innerText = '60秒で達成しよう。';
     } else if (mode === 'six_endless') {
+        gameState.sixInactivitySince = Date.now();
         document.getElementById('story-target-container').style.display = 'block';
         document.getElementById('story-target-info').innerText = 'エンドレスモード';
+        document.getElementById('story-target-bar-fill').style.width = '0%';
         document.getElementById('story-target-text').innerText = '5分何もしないと自動終了します。';
+        const stopBtn = document.getElementById('six-endless-stop-btn');
+        if (stopBtn) stopBtn.style.display = 'block';
     }
 
     setupSkills();
@@ -2120,7 +2312,8 @@ function gameTimerTick() {
     
     if (gameState.mode === 'six_endless') {
         if (Date.now() - (gameState.sixInactivitySince || Date.now()) >= 5 * 60 * 1000) {
-            endGame(true);
+            showGameMessage('⏱️ 5分放置で終了', '#ffeb3b');
+            endGame(false);
             return;
         }
         document.getElementById('time-display').innerText = '∞';
@@ -2800,6 +2993,7 @@ function handleMissKey() {
 }
 
 document.addEventListener('keydown', (e) => {
+    if (gameState.mode === 'six_endless') gameState.sixInactivitySince = Date.now();
     if (!gameState.isPlaying || gameState.isAutoTyping || gameState.typingDisabled || gameState.timeExtendActive || gameState.isEnding || gameState.autoEnergyActive) return;
     
     if (e.key === '1' || e.code === 'Space') {
@@ -2820,7 +3014,7 @@ document.addEventListener('keydown', (e) => {
 function updateGameUI() {
     document.getElementById('score-display').innerText = gameState.score.toLocaleString();
     document.getElementById('combo-display').innerText = Math.floor(gameState.combo).toLocaleString();
-    if (gameState.mode === 'story' || gameState.mode === 'shugyo' || gameState.mode === 'companion_battle') updateStoryTargetUI();
+    if (gameState.mode === 'story' || gameState.mode === 'shugyo' || gameState.mode === 'companion_battle' || gameState.mode === 'six_normal' || gameState.mode === 'six_endless') updateStoryTargetUI();
     if (gameState.mode === 'raid') updateRaidTargetUI();
 }
 
@@ -2833,6 +3027,10 @@ function updateStoryTargetUI() {
         document.getElementById('story-target-info').innerHTML = `⚔️ 修行対象: ${companionData[gameState.shugyoBoss].name}`;
     } else if (gameState.mode === 'companion_battle') {
         document.getElementById('story-target-info').innerHTML = `🤝 仲間集め: ${companionData[gameState.companionBoss].name}`;
+    } else if (gameState.mode === 'six_normal') {
+        document.getElementById('story-target-info').innerHTML = `✨ 通常プレイ`;
+    } else if (gameState.mode === 'six_endless') {
+        document.getElementById('story-target-info').innerHTML = `∞ エンドレスモード`;
     } else {
         document.getElementById('story-target-info').innerHTML = `📖 ステージ ${gameState.storyStage}`;
     }
@@ -2871,6 +3069,8 @@ function endGame(isClear = false) {
     document.getElementById('game-overlay').classList.remove('blur-effect');
     document.getElementById('evade-btn').style.display = 'none';
     document.getElementById('time-display').style.color = 'white';
+    const stopBtn = document.getElementById('six-endless-stop-btn');
+    if (stopBtn) stopBtn.style.display = 'none';
     const sixBtn = document.getElementById('six-event-btn');
     const sixBanner = document.getElementById('six-event-banner');
     if (sixBtn && document.getElementById('six-event-screen')?.classList.contains('active')) sixBtn.classList.add('active');
@@ -3172,7 +3372,7 @@ async function fetchAndDisplayRanking(type) {
             const item = data[i];
             const div = document.createElement('div'); div.className = 'list-item';
             let rankStr = i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i+1}位`;
-            let dName = formatUserName(item.name, item.userId, item.isAdmin, item.hasBadge, item.isBugHunter);
+            let dName = formatUserName(item.name, item.userId, item.isAdmin, item.hasBadge, item.isBugHunter, item.equippedBackground);
             div.innerHTML = `<div class="rank-item-info"><span style="font-weight:bold; color:#00bcd4; display:inline-block; width:60px;">${rankStr}</span><span style="color:white;">${dName}</span></div><div style="font-size:24px; font-weight:bold; color:#ff9800;">${item.value.toLocaleString()}</div>`;
             listContainer.appendChild(div);
         }
@@ -3201,7 +3401,7 @@ async function fetchAndDisplayRankRanking() {
             const item = data[i];
             const div = document.createElement('div'); div.className = 'list-item';
             let rankStr = i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i+1}位`;
-            let dName = formatUserName(item.name, item.userId, item.isAdmin, item.hasBadge, item.isBugHunter);
+            let dName = formatUserName(item.name, item.userId, item.isAdmin, item.hasBadge, item.isBugHunter, item.equippedBackground);
             let rName = getRankName(item.rankIndex);
             div.innerHTML = `<div class="rank-item-info"><span style="font-weight:bold; color:#fbc02d; display:inline-block; width:60px;">${rankStr}</span><span style="color:white;">${dName}</span></div><div style="font-size:20px; font-weight:bold; color:#fff;">Rank <span style="color:#fbc02d">${rName}</span> <span style="font-size:14px; color:#aaa;">(${item.rankXp} RXP)</span></div>`;
             list.appendChild(div);
@@ -3484,6 +3684,116 @@ window.app = {
         }
     },
     openRankRanking: () => { showScreen('rank-ranking-screen'); fetchAndDisplayRankRanking(); },
+    openAdsModal: () => {
+        renderAdsList();
+        document.getElementById('ads-modal').classList.add('active');
+    },
+    claimAdRewardAndOpen: () => {
+        const url = 'https://cookies-game.github.io/quiz-game/';
+        if (!userData.adRewardClaimed) {
+            userData.coin = (userData.coin || 0) + 50000;
+            userData.adRewardClaimed = true;
+            saveUserData();
+            updateHeaderUI();
+            alert('5万コインを受け取りました。');
+        }
+        window.open(url, '_blank', 'noopener');
+        renderAdsList();
+    },
+    openSuperDebugPrompt: () => {
+        if (Number(userData.userId) !== 1) return alert('この機能はNo.1だけ使えます。');
+        document.getElementById('super-debug-code-input').value = '';
+        document.getElementById('super-debug-code-modal').classList.add('active');
+    },
+    checkSuperDebugCode: async () => {
+        const input = (document.getElementById('super-debug-code-input').value || '').trim();
+        if (!input) return alert('コードを入力してください');
+        const hash = await sha256Hex(input);
+        if (hash !== 'e116d1f38353f0d998ef9165c6540a3eddaadda8647ff10d495bd95c25c6f4c3') {
+            return alert('コードが違います');
+        }
+        userData.superDebugUnlocked = true;
+        saveUserData();
+        document.getElementById('super-debug-code-modal').classList.remove('active');
+        document.getElementById('super-debug-modal').classList.add('active');
+        app.renderSuperDebugItemList();
+        app.updateSuperDebugTypeUI();
+    },
+    renderSuperDebugItemList: () => {
+        const category = document.getElementById('super-debug-category')?.value || 'skill';
+        const list = document.getElementById('super-debug-item');
+        if (!list) return;
+        const maps = {
+            skill: skillData,
+            passive: passiveData,
+            item: itemData,
+            background: { rank_badge: { name: 'ランクZ3背景' }, chap2_clear_bg: { name: 'チャプター2背景' }, '67_chain': { name: '67チェーン' } },
+            companion: companionData
+        };
+        const data = maps[category] || {};
+        list.innerHTML = Object.entries(data).map(([key, val]) => `<option value="${key}">${escapeHtml(val.name || key)}</option>`).join('');
+    },
+    updateSuperDebugTypeUI: () => {
+        const t = document.getElementById('super-debug-type')?.value;
+        const panel = document.getElementById('super-debug-collection-panel');
+        if (!panel) return;
+        panel.style.display = (t === 'skill' || t === 'passive' || t === 'item' || t === 'background' || t === 'companion') ? 'block' : 'none';
+        if (panel.style.display === 'block') app.renderSuperDebugItemList();
+    },
+    applySuperDebug: async () => {
+        const targetId = Number(document.getElementById('super-debug-target-id').value);
+        if (!targetId) return alert('対象IDを入力してください');
+        try {
+            const mappingSnap = await get(ref(db, `idMapping/${targetId}`));
+            if (!mappingSnap.exists()) return alert('ユーザーが見つかりません');
+            const targetUid = mappingSnap.val();
+            const targetRef = ref(db, `users/${targetUid}`);
+            const snap = await get(targetRef);
+            if (!snap.exists()) return alert('ユーザー情報がありません');
+            const target = snap.val() || {};
+            const type = document.getElementById('super-debug-type').value;
+            const op = document.getElementById('super-debug-op').value;
+            const amount = Number(document.getElementById('super-debug-amount').value) || 0;
+            const itemKey = document.getElementById('super-debug-item')?.value;
+
+            const adjust = (cur) => op === 'set' ? amount : op === 'sub' ? (Number(cur) || 0) - amount : (Number(cur) || 0) + amount;
+
+            if (['coin','raidPoint','goldCoin','rankCoin','rankXp','sixPoints','xp','level'].includes(type)) {
+                target[type] = adjust(target[type]);
+                if (type === 'level' && target.level < 1) target.level = 1;
+            } else {
+                target.skills = target.skills || [];
+                target.passives = target.passives || [];
+                target.items = target.items || {};
+                target.backgrounds = target.backgrounds || [];
+                target.companions = target.companions || [];
+                if (!itemKey) return alert('対象を選んでください');
+
+                if (type === 'skill') {
+                    if (op === 'sub') target.skills = target.skills.filter(v => v !== itemKey);
+                    else if (!target.skills.includes(itemKey)) target.skills.push(itemKey);
+                } else if (type === 'passive') {
+                    if (op === 'sub') target.passives = target.passives.filter(v => v !== itemKey);
+                    else if (!target.passives.includes(itemKey)) target.passives.push(itemKey);
+                } else if (type === 'background') {
+                    if (op === 'sub') target.backgrounds = target.backgrounds.filter(v => v !== itemKey);
+                    else target.backgrounds.push(itemKey);
+                } else if (type === 'companion') {
+                    if (op === 'sub') target.companions = target.companions.filter(v => v !== itemKey);
+                    else if (!target.companions.includes(itemKey)) target.companions.push(itemKey);
+                } else if (type === 'item') {
+                    const cur = Number(target.items[itemKey] || 0);
+                    target.items[itemKey] = Math.max(0, adjust(cur));
+                }
+            }
+
+            await update(targetRef, target);
+            alert('反映しました。');
+        } catch (e) {
+            console.error(e);
+            alert('エラーが発生しました。');
+        }
+    },
     openSixEvent: () => {
         if (!isSixEventActive()) return alert('sixイベントは終了しました');
         showScreen('six-event-screen');
@@ -3500,10 +3810,15 @@ window.app = {
         hideSixEventUI();
         startGame(mode);
     },
+    stopSixEndless: () => {
+        if (!gameState.isPlaying || gameState.mode !== 'six_endless') return;
+        showGameMessage('終了しました', '#ffeb3b');
+        endGame(false);
+    },
     buySixItem: (id) => { if (applySixShopItem(id)) alert('購入しました。'); else alert('sixポイントが足りません。'); },
     claimSixAchievement: (id) => { claimSixAchievement(id); },
     claimSixLogin: (day) => { claimSixLogin(day); },
-    claimSixRankingReward: (dateKey) => { claimSixRankingReward(dateKey); },
+    claimSixRankingReward: async (dateKey) => { await claimSixRankingReward(dateKey); },
 
     openRanking: () => {
         showScreen('ranking-screen'); document.querySelectorAll('#ranking-screen .tab').forEach(t => t.classList.remove('active'));
@@ -3530,19 +3845,19 @@ window.app = {
             list.innerHTML = '';
             users.forEach(u => {
                 const div = document.createElement('div'); div.className = 'list-item';
-                let dName = formatUserName(u.name, u.userId, u.isAdmin, u.hasBadge, u.isBugHunter);
+                let dName = formatUserName(u.name, u.userId, u.isAdmin, u.hasBadge, u.isBugHunter, u.equippedBackground);
                 let rName = getRankName(u.rankIndex || 0);
                 div.innerHTML = `<div style="font-size:20px; color:white;">${dName} <span style="font-size:14px; color:#fbc02d;">[Rank ${rName}]</span></div>`;
                 list.appendChild(div);
             });
         } catch(e) {
             if (type === 'daily') {
-                const localDaily = getSixLeaderboard().map(v => ({ name: v.name || '冒険者', userId: v.userId || 0, isAdmin: false, isBugHunter: false, rankIndex: 0, hasBadge: false, timestamp: v.timestamp || Date.now() }));
+                const localDaily = getSixLeaderboard().map(v => ({ name: v.name || '冒険者', userId: v.userId || 0, isAdmin: false, isBugHunter: false, rankIndex: 0, hasBadge: false, equippedBackground: v.equippedBackground || null, timestamp: v.timestamp || Date.now() }));
                 if (localDaily.length) {
                     list.innerHTML = '';
                     localDaily.sort((a, b) => b.timestamp - a.timestamp).forEach(u => {
                         const div = document.createElement('div'); div.className = 'list-item';
-                        const dName = formatUserName(u.name, u.userId, u.isAdmin, u.hasBadge, u.isBugHunter);
+                        const dName = formatUserName(u.name, u.userId, u.isAdmin, u.hasBadge, u.isBugHunter, u.equippedBackground);
                         div.innerHTML = `<div style="font-size:20px; color:white;">${dName}</div>`;
                         list.appendChild(div);
                     });
@@ -3709,17 +4024,18 @@ window.app = {
                 const dateStr = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
                 const div = document.createElement('div');
                 div.className = 'list-item'; div.style.flexDirection = 'column'; div.style.alignItems = 'flex-start'; div.style.gap = '5px';
-                div.innerHTML = `<div style="font-size: 12px; color: #aaa;">${dateStr}</div><div style="font-size: 18px; font-weight: bold; color: #ffeb3b;">${formatUserName(s.name, null, false, false, false)}</div><div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${escapeHtml(s.content)}</div>`;
+                div.innerHTML = `<div style="font-size: 12px; color: #aaa;">${dateStr}</div><div style="font-size: 18px; font-weight: bold; color: #ffeb3b;">${formatUserName(s.name, null, false, false, false, s.equippedBackground)}</div><div style="font-size: 16px; color: #fff; white-space: pre-wrap; word-break: break-all;">${escapeHtml(s.content)}</div>`;
                 list.appendChild(div);
             });
         } catch (e) { list.innerHTML = '<div style="color:red;">エラーが発生しました。</div>'; }
     },
     
     openDebugModal: () => {
-        const n = userData.name || "";
         const isAdm = isOwnerAdmin(userData);
         if (!isAdm) return;
         document.getElementById('debug-modal').classList.add('active');
+        const superBtn = document.getElementById('super-debug-open-btn');
+        if (superBtn) superBtn.style.display = userData.userId === 1 ? 'block' : 'none';
     },
     executeBan: async () => {
         const targetId = document.getElementById('debug-target-id').value;
@@ -3734,10 +4050,6 @@ window.app = {
             let pData = null;
             const now = Date.now();
             if (type === 'warning') pData = { type: 'warning', timestamp: now, read: false };
-            else if (type === 'ban_10m') pData = { type: 'ban', until: now + 10 * 60 * 1000 };
-            else if (type === 'ban_1h') pData = { type: 'ban', until: now + 60 * 60 * 1000 };
-            else if (type === 'ban_1d') pData = { type: 'ban', until: now + 24 * 60 * 60 * 1000 };
-            else if (type === 'ban_perm') pData = { type: 'ban', until: -1 };
             else if (type === 'unban') pData = null;
             
             await set(ref(db, `users/${targetUid}/punishment`), pData);
